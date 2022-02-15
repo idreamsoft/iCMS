@@ -1,0 +1,19 @@
+[{
+    "id": "appsStore",
+    "sort": "99999998",
+    "caption": "应用商店",
+    "icon": "store",
+    "children": [{
+        "caption": "应用",
+        "href": "appsStore&stype=app",
+        "icon": "store"
+    }, {
+        "caption": "模板",
+        "href": "appsStore&stype=template",
+        "icon": "store"
+    }, {
+        "caption": "插件",
+        "href": "appsStore&stype=plugin",
+        "icon": "store"
+    }]
+}]

@@ -1,0 +1,163 @@
+<div i="ACCESS@admincp&do=system_info" class="block block-rounded">
+    <div class="block-header block-header-default">
+        <h3 class="block-title"><i class="fa fa-fw fa-cogs"></i> 系统信息</h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close"> <i class="si si-close"></i></button>
+        </div>
+    </div>
+    <div class="block-content p-1 font-size-sm">
+        <div class="row">
+            <div class="col-md-6">
+                <table class="table table-sm table-borderless table-striped table-vcenter">
+                    <tr>
+                        <th class="w-40">当前程序版本</th>
+                        <td>
+                            <?php printf("%s %s.%s",iPHP_APP,iCMS_VERSION,date("YmdHi", iCMS_GIT_TIME));?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>服务器操作系统</th>
+                        <td>
+                            <?php $os = explode(" ", php_uname());
+                            echo $os[0]; ?> &nbsp;内核版本：
+                            <?php echo ('/' == DIRECTORY_SEPARATOR) ? $os[2] : $os[1]; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>WEB服务器版本</th>
+                        <td>
+                            <?php echo Request::server('SERVER_SOFTWARE'); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>PHP版本</th>
+                        <td>
+                            <?php echo PHP_VERSION; ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>MySQL 版本</th>
+                        <td>
+                            <?php echo DB::version(0); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>PHP运行方式</th>
+                        <td>
+                            <?php echo strtoupper(php_sapi_name()); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>MySQL支持</th>
+                        <td>
+                            <?php echo version_compare(PHP_VERSION, '5.5', '>=') ? 'mysqli' : 'mysql'; ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>CURL支持：</th>
+                        <td>
+                            <?php echo $this->isfun("curl_init"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>mb_string支持：</th>
+                        <td>
+                            <?php echo $this->isfun("mb_convert_encoding"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>GD库支持</th>
+                        <td>
+                            <?php
+                            if (function_exists('gd_info')) {
+                                $gd_info = @gd_info();
+                                echo $gd_info["GD Version"];
+                            } else {
+                                echo Script::check(0);
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>被屏蔽的函数</th>
+                        <td>
+                            <?php echo get_cfg_var("disable_functions") ? '<a class="tip" href="javascript:;" title="' . get_cfg_var("disable_functions") . '">查看</a>' : "无"; ?>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+            <div class="col-md-6">
+                <table class="table table-sm table-borderless table-striped table-vcenter">
+                    <tr>
+                        <th class="w-40">服务器IP</th>
+                        <td>
+                            <?php echo Request::server('SERVER_ADDR') . ":" . Request::server('SERVER_PORT'); ?>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>服务器总空间</th>
+                        <td>
+                            <?php $dt = round(@disk_total_space(".") / (1024 * 1024 * 1024), 3);
+                            echo $dt ? $dt : '∞' ?>G</td>
+                    </tr>
+                    <tr>
+                        <th>服务器剩余空间</th>
+                        <td>
+                            <?php $df = round(@disk_free_space(".") / (1024 * 1024 * 1024), 3);
+                            echo $df ? $df : '∞' ?>G</td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>服务器时间</th>
+                        <td>
+                            <?php echo date("Y-m-d H:i:s"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>脚本最大占用内存</th>
+                        <td>
+                            <?php echo $this->check("memory_limit"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>脚本最大上传文件</th>
+                        <td>
+                            <?php echo $this->check("upload_max_filesize"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>脚本超时时间</th>
+                        <td>
+                            <?php echo $this->check("max_execution_time"); ?>秒</td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>POST最大限制</th>
+                        <td>
+                            <?php echo $this->check("post_max_size"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>Session支持</th>
+                        <td>
+                            <?php echo $this->isfun("session_start"); ?>
+                        </td>
+                    </tr>
+                    <tr class="d-none d-sm-table-row">
+                        <th>安全模式</th>
+                        <td>
+                            <?php echo Script::check(ini_get('safe_mode')); ?>
+                        </td>
+                    </tr>
+                    <?php if (@function_exists('phpinfo')){?>
+                        <tr class="d-none d-sm-table-row">
+                            <th>PHPINFO</th>
+                            <td>
+                                <a href="<?php echo iPHP_SELF; ?>?do=phpinfo" target="_blank">查看</a>
+                            </td>
+                        </tr>
+                    <?php }?>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

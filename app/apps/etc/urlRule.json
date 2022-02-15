@@ -1,0 +1,130 @@
+{
+    "ID": {
+        "call": "Route::defaults",
+        "regular":"(\\d+)",
+        "query":"id"
+    },
+    "0xID": {
+        "call": "Route::defaults",
+        "regular":"(\\d+)",
+        "query":"id"
+    },
+    "AUTHID": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"AUTHID"
+    },
+    "Hash": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"HASHID"
+    },    
+    "MD5": {
+        "call": "Route::defaults",
+        "regular":"\\w+"
+    },
+    "TMD5": {
+        "call": "Route::defaults",
+        "regular":"\\w+"
+    },
+    "CID": {
+        "call": "Route::defaults",
+        "regular":"(\\d+)",
+        "query":"id"
+    },
+    "CMD5": {
+        "call": "Route::defaults",
+        "regular":"\\w+"
+    },
+    "0xCID": {
+        "call": "Route::defaults",
+        "regular":"(\\d+)",
+        "query":"id"
+    },
+    "AUTHCID": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"HASHID"
+    },
+    "CDIR": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"dir"
+    },
+    "CDIRS": {
+        "call": "Route::defaults",
+        "regular":"(.+)"
+    },
+    "TIME": {
+        "call": "Route::defaults",
+        "regular":"\\d+"
+    },
+    "YY": {
+        "call": "Route::defaults",
+        "regular":"\\d{2}"
+    },
+    "YYYY": {
+        "call": "Route::defaults",
+        "regular":"\\d{4}"
+    },
+    "M": {
+        "call": "Route::defaults",
+        "regular":"\\d{1,2}"
+    },
+    "MM": {
+        "call": "Route::defaults",
+        "regular":"\\d{2}"
+    },
+    "D": {
+        "call": "Route::defaults",
+        "regular":"\\d{1,2}"
+    },
+    "DD": {
+        "call": "Route::defaults",
+        "regular":"\\d{2}"
+    },
+    "NAME": {
+        "call": "Route::defaults",
+        "regular":"(.*?)",
+        "query":"name"
+    },
+    "TITLE": {
+        "call": "Route::defaults",
+        "regular":"(.*?)",
+        "query":"title"
+    },
+    "ZH_CN": {
+        "call": "Route::defaults",
+        "regular":"(.*?)",
+        "query":"name"
+    },
+    "TKEY": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"tkey"
+    },
+    "LINK": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"clink"
+    },
+    "TCID": {
+        "call": "Route::defaults",
+        "regular":"(\\d+)",
+        "query":"tcid"
+    },
+    "TCDIR": {
+        "call": "Route::defaults",
+        "regular":".+"
+    },
+    "EXT": {
+        "call": "Route::defaults",
+        "regular":".+",
+        "query":"{EXT}"
+    },
+    "P": {
+        "call": "Route::defaults",
+        "regular":"(\\d+)",
+        "query":"page"
+    }
+}

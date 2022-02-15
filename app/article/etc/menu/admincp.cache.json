@@ -1,0 +1,17 @@
+[{
+    "id": "tools",
+    "children": [{
+        "id": "cache",
+        "children": [{
+            "caption": "更新文章栏目缓存",
+            "href": "articleCategory&do=cache",
+            "icon": "sync",
+            "target": "iPHP_FRAME"
+        }, {
+            "caption": "更新文章栏目统计",
+            "href": "articleCategory&do=recount",
+            "icon": "sync",
+            "target": "iPHP_FRAME"
+        }]
+    }]
+}]

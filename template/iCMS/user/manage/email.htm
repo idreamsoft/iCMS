@@ -1,0 +1,98 @@
+<div class="block">
+    <div class="block-content p-0">
+        <!-- Validation Wizard -->
+        <div class="js-wizard-validation block" style="max-width: 600px">
+            <!-- Step Tabs -->
+            <ul class="nav nav-tabs nav-tabs-alt nav-justified" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" href="#wizard-validation-step1" data-toggle="tab">1. 验证身份</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#wizard-validation-step2" data-toggle="tab">2. 绑定邮箱</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#wizard-validation-step3" data-toggle="tab">3. 绑定成功</a>
+                </li>
+            </ul>
+            <!-- END Step Tabs -->
+
+            <!-- Form -->
+            <form class="js-wizard-validation-form" action="<!--{iCMS:route url='UserProfile'}-->" method="POST">
+                <input type="hidden" name="action" value="modifyEmail" />
+                <!-- Steps Content -->
+                <div class="block-content block-content-full tab-content px-md-5">
+                    <!-- Step 1 -->
+                    <div class="tab-pane active" id="wizard-validation-step1" role="tabpanel">
+                        <div class="form-group">
+                            <label for="email">邮箱</label>
+                            <input type="text" class="form-control" id="email" name="email" value="<!--{$ME.email}-->" readonly="readonly" />
+                        </div>
+                        <div class="form-group">
+                            <label for="emailcode">邮箱验证码</label>
+                            <div class="input-group">
+                                <input maxlength="6" type="text" class="form-control" id="emailcode" name="emailcode" placeholder="请输入6位邮箱验证码" />
+                                <div class="input-group-append">
+                                    <button i="event:public:emailcode:1" type="button" class="btn btn-alt-primary">获取邮箱验证码</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Step 1 -->
+
+                    <!-- Step 2 -->
+                    <div class="tab-pane" id="wizard-validation-step2" role="tabpanel">
+                        <div class="form-group">
+                            <label for="email2">新邮箱</label>
+                            <input type="text" class="form-control" id="email2" name="email2" value="" />
+                        </div>
+                        <div class="form-group">
+                            <label for="emailcode2">邮箱验证码</label>
+                            <div class="input-group">
+                                <input maxlength="6" type="text" class="form-control" id="emailcode2" name="emailcode2" placeholder="请输入6位邮箱验证码" />
+                                <div class="input-group-append">
+                                    <button i="event:public:emailcode:2" type="button" class="btn btn-alt-primary">获取邮箱验证码</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Step 2 -->
+                    <!-- Step 3 -->
+                    <div class="tab-pane" id="wizard-validation-step3" role="tabpanel">
+                        <div class="form-group">
+                            <label for="wizard-validation-location">原邮箱</label>
+                            <input id="email0" class="form-control" type="text" value="" disabled />
+                        </div>
+                        <div class="form-group">
+                            <label for="wizard-validation-location">新邮箱</label>
+                            <input id="email1" class="form-control" type="text" value="" disabled />
+                        </div>
+                    </div>
+                    <!-- END Step 3 -->
+                </div>
+                <!-- END Steps Content -->
+
+                <!-- Steps Navigation -->
+                <div class="block-content block-content-sm block-content-full">
+                    <div class="row">
+                        <div class="col-12 text-center">
+                            <button type="button" class="btn btn-block btn-alt-primary" data-wizard="next">
+                                下一步
+                                <i class="fa fa-angle-right ml-1"></i>
+                            </button>
+                            <button type="submit" class="btn btn-primary d-none" data-wizard="finish">
+                                <i class="fa fa-check mr-1"></i>
+                                确认修改
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Steps Navigation -->
+            </form>
+            <!-- END Form -->
+        </div>
+        <!-- END Validation Wizard Classic -->
+    </div>
+</div>
+
+<script src="<!--{$site.urls.assets}-->/oneui/js/plugins/jquery-bootstrap-wizard/jquery.bootstrap.wizard.js"></script>
+<script src="<!--{$site.urls.public}-->/js/modify.email.js"></script>

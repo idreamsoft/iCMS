@@ -1,0 +1,38 @@
+<?php 
+$title = "外链设置"; 
+$header_enable = false;
+$conf= Config::get('links');
+?>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="base">域名</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[base]" class="form-control" id="base" value="<?php echo $base = ($conf['base']?:PublicApp::url('links')); ?>" />
+        <small class="form-text text-muted">留空使用网站域名</small>
+        <small class="form-text text-muted">
+            eg.
+            <?php echo Route::make(['target'=>'http://www.ooxxx.com'], $base);?>
+        </small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="template">模板</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[template]" class="form-control" id="template" value="<?php echo $conf['template']?:'/tools/links.target.htm'; ?>" />
+        <small class="form-text text-muted">中间页模板</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="blacklist">黑名单</label>
+    <div class="col-sm-8">
+        <textarea id="blacklist" name="config[blacklist]" class="form-control" style="height: 300px"><?php echo implode("\n", (array) $config['blacklist']); ?></textarea>
+        <small class="form-text text-muted">每行一个关键字符或者域名</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="whitelist">白名单</label>
+    <div class="col-sm-8">
+        <textarea id="whitelist" name="config[whitelist]" class="form-control" style="height: 300px"><?php echo implode("\n", (array) $config['whitelist']); ?></textarea>
+        <small class="form-text text-muted">每行一个关键字符或者域名</small>
+    </div>
+</div>

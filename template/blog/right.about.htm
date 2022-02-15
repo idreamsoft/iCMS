@@ -1,0 +1,38 @@
+<!-- About -->
+<!--{if $site.meta[0].value && $ME}-->
+<a class="block block-rounded block-link-shadow" href="<!--{$ME.urls.url}-->">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">用户信息</h3>
+    </div>
+    <div class="block-content block-content-full text-center">
+        <div class="mb-3">
+            <img class="img-avatar img-avatar96" src="<!--{$ME.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
+        </div>
+        <div class="font-size-h5 mb-1"><!--{$ME.nickname}--></div>
+        <div class="font-size-sm text-muted"><!--{$ME.data.slogan|default:'这家伙太懒了,什么都没有留下!'}--></div>
+    </div>
+    <div class="block-content border-top">
+        <div class="row text-center">
+            <div class="col-6">
+                <div class="mb-2">
+                    <i class="si si-pencil fa-2x"></i>
+                </div>
+                <p class="font-w300 text-muted">
+                    <!--{$ME.article|num10K}-->
+                    文章
+                </p>
+            </div>
+            <div class="col-6">
+                <div class="mb-2">
+                    <i class="si si-users fa-2x"></i>
+                </div>
+                <p class="font-w300 text-muted">
+                    <!--{$ME.fans|num10K}-->
+                    粉丝
+                </p>
+            </div>
+        </div>
+    </div>
+</a>
+<!-- END About -->
+<!--{/if}-->

@@ -1,0 +1,3 @@
+[submodule "app/editor/assets/editor.md"]
+    path = app/editor/assets/editor.md
+    url = https://github.com/pandao/editor.md.git

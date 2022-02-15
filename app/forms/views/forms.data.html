@@ -1,0 +1,185 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        sfid: "<?php echo $_GET['fid']; ?>",
+        sfield: "<?php echo $_GET['sfield']; ?>",
+        pattern: "<?php echo $_GET['pattern']; ?>",
+        orderby: "<?php echo $_GET['orderby']; ?>",
+    });
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <input type="hidden" name="do" value="<?php echo Admincp::$APP_DO; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="sfield">查找字段</label>
+                        </div>
+                        <select v-model="sfield" id="sfield" name="sfield" class="form-control">
+                            <option value="">所有字段</option>
+                            <?php foreach ((array)$fields as $fi => $field) { ?>
+                                <option value="<?php echo $field['id']; ?>"><?php echo $field['label']; ?>[<?php echo $field['field']; ?>]</option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pattern">查找方式</label>
+                        </div>
+                        <select v-model="pattern" id="pattern" name="pattern" class="form-control">
+                            <option></option>
+                            <option value="=">等于</option>
+                            <option value="!=">不等于</option>
+                            <option value=">">大于</option>
+                            <option value="<">小于</option>
+                            <option value="like">like</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-2 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="orderby">排序</label>
+                        </div>
+                        <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                            <option value="">默认排序</option>
+                            <optgroup label="降序">
+                                <?php echo self::$orderBy['DESC']; ?>
+                            </optgroup>
+                            <optgroup label="升序">
+                                <?php echo self::$orderBy['ASC']; ?>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">列表</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <span title="总共<?php echo Paging::$count; ?>条记录" class="badge badge-primary"><?php echo Paging::$count; ?></span>
+                </div>
+                <div class="block-options-item" style="min-width: 300px;">
+                    <div class="input-group input-group-sm w-100">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="sfid">切换表单</label>
+                        </div>
+                        <select v-model="sfid" id="sfid" class="form-control" onchange="window.location.href='<?php echo APP_DOURL; ?>&fid='+this.value" data-placeholder="== 请选择表单 ==">
+                            <option value="">== 请选择表单 ==</option>
+                            <?php echo $this->select(); ?>
+                        </select>
+                    </div>
+                </div>
+                <?php if ($this->fid){ ?>
+                <div class="block-options-item">
+                    <div class="btn-group btn-group-sm">
+                        <a href="<?php echo $value['url']; ?>" class="btn btn-alt-primary" target="_blank"><i class="fa fa-fw fa-dashboard"></i> 表单</a>
+                        <a href="<?php echo APP_URL; ?>&do=data&fid=<?php echo $this->fid; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-dashboard"></i> 数据</a>
+                        <a href="<?php echo APP_URL; ?>&do=submit&fid=<?php echo $this->fid; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i> 添加</a>
+                        <a href="<?php echo APP_URL; ?>&do=edit&id=<?php echo $this->fid; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i> 编辑</a>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input type="hidden" name="fid" value="<?php echo $this->fid; ?>" />
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px;" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <th><?php echo strtoupper(Forms::$primaryKey); ?></th>
+                                <?php
+                                unset($fields['id']);
+                                if ($fields) foreach ($fields as $fi => $field) { ?>
+                                    <th><?php echo $field['label']; ?></th>
+                                <?php } ?>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $dataArray = ContentDataModel::many($result, Forms::$primaryKey);
+                            if ($result) foreach ($result as $key => $value) {
+                                $id = $value[Forms::$primaryKey];
+                                $data = (array)$dataArray[$id];
+                                $value = array_merge($value, $data);
+                            ?>
+                                <tr id="id<?php echo $id; ?>">
+                                    <td>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $id; ?>" name="id[]" value="<?php echo $id; ?>" />
+                                            <label class="custom-control-label" for="checkbox-<?php echo $id; ?>"></label>
+                                        </div>
+                                    </td>
+                                    <td><?php echo $id; ?></td>
+                                    <?php if ($fields) foreach ($fields as $fi => $field) { ?>
+                                        <td>
+                                            <?php
+                                            var_export(Former::field_output($value[$field['id']], $field));
+                                            ?>
+                                        </td>
+                                    <?php } ?>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="<?php echo APP_URL; ?>&do=submit&fid=<?php echo $this->fid; ?>&id=<?php echo $id; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i> 编辑</a>
+                                            <a href="<?php echo APP_URL; ?>&do=te_data&fid=<?php echo $this->fid; ?>&id=<?php echo $id; ?>" target="iPHP_FRAME" class="btn btn-alt-danger" title='永久删除' data-action="delete" /><i class="fa fa-fw fa-trash-alt"></i> 删除</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php }  ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

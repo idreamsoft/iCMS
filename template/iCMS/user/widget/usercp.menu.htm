@@ -1,0 +1,38 @@
+<ul id="menuList" class="nav-main">
+    <!--{foreach key="key" value="item" from="$menuList"}-->
+    <!--{if $item.caption == '-'}-->
+    <div role="separator" class="dropdown-divider"></div>
+    <!--{continue}-->
+    <!--{/if}-->
+
+    <!--{if $item.hidden}-->
+    <!--{continue}-->
+    <!--{/if}-->
+
+    <!--{"$item.id==$menu.id ? 'active' :''"|as:'active'}-->
+    <!--{"$item.id==$navopen ? 'open' :''"|as:'open'}-->
+    <li class="nav-main-item <!--{$open}-->">
+        <!--{if $item.children}-->
+        <a class="nav-main-link nav-main-link-submenu <!--{$active}-->" data-toggle="submenu" aria-haspopup="true" aria-expanded="false" href="<!--{iCMS:route url='$item.url'}-->">
+            <i class="nav-main-link-icon <!--{$item.icon}-->"></i>
+            <span class="nav-main-link-name"><!--{$item.caption}--></span>
+        </a>
+        <ul class="nav-main-submenu">
+            <!--{foreach key="ckey" value="children" from="$item.children"}-->
+            <!--{"$children.id==$menu.id ? 'active' :''"|as:'active'}-->
+            <li class="nav-main-item">
+                <a class="nav-main-link <!--{$active}-->" href="<!--{iCMS:route url='$children.url'}-->">
+                    <span class="nav-main-link-name"><!--{$children.caption}--></span>
+                </a>
+            </li>
+            <!--{/foreach}-->
+        </ul>
+        <!--{else}-->
+        <a class="nav-main-link <!--{$active}-->" href="<!--{iCMS:route url='$item.url'}-->">
+            <i class="nav-main-link-icon <!--{$item.icon}-->"></i>
+            <span class="nav-main-link-name"><!--{$item.caption}--></span>
+        </a>
+        <!--{/if}-->
+    </li>
+    <!--{/foreach}-->
+</ul>

@@ -1,0 +1,50 @@
+#menuList a.active {
+    color: #25499c;
+    background-color: #d9e2f6;
+    border-color: #d9e2f6;
+}
+.qrcode {
+    width: 148px;
+    height: 148px;
+    margin-right: 10px;
+}
+.chargeList .block {
+    cursor: pointer;
+}
+.chargeList .selected {
+    border: 1px solid #02a7e3;
+    color: #02a7e3;
+}
+
+.user-avatar {
+    position: relative !important;
+}
+
+.user-avatar::before {
+    position: absolute;
+    top: 0.3rem;
+    left: -0.5rem;
+    z-index: 1;
+    padding-right: 0.625rem;
+    font-weight: bold;
+    line-height: 0px;
+    color: #000;
+    height: 0px;
+    border: 0.9375rem solid #ee7600;
+    border-right-color: transparent;
+    content: "编辑";
+    box-shadow: 0px 0.3125rem 0.3125rem -0.3125rem #000;
+}
+
+.user-avatar::after {
+    content: "";
+    position: absolute;
+    top: 2.1875rem;
+    left: -0.5rem;
+    border: 0.25rem solid #89540c;
+    border-left-color: transparent;
+    border-bottom-color: transparent;
+}
+
+.nav-main-submenu{padding-left: 0;}
+.nav-main-submenu .nav-main-link{padding-left: 2.625rem;}

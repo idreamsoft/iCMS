@@ -1,0 +1,14 @@
+{
+    "update": {
+        "name": "更新",
+        "icon": "edit",
+        "sort": 1,
+        "call": "update"
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 1,
+        "call": "dels"
+    }
+}

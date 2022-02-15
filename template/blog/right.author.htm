@@ -1,0 +1,38 @@
+<!--{if $userid}-->
+<!-- About -->
+<!--{iCMS:user:data id="$userid" data="true"}-->
+<!--{if $user_data}-->
+<a class="block block-rounded block-link-shadow" href="<!--{$user_data.urls.url}-->">
+    <div class="block-content block-content-full text-center">
+        <div class="mb-3">
+            <img class="img-avatar img-avatar96" src="<!--{$user_data.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
+        </div>
+        <div class="font-size-h5 mb-1"><!--{$user_data.nickname}--></div>
+        <div class="font-size-sm text-muted"><!--{$user_data.data.slogan|default:'这家伙太懒了,什么都没有留下!'}--></div>
+    </div>
+    <div class="block-content border-top">
+        <div class="row text-center">
+            <div class="col-6">
+                <div class="mb-2">
+                    <i class="si si-pencil fa-2x"></i>
+                </div>
+                <p class="font-w300 text-muted">
+                    <!--{$user_data.article|num10K}-->
+                    文章
+                </p>
+            </div>
+            <div class="col-6">
+                <div class="mb-2">
+                    <i class="si si-users fa-2x"></i>
+                </div>
+                <p class="font-w300 text-muted">
+                    <!--{$user_data.fans|num10K}-->
+                    粉丝
+                </p>
+            </div>
+        </div>
+    </div>
+</a>
+<!--{/if}-->
+<!-- END About -->
+<!--{/if}-->

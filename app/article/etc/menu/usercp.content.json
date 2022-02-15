@@ -1,0 +1,27 @@
+[
+    {
+        "id": "ArticleUser",
+        "sort": 5,
+        "caption": "我的文章",
+        "icon": "fa fa-cog",
+        "children": [{
+                "id": "ArticleUserManage",
+                "sort": 5,
+                "caption": "文章管理",
+                "url": "ArticleUser:manage",
+                "icon": "fa fa-cog",
+                "app": "article",
+                "template": "iCMS://user/article/manage.htm"
+            },
+            {
+                "id": "ArticleUserPublish",
+                "sort": 7,
+                "caption": "添加文章",
+                "url": "ArticleUser:publish",
+                "icon": "fa fa-cog",
+                "app": "article",
+                "template": "iCMS://user/article/publish.htm"
+            }
+        ]
+    }
+]

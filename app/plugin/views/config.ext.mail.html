@@ -1,0 +1,50 @@
+<?php $title ="邮件";?>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_host">SMTP 主机</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][host]" class="form-control" id="mail_host" value="<?php echo $config['mail']['host']; ?>" />
+        <small class="form-text text-muted">发送邮件的服务器.例如:smtp.qq.com</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_secure">安全协议</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][secure]" class="form-control" id="mail_secure" value="<?php echo $config['mail']['secure']; ?>" />
+        <small class="form-text text-muted">发送邮件的服务器使用的安全协议.默认为空.可选项"ssl" 或者 "tls"</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_port">SMTP 端口</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][port]" class="form-control" id="mail_port" value="<?php echo $config['mail']['port']?:'25'; ?>" />
+        <small class="form-text text-muted">发送邮件的服务器的端口,默认:25</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_username">SMTP 账号</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][username]" class="form-control" id="mail_username" value="<?php echo $config['mail']['username']; ?>" />
+        <small class="form-text text-muted">登录邮件的服务器的账号</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_password">账号密码</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][password]" class="form-control" id="mail_password" value="<?php echo $config['mail']['password']; ?>" />
+        <small class="form-text text-muted">登录邮件的服务器的账号密码</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_setfrom">发送账号</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][setfrom]" class="form-control" id="mail_setfrom" value="<?php echo $config['mail']['setfrom']; ?>" />
+        <small class="form-text text-muted">用于发送邮件的账号</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="mail_replyto">联系Email</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[mail][replyto]" class="form-control" id="mail_replyto" value="<?php echo $config['mail']['replyto']; ?>" />
+        <small class="form-text text-muted">用于邮件中回复Email的账号</small>
+    </div>
+</div>

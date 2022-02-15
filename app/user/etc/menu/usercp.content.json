@@ -1,0 +1,25 @@
+[{
+    "id": "manage",
+    "sort": -99999999,
+    "caption": "个人中心",
+    "url": "user:manage:home",
+    "icon": "fa fa-cog"
+}, {
+    "id": "home",
+    "sort": -99999998,
+    "caption": "内容中心",
+    "url": "user:content:home",
+    "icon": "fa fa-cog",
+    "template": "iCMS://user/content/home.htm"
+}, {
+    "sort": -99999997,
+    "caption": "-"
+}, {
+    "id": "UserNode",
+    "sort": 6,
+    "caption": "我的分类",
+    "url": "UserNode:manage",
+    "icon": "fa fa-cog",
+    "app": "node",
+    "template": "iCMS://user/node/manage.htm"
+}]

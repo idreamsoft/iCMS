@@ -1,0 +1,68 @@
+<div class="row" i="route">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">规则</div>
+        </div>
+        <input type="text" name="rule[<?php echo $key; ?>]" class="form-control" id="<?php echo $route_id; ?>" value="<?php echo isset($rs['rule'][$key]) ? $rs['rule'][$key] : $value['rule']; ?>" />
+        <div class="input-group-append">
+            <button type="button" class="btn btn-alt-primary dropdown-toggle no-after" data-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-search"></i> 选择</button>
+            <ul class="dropdown-menu">
+                <li class="dropdown-submenu">
+                    <a href="#" class="dropdown-item dropdown-toggle" data-toggle="dropdown"><?php echo $cname; ?></a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-insert="{CDIR}" data-target="#<?php echo $route_id; ?>"><span class="badge badge-info">{CDIR}</span> <?php echo $cname; ?>目录</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{CID}" data-target="#<?php echo $route_id; ?>"><span class="badge badge-info">{CID}</span> <?php echo $cname; ?>CID</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{0xCID}" data-target="#<?php echo $route_id; ?>"><span class="badge badge-info">{0xCID}</span> <?php echo $cname; ?>CID补零（8位）</a></li>
+                        <li class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{Hash@CID}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{Hash@CID}</span> <?php echo $cname; ?>CID Hash</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{Hash@0xCID}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{Hash@0xCID}</span> <?php echo $cname; ?>CID Hash</a></li>
+                    </ul>
+                </li>
+                <?php if (strpos('index,list',$key)===false) { ?>
+                    <li class="dropdown-divider"></li>
+                    <li class="dropdown-submenu">
+                        <a href="#" class="dropdown-item dropdown-toggle" data-toggle="dropdown"><?php echo $value['label']; ?></a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" data-insert="{ID}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{ID}</span> <?php echo $value['label']; ?>ID</a></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{0xID}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{0xID}</span> <?php echo $value['label']; ?>ID补零（8位）</a></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{0xID,0,3}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{0xID,0,3}</span> <?php echo $value['label']; ?>ID补零（前3位）</a></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{0xID,3,2}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{0xID,3,2}</span> <?php echo $value['label']; ?>ID补零（中间2位）</a></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{LINK}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{LINK}</span> <?php echo $value['label']; ?>自定义链接</a></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{TITLE}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{TITLE}</span> <?php echo $value['label']; ?>标题</a></li>
+                            <li class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{Hash@ID}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{Hash@ID}</span> <?php echo $value['label']; ?>ID Hash</a></li>
+                            <li><a class="dropdown-item" href="#" data-insert="{Hash@0xID}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-info">{Hash@0xID}</span> <?php echo $value['label']; ?>0xID Hash</a></li>
+                            <?php if ($this->RULE[$key]) foreach ($this->RULE[$key] as $lk => $lv) { ?>
+                                <?php if ($lv[0] == '----') { ?>
+                                    <li class="dropdown-divider"></li>
+                                <?php } else { ?>
+                                    <li><a class="dropdown-item" href="<?php echo $lv[0]; ?>" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-<?php echo ($lv[2] === false ? 'inverse' : 'important'); ?>"><?php echo $lv[0]; ?></span> <?php echo $lv[1]; ?></a></li>
+                                <?php } ?>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                <?php } ?>
+                <li class="dropdown-divider"></li>
+                <li class="dropdown-submenu">
+                    <a href="#" class="dropdown-item dropdown-toggle" data-toggle="dropdown">日期时间</a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="#" data-insert="{YYYY}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{YYYY}</span> 4位数年份2012</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{YY}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{YY}</span> 2位数年份12</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{MM}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{MM}</span> 月份 01-12月份</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{M}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{M}</span> 月份 1-12 月份</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{DD}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{DD}</span> 日期 01-31</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{D}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{D}</span> 日期1-31</a></li>
+                        <li><a class="dropdown-item" href="#" data-insert="{TIME}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{TIME}</span> 文章发布时间戳</a></li>
+                    </ul>
+                </li>
+                <li class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-insert="{MD5}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{MD5}</span> ID MD5(16位)</a></li>
+                <li><a class="dropdown-item" href="#" data-insert="{P}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{P}</span> 分页数</a></li>
+                <li><a class="dropdown-item" href="#" data-insert="{EXT}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{EXT}</span> 后缀</a></li>
+                <li class="dropdown-divider"></li>
+                <li><a class="dropdown-item" href="#" data-insert="{PHP}" data-target="#<?php echo $rule_id; ?>"><span class="badge badge-dark">{PHP}</span> 动态程序</a></li>
+            </ul>
+        </div>
+    </div>
+    <small class="form-text text-muted">伪静态模式时规则必需有<span class="badge badge-info"><?php echo str_replace(',', '</span> <span class="badge badge-info">', $value['tips']); ?></span>其中之一,否则将无法解析</small>
+</div>

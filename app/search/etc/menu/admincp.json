@@ -1,0 +1,12 @@
+[{
+    "id": "assist",
+    "children": [{
+            "caption": "-"
+        },
+        {
+            "caption": "搜索管理",
+            "href": "search",
+            "icon": "search"
+        }
+    ]
+}]

@@ -1,0 +1,129 @@
+<script type="text/javascript" src="./app/node/assets/access.js"></script>
+<script type="text/javascript">
+    var nodeAccess = <?php echo $nodeAccess ?>;
+    $(function() {
+        inputChecked(nodeAccess, '#access-node');
+    });
+</script>
+<style>
+#access-node{font-size: 12px;}
+</style>
+<div id="access-node" class="tab-pane active">
+    <input name="akey" type="hidden" value="node" />
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="checkAllNode">全选</label>
+            </div>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkAllNode" data-toggle="checkAll" data-target="#access-node" />
+                        <label class="custom-control-label" for="checkAllNode"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">允许添加顶级栏目</span>
+            </div>
+            <div class="input-group-append">
+                <span class="input-group-text"><input type="checkbox" name="access[node][]" value="0:a" /></span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <span class="input-group-text">所有栏目权限</span>
+            </div>
+            <div class="input-group-append">
+                <span class="input-group-text"><input type="checkbox" name="access[node][]" value="all" /></span>
+            </div>
+
+        </div>
+        <table class="table table-hover table-sm mt-1">
+            <thead class="bg-light text-black">
+                <tr>
+                    <th>项目</th>
+                    <th rowspan="1" colspan="4">栏目权限</th>
+                    <th>#</th>
+                    <th rowspan="1" colspan="4">内容权限</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>所有栏目</td>
+                    <?php foreach (NodeAccess::$nodeTypeMap as $type => $text) { ?>
+                        <td><input type="checkbox" name="access[node][]" value="all:<?php echo $type; ?>" /> <?php echo $text; ?></td>
+                    <?php } ?>
+                    <td>-</td>
+                    <?php foreach (NodeAccess::$appTypeMap as $type => $text) { ?>
+                        <td><input type="checkbox" name="access[node][]" value="all:<?php echo $type; ?>" /> <?php echo $text; ?></td>
+                    <?php } ?>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <table class="table table-hover table-sm">
+        <thead class="bg-light text-black">
+            <tr>
+                <th>栏目名</th>
+                <th>APPID</th>
+                <th>#</th>
+                <th rowspan="1" colspan="4">栏目权限</th>
+                <th>#</th>
+                <th rowspan="1" colspan="4">内容权限</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td></td>
+                <td></td>
+                <td>-</td>
+                <?php foreach (NodeAccess::$nodeTypeMap as $type => $text) { ?>
+                    <td><input type="checkbox" class="node_access_all" data-type="v" data-value=":<?php echo $type; ?>"></td>
+                <?php } ?>
+                <td>-</td>
+                <?php foreach (NodeAccess::$appTypeMap as $type => $text) { ?>
+                    <td><input type="checkbox" class="node_access_all" data-type="v" data-value=":<?php echo $type; ?>" /></td>
+                <?php } ?>
+            </tr>
+            <?php
+            $GLOBALS['appArray'] = Cache::get('app/idarray');
+            function node_access($C, $level, $child)
+            {
+                $ltag = ($level == '1' ? "" : "├ ");
+                $name = $C['rootid'] ? $C['name'] : '<b>' . $C['name'] . '</b>';
+                $app  = $GLOBALS['appArray'][$C['appid']];
+                if (!$C['rootid'] && $child) {
+                    $checkbox = '<input type="checkbox" class="node_access_all" data-type="r" data-value=\'' . json_encode(array_values($child)) . '\'>';
+                }
+                echo '
+                    <tr id="id' . $C['id'] . '">
+                    <td>' . str_repeat("│　", $level - 1) . $ltag . $name . ' [id:' . $C['id'] . ']</td>
+                    <td>' . $app['name'] . ' [appid:' . $C['appid'] . ']</td>
+                    <td style="text-align: right;">' . $checkbox . ' <input type="checkbox" class="node_access_all" data-type="h" data-value="' . $C['id'] . ':"></td>
+                ';
+                foreach (NodeAccess::$nodeTypeMap as $type => $text) {
+                    echo '<td><input type="checkbox" name="access[node][]" value="' . $C['id'] . ':' . $type . '" /> ' . $text . '</td>';
+                }
+                echo '<td>-</td>';
+                foreach (NodeAccess::$appTypeMap as $type => $text) {
+                    $text = str_replace('内容', $app['title'],$text);
+                    echo '<td><input type="checkbox" name="access[node][]" value="' . $C['id'] . ':' . $type . '" /> ' . $text . '</td>';
+                }
+                echo '</tr>';
+            };
+            Node::$callback['func'] = 'node_access';
+            Node::callfunc();
+            ?>
+        </tbody>
+    </table>
+</div>

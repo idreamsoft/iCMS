@@ -1,0 +1,17 @@
+<div class="block block-rounded hots">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">热门<!--{$APP.title}--></h3>
+    </div>
+    <div class="block-content pt-2">
+        <ul>
+            <!--{foreach value="hot" from="$hotsList"}-->
+            <li>
+                [
+                <a href="<!--{$hot.node.url}-->"><!--{$hot.node.name}--></a>
+                ]
+                <a href="<!--{$hot.url}-->"><!--{$hot.title}--></a>
+            </li>
+            <!--{/foreach}-->
+        </ul>
+    </div>
+</div>

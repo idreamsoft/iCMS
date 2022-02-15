@@ -1,0 +1,155 @@
+<?php self::head(); ?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        'role_id': "<?php echo $_GET['role_id']; ?>",
+        'status': "<?php echo $_GET['status']; ?>",
+        'orderby': "<?php echo $_GET['orderby']; ?>",
+    });
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">账号状态</span></div>
+                        <select v-model="status" name="status" id="status" class="form-control">
+                            <option value="">所有状态</option>
+                            <?php echo PropWidget::option(Member::$statusMap, 'status'); ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">角色</span></div>
+                        <select v-model="role_id" name="role_id" id="role_id" class="form-control">
+                            <option value="">所有角色</option>
+                            <?php echo Role::memberSelect(); ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="orderby">排序</label>
+                        </div>
+                        <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                            <option value="">默认排序</option>
+                            <optgroup label="降序">
+                                <?php echo self::$orderBy['DESC']; ?>
+                            </optgroup>
+                            <optgroup label="升序">
+                                <?php echo self::$orderBy['ASC']; ?>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">管理员列表</h3>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px;" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <th>ID</th>
+                                <th>账号</th>
+                                <th>昵称</th>
+                                <th>状态</th>
+                                <th>用户组</th>
+                                <th>最后登录</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($result) foreach ($result as $key => $value) {
+                                $isSuper = Member::isSuperAdmin($value['id']);
+                                $role = Role::$DATA[$value['role_id']];
+                            ?>
+                                <tr id="id<?php echo $value['id']; ?>">
+                                    <td>
+                                        <?php if (!$isSuper) { ?>
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $value['id']; ?>" name="id[]" value="<?php echo $value['id']; ?>" />
+                                                <label class="custom-control-label" for="checkbox-<?php echo $value['id']; ?>"></label>
+                                            </div>
+                                        <?php }; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $value['id']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $value['account']; ?>
+                                    </td>
+                                    <td>
+                                        <?php echo $value['nickname']; ?>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info">
+                                            <?php echo Member::$statusMap[$value['status']]; ?></span>
+                                    </td>
+                                    <td><a href="<?php echo APP_DOURL; ?>&role_id=<?php echo $value['role_id']; ?>">
+                                            <?php echo $role['name']; ?></a>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo APP_URL; ?>&lastloginip=<?php echo $value['lastloginip']; ?>" class="tip-left" title="最后登录IP">
+                                            <?php echo $value['lastloginip'] ?: '暂无'; ?></a><br />
+                                        <a href="#" class="tip-left" title="最后登录时间">
+                                            <?php echo $value['lastlogintime'] ? get_date($value['lastlogintime'], "Y-m-d H:i:s") : '暂无'; ?></a>
+                                    </td>
+                                    <td>
+                                        <div class="btn-group">
+                                            <a href="<?php echo APP_URL; ?>&do=job&id=<?php echo $value['id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-chart-bar"></i></a>
+                                            <?php if (Member::isSuperRole() && !$isSuper) { ?>
+                                                <a href="<?php echo APP_URL; ?>&do=access_app&id=<?php echo $value['id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-crown"></i></a>
+                                                <a href="<?php echo APP_URL; ?>&do=access_node&id=<?php echo $value['id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-sitemap"></i></a>
+                                            <?php } ?>
+                                            <a href="<?php echo ADMINCP_URL; ?>=article&userid=<?php echo $value['user_id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-list-alt"></i></a>
+                                            <a href="<?php echo APP_URL; ?>&do=edit&id=<?php echo $value['id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                            <?php if (!$isSuper) { ?>
+                                                <a href="<?php echo APP_URL; ?>&do=delete&id=<?php echo $value['id']; ?>" target="iPHP_FRAME" class="btn btn-alt-danger" title='永久删除' data-action="delete" /><i class="fa fa-fw fa-trash-alt"></i></a>
+                                            <?php }; ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php }  ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

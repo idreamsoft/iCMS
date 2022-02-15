@@ -1,0 +1,202 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        appid: "<?php echo $_GET['appid']; ?>",
+        cid: "<?php echo $_GET['cid']; ?>",
+        sub: "<?php echo $_GET['sub']; ?>",
+    });
+</script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <input type="hidden" name="do" value="<?php echo Admincp::$APP_DO; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="orderby">排序</label>
+                        </div>
+                        <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                            <option value="">默认排序</option>
+                            <optgroup label="降序">
+                                <?php echo self::$orderBy['DESC']; ?>
+                            </optgroup>
+                            <optgroup label="升序">
+                                <?php echo self::$orderBy['ASC']; ?>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">
+                <?php $appid && print Apps::get_label($appid); ?>消息列表</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <span title="总共<?php echo Paging::$count; ?>条消息" class="badge badge-primary"><?php echo Paging::$count; ?></span>
+                </div>
+            </div>
+        </div>
+        <div class="block-content py-0" style="background-color: #f5f5f5;">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <ul class="timeline timeline-alt">
+                    <?php
+                    $replyArray = array();
+                    if ($result) {
+                        foreach ($result as $key => $value) {
+                            $urls      = MessageApp::getUrls($value);
+                            $suser     = User::info($value['suid'], $value['suname']);
+                            $user      = User::info($value['userid'], $value['username']);
+                            $app_label = Apps::get_label($value['appid']);
+                    ?>
+
+                            <!-- Twitter Event -->
+                            <li class="timeline-event" id="id<?php echo $value['id']; ?>">
+                                <div class="timeline-event-icon bg-info">
+                                    <?php echo $app_label; ?>
+                                </div>
+                                <div class="timeline-event-block block invisible" data-toggle="appear">
+                                    <div class="block-header block-header-default">
+                                        <h3 class="block-title">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $value['id']; ?>" name="id[]" value="<?php echo $value['id']; ?>" />
+                                                <label class="custom-control-label" for="checkbox-<?php echo $value['id']; ?>">
+                                                    <a href="<?php echo APP_URL; ?>&iid=<?php echo $value['iid']; ?>"><?php echo $value['title']; ?></a>
+                                                </label>
+                                            </div>
+                                        </h3>
+                                        <div class="block-options">
+                                            <div class="timeline-event-time block-options-item font-size-sm font-w600">
+
+                                            </div>
+                                            <a class="btn btn-primary btn-sm" href="<?php echo $urls['content_url']; ?>" target="_blank">原文</a>
+                                        </div>
+                                    </div>
+                                    <div class="block-content">
+                                        <div class="media font-size-sm">
+                                            <div class="media-left mr-2">
+                                                <a class="img-link" href="<?php echo $user['url']; ?>">
+                                                    <img class="img-avatar img-avatar48 img-avatar-thumb" src="<?php echo $user['avatar']; ?>" alt="<?php echo $user['name']; ?>">
+                                                </a>
+                                            </div>
+                                            <div class="media-body">
+                                                <p>
+                                                    <?php if (!$value['status']) { ?>
+                                                        <span class="badge badge-warning">未审核</span>
+                                                    <?php } ?>
+                                                    <?php echo nl2br($value['content']); ?>
+
+                                                    <hr class="m-1" />
+                                                    <span class="mr-2"><a href="<?php echo APP_URL; ?>&ip=<?php echo $value['ip']; ?>" class="tip" title="查看该IP所有消息"><?php echo $value['ip']; ?></a></span>
+                                                    <span class="mr-2"><?php echo get_date($value['create_time'], 'Y-m-d H:i:s'); ?></span>
+                                                    <span class="mr-2"><i class="fa fa-fw fa-thumbs-up text-muted"></i>
+                                                        <?php echo $value['up']; ?></span>
+                                                    <span class="mr-2"><i class="fa fa-fw fa-thumbs-down text-muted"></i>
+                                                        <?php echo $value['down']; ?></span>
+                                                </p>
+                                                <p> <?php if ($value['reply_count']) { ?>
+                                                    <a class="text-dark mr-2" href="<?php echo APP_URL; ?>&do=delete&id=<?php echo $value['id']; ?>" target="iPHP_FRAME" data-action="delete">
+                                                        <i class="fa fa-fw fa-comment-dots text-muted"></i> <?php echo $value['reply_count'];?>条回复
+                                                    </a>
+                                                    <?php } ?>
+                                                    <a class="text-dark mr-2" href="<?php echo APP_URL; ?>&do=delete&id=<?php echo $value['id']; ?>" target="iPHP_FRAME" data-action="delete">
+                                                        <i class="fa fa-fw fa-times text-muted"></i> 删除
+                                                    </a>
+                                                    <?php if (!$value['status']) { ?>
+                                                        <a class="text-dark mr-2" href="<?php echo APP_URL; ?>&do=update&id=<?php echo $value['id']; ?>&_args=status;1" target="iPHP_FRAME">
+                                                            <i class="fa fa-fw fa-check text-muted"></i> 通过
+                                                        </a>
+                                                    <?php } ?>
+                                                    <a class="text-dark mr-2" href="<?php echo APP_URL; ?>&do=update&id=<?php echo $value['id']; ?>&_args=status;0" target="iPHP_FRAME">
+                                                        <i class="fa fa-fw fa-ban text-muted"></i> 禁用
+                                                    </a>
+                                                    <a class="text-dark mr-2" href="<?php echo ADMINCP_URL; ?>=user&do=update&id=<?php echo $value['userid']; ?>&_args=status;2" title="加入黑名单,禁止用户登录" target="iPHP_FRAME">
+                                                        <i class="fa fa-fw fa-user-alt-slash text-muted"></i> 黑名单
+                                                    </a>
+                                                    <a class="text-dark mr-2" href="<?php echo APP_URL; ?>&userid=<?php echo $value['userid']; ?>" title="查看所有消息">
+                                                        <i class="fa fa-fw fa-list text-muted"></i> 该用户消息
+                                                    </a>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </li>
+                            <!-- END Twitter Event -->
+                    <?php }
+                    } ?>
+                </ul>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<script id="reply-tpl" type="text/html">
+    <div class="block block-bordered">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"><a href="<?php echo APP_URL; ?>&userid=<%userid%>"><%username%></a> <small><%create_time%></small></h3>
+        </div>
+        <div class="block-content">
+            <p><%content%></p>
+            <a href="<?php echo APP_URL; ?>&id=<%id%>">查看</a>
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+    <?php if (!empty($replyArray)) { ?>
+        var ids = <?php echo json_encode($replyArray); ?>;
+        $.post('<?php echo APP_URL; ?>', {
+                'action': 'getReply',
+                'CSRF_TOKEN': '<?php echo Security::$CSRF_TOKEN; ?>',
+                'ids': ids
+            },
+            function(result) {
+                if (result.code == 1) {
+                    var replyTpl = template('reply-tpl');
+                    $.each(result.data, function(index, val) {
+                        $(".reply_" + val.id).html(replyTpl(val));
+                    });
+                }
+            }, 'json'
+        );
+    <?php } ?>
+</script>
+<?php self::foot(); ?>

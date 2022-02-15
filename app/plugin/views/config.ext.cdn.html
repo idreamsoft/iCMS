@@ -1,0 +1,27 @@
+<?php $title ="CDN控制";?>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="CDN_enable">CDN缓存控制</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch"  name="config[CDN][enable]" id="CDN_enable" <?php echo $config['CDN']['enable']? 'checked' : '' ; ?>/>
+        <small class="form-text text-muted">CDN缓存请求头控制,只对内容设置,列表类无设置</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="CDN_cache_control">设置缓存头</label>
+    <div class="col-sm-8">
+      <input type="text" name="config[CDN][cache_control]" class="form-control" id="CDN_cache_control" value="<?php echo $config['CDN']['cache_control']?:'public'; ?>" />
+      <small class="form-text text-muted">设置缓存头 Cache-Control</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="CDN_expires">缓存过期时间</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[CDN][expires]" class="form-control" id="CDN_expires" value="<?php echo $config['CDN']['expires']?:'86400'; ?>" />
+            <div class="input-group-append">
+                <span class="input-group-text">秒</span>
+            </div>
+        </div>
+      <small class="form-text text-muted">设置缓存过期时间 Expires.默认86400秒(一天)</small>
+    </div>
+</div>

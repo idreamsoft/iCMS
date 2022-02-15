@@ -1,0 +1,152 @@
+{
+    "常用处理": {
+        "trim": {
+            "name": "去首尾空白",
+            "title": "去首尾空白"
+        },
+        "format": {
+            "name": "HTML格式化",
+            "title": "HTML格式化"
+        },
+        "cleanhtml": {
+            "name": "移除HTML标识",
+            "title": "移除HTML标识"
+        },
+        "img_absolute": {
+            "name": "图片地址补全",
+            "title": "图片地址补全"
+        },
+        "array": {
+            "name": "返回数组",
+            "title": "返回数组"
+        },
+        "url_absolute": {
+            "name": "URL补全",
+            "title": "URL补全"
+        },
+        "capture": {
+            "name": "抓取结果",
+            "title": "抓取并直接返回结果"
+        },
+        "download": {
+            "name": "下载",
+            "title": "下载并保存成文件"
+        },
+        "filter": {
+            "name": "屏蔽词过滤",
+            "title": "启用屏蔽词过滤"
+        },
+        "array_filter_empty": {
+            "name": "清除空值数组",
+            "title": "清除空值数组"
+        },
+        "clean_cn_blank": {
+            "name": "清除中文空格",
+            "title": "清除中文空格"
+        },
+        "array_reverse": {
+            "name": "相反数组",
+            "title": "相反数组"
+        }
+    },
+    "转义": {
+        "stripslashes": {
+            "name": "去除反斜线",
+            "title": "返回去除转义反斜线后的字符串"
+        },
+        "addslashes": {
+            "name": "加上反斜线",
+            "title": "返回加上了反斜线的字符串"
+        },
+        "htmlspecialchars_decode": {
+            "name": "反转义HTML字符",
+            "title": "将特殊的 HTML 实体转换回普通字符"
+        },
+        "htmlspecialchars": {
+            "name": "转义HTML字符",
+            "title": "将特殊字符转换为 HTML 实体"
+        },
+        "xml2array": {
+            "name": "xml转Array",
+            "title": "xml转Array"
+        }
+    },
+    "分页": {
+        "mergepage": {
+            "name": "合并分页",
+            "title": "合并分页"
+        },
+        "autobreakpage": {
+            "name": "自动分页",
+            "title": "自动分页"
+        }
+    },
+    "解析\/解码": {
+        "urldecode": {
+            "name": "解码 URL 字符串(urldecode)",
+            "title": "解码 URL 字符串(urldecode)"
+        },
+        "rawurldecode": {
+            "name": "解码 URL 字符串(rawurldecode)",
+            "title": "解码 URL 字符串(rawurldecode)"
+        },
+        "parse_str": {
+            "name": "URL字符串解析(parse_str)",
+            "title": "URL字符串解析(parse_str)"
+        },
+        "json_decode": {
+            "name": "JSON解码(json_decode) ",
+            "title": "JSON解码(json_decode) "
+        },
+        "base64_decode": {
+            "name": "base64 解码(base64_decode) ",
+            "title": "base64 解码(base64_decode) "
+        },
+        "auth_decode": {
+            "name": "解密(auth_decode) ",
+            "title": "解密(auth_decode) "
+        }
+    },
+    "生成\/编码": {
+        "urlencode": {
+            "name": "编码 URL 字符串(urlencode)",
+            "title": "编码 URL 字符串(urlencode)"
+        },
+        "rawurlencode": {
+            "name": "编码 URL 字符串(rawurlencode)",
+            "title": "编码 URL 字符串(rawurlencode)"
+        },
+        "http_build_query": {
+            "name": "Array转URL字符串(http_build_query)",
+            "title": "Array转URL字符串(http_build_query)"
+        },
+        "json_encode": {
+            "name": "JSON编码(json_encode) ",
+            "title": "JSON编码(json_encode) "
+        },
+        "auth_encode": {
+            "name": "加密(auth_encode) ",
+            "title": "加密(auth_encode) "
+        }
+    },
+    "字符串": {
+        "explode": {
+            "name": "字符串=>数组",
+            "title": "字符串=>数组"
+        },
+        "array_implode": {
+            "name": "数组=>字符串",
+            "title": "数组=>字符串"
+        }
+    },
+    "特殊处理": {
+        "@check_urls": {
+            "name": "链接检查",
+            "title": "独立检查,链接保存在新表"
+        },
+        "@collect_urls": {
+            "name": "收集链接",
+            "title": "收集其它链接"
+        }
+    }
+}

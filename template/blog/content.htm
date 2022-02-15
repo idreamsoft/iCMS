@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title><!--{if $content.subtitle}--> <!--{$content.subtitle}-->_ <!--{/if}--> <!--{$content.title}-->_ <!--{$node.name}-->_ <!--{$site.title}-->_ <!--{$site.seotitle}--></title>
+        <meta name="keywords" content="<!--{$content.keywords}-->" />
+        <meta name="description" content="<!--{$content.description}-->" />
+        <meta name="mobile-agent" content="format=xhtml;url=<!--{$content.iurl.mobile.url}-->" />
+        <meta name="mobile-agent" content="format=html5;url=<!--{$content.iurl.mobile.url}-->" />
+        <link rel="alternate" media="only screen and(max-width: 640px)" href="<!--{$content.iurl.mobile.url}-->" />
+        <!--{iCMS:public:ui}-->
+    </head>
+
+    <body>
+        <div id="page-container">
+            <!-- Main Container -->
+            <main id="main-container">
+                <!--{include file="./top.htm"}-->
+                <!--{if $content.pic.url}-->
+                <!-- Hero Content -->
+                <div class="bg-secondary" style="background-image: url('<!--{$content.pic.url}-->')">
+                    <div class="bg-black-25">
+                        <div class="content content-full overflow-hidden">
+                            <div class="my-8 text-center">
+                                <h1 class="text-white mb-2 invisible" data-toggle="appear" data-class="animated fadeInDown">
+                                    <!--{$content.title}-->
+                                </h1>
+                                <h2 class="h4 font-w400 text-white-75 invisible" data-toggle="appear" data-class="animated fadeInDown">
+                                    <!--{$content.description}-->
+                                </h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Hero Content -->
+                <!--{/if}-->
+
+                <div class="content content-boxed">
+                    <div class="row">
+                        <div class="col-md-8 bg-white p-0">
+                            <nav class="flex-sm-00-auto bg-light px-2" aria-label="breadcrumb">
+                                <ol class="breadcrumb breadcrumb-alt push">
+                                    <li class="breadcrumb-item">
+                                        <a href="<!--{$site.url}-->">首页</a>
+                                    </li>
+                                    <!--{foreach value="breadcrumb" from="$node.navArray"}-->
+                                    <li class="breadcrumb-item">
+                                        <a href="<!--{$breadcrumb.url}-->">
+                                            <!--{$breadcrumb.name}-->
+                                        </a>
+                                    </li>
+                                    <!--{/foreach}-->
+                                    <li class="breadcrumb-item active" aria-current="page">
+                                        <!--{$content.link}-->
+                                    </li>
+                                </ol>
+                            </nav>
+                            <h1 class="h1 text-center">
+                                <!--{$content.title}-->
+                            </h1>
+                            <div class="text-center font-size-sm">
+                                <span class="d-inline-block py-2 px-4 bg-body-light rounded">
+                                    <a class="link-effect font-w600 px-1" href="<!--{$content.user.url}-->">
+                                        <!--{$content.user.name}-->
+                                    </a>
+                                    发布时间：
+                                    <!--{$content.pubdate|date:"Y-m-d H:i"}-->
+                                </span>
+                            </div>
+
+                            <div class="content content-boxed">
+                                <!-- Story -->
+                                <article class="story">
+                                    <div class="alert alert-info">以下为自定义应用的可调用内容，请自行调整</div>
+                                    <pre><!--{$content|var_dump}--></pre>
+                                </article>
+                                <!-- END Story -->
+
+                                <nav class="d-flex justify-content-center" aria-label="Page navigation">
+                                    <ul class="pagination push">
+                                        <!--{$content.page.nav}-->
+                                    </ul>
+                                </nav>
+
+                                <!-- Actions -->
+                                <div class="mt-5 d-flex justify-content-between push">
+                                    <ol class="breadcrumb py-0">
+                                        <!--{if $content.tags_array}-->
+                                        <li class="mr-2"><i class="si si-tag"></i></li>
+                                        <!--{foreach value="tags" from="$content.tags_array"}-->
+                                        <li class="breadcrumb-item">
+                                            <a href="<!--{$tags.url}-->"><!--{$tags.name}--></a>
+                                        </li>
+                                        <!--{/foreach}-->
+                                        <!--{/if}-->
+                                    </ol>
+
+                                    <div class="btn-group" role="group" data-param="<!--{$content.param|json_param}-->">
+                                        <a class="btn btn-light" href="javascript:void(0)">
+                                            <i class="fa fa-heart"></i>
+                                        </a>
+                                        <a class="btn btn-light" href="javascript:void(0)">
+                                            <i class="fa fa-thumbs-up"></i>
+                                        </a>
+                                        <button type="button" class="btn btn-light dropdown-toggle" id="dropdown-blog-story" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <i class="fa fa-share-alt mr-1"></i>
+                                        </button>
+                                        <div class="dropdown-menu dropdown-menu-right font-size-sm" aria-labelledby="dropdown-blog-story">
+                                            <a
+                                                class="dropdown-item"
+                                                href="javascript:void(0)"
+                                                data-toggle="tooltip"
+                                                data-html="true"
+                                                data-placement="left"
+                                                title="<img src='<!--{iCMS:public:qrcode data=$content.url}-->' alt=''> <p>用微信“扫一扫”</p>"
+                                            >
+                                                <i class="fab fa-fw fa-2x fa-weixin mr-1"></i>
+                                                微信
+                                            </a>
+                                            <a class="dropdown-item" href="http://connect.qq.com/widget/shareqq/index.html?title=分享一个不错的网站&summary=<!--{$site.url}-->&pics=&url=<!--{$content.url}-->">
+                                                <i class="fab fa-fw fa-2x fa-qq mr-1"></i>
+                                                QQ
+                                            </a>
+                                            <a class="dropdown-item" href="http://sns.qzone.qq.com/cgi-bin/qzshare/cgi_qzshare_onekey?url=<!--{$site.url}-->&desc=分享一个不错的网站">
+                                                <i class="fab fa-fw fa-2x fa-qq mr-1"></i>
+                                                QQ空间
+                                            </a>
+                                            <a class="dropdown-item" href="http://service.weibo.com/share/share.php?url=<!--{$site.url}-->&title=分享一个不错的网站&appkey=&searchPic=true">
+                                                <i class="fab fa-fw fa-2x fa-weibo mr-1"></i>
+                                                微博
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="block block-rounded">
+                                    <div class="block-header block-header-default">
+                                        <h3 class="block-title">评论</h3>
+                                    </div>
+                                    <div class="block-content block-content-full">
+                                        <div id="comment-list">
+                                            <!--{iCMS:comment:list loop="true" page="true" row="2" iid="$content.id" appid="$content.appid"}-->
+                                            <!--{include file="iCMS://comment/list.item.htm" author="$content.user"}-->
+                                            <!--{/iCMS}-->
+                                            <nav aria-label="Page navigation">
+                                                <ul class="pagination push">
+                                                    <!--{$iCMS.PAGE.NAV}-->
+                                                </ul>
+                                            </nav>
+                                        </div>
+                                        <!--{iCMS:comment:form}-->
+                                    </div>
+                                </div>
+                                <!-- Section Content -->
+                                <div class="block block-no-shadow">
+                                    <div class="block-header block-header-default">
+                                        <h3 class="block-title">相关文章</h3>
+                                    </div>
+                                    <div class="block-content block-content-full">
+                                        <div class="row">
+                                            <!--{iCMS:article:list loop="true" node_id="$content.node_id" row="6"}-->
+                                            <div class="col-md-4">
+                                                <a class="block block-bordered block-rounded block-link-pop" href="<!--{$content_list.url}-->">
+                                                    <div class="block-content bg-secondary" style="max-height: 110px; background-image: url('<!--{$content_list.pic.url}-->')">
+                                                        <h4 class="text-white mt-5 push">
+                                                            <!--{$content_list.title}-->
+                                                        </h4>
+                                                    </div>
+                                                    <div class="block-content block-content-full font-size-sm">
+                                                        <span class="text-primary mr-1">
+                                                            <!--{$content_list.user.name}-->
+                                                        </span>
+                                                        <span><!--{$content_list.pubdate|date:"Y-m-d H:i"}--></span>
+                                                    </div>
+                                                </a>
+                                            </div>
+                                            <!--{/iCMS}-->
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- END Section Content -->
+                            </div>
+                        </div>
+                        <div class="col-md-4 mt-2 mt-md-0">
+                            <!--{include file="./right.author.htm" userid="$content.userid"}-->
+                            <!--{iCMS:content:list row="10" cid="$node.id"}-->
+                            <!--{include file="./right.hots.htm" hotsList="$content_list"}-->
+                            <!--{include file="./right.comments.htm"}-->
+                            <!--{include file="./right.social.htm"}-->
+                        </div>
+                    </div>
+                </div>
+                <!-- More Stories -->
+
+                <!-- END More Stories -->
+                <!--{include file="./footer.htm"}-->
+                <script src="<!--{$content.hits.script}-->"></script>
+            </main>
+            <!-- END Main Container -->
+        </div>
+    </body>
+</html>

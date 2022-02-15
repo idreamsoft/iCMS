@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+$title = "阿里云OSS";
+?>
+<div id="AliYunOSS">
+    <div class="alert alert-warning">
+        申请地址:<a href="https://www.aliyun.com/product/oss?spm=iCMS" target="_blank">https://www.aliyun.com/product/oss</a>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="cloud_AliYunOSS_BucketDomain">Bucket 域名</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[vendor][AliYunOSS][BucketDomain]" class="form-control" id="cloud_AliYunOSS_BucketDomain" value="<?php echo $config['vendor']['AliYunOSS']['BucketDomain']; ?>" />
+            <small class="form-text text-muted">Bucket 域名，如果主机使用的是阿里云，可以使用内网域名</small>
+            <small class="form-text text-muted">外网域名例：icms.oss-cn-hangzhou.aliyuncs.com</small>
+            <small class="form-text text-muted">内网域名例：icms.oss-cn-hangzhou-internal.aliyuncs.com</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="cloud_AliYunOSS_Bucket">Bucket</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[vendor][AliYunOSS][Bucket]" class="form-control" id="cloud_AliYunOSS_Bucket" value="<?php echo $config['vendor']['AliYunOSS']['Bucket']; ?>" />
+            <small class="form-text text-muted">空间名称</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="cloud_AliYunOSS_AccessKey">AccessKey</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[vendor][AliYunOSS][AccessKey]" class="form-control" id="cloud_AliYunOSS_AccessKey" value="<?php echo $config['vendor']['AliYunOSS']['AccessKey']; ?>" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="cloud_AliYunOSS_SecretKey">SecretKey</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[vendor][AliYunOSS][SecretKey]" class="form-control" id="cloud_AliYunOSS_SecretKey" value="<?php echo $config['vendor']['AliYunOSS']['SecretKey']; ?>" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="cloud_AliYunOSS_Dir">目录</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[vendor][AliYunOSS][Dir]" class="form-control" id="cloud_AliYunOSS_Dir" value="<?php echo $config['vendor']['AliYunOSS']['Dir']; ?>" />
+            <small class="form-text text-muted">指定上传目录，默认为空上传到根目录</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="cloud_AliYunOSS_domain">绑定域名</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[vendor][AliYunOSS][domain]" class="form-control" id="cloud_AliYunOSS_domain" value="<?php echo $config['vendor']['AliYunOSS']['domain']; ?>" />
+            <small class="form-text text-muted">OSS绑定的域名,必需以http开头，否则将无法访问</small>
+            <small class="form-text text-muted">例：http://img.icmsdev.com</small>
+            <small class="form-text text-muted">例：https://imgs.icmsdev.com</small>
+            <small class="form-text text-muted">如果没有绑定域名，请填写Bucket 外网域名</small>
+            <small class="form-text text-muted">例：http://icms.oss-cn-hangzhou.aliyuncs.com</small>
+        </div>
+    </div>
+</div>

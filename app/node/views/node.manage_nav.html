@@ -1,0 +1,20 @@
+<ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item"><a class="nav-link <?php echo $this->tabs == 'tree' ? 'active' : 'js-tabs-link' ?>" href="<?php echo $this->NODE_URL; ?>&tabs=tree"><i class="fa fa-fw fa-tasks"></i><?php echo $this->NODE_NAME; ?>树</a></li>
+    <li class="nav-item"><a class="nav-link <?php echo $this->tabs == 'list' ? 'active' : 'js-tabs-link' ?>" href="<?php echo $this->NODE_URL; ?>&tabs=list"><i class="fa fa-fw fa-list"></i><?php echo $this->NODE_NAME; ?>列表</a></li>
+    <li class="nav-item dropdown">
+        <a class="nav-btn dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">快捷链接</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="<?php echo $this->NODE_URL; ?>&do=add"><i class="si si-plus text-success"></i> 添加顶级<?php echo $this->NODE_NAME; ?></a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="<?php echo $this->NODE_URL; ?>&do=cache" target="iPHP_FRAME"><i class="si si-refresh text-info"></i> 更新缓存</a>
+            <a class="dropdown-item" href="<?php echo $this->NODE_URL; ?>&do=unt" target="iPHP_FRAME"><i class="si si-refresh text-info"></i> 更新记录数</a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" href="#">Separated link</a>
+        </div>
+    </li>
+    <li class="nav-item ml-auto">
+        <div class="block-options pl-3 pr-2">
+            <a class="btn-block-option" href="https://www.icmsdev.com/docs/app-rewrite.html" target="_blank"><i class="fa fa-fw fa-question-circle"></i> 伪静态规则</a>
+        </div>
+    </li>
+</ul>

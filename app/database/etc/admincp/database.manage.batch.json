@@ -1,0 +1,20 @@
+{
+    "backup": {
+        "name": "备份表",
+        "icon": "upload",
+        "sort": 1,
+        "call": "backup"
+    },
+    "optimize": {
+        "name": "优化表",
+        "icon": "gavel",
+        "sort": 2,
+        "call": "optimize"
+    },
+    "repair": {
+        "name": "修复表",
+        "icon": "wrench",
+        "sort": 3,
+        "call": "repair"
+    }
+}

@@ -1,0 +1,93 @@
+{
+    "move": {
+        "name": "移动",
+        "icon": "fighter-jet",
+        "sort": 1,
+        "post": {
+            "rootid": "tonid"
+        },
+        "call": "default"
+    },
+    "appid": {
+        "name": "更改应用",
+        "icon": "gavel",
+        "sort": 2,
+        "post": {
+            "appid": "toappid"
+        },
+        "call": "default",
+        "show": false
+    },
+    "merge": {
+        "name": "合并",
+        "icon": "random",
+        "sort": 3,
+        "call": "merge"
+    },
+    "dir": {
+        "name": "更改目录",
+        "icon": "gavel",
+        "sort": 4,
+        "call": "default"
+    },
+    "mkdir": {
+        "name": "重建目录",
+        "icon": "gavel",
+        "sort": 5,
+        "call": "mkdir"
+    },
+    "recount": {
+        "name": "更新统计",
+        "icon": "refresh",
+        "sort": 6,
+        "call": "recount"
+    },
+    "status": {
+        "name": "更改状态",
+        "icon": "square",
+        "sort": 8,
+        "post": {
+            "status": "bstatus"
+        },
+        "call": "default"
+    },
+    "mode": {
+        "name": "更改模式",
+        "icon": "cogs",
+        "sort": 9,
+        "post": {
+            "mode": "bmode"
+        },
+        "call": "default"
+    },
+    "rule": {
+        "name": "更改规则",
+        "icon": "link",
+        "sort": 10,
+        "post": ["rule"],
+        "call": "default"
+    },
+    "template": {
+        "name": "更改模板",
+        "icon": "columns",
+        "sort": 11,
+        "post": ["template"],
+        "call": "default"
+    },
+    "divider1": {
+        "name": "divider",
+        "sort": 12
+    },
+    "update": {
+        "name": "更新",
+        "icon": "check",
+        "sort": 13,
+        "call": "update"
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash",
+        "sort": 15,
+        "call": "dels"
+    }
+}

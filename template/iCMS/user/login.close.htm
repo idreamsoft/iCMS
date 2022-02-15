@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+        <title><!--{$site.name}-->会员系统已关闭!</title>
+        <meta name="keywords" content="<!--{$article.keywords}-->" />
+        <meta name="description" content="<!--{$article.description}-->" />
+        <!--{iCMS:public:ui}-->
+    </head>
+    <body>
+        <div id="page-container">
+            <!-- Main Container -->
+            <!--{"1"|rand:"39"|as:"bgNum"}-->
+            <main id="main-container" style="background: url(<!--{$site.urls.assets}-->/img/bg/photo<!--{$bgNum}-->.jpg) top center no-repeat; background-size: cover;">
+                <!-- Page Content -->
+                <div class="hero-static d-flex align-items-center">
+                    <div class="w-100">
+                        <!-- Sign In Section -->
+                        <div class="bg-black-50">
+                            <div class="content content-full">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-8 col-lg-6 py-4">
+                                        <div class="my-5 text-center">
+                                            <h1 class="h1 text-white mb-2" data-toggle="appear" data-class="animated fadeInDown">
+                                                <!--{$site.name}-->
+                                                会员登录功能已关闭!
+                                            </h1>
+                                            <h2 class="h4 font-w400 text-white-75" data-toggle="appear" data-class="animated fadeInDown">如有问题请联系管理人员</h2>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END Sign In Section -->
+                        <!--{include file="iCMS://user/footer.htm"}-->
+                    </div>
+                </div>
+                <!-- END Page Content -->
+            </main>
+            <!-- END Main Container -->
+        </div>
+        <!-- END Page Container -->
+    </body>
+</html>

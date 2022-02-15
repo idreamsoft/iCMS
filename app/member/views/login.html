@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>iCMS Administrator's Control Panel</title>
+    <meta name="Copyright" content="iCMSdev.com" />
+    <meta name="author" content="iCMSdev">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="./assets/img/favicon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/img/favicon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/img/apple-touch-icon-180x180.png">
+    <link rel="stylesheet" id="css-main" href="./assets/oneui/css/oneui.min.css">
+    <link rel="stylesheet" href="./assets/admincp.css">
+</head>
+
+<body>
+    <div id="page-container">
+        <!-- Main Container -->
+        <main id="main-container" style="background-image: url('./assets/img/bg/photo<?php echo rand(1,39)?>.jpg');background-repeat: no-repeat;background-size: 100% 100%;">
+            <!-- Page Content -->
+            <div class="hero-static d-flex align-items-center">
+                <div class="w-100">
+                    <!-- Sign In Section -->
+                    <div class="content" id="<?php echo APP_MAINID; ?>">
+                        <div class="row justify-content-center">
+                            <div class="col-sm-10 col-md-8 col-lg-6 col-xl-4">
+                                <div class="block block-rounded block-themed p-5 bg-white-75">
+                                    <!-- Header -->
+                                    <div class="text-center">
+                                        <p class="mb-2"><img src="./assets/img/iCMS.LOGO.png" style="max-width:100%;"></p>
+                                        <h2 class="h6 font-w400 text-secondary mb-3">
+                                            欢迎使用iCMS内容管理系统！
+                                        </h2>
+                                    </div>
+                                    <form action="<?php echo iPHP_SELF; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                                        <input type="hidden" name="action" value="login">
+                                        <div class="form-group">
+                                            <input type="text" class="form-control form-control-lg form-control-alt" id="iAccount" name="iAccount" placeholder="请输入管理员账号...">
+                                        </div>
+                                        <div class="form-group">
+                                            <input type="password" class="form-control form-control-lg form-control-alt" id="iPassWord" name="iPassWord" placeholder="请输入管理员密码...">
+                                        </div>
+                                        <div class="form-group">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control form-control-lg form-control-alt" id="captcha" name="captcha" placeholder="请输入验证码..." maxlength="4">
+                                                <div class="input-group-append">
+                                                    <img src="<?php echo iPHP_SELF; ?>?do=captcha" alt="验证码" class="captcha-img">
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group mb-0">
+                                            <button type="submit" class="btn btn-primary btn-lg btn-block p-2" style="font-size: 18px;">
+                                                <i class="fa fa-fw fa-sign-in-alt mr-1"></i> 登 录
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                                <!-- END Sign In Form -->
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Sign In Section -->
+                    <!-- Footer -->
+                    <div class="content content-full font-size-sm text-center text-muted">
+                        <strong><a href="https://www.icmsdev.com" target="_blank"><?php echo iPHP_APP ?><?php echo iCMS_VERSION ?></a> </strong>
+                        &copy; 2008 - <?php echo date("Y") ?>
+                    </div>
+                    <!-- END Footer -->
+                </div>
+            </div>
+            <!-- END Page Content -->
+        </main>
+        <!-- END Main Container -->
+    </div>
+    <!-- END Page Container -->
+    <script src="./assets/oneui/js/oneui.core.min.js"></script>
+    <script src="./assets/oneui/js/oneui.app.min.js"></script>
+    <script src="./assets/oneui/js/plugins/jquery-validation/jquery.validate.min.js"></script>
+    <script src="./assets/oneui/js/plugins/es6-promise/es6-promise.auto.min.js"></script>
+    <script src="./assets/oneui/js/plugins/bootstrap-notify/bootstrap-notify.min.js"></script>
+    <script src="./assets/iCMS.js"></script>
+    <script src="./app/member/assets/login.js"></script>
+</body>
+
+</html>

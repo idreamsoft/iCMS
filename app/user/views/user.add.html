@@ -1,0 +1,370 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        'role_id': "<?php echo $user['role_id']; ?>",
+        'type': "<?php echo $user['type']; ?>",
+        'pid': <?php echo $user['pid'] ? json_encode($user['pid']) : '[0]'; ?>,
+        'gender': "<?php echo $user['gender']; ?>",
+        'year': "<?php echo $userdata['year']; ?>",
+        'month': "<?php echo $userdata['month']; ?>",
+        'day': "<?php echo $userdata['day']; ?>",
+        'constellation': "<?php echo $userdata['constellation']; ?>",
+        'status': "<?php echo $this->uid ? $user['status'] : '1'; ?>",
+    });
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="#user-info"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+            <li class="nav-item"><a class="nav-link" href="#user-data"><i class="fa fa-fw fa-users"></i> 用户资料</a></li>
+            <li class="nav-item"><a class="nav-link" href="#user-custom"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-meta"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="uid" type="hidden" value="<?php echo $this->uid; ?>" />
+                <div id="user-add" class="tab-content">
+                    <div id="user-info" class="tab-pane active">
+                        <?php if (Member::isSuperRole()) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="role_id">角色</label>
+                                <div class="col-sm-8">
+                                    <select v-model="role_id" id="role_id" name="role_id" class="form-control" data-placeholder="请选择用户组">
+                                        <?php echo Role::userSelect(); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="cid">状 态</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="status" id="status" name="status" class="form-control">
+                                    <?php echo PropWidget::option(User::$statusMap, 'status'); ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <?php echo PropWidget::btn('添加状态'); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="pid">属 性</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="pid" id="pid" name="pid[]" class="form-control" multiple>
+                                    <option value="0">普通用户[pid='0']</option>
+                                    <?php echo PropWidget::getOption("pid"); ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <?php echo PropWidget::btn('添加常用属性'); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="type">类型</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="type" id="type" name="type" class="form-control">
+                                    <option value="0">WEB[type='0']</option>
+                                    <?php if (is_array($this->config['open'])) foreach ($this->config['open'] as $type) { ?>
+                                        <option value="<?php echo $type['id']; ?>"><?php echo $type['name']; ?>[type='<?php echo $type['id']; ?>']</option>
+                                    <?php } ?>
+                                    <?php echo PropWidget::getOption("type"); ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <?php echo PropWidget::btn('添加常用类型'); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="account"> 账号</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="account" class="form-control" id="account" value="<?php echo $user['account']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="account"> 手机号</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="phone" class="form-control" id="phone" value="<?php echo $user['phone']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="account"> 邮箱</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="email" class="form-control" id="email" value="<?php echo $user['email']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="password"> 密码</label>
+                            <div class="input-group col-sm-8">
+                                <input type="text" name="password" class="form-control" id="password" value="" />
+                                <div class="input-group-append">
+                                    <a href="javascript:;" class="btn btn-dark" data-toggle="random" data-target="#password">生成</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="nickname">昵称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="nickname" class="form-control" id="nickname" value="<?php echo $user['nickname']; ?>" />
+                            </div>
+                        </div>
+                        <?php if ($this->uid) {; ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label">头像</label>
+                                <div class="input-group col-sm-8" data-toggle="popover" 
+                                data-html="true" 
+                                data-content='<img src="<?php echo $avatar = iCMS_FS_URL . get_user_pic($this->uid); ?>" class="img-thumbnail">'>
+                                    <input id="avatar" type="text" class="form-control" disabled value="<?php echo $avatar; ?>" />
+                                    <div class="input-group-append">
+                                        <a id="uploadAvatar" class="btn btn-alt-primary" href="javascript:;" title="上传头像">
+                                            <i class="fa fa-fw fa-upload"></i>
+                                            上传头像
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php }; ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="gender">性别</label>
+                            <div class="col-sm-8">
+                                <select v-model="gender" id="gender" name="gender" class="form-control">
+                                    <option value="1">男</option>
+                                    <option value="0">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <?php AdmincpView::show('widget/credit', 'apps', $user); ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="fans">数据1</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">粉丝数</span></div>
+                                <input type="text" name="fans" class="form-control" id="fans" value="<?php echo $user['fans']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">关注数</span></div>
+                                <input type="text" name="follow" class="form-control" id="follow" value="<?php echo $user['follow']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="article">数据2</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">评论数</span></div>
+                                <input type="text" name="comment" class="form-control" id="comment" value="<?php echo $user['comment']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">文章数</span></div>
+                                <input type="text" name="article" class="form-control" id="article" value="<?php echo $user['article']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">收藏数</span></div>
+                                <input type="text" name="favorite" class="form-control" id="favorite" value="<?php echo $user['favorite']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="hits">访问数</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">总数</span></div>
+                                <input type="text" name="hits" class="form-control" id="hits" value="<?php echo $user['hits']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">当天</span></div>
+                                <input type="text" name="hits_today" class="form-control" id="hits_today" value="<?php echo $user['hits_today']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">昨天</span></div>
+                                <input type="text" name="hits_yday" class="form-control" id="hits_yday" value="<?php echo $user['hits_yday']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">周</span></div>
+                                <input type="text" name="hits_week" class="form-control" id="hits_week" value="<?php echo $user['hits_week']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">月</span></div>
+                                <input type="text" name="hits_month" class="form-control" id="hits_month" value="<?php echo $user['hits_month']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="regip">注册</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">IP</span></div>
+                                <input type="text" name="regip" class="form-control" id="regip" value="<?php echo $user['regip']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">时间</span></div>
+                                <input type="text" name="regdate" class="form-control" id="regdate" value="<?php echo get_date($user['regdate']); ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="lastloginip">最后登录</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">IP</span></div>
+                                <input type="text" name="lastloginip" class="form-control" id="lastloginip" value="<?php echo $user['lastloginip']; ?>" />
+                                <div class="input-group-prepend"><span class="input-group-text">时间</span></div>
+                                <input type="text" name="lastlogintime" class="form-control" id="lastlogintime" value="<?php echo get_date($user['lastlogintime']); ?>" />
+                            </div>
+                        </div>
+                    </div>
+                    <div id="user-data" class="tab-pane hide">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="realname">姓名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="realname" class="form-control" id="realname" value="<?php echo $userdata['realname']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="mobile">联系电话</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="mobile" class="form-control" id="mobile" value="<?php echo $userdata['mobile']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="province">省份</label>
+                            <div class="input-group col-sm-8">
+                                <input type="text" name="province" class="form-control" id="province" value="<?php echo $userdata['province']; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">省</span></div>
+                                <input type="text" name="city" class="form-control" id="city" value="<?php echo $userdata['city']; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">市</span></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="address">地址</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="address" class="form-control" id="address" value="<?php echo $userdata['address']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="cid">生日</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="year" id="year" name="year" class="form-control" style="width:90px;" data-placeholder="年">
+                                    <?php $year = (int)date('Y');
+                                    $syear = $year - 60;
+                                    $eyear = $year - 6;
+                                    for ($i = $syear; $i < $eyear; $i++) { ?>
+                                        <option value="<?php echo $i ?>">
+                                            <?php echo $i ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <div class="input-group-append"><span class="input-group-text">年</span></div>
+                                <div class="input-group-prepend"></div>
+                                <select v-model="month" id="month" name="month" class="form-control" data-placeholder="月">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                                <div class="input-group-append"><span class="input-group-text">月</span></div>
+                                <div class="input-group-prepend"></div>
+                                <select v-model="day" id="day" name="day" class="form-control" data-placeholder="日">
+                                    <option value="1">1</option>
+                                    <option value="2">2</option>
+                                    <option value="3">3</option>
+                                    <option value="4">4</option>
+                                    <option value="5">5</option>
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                </select>
+                                <div class="input-group-append"><span class="input-group-text">日</span></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="constellation">星座</label>
+                            <div class="col-sm-8">
+                                <select v-model="constellation" id="constellation" name="constellation" class="form-control" data-placeholder="星座">
+                                    <option value="白羊座">白羊座 3.21-4.19</option>
+                                    <option value="金牛座">金牛座 4.20-5.20</option>
+                                    <option value="双子座">双子座 5.21-6.21</option>
+                                    <option value="巨蟹座">巨蟹座 6.22-7.22</option>
+                                    <option value="狮子座">狮子座 7.23-8.22</option>
+                                    <option value="处女座">处女座 8.23-9.22</option>
+                                    <option value="天秤座">天秤座 9.23-10.23</option>
+                                    <option value="天蝎座">天蝎座 10.24-11.22</option>
+                                    <option value="射手座">射手座 11.23-12.21</option>
+                                    <option value="魔羯座">魔羯座 12.22-1.19</option>
+                                    <option value="水瓶座">水瓶座 1.20-2.18</option>
+                                    <option value="双鱼座">双鱼座 2.19-3.20</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="profession">职业</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="profession" class="form-control" id="profession" value="<?php echo $userdata['profession']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="personstyle">个人标签</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="personstyle" id="personstyle" class="form-control" value="<?php echo $userdata['personstyle']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="slogan">个性签名</label>
+                            <div class="col-sm-8">
+                                <textarea name="slogan" id="slogan" rows="5" class="form-control"><?php echo $userdata['slogan']; ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="user-custom" class="tab-pane">
+                        <?php Former::render(); ?>
+                    </div>
+                    <div id="apps-meta" class="tab-pane hide">
+                        <?php AppsMeta::display(); ?>
+                    </div>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="uploadAvatar_wrap" style="display:none;">
+    <div class="alert alert-info">
+        只允许上传jpg,png文件
+    </div>
+    <?php FilesWidget::uploadBtn(APP_URL . '&do=uploadAvatar&callback=uploadAvatar&uid=' . $this->uid); ?>
+</div>
+<script type="text/javascript">
+    var d1;
+    $(function() {
+        $("#uploadAvatar").click(function(event) {
+            d1 = iCMS.ui.dialog({
+                title: 'iCMS - 上传头像',
+                content: document.getElementById("uploadAvatar_wrap"),
+                height: "90px"
+            });
+        });
+    });
+
+    function uploadAvatar(json) {
+        iCMS.notify.success('上传成功！');
+        d1.close().remove();
+    }
+</script>
+
+<?php self::foot(); ?>

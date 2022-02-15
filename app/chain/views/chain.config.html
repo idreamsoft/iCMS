@@ -1,0 +1,19 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+?>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="keyword_limit">关键字替换</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[limit]" class="form-control" id="keyword_limit" value="<?php echo $config['limit']; ?>" />
+        <small class="form-text text-muted">内链关键字替换次数 0为不替换，-1全部替换</small>
+    </div>
+</div>

@@ -1,0 +1,31 @@
+
+<!-- Story -->
+<div class="block block-no-shadow border-bottom">
+    <div class="block-content">
+            <h3 class="mb-1">
+                <a class="text-primary-dark" href="<!--{$item.url}-->"><!--{$item.title}--></a>
+            </h3>
+            <div class="row items-push">
+            <!--{if $item.pic}-->
+            <div class="col-md-4 col-lg-5 overflow-hidden" style="max-height: 150px;">
+                <a href="<!--{$item.url}-->">
+                    <img class="img-fluid" src="<!--{$item.pic.url}-->" alt="" />
+                </a>
+            </div>
+            <div class="col-md-8 col-lg-7">
+            <!--{else}-->
+            <div class="col-12">
+            <!--{/if}-->
+                    <div class="font-size-sm mb-3">
+                        <a class="text-dual" href="<!--{$item.node.url}-->">[<!--{$item.node.name}-->]</a>
+                        <a href="<!--{$item.user.url}-->"><!--{$item.user.name}--></a>
+                        on <!--{$item.pubdate|date:"Y-m-d H:i"}--> ·
+                        <em class="text-muted"><!--{$item.pubdate|format_date:false}--></em>
+                    </div>
+                    <p class="font-size-sm"><!--{$item.description|cut:80:'...'}--></p>
+                    <a class="btn btn-sm btn-light" href="<!--{$item.url}-->">阅读全文...</a>
+            </div>
+        </div>
+    </div>
+    <!-- END Story -->
+</div>

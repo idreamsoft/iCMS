@@ -1,0 +1,24 @@
+<div id="field-default">
+    <?php if ($base_fields) foreach ((array)$base_fields as $key => $item) {
+        if (empty($item['fields'])) {
+            continue;
+        }
+        foreach ($item['fields'] as $k => $value) {
+            if (empty($value['name'])) {
+                continue;
+            }
+    ?>
+            <div id="field_<?php echo $value['name']; ?>" class="form-group row mb-1">
+                <div class="input-group col-10">
+                    <div class="input-group-prepend">
+                        <div class="input-group-text"><?php echo $value['name']; ?></div>
+                    </div>
+                    <span class="form-control"><?php echo $value['field'] . ' (' . $value['len'] . ') ' . ($value['unsigned'] ? 'UNSIGNED' : ''); ?> NOT NULL</span>
+                    <div class="input-group-append">
+                        <span class="input-group-text"><?php echo $value['label']; ?> <?php echo $value['comment']; ?></span>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+    <?php } ?>
+</div>

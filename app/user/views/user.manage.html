@@ -1,0 +1,224 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<link rel="stylesheet" href="./app/user/assets/manage.css" />
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">用户属性</span></div>
+                        <select v-model="pid" name="pid" id="pid" class="form-control">
+                            <option value=""></option>
+                            <option value="all">所有属性</option>
+                            <option value="0">普通用户[pid='0']</option>
+                            <?php echo PropWidget::getOption("pid"); ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">用户组</span></div>
+                        <select v-model="role_id" name="role_id" id="role_id" class="form-control" data-placeholder="请选择用户组...">
+                            <option value=""></option>
+                            <option value="all">所有用户组</option>
+                            <?php echo Role::userSelect(); ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">注册IP</span></div>
+                        <input type="text" name="regip" id="regip" class="form-control" value="<?php echo $_GET['regip']; ?>" />
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">最后登录IP</span></div>
+                        <input type="text" name="loginip" id="loginip" class="form-control" value="<?php echo $_GET['loginip']; ?>" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-md-6 mt-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">注册时间</span>
+                        </div>
+                        <input type="text" class="form-control js-flatpickr" name="regi_starttime" value="<?php echo $_GET['regi_starttime']; ?>" placeholder="开始时间" />
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">-</span>
+                        </div>
+                        <input type="text" class="form-control js-flatpickr" name="regi_endtime" value="<?php echo $_GET['regi_endtime']; ?>" placeholder="结束时间" />
+                    </div>
+                    <div class="input-group input-group-sm col-md-6 mt-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">登录时间</span>
+                        </div>
+                        <input type="text" class="form-control js-flatpickr" name="login_starttime" value="<?php echo $_GET['login_starttime']; ?>" placeholder="开始时间" />
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">-</span>
+                        </div>
+                        <input type="text" class="form-control js-flatpickr" name="login_endtime" value="<?php echo $_GET['login_endtime']; ?>" placeholder="结束时间" />
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend"> <span class="input-group-text">账号状态</span></div>
+                        <select v-model="status" name="status" id="status" class="form-control">
+                            <option value="">所有状态</option>
+                            <?php echo PropWidget::option(User::$statusMap, 'status'); ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="orderby">排序</label>
+                        </div>
+                        <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                            <option value="">默认排序</option>
+                            <optgroup label="降序">
+                                <?php echo self::$orderBy['DESC']; ?>
+                            </optgroup>
+                            <optgroup label="升序">
+                                <?php echo self::$orderBy['ASC']; ?>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">用户列表</h3>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px;" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <th>ID</th>
+                                <th>账号</th>
+                                <th>昵称</th>
+                                <th>状态</th>
+                                <th>用户组</th>
+                                <th>最后登录</th>
+                                <th>注册</th>
+                                <th class="text-center">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($result) foreach ($result as $key => $value) {
+                                $url = Route::routing('{uid}/home',[$value['uid']]);
+                                $role = Role::get($value['role_id']);
+                            ?>
+                                <tr id="id<?php echo $value['uid']; ?>">
+                                    <td>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $value['uid']; ?>" name="id[]" value="<?php echo $value['uid']; ?>" />
+                                            <label class="custom-control-label" for="checkbox-<?php echo $value['uid']; ?>"></label>
+                                        </div>
+                                    </td>
+                                    <td><a href="<?php echo $url; ?>" target="_blank">
+                                            <?php echo $value['uid']; ?></a></td>
+                                    <td><a href="javascript:;" data-toggle="popover" data-html="true" class="d-inline-block text-truncate text-reset" style="max-width: 200px;" title="<?php echo $value['account']; ?>" data-content="<div class='text-left'>
+                    粉丝:<?php echo $value['fans']; ?><br />
+                    关注:<?php echo $value['follow']; ?><br />
+                    评论:<?php echo $value['comment']; ?><br />
+                    文章:<?php echo $value['article']; ?><hr />
+                    积分:<?php echo $value['credit']; ?><br />
+                    点数:<?php echo $value['scores']; ?><hr />
+                    点击:<?php echo $value['hits']; ?><br />
+                    周点击:<?php echo $value['hits_week']; ?><br />
+                    月点击:<?php echo $value['hits_month']; ?></div>
+                    ">
+                                            <?php echo $value['account']; ?> </a></td>
+                                    <td>
+                                        <span class="d-inline-block text-truncate" style="max-width: 150px;" title="<?php echo $value['nickname']; ?>">
+                                            <span class="badge badge-<?php echo $value['gender'] ? 'primary' : 'danger'; ?>" title="<?php echo $value['gender'] ? '男' : '女'; ?>"><i class="fa fa-fw fa-<?php echo $value['gender'] ? 'male' : 'female'; ?> text-white"></i></span>
+                                            <?php echo $value['nickname']; ?>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="badge badge-info status<?php echo $value['status']; ?>">
+                                            <?php echo User::$statusMap[$value['status']]; ?></span>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo APP_URL; ?>&role_id=<?php echo $value['role_id']; ?>">
+                                            <?php echo $role['name']; ?></a>
+                                        <br />
+                                        <?php $value['pid'] && PropWidget::flag($value['pid'], 'pid'); ?>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo APP_URL; ?>&lastloginip=<?php echo $value['lastloginip']; ?>" class="tip-left" title="最后登录IP">
+                                            <?php echo $value['lastloginip'] ?: '暂无'; ?></a><br />
+                                        <a href="#" class="tip-left" title="最后登录时间">
+                                            <?php echo $value['lastlogintime'] ? get_date($value['lastlogintime'], "Y-m-d H:i:s") : '暂无'; ?></a>
+                                    </td>
+                                    <td>
+                                        <a href="<?php echo APP_URL; ?>&regip=<?php echo $value['regip']; ?>" class="tip-left" title="注册IP">
+                                            <?php echo $value['regip']; ?></a><br />
+                                        <a href="#" class="tip-left" title="注册时间">
+                                            <?php echo $value['regdate'] ? get_date($value['regdate'], "Y-m-d H:i:s") : '暂无'; ?></a>
+                                    </td>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm">
+                                            <?php if (Member::isSuperRole()) { ?>
+                                                <a href="<?php echo APP_URL; ?>&do=login&id=<?php echo $value['uid']; ?>" class="btn btn-alt-primary" target="_blank" title='登录'><i class="fa fa-fw fa-sign-in-alt"></i></a>
+                                            <?php } ?>
+                                            <a href="<?php echo ADMINCP_URL; ?>=article&do=user&userid=<?php echo $value['uid']; ?>&pt=0';?>" class="btn btn-alt-primary" title='用户文章'><i class="fa fa-fw fa-list-alt"></i> </a>
+                                            <a href="<?php echo APP_URL; ?>&do=edit&id=<?php echo $value['uid']; ?>" class="btn btn-alt-primary" title='编辑'><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                            <a href="<?php echo APP_URL; ?>&do=delete&id=<?php echo $value['uid']; ?>" target="iPHP_FRAME" class="del btn btn-alt-primary" title='永久删除' data-action="delete" /><i class="fa fa-fw fa-times"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php }  ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        pid: "<?php echo $_GET['pid']; ?>",
+        role_id: "<?php echo $_GET['role_id']; ?>",
+        orderby: "<?php echo $_GET['orderby']; ?>",
+        status: "<?php echo $_GET['status']; ?>",
+    });
+</script>
+<?php self::foot(); ?>

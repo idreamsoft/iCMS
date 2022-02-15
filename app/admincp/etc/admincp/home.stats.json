@@ -1,0 +1,6 @@
+{
+    "col":"col-sm-12",
+    "sort":999999,
+    "app": "admincpWidget",
+    "do": "stats"
+}

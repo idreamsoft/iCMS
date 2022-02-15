@@ -1,0 +1,145 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    $(function() {
+        $("#setting").click(function(event) {
+            var setting_wrap = document.getElementById("setting_wrap");
+            iCMS.ui.dialog({
+                title: 'iCMS - 设置搜索禁用词',
+                content: setting_wrap
+            });
+        });
+    });
+</script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <button class="btn btn-success" type="button" id="setting"><i class="fa fa-fw fa-send"></i> 设置搜索禁用词</button>
+                </div>
+            </div>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <input type="hidden" name="do" value="<?php echo Admincp::$APP_DO; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="orderby">排序</label>
+                        </div>
+                        <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                            <option value="">默认排序</option>
+                            <optgroup label="降序">
+                                <?php echo self::$orderBy['DESC']; ?>
+                            </optgroup>
+                            <optgroup label="升序">
+                                <?php echo self::$orderBy['ASC']; ?>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">搜索词列表</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <span title="总共<?php echo Paging::$count; ?>个搜索词" class="badge badge-primary"><?php echo Paging::$count; ?></span>
+                </div>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px;" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <th>#</th>
+                                <th style="width: 60%;">搜索词</th>
+                                <th>搜索次数</th>
+                                <th>创建时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($result) foreach ($result as $key => $value) { ?>
+                                <tr id="id<?php echo $value['id']; ?>">
+                                    <td>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $value['id']; ?>" name="id[]" value="<?php echo $value['id']; ?>" />
+                                            <label class="custom-control-label" for="checkbox-<?php echo $value['id']; ?>"></label>
+                                        </div>
+                                    </td>
+                                    <td><?php echo $value['id']; ?></td>
+                                    <td><?php echo $value['search']; ?></td>
+                                    <td><?php echo $value['times']; ?></td>
+                                    <td><?php echo get_date($value['create_time'], 'Y-m-d H:i:s'); ?></td>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm">
+                                            <a href="<?php echo APP_URL; ?>&do=delete&id=<?php echo $value['id']; ?>" class="btn btn-alt-danger" target="iPHP_FRAME" title='永久删除' data-action="delete" /><i class="fa fa-fw fa-trash-alt"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php }  ?>
+                        </tbody>
+
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="setting_wrap" style="display:none;">
+    <form action="<?php echo APP_URL; ?>&do=config" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+        <div>
+            <textarea name="config[disable]" class="col-sm-6" style="height: 300px;"><?php echo implode("\n", (array) $config['disable']); ?></textarea>
+        </div>
+        <small class="form-text text-muted">每行一个</small>
+        <div class="form-actions">
+            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+        </div>
+    </form>
+</div>
+<?php self::foot(); ?>

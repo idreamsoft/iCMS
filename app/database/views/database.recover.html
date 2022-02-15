@@ -1,0 +1,69 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <?php echo Menu::navTabs(Admincp::$APP_NAME); ?>
+        </ul>
+        <div class="block-content block-content-full">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                    <thead class="bg-light text-black">
+                        <tr>
+                            <th style="width: 36px;" class="align-middle">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                    <label class="custom-control-label" for="check-all"></label>
+                                </div>
+                            </th>
+                            <th style="width:24px;"></th>
+                            <th>备份卷</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <?php
+                    $_count   = count($dirRs);
+                    for ($i = 0; $i < $_count; $i++) {
+                    ?>
+                        <tr id="id<?php echo md5($dirRs[$i]['name']); ?>">
+                            <td>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $dirRs[$i]['name']; ?>" name="dir[]" value="<?php echo $dirRs[$i]['name']; ?>" />
+                                    <label class="custom-control-label" for="checkbox-<?php echo $dirRs[$i]['name']; ?>" /></label>
+                                </div>
+                            </td>
+                            <td><?php echo $i + 1; ?></td>
+                            <td><?php echo $dirRs[$i]['name']; ?></td>
+                            <td class="text-right">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- <a class="btn btn-alt-primary" href="<?php echo APP_URL; ?>&do=download&dir=<?php echo $dirRs[$i]['name']; ?>" target="iPHP_FRAME"><i class="fa fa-fw fa-file-download"></i> 下载</a> -->
+                                    <!-- <a class="btn btn-alt-primary" href="<?php echo APP_URL; ?>&do=recovery&dir=<?php echo $dirRs[$i]['name']; ?>" target="iPHP_FRAME"><i class="fa fa-fw fa-reply-all"></i> 恢复</a> -->
+                                    <a class="btn btn-alt-primary" href="<?php echo APP_URL; ?>&do=delete&dir=<?php echo $dirRs[$i]['name']; ?>" target="iPHP_FRAME" title='永久删除' data-action="delete" /><i class="fa fa-fw fa-trash-alt"></i> 删除</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php }
+                    if (!$_count) {  ?>
+                        <tr>
+                            <td colspan="4">
+                                <div class="alert alert-warning">居然没有备份!!!请养成良好的备份习惯!多备份有益身体健康!</div>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

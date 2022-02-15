@@ -1,0 +1,258 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    var $ID = "<?php echo $this->id; ?>";
+    iCMS.set('Vue.data', {
+        pid: <?php echo $rs['pid'] ? json_encode($rs['pid']) : '[0]'; ?>,
+        cid: "<?php echo $rs['cid']; ?>",
+        tcid: "<?php echo $rs['tcid']; ?>",
+        status: "<?php echo $rs['status']; ?>",
+    });
+
+    $(function() {
+        $("#<?php echo APP_FORMID; ?>").submit(function() {
+            if ($("#name").val() == '') {
+                iCMS.ui.alert("标签名称不能为空!");
+                $("#name").focus();
+                return false;
+            }
+        });
+    });
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a href="#tag-add-base" class="nav-link active"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+            <li class="nav-item"><a href="#add-publish" class="nav-link"><i class="fa fa-fw fa-rocket"></i> 发布设置</a></li>
+            <li class="nav-item"><a href="#former-layout" class="nav-link"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+            <li class="nav-item"><a href="#apps-meta" class="nav-link"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <input name="userid" type="hidden" value="<?php echo $rs['userid']; ?>" />
+                <div id="tags-add" class="tab-content">
+                    <div id="tag-add-base" class="tab-pane active">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">标签分类</label>
+                            <div class="col-sm-8">
+                                <select v-model="tcid" id="tcid" name="tcid" class="form-control" data-placeholder="请选择标签分类...">
+                                    <option value="0"> ==== 默认分类 ==== </option>
+                                    <?php echo Node::set('APPID', self::$appId)->set('ACCESS', 'ca')->select(array('selId' => $rs['tcid'], 'url' => true)); ?>
+                                </select>
+                                <small class="form-text text-muted">本标签所属的标签分类</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">所属栏目</label>
+                            <div class="col-sm-8">
+                                <select v-model="cid" id="cid" name="cid" class="form-control" data-placeholder="请选择栏目...">
+                                    <option> ==== 无所属栏目 ==== </option>
+                                    <?php echo Node::set('APPID', 0)->setAccess('ca')->select(array('selId' => $rs['cid'], 'url' => true)); ?>
+                                </select>
+                                <small class="form-text text-muted">本标签所属的栏目</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">标签属性</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="pid" id="pid" name="pid[]" class="form-control" multiple="multiple" data-placeholder="请选择标签属性(可多选)...">
+                                    <option value="0">普通标签[pid='0']</option>
+                                    <?php echo PropWidget::getOption("pid"); ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <?php echo PropWidget::btn('添加常用属性'); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">父标签ID</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rootid" class="form-control" id="rootid" value="<?php echo $rs['rootid']; ?>" />
+                                <small class="form-text text-muted">本标签所属的标签的ID,请自行填写ID</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">标签名称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">唯一标识</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="tkey" class="form-control" id="tkey" value="<?php echo $rs['tkey']; ?>" />
+                                <small class="form-text text-muted">用于伪静态或者静态生成 唯一性<br />留空则系统按名称拼音生成</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">字段</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="field" class="form-control" id="field" value="<?php echo $rs['field']; ?>" />
+                                <small class="form-text text-muted">一般不用修改</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">SEO 标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="seotitle" class="form-control" id="seotitle" value="<?php echo $rs['seotitle']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">副 标 题</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="subtitle" class="form-control" id="subtitle" value="<?php echo $rs['subtitle']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">关 键 字</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $rs['keywords']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">封面</label>
+                            <div class="input-group col-sm-8">
+                                <input type="text" name="pic" class="form-control" id="pic" value="<?php echo $rs['pic']; ?>" />
+                                <?php FilesWidget::setData($rs['pic'])->picBtn("pic"); ?>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">缩略图</label>
+                            <div class="col-sm-8">
+                                <div class="input-group mb-1">
+                                    <input type="text" name="bpic" class="form-control" id="bpic" value="<?php echo $rs['bpic']; ?>" />
+                                    <?php FilesWidget::setData($rs['bpic'])->picBtn("bpic"); ?>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <input type="text" name="mpic" class="form-control" id="mpic" value="<?php echo $rs['mpic']; ?>" />
+                                    <?php FilesWidget::setData($rs['mpic'])->picBtn("mpic"); ?>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" name="spic" class="form-control" id="spic" value="<?php echo $rs['spic']; ?>" />
+                                    <?php FilesWidget::setData($rs['spic'])->picBtn("spic"); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">描述</label>
+                            <div class="col-sm-8">
+                                <textarea name="description" id="description" class="form-control" style="height: 150px;width:600;"><?php echo $rs['description']; ?></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">相关标签</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="related" class="form-control" id="related" value="<?php echo $rs['related']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">状 态</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="status" id="status" name="status" class="form-control">
+                                    <option value="0"> 草稿 [status='0']</option>
+                                    <option value="1"> 正常 [status='1']</option>
+                                    <option value="2"> 回收站 [status='2']</option>
+                                    <option value="3"> 待审核 [status='3']</option>
+                                    <option value="4"> 未通过 [status='4']</option>
+                                    <?php echo PropWidget::getOption("status"); ?>
+                                </select>
+                                <div class="input-group-append">
+                                    <?php echo PropWidget::btn('添加状态'); ?>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="add-publish" class="tab-pane hide">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">发布时间</label>
+                            <div class="input-group col-sm-8">
+                                <input id="pubdate" class="form-control <?php echo $readonly ? '' : 'js-flatpickr'; ?>" value="<?php echo $rs['pubdate'] ? $rs['pubdate'] : get_date(0, 'Y-m-d H:i:s'); ?>" name="pubdate" type="text" style="width:230px" <?php echo $readonly; ?> />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">排序</label>
+                            <div class="input-group col-sm-8">
+                                <input id="sortnum" class="form-control" value="<?php echo $rs['sortnum'] ? $rs['sortnum'] : time(); ?>" name="sortnum" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">权重</label>
+                            <div class="input-group col-sm-8">
+                                <input id="weight" class="form-control" value="<?php echo $rs['weight'] ? $rs['weight'] : time(); ?>" name="weight" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">点击数</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">总点击数</span></div>
+                                <input type="text" name="hits" class="form-control" id="hits" value="<?php echo $rs['hits'] ? $rs['hits'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">当天点击数</span></div>
+                                <input type="text" name="hits_today" class="form-control" id="hits_today" value="<?php echo $rs['hits_today'] ? $rs['hits_today'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">昨天点击数</span></div>
+                                <input type="text" name="hits_yday" class="form-control" id="hits_yday" value="<?php echo $rs['hits_yday'] ? $rs['hits_yday'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">周点击</span></div>
+                                <input type="text" name="hits_week" class="form-control" id="hits_week" value="<?php echo $rs['hits_week'] ? $rs['hits_week'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">月点击</span></div>
+                                <input type="text" name="hits_month" class="form-control" id="hits_month" value="<?php echo $rs['hits_month'] ? $rs['hits_month'] : '0'; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">其它数值</label>
+                            <div class="input-group col-sm-8">
+                                <div class="input-group-prepend"><span class="input-group-text">收藏数</span></div>
+                                <input type="text" name="favorite" class="form-control" id="favorite" value="<?php echo $rs['favorite'] ? $rs['favorite'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">评论数</span></div>
+                                <input type="text" name="comment" class="form-control" id="comment" value="<?php echo $rs['comment'] ? $rs['comment'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">点赞数</span></div>
+                                <input type="text" name="good" class="form-control" id="good" value="<?php echo $rs['good'] ? $rs['good'] : '0'; ?>" />
+                                <div class="input-group-append"><span class="input-group-text">点踩数</span></div>
+                                <input type="text" name="bad" class="form-control" id="bad" value="<?php echo $rs['bad'] ? $rs['bad'] : '0'; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">模板</label>
+                            <div class="input-group col-sm-8">
+                                <input type="text" name="tpl" class="form-control" id="tpl" value="<?php echo $rs['tpl']; ?>" />
+                                <?php echo FilesWidget::modalBtn('模板', 'tpl'); ?>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">自定链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="clink" class="form-control" id="clink" value="<?php echo $rs['clink']; ?>" />
+                                <small class="form-text text-muted">只能由英文字母、数字或_-组成(不支持中文),留空则自动以标题拼音填充</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">外部链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="url" class="form-control tip" title="注意:文章设置外部链接后编辑器里的内容是不会被保存的哦!" id="url" value="<?php echo $rs['url']; ?>" />
+                                <small class="form-text text-muted">不填写请留空!</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="former-layout" class="tab-pane hide">
+                        <?php Former::render(); ?>
+                    </div>
+                    <div id="apps-meta" class="tab-pane hide">
+                        <?php AppsMeta::display(); ?>
+                    </div>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

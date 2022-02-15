@@ -1,0 +1,24 @@
+<?php $title ="评论回复";?>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="comment_reply_enable">回复</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[reply][enable]" id="comment_reply_enable" <?php echo $config['reply']['enable'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">是否开启评论回复</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="comment_reply_enable">审核回复</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[reply][examine]" id="comment_reply_examine" <?php echo $config['reply']['examine'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">开启后评论回复需要审核才能显示</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="comment_reply_captcha">验证码</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[reply][captcha]" id="comment_reply_captcha" <?php echo $config['reply']['captcha'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">开启后发表评论回复需要验证码</small>
+    </div>
+</div>

@@ -1,0 +1,102 @@
+{
+    "pubdate;now": {
+        "name": "更新发布时间",
+        "icon": "clock",
+        "sort": 1,
+        "call": "default"
+    },
+    "status;1,pubdate;now": {
+        "name": "发布并更新时间",
+        "icon": "clock",
+        "sort": 2,
+        "call": "default",
+        "show": true
+    },
+    "status;0": {
+        "name": "转为草稿",
+        "icon": "inbox",
+        "sort": 3,
+        "call": "default"
+    },
+    "status;1": {
+        "name": "发布",
+        "icon": "check",
+        "sort": 4,
+        "call": "default",
+        "show": true
+    },
+    "status;2": {
+        "name": "移入回收站",
+        "icon": "trash-alt",
+        "sort": 5,
+        "call": "default"
+    },
+    "divider1": {
+        "name": "divider",
+        "sort": 7
+    },
+    "move": {
+        "name": "移动栏目",
+        "icon": "fighter-jet",
+        "sort": 8,
+        "call": "move"
+    },
+    "prop": {
+        "name": "设置属性",
+        "icon": "puzzle-piece",
+        "sort": 9,
+        "call": "prop"
+    },
+    "weight": {
+        "name": "设置置顶权重",
+        "icon": "cog",
+        "sort": 10,
+        "call": "default"
+    },
+    "status": {
+        "name": "设置状态",
+        "icon": "cog",
+        "sort": 11,
+        "call": "default"
+    },
+    "postype": {
+        "name": "设置发布类型",
+        "icon": "cog",
+        "sort": 12,
+        "call": "default"
+    },
+    "keyword": {
+        "name": "设置关键字",
+        "icon": "star",
+        "sort": 13,
+        "call": "keyword"
+    },
+    "tag": {
+        "name": "设置标签",
+        "icon": "tags",
+        "sort": 14,
+        "call": "tag"
+    },
+    "meta": {
+        "name": "设置动态属性",
+        "icon": "sitemap",
+        "sort": 15,
+        "call": "meta"
+    },
+    "divider2": {
+        "name": "divider",
+        "sort": 16
+    },
+    "quick_dels": {
+        "name": "快速删除",
+        "icon": "trash-alt",
+        "sort": 17,
+        "call": "quick_dels"
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 18,
+        "call": "dels"
+    }
+}

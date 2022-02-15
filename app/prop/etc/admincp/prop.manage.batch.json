@@ -1,0 +1,23 @@
+{
+    "status": {
+        "name": "设置状态",
+        "icon": "cog",
+        "post": {
+            "status":"mstatus"
+        },
+        "sort": 1,
+        "call": "status"
+    },
+    "refresh": {
+        "name": "更新缓存",
+        "icon": "sync",
+        "sort": 1,
+        "call": "refresh"
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 1,
+        "call": "dels"
+    }
+}

@@ -1,0 +1,37 @@
+<?php
+if ($this->ROUTE) foreach ($this->ROUTE as $key => $value) {
+    $value = str_replace(
+        ['[NODE@NAME]','[NODE@APP]'],
+        [$this->NODE_NAME,$this->app],
+        $value
+    );
+    $route_id   = 'route_' . $key;
+    $template_id = 'template_' . $key;
+    $cname       = $this->NODE_NAME;
+?>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label"><?php echo $value['label']; ?><br /><?php echo $key; ?></label>
+        <div class="col-sm-8">
+            <?php $s['rule'] && include self::view('node.route.rule', $this->VIEW_DIR); ?>
+            <?php $s['tpl'] && include self::view('node.route.template', $this->VIEW_DIR); ?>
+            <small class="form-text text-muted"><?php echo $value['info']; ?></small>
+        </div>
+    </div>
+    <hr />
+<?php } ?>
+<?php if ($s) { ?>
+    <div class="d-none">
+            <button i="meta-add" class="btn btn-sm btn-outline-secondary" type="button" href="#node-app-meta"><i class="fa fa-fw fa-plus-circle"></i> 增加新路由</button>
+    </div>
+<?php } ?>
+<?php if ($s['rule']) { ?>
+    <div class="alert alert-info">
+        <strong>Warning!</strong> URL规则请综合评估下最终的url是否会冲突导致无法解析
+    </div>
+<?php } ?>
+<?php if ($s['tpl']) { ?>
+    <div class="alert alert-info">
+        <span class="badge badge-info"><?php echo View::TPL_FLAG_1; ?></span>为系统设置的模板,自动匹配<br />
+        <span class="badge badge-info"><?php echo View::TPL_FLAG_2; ?></span>为系统设置的设备,自动匹配,默认两个设备desktop、mobile,请分别制作两套模板
+    </div>
+<?php } ?>

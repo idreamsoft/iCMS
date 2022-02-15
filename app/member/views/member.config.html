@@ -1,0 +1,12 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">会话</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[life]" class="form-control" id="life" value="<?php echo @(int) $config['life'] ?: 86400; ?>" />
+            <div class="input-group-append">
+                <div class="input-group-text">秒</div>
+            </div>
+        </div>
+        <small class="form-text text-muted">管理员会话有效时间,默认：86400秒（一天）</small>
+    </div>
+</div>

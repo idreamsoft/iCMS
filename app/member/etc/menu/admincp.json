@@ -1,0 +1,17 @@
+[{
+    "id": "members",
+    "children": [{
+            "caption": "-"
+        },
+        {
+            "caption": "管理员列表",
+            "href": "member",
+            "icon": "users"
+        },
+        {
+            "caption": "添加管理员",
+            "href": "member&do=add",
+            "icon": "user-plus"
+        }
+    ]
+}]

@@ -1,0 +1,29 @@
+<!-- Hero -->
+<div class="bg-body-light">
+    <div class="content content-full">
+        <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
+            <h1 class="flex-sm-fill h3 my-2">
+                <?php echo Menu::$SET['nav.name']?:$navData[1]['name'];?>
+                <small class="d-block d-sm-inline-block mt-2 mt-sm-0 font-size-base font-w400 text-muted"><?php echo Menu::$SET['nav.title']?:$navData[1]['title'];?></small>
+            </h1>
+            <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+                <ol class="breadcrumb breadcrumb-alt">
+                    <?php
+                        if($navData[0])foreach ($navData[0] as $mBC){
+                            empty($mBC['url']) && $mBC['url'] = 'javascript:;';
+                    ?>
+                        <li class="breadcrumb-item" aria-current="page">
+                            <a href="<?php echo $mBC['url'];?>"><?php echo $mBC['name'];?></a>
+                        </li>
+                    <?php } ?>
+                    <?php if(Menu::$SET['nav.item']){?>
+                    <li class="breadcrumb-item" aria-current="page">
+                        <a class="link-fx" href="<?php echo Menu::$SET['nav.item']['url'];?>"><?php echo Menu::$SET['nav.item']['name'];?></a>
+                    </li>
+                    <?php } ?>
+                </ol>
+            </nav>
+        </div>
+    </div>
+</div>
+<!-- END Hero -->

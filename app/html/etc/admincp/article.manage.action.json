@@ -1,0 +1,12 @@
+{
+    "html": {
+        "id": "html",
+        "name": "",
+        "title": "生成静态文件",
+        "icon": "file",
+        "url": "{$c.ADMINCP_URL}=html&do=createArticle&article_id={$v.id}",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": "HtmlAdmincp::isCreateHtml"
+    }
+}

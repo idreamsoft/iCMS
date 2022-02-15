@@ -1,0 +1,10 @@
+[
+    {
+        "id": "CommentUser",
+        "sort": 9999996,
+        "caption": "我的评论",
+        "url": "CommentUser:manage",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/comment/manage.htm"
+    }
+]

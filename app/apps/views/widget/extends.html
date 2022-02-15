@@ -1,0 +1,20 @@
+<div class="block">
+    <ul class="nav nav-tabs nav-tabs-alt" data-toggle="tabs" role="tablist">
+        <?php $tidx = 0;
+        foreach (self::$EXTENDS as $tkey => $tab) { ?>
+            <li class="nav-item"><a class="nav-link <?php echo $tidx ?: 'active'; ?>" href="#ext-<?php echo $key; ?>-<?php echo $tkey; ?>"><?php echo $tab['title']; ?></a></li>
+        <?php $tidx++;
+        } ?>
+    </ul>
+    <div class="block-content">
+        <div class="tab-content">
+            <?php $tidx = 0;
+            foreach (self::$EXTENDS as $tkey => $tab) { ?>
+                <div id="ext-<?php echo $key; ?>-<?php echo $tkey; ?>" class="tab-pane <?php echo $tidx ?: 'active'; ?>" role="tabpanel">
+                    <?php include $tab['path']; ?>
+                </div>
+            <?php $tidx++;
+            } ?>
+        </div>
+    </div>
+</div>

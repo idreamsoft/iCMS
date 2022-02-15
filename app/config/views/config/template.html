@@ -1,0 +1,178 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="index_mode">首页静态跳转</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[template][index][mode]" id="index_mode" <?php echo $config['template']['index']['mode'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">只对桌面端有效.首页生成静态后自动跳转.如果出现循环跳转请关闭此项</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="index_rewrite">首页REWRITE</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[template][index][rewrite]" id="index_rewrite" <?php echo $config['template']['index']['rewrite'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">如果首页不是动态访问模式,且网站首页有分页 请开启此项</small>
+    </div>
+</div>
+<hr />
+<input type="hidden" name="config[template][index][tpl]" value="<?php echo $config['template']['index']['tpl'] ?: $config['template']['desktop']['index']; ?>" />
+<input type="hidden" name="config[template][index][name]" value="<?php echo $config['template']['index']['name'] ?: 'index'; ?>" />
+<input type="hidden" name="config[template][desktop][domain]" value="<?php echo $config['route']['url']; ?>" />
+<div id="template_desktop">
+    <input type="hidden" name="config[template][desktop][name]" value="desktop" />
+    <input type="hidden" name="config[template][desktop][agent]" value="" />
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="route_url">桌面端域名</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[route][url]" class="form-control" value="<?php echo $config['route']['url']; ?>" />
+            <small class="form-text text-muted">例:<span class="badge badge-info">https://www.icmsdev.com</span></small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="template_desktop_tpl">桌面端模板</label>
+        <div class="col-sm-8">
+            <div class="input-group">
+                <input type="text" name="config[template][desktop][tpl]" class="form-control" id="template_desktop_tpl" value="<?php echo $config['template']['desktop']['tpl']; ?>" />
+                <?php echo FilesWidget::modalBtn('模板', 'template_desktop_tpl', 'dir', null, 'select_template'); ?>
+            </div>
+            <small class="form-text text-muted">网站桌面端模板默认模板</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="template_desktop_index">首页模板</label>
+        <div class="col-sm-8">
+            <div class="input-group">
+                <input type="text" name="config[template][desktop][index]" class="form-control" id="template_desktop_index" value="<?php echo $config['template']['desktop']['index'] ?: View::TPL_FLAG_1.'/index.htm'; ?>" />
+                <?php echo FilesWidget::modalBtn('模板', 'template_desktop_index', 'file', 'tpl_index'); ?>
+            </div>
+            <small class="form-text text-muted">桌面端默认模板</small>
+        </div>
+    </div>
+</div>
+<hr />
+<div id="template_mobile">
+    <input type="hidden" name="config[template][mobile][name]" value="mobile" />
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="template_mobile_agent">移动端识别</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[template][mobile][agent]" class="form-control" id="template_mobile_agent" value="<?php echo $config['template']['mobile']['agent']; ?>" />
+            <small class="form-text text-muted">请用<span class="badge badge-info">,</span>分隔.如不启用自动识别请留空</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="template_mobile_domain">移动端域名</label>
+        <div class="col-sm-8">
+            <input type="text" name="config[template][mobile][domain]" class="form-control" id="template_mobile_domain" value="<?php echo $config['template']['mobile']['domain']; ?>" />
+            <small class="form-text text-muted">例:<span class="badge badge-info">http://m.icmsdev.com</span></small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="template_mobile_tpl">移动端模板</label>
+        <div class="col-sm-8">
+            <div class="input-group">
+                <input type="text" name="config[template][mobile][tpl]" class="form-control" id="template_mobile_tpl" value="<?php echo $config['template']['mobile']['tpl']; ?>" />
+                <?php echo FilesWidget::modalBtn('模板', 'template_mobile_tpl', 'dir', null, 'select_template'); ?>
+            </div>
+            <small class="form-text text-muted">网站移动端模板默认模板,如果不想让程序自行切换请留空</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="template_mobile_index">首页模板</label>
+        <div class="col-sm-8">
+            <div class="input-group">
+                <input type="text" name="config[template][mobile][index]" class="form-control" id="template_mobile_index" value="<?php echo $config['template']['mobile']['index'] ?: View::TPL_FLAG_1.'/index.htm'; ?>" />
+                <?php echo FilesWidget::modalBtn('模板', 'template_mobile_index', 'file', 'tpl_index'); ?>
+            </div>
+            <small class="form-text text-muted">移动端首页默认模板</small>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="route_redirect">适配跳转</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[route][redirect]" id="route_redirect" <?php echo $config['route']['redirect'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">如果出现循环重定向(跳转)或者已在服务器配置做重定向,请关闭此项.</small>
+    </div>
+</div>
+<hr />
+
+<div class="alert alert-info">模板优先级为:设备模板 &gt; 移动端模板 &gt;PC端模板</div>
+<div class="alert alert-danger">设备模板和移动端模板 不支持生成静态模式</div>
+<div class="block">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">设备模板</h3>
+        <div class="block-options">
+            <a href="#template_device" class="btn btn-sm btn-outline-primary add_template_device" /><i class="fa fa-fw fa-plus-circle"></i> 增加</a>
+        </div>
+    </div>
+    <div class="block-content">
+        <table class="table table-hover">
+            <tbody id="template_device">
+                <?php
+                function template_device_td($key, $device = array(),$disabled=false)
+                {
+                    $td_key = "device_{$key}";
+                    $disabled = $disabled?" disabled":'';
+                ?>
+                    <td>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="<?php echo $td_key; ?>_name">设备名称</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input <?php echo $disabled;?> type="text" name="config[template][device][<?php echo $key; ?>][name]" class="form-control" id="<?php echo $td_key; ?>_name" value="<?php echo $device['name']; ?>" />
+                                    <div class="input-group-append">
+                                        <a class="btn btn-dark text-white" data-toggle="delete" data-delete="tr"><i class="fa fa-fw fa-trash-alt"></i> 删除</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="<?php echo $td_key; ?>_ua">设备识别符</label>
+                            <div class="col-sm-8">
+                                <input <?php echo $disabled;?> type="text" name="config[template][device][<?php echo $key; ?>][ua]" class="form-control" id="<?php echo $td_key; ?>_ua" value="<?php echo $device['ua']; ?>" />
+                                <small class="form-text text-muted">设备唯一识别符,识别设备的User agent,如果多个请用<span class="badge badge-info">,</span>分隔.</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="<?php echo $td_key; ?>_domain">访问域名</label>
+                            <div class="col-sm-8">
+                                <input <?php echo $disabled;?> type="text" name="config[template][device][<?php echo $key; ?>][domain]" class="form-control" id="<?php echo $td_key; ?>_domain" value="<?php echo $device['domain']; ?>" />
+                                <small class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="<?php echo $td_key; ?>_tpl">设备模板</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input <?php echo $disabled;?> type="text" name="config[template][device][<?php echo $key; ?>][tpl]" class="form-control" id="<?php echo $td_key; ?>_tpl" value="<?php echo $device['tpl']; ?>" />
+                                    <?php echo FilesWidget::modalBtn('模板', "{$td_key}_tpl", 'dir', null, 'select_template'); ?>
+                                </div>
+                                <small class="form-text text-muted">识别到的设备会使用这个模板设置</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="<?php echo $td_key; ?>_index">首页模板</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input <?php echo $disabled;?> type="text" name="config[template][device][<?php echo $key; ?>][index]" class="form-control" id="<?php echo $td_key; ?>_index" value="<?php echo $device['index'] ?: View::TPL_FLAG_1.'/index.htm'; ?>" />
+                                    <?php echo FilesWidget::modalBtn('模板', "{$td_key}_index", 'file', 'tpl_index'); ?>
+                                </div>
+                                <small class="form-text text-muted">设备的首页模板</small>
+                            </div>
+                        </div>
+                    </td>
+                <?php } ?>
+                <?php if($config['template']['device'])foreach ($config['template']['device'] as $key => $device) { ?>
+                    <?php echo '<tr data-key="' . $key . '">'; ?>
+                    <?php echo template_device_td($key, $device); ?>
+                    <?php echo '</tr>'; ?>
+                <?php } ?>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<table class="hide template_device_clone">
+    <tr>
+        <?php echo template_device_td('{key}',[],true); ?>
+    </tr>
+</table>

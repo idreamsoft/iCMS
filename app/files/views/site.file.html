@@ -1,0 +1,99 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">附件URL</label>
+    <div class="col-sm-8">
+        <!-- <textarea name="config[FS][url]" id="FS_url" class="span6" style="height: 90px;"><?php echo $config['FS']['url'] ; ?></textarea> -->
+        <input type="text" name="config[FS][url]" class="form-control" id="FS_url" value="<?php echo $config['FS']['url'] ; ?>" />
+        <small class="form-text text-muted">
+            <!-- 可填写多个,系统将随机选择.<br />格式一行一条<br /> -->如果访问不到,请自行调整.<br />请填写完整的URL,例:https://www.icmsdev.com/res/</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">文件保存目录</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[FS][dir]" class="form-control" id="FS_dir" value="<?php echo $config['FS']['dir'] ; ?>" />
+        <small class="form-text text-muted">相对于程序根目录</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">目录结构</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[FS][dir_format]" class="form-control" id="FS_dir_format" value="<?php echo $config['FS']['dir_format'] ; ?>" />
+            <div class="input-group-append">
+                <a class="btn btn-dark dropdown-toggle" id="FS_dir_format_menu" data-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-question-circle"></i> 帮助</a>
+                <ul class="dropdown-menu" aria-labelledby="FS_dir_format_menu">
+                    <li>
+                        <a class="dropdown-item" href="Y" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">Y</span> 4位数年份</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="y" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">y</span> 2位数年份</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="m" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">m</span> 月份01-12</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="n" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">n</span> 月份1-12</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="d" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">n</span> 日期01-31</a>
+                    </li>
+                    <li>
+                        <a class="dropdown-item" href="j" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">j</span> 日期1-31</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="md5:0,2/" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">md5:0,2</span> 文件MD5</a>
+                        <a class="dropdown-item" href="md5:2,3/" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">md5:2,3</span> 文件MD5</a>
+                        <a class="dropdown-item" href="date:Ymd/" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">date:Ymd</span> 日期</a>
+                    </li>
+                    <li class="divider"></li>
+                    <li>
+                        <a class="dropdown-item" href="EXT" data-toggle="insertContent" data-target="#FS_dir_format"><span class="label label-inverse">EXT</span> 文件类型</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <small class="form-text text-muted">为空全部存入同一目录</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">允许上传类型</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[FS][allow_ext]" class="form-control" id="FS_allow_ext" value="<?php echo $config['FS']['allow_ext'] ; ?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">检测文件</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[FS][check_md5]" id="FS_check_md5" <?php echo $config['FS']['check_md5']?'checked':''; ?>/>
+        <small class="form-text text-muted">检测文件是否上传过,开启后同一个文件只能上传一次,如果需要重新上传请在后台文件管理里删除后,再重新上传</small>
+    </div>
+</div>
+<!--
+    <hr />
+    <div class="form-group row">
+<label class="col-sm-1 col-form-label" for="example">远程附件</label>
+<div class="col-sm-8">
+      <div class="switch">
+        <input type="checkbox" data-toggle="switch" name="config[FS][remote][enable]" id="FS_remote_enable" <?php echo $config['FS']['remote']['enable']?'checked':''; ?>/>
+      </div>
+    <small class="form-text text-muted">>开启后,可接受其它iCMS程序上传/删除附件</span>
+    </div>
+    </div>
+    <div class="form-group row">
+
+<label class="col-sm-1 col-form-label" for="example">AccessKey</label>
+<div class="col-sm-8">
+        <input type="text" name="config[FS][remote][AccessKey]" class="form-control" id="FS_remote_AccessKey" value="<?php echo $config['FS']['remote']['AccessKey'] ; ?>"/>
+    <small class="form-text text-muted">>该AccessKey会和接口URL中包含的Token进行比对，从而验证安全性</span>
+    </div>
+    </div>
+    <div class="form-group row">
+
+<label class="col-sm-1 col-form-label" for="example">SecretKey</label>
+<div class="col-sm-8">
+        <input type="text" name="config[FS][remote][SecretKey]" class="form-control" id="FS_remote_SecretKey" value="<?php echo $config['FS']['remote']['SecretKey'] ; ?>"/>
+    <small class="form-text text-muted">>该SecretKey会和接口URL中包含的Token进行比对，从而验证安全性</span>
+    </div>
+    </div>
+-->

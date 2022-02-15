@@ -1,0 +1,26 @@
+<!-- Search -->
+<div class="block block-rounded">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">搜索</h3>
+    </div>
+    <div class="block-content block-content-full">
+        <form i="form:search" action="<!--{iCMS:route url='api'}-->" method="get" target="_blank">
+            <div class="input-group">
+                <select name="app" class="form-control form-control-alt" style="max-width: 90px">
+                    <option value="article">文章</option>
+                    <!--{iCMS:apps:list loop="true" row="10" id>="36"}-->
+                    <option value="<!--{$apps_list.app}-->"><!--{$apps_list.title}--></option>
+                    <!--{/iCMS}-->
+                </select>
+                <input name="do" type="hidden" value="search" />
+                <input type="text" name="keyword" class="form-control form-control-alt" placeholder="请输入关键词..." value="<!--{$search.keyword}-->"/>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fa fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<!-- END Search -->

@@ -1,0 +1,109 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+            <div class="block-options">
+                <button class="btn btn-primary btn-sm" type="button" id="local_app"><i class="si fa-fw si-puzzle"></i>
+                    安装本地表单</button>
+                <a class="btn btn-success btn-sm" href="<?php echo APP_URL; ?>&do=cache" target="iPHP_FRAME"><i class="si fa-fw si-refresh"></i> 更新缓存</a>
+            </div>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                    <thead class="bg-light text-black">
+                        <tr>
+                            <th style="width:40px;">ID</th>
+                            <th>标识/名称</th>
+                            <th>数据表</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        if ($result) foreach ($result as $key => $value) {
+                            $table  = AppsTable::items($value['table']);
+                            $value['url'] = Route::routing('forms/{id}', [$value['id']]);
+                        ?>
+                            <tr id="id<?php echo $value['id']; ?>">
+                                <td><b><?php echo $value['id']; ?></b></td>
+                                <td>
+                                    <b><?php echo Forms::getTableName($value['app']); ?></b>/<?php echo $value['name']; ?>
+                                    <p class="app_list_desc"><?php echo $value['description']; ?></p>
+                                </td>
+                                <td>
+                                    <?php if (is_array($table)) { ?>
+                                        <a href="https://www.icmsdev.com/docs/<?php echo $value['app']; ?>_table.html" target="_blank" title="点击查看模板标签说明">查看表结构说明</a>
+                                    <?php } else {
+                                        echo '<span class="label">无相关表</span>';
+                                    }
+                                    ?>
+                                </td>
+                                <td class="text-right">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo $value['url']; ?>" class="btn btn-alt-primary" target="_blank"><i class="fa fa-fw fa-dashboard"></i> 表单</a>
+                                        <a href="<?php echo APP_URL; ?>&do=data&fid=<?php echo $value['id']; ?>" class="btn btn-alt-primary" target="_blank"><i class="fa fa-fw fa-dashboard"></i> 数据</a>
+                                        <a href="<?php echo APP_URL; ?>&do=submit&fid=<?php echo $value['id']; ?>" class="btn btn-alt-primary" target="_blank"><i class="fa fa-fw fa-pencil-alt"></i> 添加</a>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo APP_URL; ?>&do=edit&id=<?php echo $value['id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i> 编辑</a>
+                                        <a href="<?php echo APP_URL; ?>&do=pack&id=<?php echo $value['id']; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-download"></i> 打包</a>
+                                        <?php if ($value['status']) { ?>
+                                            <a href="<?php echo APP_URL; ?>&do=update&_args=status;0&id=<?php echo $value['id']; ?>" target="iPHP_FRAME" class="btn btn-alt-primary" data-action="delete"><i class="fa fa-fw fa-close"></i> 关闭</a>
+                                        <?php } else { ?>
+                                            <a href="<?php echo APP_URL; ?>&do=update&_args=status;1&id=<?php echo $value['id']; ?>" target="iPHP_FRAME" class="btn btn-alt-primary"><i class="fa fa-fw fa-check"></i> 启用</a>
+                                        <?php } ?>
+                                        <a href="<?php echo APP_URL; ?>&do=delete&id=<?php echo $value['id']; ?>" target="iPHP_FRAME" class="btn btn-alt-danger" title='永久删除' data-action="delete"><i class="fa fa-fw fa-trash-alt"></i> 卸载</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php }  ?>
+                    </tbody>
+                </table>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php include self::view("widget/localpkg", "apps"); ?>
+<?php self::foot(); ?>

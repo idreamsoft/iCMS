@@ -1,0 +1,23 @@
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            $.getJSON("<?php echo ADMINCP_URL; ?>=patch&do=check_upgrade&t=<?php echo time(); ?>", function (json) {
+                if (json.code == "0") {
+                    return;
+                }
+                iCMS.ui.dialog({
+                    label: "danger",
+                    content: json.message,
+                    okValue: "马上升级",
+                    ok: function () {
+                        window.location.href = json.url;
+                    },
+                    cancelValue: "以后在说",
+                    cancel: function () {
+                        return true;
+                    },
+                });
+            });
+        }, 1000);
+    });
+</script>

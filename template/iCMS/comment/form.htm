@@ -1,0 +1,58 @@
+<script src="<!--{$site.urls.public}-->/js/comment.js"></script>
+<div class="commentApp-form">
+    <div i="user:status:0" class="mb-3">
+        <a href="<!--{iCMS:route url='user:login'}-->" title="登录" class="btn btn-sm btn-alt-light">
+            <i class="fa fa-user"></i>
+            登录
+        </a>
+        <a href="<!--{iCMS:route url='user:register'}-->" target="_blank" class="btn btn-sm btn-alt-light">
+            <i class="fa fa-heart"></i>
+            注册
+        </a>
+    </div>
+    <div i="user:status:1" style="display: none;" class="mb-3">
+    <!--{include file="iCMS://user/widget.dropdown.htm"}-->    
+    </div>
+    <!-- 评论表单 -->
+    <form i="form:comment" class="comment-form <!--{$comment_vars.class}-->" action="<!--{iCMS:route url='comment'}-->" method="POST">
+        <input type="hidden" name="action" value="add" />
+        <input type="hidden" name="param" value="<!--{$comment_vars.param|json_param}-->" />
+        <div class="row no-gutters form-group m-0">
+            <div class="input-group col-md-8">
+                <input name="content" type="text" value="" class="form-control form-control-alt" placeholder="请输入您的评论" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-alt-primary">发布</button>
+                </div>
+            </div>
+        </div>
+        <div class="row no-gutters form-group mt-1">
+            <div class="input-group col-md-5">
+                <input type="text" maxlength="4" name="captcha" class="captcha form-control form-control-alt" placeholder="请输入验证码" />
+                <div class="input-group-append">
+                    <!--{iCMS:public:captcha name="comment" class="input-group-text input-group-text-alt p-0"}-->
+                </div>
+            </div>
+        </div>
+    </form>
+    <!-- 回复评论表单 默认隐藏状态 -->
+    <form i="form:comment:reply" style="display: none;" class="comment-reply-form mt-1" action="<!--{iCMS:route url='commentReply'}-->" method="POST">
+        <input type="hidden" name="action" value="add" />
+        <input type="hidden" name="param" value="" />
+        <div class="form-group m-0">
+            <div class="input-group">
+                <input name="content" type="text" value="" class="form-control form-control-alt" placeholder="回复xxxx" />
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-alt-primary">发布</button>
+                </div>
+            </div>
+        </div>
+        <div class="row no-gutters form-group mt-1">
+            <div class="input-group col-md-5">
+                <input type="text" maxlength="4" name="captcha" class="captcha form-control form-control-alt" placeholder="请输入验证码" />
+                <div class="input-group-append">
+                    <!--{iCMS:public:captcha name="commentReply" class="input-group-text input-group-text-alt p-0"}-->
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

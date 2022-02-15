@@ -1,0 +1,345 @@
+<form i="form:manage:profile" action="<!--{iCMS:route url='UserProfile'}-->" method="POST">
+    <input type="hidden" name="action" value="save" />
+
+    <div class="block">
+        <div class="block-content p-0">
+            <div class="form-group row">
+                <label for="phone" class="col-sm-2 col-form-label text-sm-right">手机号</label>
+                <div class="col-sm-8">
+                    <fieldset class="form-control" disabled><!--{$ME.phone}--></fieldset>
+                    <!--{*
+                    <input type="text" class="form-control" id="phone" name="phone" value="<!--{$ME.phone}-->
+                    " /> *}-->
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="account" class="col-sm-2 col-form-label text-sm-right">账号</label>
+                <div class="col-sm-8">
+                    <fieldset class="form-control" disabled><!--{$ME.account}--></fieldset>
+                    <!--{*
+                    <input type="text" class="form-control" id="account" name="account" value="<!--{$ME.account}-->
+                    " /> *}-->
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="email" class="col-sm-2 col-form-label text-sm-right">邮箱</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="email" name="email" value="<!--{$ME.email}-->" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="nickname" class="col-sm-2 col-form-label text-sm-right">昵称</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="nickname" name="nickname" value="<!--{$ME.nickname}-->" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="gender" class="col-sm-2 col-form-label text-sm-right">性别</label>
+                <div class="col-sm-8 py-1">
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" class="custom-control-input" name="gender" id="gender_0" value="0" />
+                        <label class="custom-control-label" for="gender_0">女</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" class="custom-control-input" name="gender" id="gender_1" value="1" />
+                        <label class="custom-control-label" for="gender_1">男</label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" class="custom-control-input" name="gender" id="gender_2" value="2" />
+                        <label class="custom-control-label" for="gender_2">保密</label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="slogan" class="col-sm-2 col-form-label text-sm-right">我的签名</label>
+                <div class="col-sm-8">
+                    <textarea id="slogan" name="data[slogan]" rows="5" class="slogan form-control" placeholder="随便写点什么，让大家了解你吧。"><!--{$ME.data.slogan}--></textarea>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-6">
+                <button type="submit" class="btn btn-alt-primary">修改账号信息</button>
+            </div>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">个人信息</h3>
+        </div>
+        <div class="block-content px-0">
+            <div class="form-group row">
+                <label for="weixin" class="col-sm-2 col-form-label text-sm-right">微信</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="weixin" name="data[weixin]" value="<!--{$ME.data.weixin}-->" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="weibo" class="col-sm-2 col-form-label text-sm-right">微博</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="weibo" name="data[weibo]" value="<!--{$ME.data.weibo}-->" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="email" class="col-sm-2 col-form-label text-sm-right">所在地</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <select id="province" name="data[province]" class="form-control"></select>
+                        <select id="city" name="data[city]" class="form-control"></select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <label for="email" class="col-sm-2 col-form-label text-sm-right">生日</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <select name="data[year]" id="year" class="form-control">
+                            <option selected value=""></option>
+                            <!--{$iCMS.now|date:'Y'|as:'year'}-->
+                            <!--{"$syear=$year-60;$eyear=$year-6;"}-->
+                            <!--{for start="$eyear" stop="$syear" value=i}-->
+                            <option value="<!--{$i}-->">
+                                <!--{$i}-->
+                                年
+                            </option>
+                            <!--{/for}-->
+                        </select>
+                        <select name="data[month]" id="month" class="form-control">
+                            <option selected></option>
+                            <!--{for start=1 stop=12 value=i}-->
+                            <option value="<!--{$i}-->">
+                                <!--{$i}-->
+                                月
+                            </option>
+                            <!--{/for}-->
+                        </select>
+                        <select name="data[day]" id="day" class="form-control">
+                            <option selected></option>
+                            <!--{for start=1 stop=31 value=i}-->
+                            <option value="<!--{$i}-->">
+                                <!--{$i}-->
+                                日
+                            </option>
+                            <!--{/for}-->
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="constellation" class="col-sm-2 col-form-label text-sm-right">星座</label>
+                <div class="col-sm-8">
+                    <select id="constellation" name="data[constellation]" class="form-control">
+                        <option selected id="constellation_selected"></option>
+                        <option value="白羊座">白羊座 3.21-4.19</option>
+                        <option value="金牛座">金牛座 4.20-5.20</option>
+                        <option value="双子座">双子座 5.21-6.21</option>
+                        <option value="巨蟹座">巨蟹座 6.22-7.22</option>
+                        <option value="狮子座">狮子座 7.23-8.22</option>
+                        <option value="处女座">处女座 8.23-9.22</option>
+                        <option value="天秤座">天秤座 9.23-10.23</option>
+                        <option value="天蝎座">天蝎座 10.24-11.22</option>
+                        <option value="射手座">射手座 11.23-12.21</option>
+                        <option value="魔羯座">魔羯座 12.22-1.19</option>
+                        <option value="水瓶座">水瓶座 1.20-2.18</option>
+                        <option value="双鱼座">双鱼座 2.19-3.20</option>
+
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="profession" class="col-sm-2 col-form-label text-sm-right">职业</label>
+                <div class="col-sm-8">
+                    <select id="profession" name="data[profession]" class="form-control">
+                        <option selected id="profession_selected"></option>
+                        <option value="白领">白领</option>
+                        <option value="学生">学生</option>
+                        <option value="工人">工人</option>
+                        <option value="其他">其他</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label for="personstyle" class="col-sm-2 col-form-label text-sm-right">个人标签</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" id="personstyle" name="data[personstyle]" value="<!--{$ME.data.personstyle}-->" />
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-6">
+                <button type="submit" class="btn btn-alt-primary">修改个人信息</button>
+            </div>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">隐私设置</h3>
+        </div>
+        <div class="block-content px-0">
+            <div class="form-group row">
+                <label for="message_receive_all" class="col-sm-2 col-form-label text-sm-right">私信</label>
+                <div class="col-sm-8 py-1">
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" name="setting[message][receive]" id="message_receive_all" value="all" checked />
+                        <label class="custom-control-label" for="message_receive_all">允许所有人给我发私信</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" name="setting[message][receive]" id="message_receive_follow" value="follow" />
+                        <label class="custom-control-label" for="message_receive_follow">只允许我关注的人给我发私信</label>
+                    </div>
+                    <div class="custom-control custom-radio">
+                        <input type="radio" class="custom-control-input" name="setting[message][receive]" id="message_receive_0" value="0" />
+                        <label class="custom-control-label" for="message_receive_0">关闭私信</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-6">
+                <button type="submit" class="btn btn-alt-primary">修改隐私设置</button>
+            </div>
+        </div>
+    </div>
+</form>
+<div class="block">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">社交账号绑定</h3>
+    </div>
+    <div class="block-content px-0">
+        <!--{if $USER_CONFIG.open.WX.enable }-->
+        <div class="form-group row">
+            <label for="personstyle" class="col-sm-2 col-form-label text-sm-right">微信</label>
+            <div class="col-sm-8 py-1">
+                <a href="<!--{iCMS:route url='user:login:wx'}-->" class="btn btn-link">
+                    <svg fill="#60c84d" viewBox="0 0 24 24" width="30" height="30">
+                        <path
+                            d="M2.224 21.667s4.24-1.825 4.788-2.056C15.029 23.141 22 17.714 22 11.898 22 6.984 17.523 3 12 3S2 6.984 2 11.898c0 1.86.64 3.585 1.737 5.013-.274.833-1.513 4.756-1.513 4.756zm5.943-9.707c.69 0 1.25-.569 1.25-1.271a1.26 1.26 0 0 0-1.25-1.271c-.69 0-1.25.569-1.25 1.27 0 .703.56 1.272 1.25 1.272zm7.583 0c.69 0 1.25-.569 1.25-1.271a1.26 1.26 0 0 0-1.25-1.271c-.69 0-1.25.569-1.25 1.27 0 .703.56 1.272 1.25 1.272z"
+                            fill-rule="evenodd"
+                        ></path>
+                    </svg>
+                    微信
+                </a>
+                <a href="">已绑定,取消绑定</a>
+                <a href="">马上绑定</a>
+            </div>
+        </div>
+        <!--{/if}-->
+        <!--{if $USER_CONFIG.open.QQ.enable }-->
+        <div class="form-group row">
+            <label for="personstyle" class="col-sm-2 col-form-label text-sm-right">QQ</label>
+            <div class="col-sm-8 py-1">
+                <a href="<!--{iCMS:route url='user:login:qq'}-->" class="btn btn-link">
+                    <svg fill="#50c8fd" viewBox="0 0 24 24" width="30" height="30">
+                        <path
+                            d="M12.003 2c-2.265 0-6.29 1.364-6.29 7.325v1.195S3.55 14.96 3.55 17.474c0 .665.17 1.025.281 1.025.114 0 .902-.484 1.748-2.072 0 0-.18 2.197 1.904 3.967 0 0-1.77.495-1.77 1.182 0 .686 4.078.43 6.29 0 2.239.425 6.287.687 6.287 0 0-.688-1.768-1.182-1.768-1.182 2.085-1.77 1.905-3.967 1.905-3.967.845 1.588 1.634 2.072 1.746 2.072.111 0 .283-.36.283-1.025 0-2.514-2.166-6.954-2.166-6.954V9.325C18.29 3.364 14.268 2 12.003 2z"
+                            fill-rule="evenodd"
+                        ></path>
+                    </svg>
+                    QQ
+                </a>
+            </div>
+        </div>
+        <!--{/if}-->
+        <!--{if $USER_CONFIG.open.WB.enable }-->
+        <div class="form-group row">
+            <label for="personstyle" class="col-sm-2 col-form-label text-sm-right">微博</label>
+            <div class="col-sm-8 py-1">
+                <a href="<!--{iCMS:route url='user:login:wb'}-->" class="btn btn-link">
+                    <svg fill="#fb6622" viewBox="0 0 24 24" width="30" height="30">
+                        <path
+                            fill="#FB6622"
+                            d="M15.518 3.06c8.834-.854 7.395 7.732 7.394 7.731-.625 1.439-1.673.309-1.673.309.596-7.519-5.692-6.329-5.692-6.329-.898-1.067-.029-1.711-.029-1.711zm4.131 6.985c-.661 1.01-1.377.126-1.376.126.205-3.179-2.396-2.598-2.396-2.598-.719-.765-.091-1.346-.091-1.346 4.882-.551 3.863 3.818 3.863 3.818zM5.317 7.519s4.615-3.86 6.443-1.328c0 0 .662 1.08-.111 2.797.003-.003 3.723-1.96 5.408.159 0 0 .848 1.095-.191 2.649 0 0 2.918-.099 2.918 2.715 0 2.811-4.104 6.44-9.315 6.44-5.214 0-8.026-2.092-8.596-3.102 0 0-3.475-4.495 3.444-10.33zm10.448 7.792s.232-4.411-5.71-4.207c-6.652.231-6.579 4.654-6.579 4.654.021.39.097 3.713 5.842 3.713 5.98 0 6.447-4.16 6.447-4.16zm-9.882.86s-.059-3.632 3.804-3.561c3.412.06 3.206 3.165 3.206 3.165s-.026 2.979-3.684 2.979c-3.288 0-3.326-2.583-3.326-2.583zm2.528 1.037c.672 0 1.212-.447 1.212-.998 0-.551-.543-.998-1.212-.998-.672 0-1.215.447-1.215.998 0 .551.546.998 1.215.998z"
+                            fill-rule="evenodd"
+                        ></path>
+                    </svg>
+                    微博
+                </a>
+            </div>
+        </div>
+        <!--{/if}-->
+    </div>
+</div>
+<script type="text/javascript" src="<!--{$site.urls.public}-->/js/city_utf8.js"></script>
+<script type="text/javascript">
+jQuery(() => {
+    initPlace('<!--{$ME.data.city}-->', '<!--{$ME.data.province}-->');
+    $("[name=gender][value=<!--{$ME.gender|default:'2':false}-->]").attr("checked", true);
+    $("#message_receive_<!--{$ME.setting.message.receive|default:'all'}-->").attr("checked", true);
+    $("#year").val("<!--{$ME.data.year|default:$eyear}-->");
+    $("#month").val("<!--{$ME.data.month|default:'1'}-->");
+    $("#day").val("<!--{$ME.data.day|default:'1'}-->");
+    $("#constellation").val("<!--{$ME.data.constellation}-->");
+    $("#profession").val("<!--{$ME.data.profession}-->");
+    $("#month, #day").change(function() {
+        var c = $("#constellation")[0],
+            m = $("#month").val(),
+            d = $("#day").val();
+        c.selectedIndex = m == 1 && d >= 20 || m == 2 && d <= 18 ? 1 : 
+        m == 2 && d >= 19 || m == 3 && d <= 20 ? 2 : 
+        m == 3 && d >= 21 || m == 4 && d <= 19 ? 3 : 
+        m == 4 && d >= 20 || m == 5 && d <= 20 ? 4 : 
+        m == 5 && d >= 21 || m == 6 && d <= 21 ? 5 : 
+        m == 6 && d >= 22 || m == 7 && d <= 22 ? 6 : 
+        m == 7 && d >= 23 || m == 8 && d <= 22 ? 7 : 
+        m == 8 && d >= 23 || m == 9 && d <= 22 ? 8 : 
+        m == 9 && d >= 23 || m == 10 && d <= 22 ? 9 : 
+        m == 10 && d >= 23 || m == 11 && d <= 21 ? 10 : 
+        m == 11 && d >= 22 || m == 12 && d <= 21 ? 11 : 
+        m == 12 && d >= 22 || m == 1 && d <= 19 ? 12 : 0
+    });
+    $("#personstyle").keyup(function(event) {
+        this.value=this.value.replace(/，/ig,',');
+        this.value=this.value.replace(/\s/ig,',');
+        this.value=this.value.replace(/,{2,}/ig,',');
+    });
+});
+</script>
+<script>
+jQuery(() => {
+    submit("资料修改", "form:manage:profile", {
+        rules: {
+            account: {
+                required: true,
+                minlength: 6,
+            },
+            phone: {
+                required: true,
+                number: true,
+                minlength: 11,
+                isMobile: true,
+            },
+            email: {
+                required: true,
+                email: true,
+            },
+            'data[slogan]': {
+                maxlength: 120,
+            },
+        },
+        messages: {
+            account: {
+                required: "请输入您的账号",
+                minlength: "账号不能少于6个字符",
+            },
+            phone: {
+                required: "请输入手机号",
+                number: "手机号只能输入数字",
+                minlength: "手机号不能少于11个字符",
+                isMobile: "请填写正确的手机号码",
+            },
+            email: {
+                required: "请输入邮箱",
+                email: "邮箱格式不正确",
+            },
+            'data[slogan]': {
+                maxlength: "自我介绍不能大于120个字符",
+            },
+        },
+    });
+});
+
+</script>

@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head($navbar);
+?>
+<script type="text/javascript">
+    $(function() {
+        var doc = $(document);
+        doc.on("click", ".selected", function(event) {
+            event.preventDefault();
+            var path = $(this).data("path");
+            var el = '<?php echo $this->target; ?>';
+            var e = window.parent.$("#" + el) || window.parent.$("." + el);
+            e.val(path);
+            console.log(path, e);
+            window.top.iCMS_MODAL.destroy();
+        });
+    })
+</script>
+<div class="block">
+    <div class="block-content block-content-full">
+        <table class="js-table-sections table table-condensed table-hover">
+            <thead>
+                <tr>
+                    <th style="width: 30px;"></th>
+                    <th>标识</th>
+                    <th>名称</th>
+                    <th>目录</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <?php foreach ($result as $key => $value) { ?>
+                <tbody class="js-table-sections-header">
+                    <tr>
+                        <td class="text-center">
+                            <i class="fa fa-fw fa-angle-right text-muted"></i>
+                        </td>
+                        <th><?php echo $key; ?></th>
+                        <td>
+                            <p class="font-w600 mb-1"><?php echo $value['title']; ?></p>
+                            <p class="text-muted mb-0"><?php echo $value['description']; ?></p>
+                        </td>
+                        <td><?php echo implode("<br />", $value['path']); ?></td>
+                        <td><?php if (!$value['templates']) { ?>
+                                <a href="javascript:;" class="btn btn-alt-primary selected" data-path="<?php echo implode("", $value['path']); ?>">选择</a>
+                            <?php } ?>
+                        </td>
+                    </tr>
+                </tbody>
+
+                <tbody class="font-size-sm">
+                    <?php if ($value['templates']) foreach ($value['templates'] as $tkey => $template) { ?>
+                        <tr>
+                            <td></td>
+                            <td class="text-center"><?php echo $tkey; ?></td>
+                            <td><?php echo  $template['title']; ?></td>
+                            <td><?php echo  $template['path']; ?></td>
+                            <td>
+                                <a href="javascript:;" class="btn btn-alt-primary selected" data-path="<?php echo  $template['path']; ?>">选择</a>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+
+            <?php } ?>
+        </table>
+    </div>
+</div>
+<script>
+    jQuery(function() {
+        One.helpers(['table-tools-sections']);
+    });
+</script>
+<?php self::foot(); ?>

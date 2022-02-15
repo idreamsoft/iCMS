@@ -1,0 +1,7 @@
+/*.row-actions a{color: #6c757d!important;}
+*/
+
+.btn-group-sm>.btn {
+    line-height: 1;
+    height: 25px;
+}

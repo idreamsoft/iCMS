@@ -1,0 +1,5 @@
+{
+    "ArticleUser": "api.php?app=ArticleUser",
+    "ArticleUser/publish": "api.php?app=ArticleUser&do=publish",
+    "ArticleUser/manage": "api.php?app=ArticleUser&do=manage"
+}

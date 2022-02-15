@@ -1,0 +1,24 @@
+<?php if ($result) {; ?>
+    <div class="input-group input-group-sm my-1">
+        <div class="input-group-prepend">
+            <div class="input-group-text">子应用</div>
+        </div>
+        <?php
+        foreach ($result as $key => $value) {
+            $manurl = sprintf('%s=%s&do=manage&%s_id=%d', ADMINCP_URL, $value['app'], Admincp::$APP, $data['id']);
+            $addurl = sprintf('%s=%s&do=add&%s_id=%d', ADMINCP_URL, $value['app'], Admincp::$APP, $data['id']);
+        ?>
+            <div class="input-group-append dropdown">
+                <button type="button" class="btn btn-alt-primary dropdown-toggle" id="dropdown-default-alt-secondary-<?php echo $data['id']; ?>" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><?php echo $value['title']; ?></button>
+                <div class="dropdown-menu font-size-sm" aria-labelledby="dropdown-default-alt-secondary<?php echo $data['id']; ?>">
+                    <a class="dropdown-item" href="<?php echo $manurl; ?>" target="_blank">
+                        <?php echo $value['title']; ?>管理
+                    </a>
+                    <a class="dropdown-item" href="<?php echo $addurl; ?>" data-toggle="modal" data-target="#iCMS-MODAL" data-meta="{&quot;width&quot;:&quot;85%&quot;,&quot;height&quot;:&quot;600px&quot;}" title="<?php echo $data['title']; ?> - 添加<?php echo $value['title']; ?>">
+                        添加<?php echo $value['title']; ?>
+                    </a>
+                </div>
+            </div>
+        <?php }; ?>
+    </div>
+<?php }; ?>

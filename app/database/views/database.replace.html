@@ -1,0 +1,64 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <?php echo Menu::navTabs(Admincp::$APP_NAME); ?>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_URL; ?>&do=query" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="tab-content">
+                    <div class="alert alert-warning">批量替换属直接对操作数据库，存在一定危险性，请慎用!!!</div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="cid">字段</label>
+                        <div class="col-sm-8">
+                            <select v-model="field" id="field" name="field" class="form-control">
+                                <option value="title">标题</option>
+                                <option value="clink">自定义链接</option>
+                                <option value="comment">评论数</option>
+                                <option value="pic">缩略图</option>
+                                <option value="cid">栏目</option>
+                                <option value="tkd">标题/关键字/简介</option>
+                                <option value="body">内容</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="cid">查找</label>
+                        <div class="col-sm-8">
+                            <textarea name="pattern" id="pattern" class="form-control" style="height: 150px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="cid">替换</label>
+                        <div class="col-sm-8">
+                            <textarea name="replacement" id="replacement" class="form-control" style="height: 150px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="cid">条件</label>
+                        <div class="col-sm-8">
+                            <textarea name="where" id="where" class="form-control" style="height: 150px;"></textarea>
+                            <small class="form-text text-muted">只支持SQL语句,where `xxx`='aaa'</small>
+                        </div>
+                    </div>
+                    <?php self::formSubmit(); ?>
+
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

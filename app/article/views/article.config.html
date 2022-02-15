@@ -1,0 +1,151 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_img_title">文章图片标题</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[img_title]" id="article_img_title" <?php echo $config['img_title']?'checked':''; ?>/>
+        <small class="form-text text-muted">启用后 可以自定义文章正文内图片的title和alt,关闭后 系统将直接替换成文章标题</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_pic_center">文章图片居中</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[pic_center]" id="article_pic_center" <?php echo $config['pic_center']?'checked':''; ?>/>
+        <small class="form-text text-muted">启用后 文章内的图片会自动居中</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_pic_next">文章图片链接</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[pic_next]" id="article_pic_next" <?php echo $config['pic_next']?'checked':''; ?>/>
+        <small class="form-text text-muted">启用后 文章内的图片都会带上下一页的链接和点击图片进入下一页的链接</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_pageno_incr">文章分页+N</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[pageno_incr]" class="form-control" id="article_pageno_incr" value="<?php echo $config['pageno_incr'] ; ?>" />
+        <small class="form-text text-muted">设置此项后,内容分页数比实际页数+N页,不增加请设置为0</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_markdown">编辑器</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" data-on-text="markdown" data-off-text="UEditor" name="config[markdown]" id="article_markdown" <?php echo $config['markdown']?'checked':''; ?>/>
+        <small class="form-text text-muted">markdown编辑器为Editor.md,默认使用UEditor</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_autoformat">自动排版</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[autoformat]" id="article_autoformat" <?php echo $config['autoformat']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后发布文章时,程序会自动对内容进行清理无用代码.采集时推荐开启.如果内容格式丢失 请关闭此项</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_catch_remote">编辑器图片</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[catch_remote]" id="article_catch_remote" <?php echo $config['catch_remote']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后发表文章时只要有图片 就会自动下载</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_remote">下载远程图片</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[remote]" id="article_remote" <?php echo $config['remote']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后发表文章时该选项默认为选中状态</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_autopic">提取缩略图</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[autopic]" id="article_autopic" <?php echo $config['autopic']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后发表文章时该选项默认为选中状态</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_autodesc">提取摘要</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[autodesc]" id="article_autodesc" <?php echo $config['autodesc']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后发表文章时程序会自动提取文章部分内容为文章摘要</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_descLen">提取摘要字数</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[descLen]" class="form-control" id="article_descLen" value="<?php echo $config['descLen'] ; ?>" />
+        <small class="form-text text-muted">设置自动提取内容摘要字数</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_autoPage">内容自动分页</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[autoPage]" id="article_autoPage" <?php echo $config['autoPage']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后发表文章时程序会分页</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_AutoPageLen">内容分页字数</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[AutoPageLen]" class="form-control" id="article_AutoPageLen" value="<?php echo $config['AutoPageLen'] ; ?>" />
+        <small class="form-text text-muted">设置自动内容分页字数</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_repeatitle">检查标题重复</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[repeatitle]" id="article_repeatitle" <?php echo $config['repeatitle']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后不能发表相同标题的文章</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_showpic">列表显示图片</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[showpic]" id="article_showpic" <?php echo $config['showpic']?'checked':''; ?>/>
+        <small class="form-text text-muted">开启后文章列表将会显示缩略图</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_filter">后台文章过滤</label>
+    <div class="col-sm-8">
+        <select v-model="article_filter" name="config[filter][]" id="article_filter" class="form-control" multiple="multiple">
+            <option value="title:标题">标题</option>
+            <option value="description:简介">简介</option>
+            <option value="body:内容">内容</option>
+            <option value="tags:标签">标签</option>
+            <option value="stitle:短标题">短标题</option>
+            <option value="keywords:关键字">关键字</option>
+        </select>
+        <small class="form-text text-muted">开启台 后台输入的文章相关字段都将经过关键字过滤</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_totalNum">列表优化</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[totalNum]" class="form-control" id="article_totalNum" value="<?php echo $config['totalNum'] ; ?>" />
+        <small class="form-text text-muted">固定总条数,将大大提高后台性能,但无法正确统计条数</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_clink">字符分隔符</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[clink]" class="form-control" id="article_clink" value="<?php echo $config['clink'] ; ?>" />
+        <small class="form-text text-muted">文章自定义链接字符分隔符</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_emoji">emoji表情转换</label>
+    <div class="col-sm-8">
+        <select v-model="article_emoji" name="config[emoji]" id="article_emoji" class="form-control">
+            <option value="">不转换</option>
+            <option value="unicode">unicode</option>
+            <option value="clean">清除</option>
+        </select>
+        <small class = "form-text text-muted" > 文章内容出现emoji表情, 会出现内容被截断的数据, 可选相关处理方法 </small>
+    </div>
+</div>
+<script>
+    iCMS.set('Vue.data',{
+        article_filter: <?php echo json_encode((array)$config['filter']);?>,
+        article_emoji: "<?php echo $config['article_emoji'];?>",
+    });
+</script>
+

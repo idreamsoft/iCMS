@@ -1,0 +1,61 @@
+[{
+        "id": "admincp",
+        "sort": "-9999999",
+        "caption": "管理",
+        "icon": "si si-speedometer",
+        "href": "iPHP_SELF"
+    },
+    {
+        "caption": "-",
+        "sort": "-9999998"
+    },
+    {
+        "id": "cms",
+        "sort": "-9999997",
+        "caption": "内容管理",
+        "icon": "si si-grid",
+        "children": [
+
+        ]
+    },
+    {
+        "id": "members",
+        "sort": "9999996",
+        "caption": "用户",
+        "icon": "si si-users",
+        "children": [
+
+        ]
+    },
+    {
+        "id": "assist",
+        "sort": "9999997",
+        "caption": "辅助",
+        "icon": "si si-support",
+        "children": [
+
+        ]
+    },
+    {
+        "id": "tools",
+        "sort": "9999998",
+        "caption": "工具",
+        "icon": "si si-wrench",
+        "children": [
+
+        ]
+    },
+    {
+        "caption": "-",
+        "sort": "9999999"
+    },
+    {
+        "id": "system",
+        "sort": "99999999",
+        "caption": "系统",
+        "icon": "si si-settings",
+        "children": [
+
+        ]
+    }
+]

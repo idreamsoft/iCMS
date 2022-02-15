@@ -1,0 +1,159 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head(false);
+?>
+<div class="content p-0">
+    <div class="block">
+        <div class="block-content p-0">
+            <table class="dataTable table text-nowrap table-sm table-hover table-striped table-vcenter font-size-sm mb-0">
+                <thead>
+                    <tr>
+                        <th><i class="fa fa-fw fa-arrows-up"></i></th>
+                        <th>版本</th>
+                        <th>信息</th>
+                        <th>作者</th>
+                        <th>更新时间 </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody class="log-list">
+                    <?php
+                    $uri = $_GET['path'] ? "&path=" . urlencode($_GET['path']) : null;
+                    if ($log) foreach ($log as $k => $value) {
+                        $commit_id = $value['commit_id'];
+                    ?>
+                        <tr id="id<?php echo $commit_id; ?>">
+                            <td>
+                                <?php echo $k + 1; ?>
+                            </td>
+                            <td>
+                                <?php echo substr($commit_id, 0, 16); ?>
+                            </td>
+                            <td class="w-50 text-wrap">
+                                <?php echo $value['info'][3]; ?>
+                            </td>
+                            <td>
+                                <?php echo $value['info'][1]; ?>
+                            </td>
+                            <td>
+                                <?php echo date('Y-m-d H:i', $value['info'][2]); ?>
+                            </td>
+                            <td class="text-right">
+                                <div class="btn-group btn-group-sm">
+                                    <!-- <a href="<?php echo APP_URL; ?>&do=git_log&commit_id=<?php echo $commit_id; ?>" class="gitlog btn btn-sm" title="查看这个版本详细信息"><i class="fa fa-fw fa-eye"></i> 查看</a> -->
+                                    <a href="<?php echo APP_URL; ?>&do=git_show&commit_id=<?php echo $commit_id; ?>&git=true<?php echo $uri; ?>" class="btn btn-alt-primary " data-toggle="modal" data-target="#iCMS-MODAL" data-meta="{&quot;width&quot;:&quot;85%&quot;,&quot;height&quot;:&quot;450px&quot;}" title="查看<?php echo substr($commit_id, 0, 16); ?>详细信息"><i class="fa fa-fw fa-eye"></i> 查看</a>
+                                    <a href="<?php echo APP_URL; ?>&do=git_download&last_commit_id=<?php echo $commit_id; ?>&release=<?php echo date('Ymd', $value['info'][2]); ?>&git=true<?php echo $uri; ?>" class="btn btn-alt-primary " target="_blank" title="更新到这个版本"><i class="fa fa-fw fa-check"></i> 更新</a>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                    <tr>
+                        <td>0</td>
+                        <td>
+                            <?php echo substr(iCMS_GIT_COMMIT, 0, 16); ?>
+                        </td>
+                        <td>
+                            <?php if ($log) { ?>
+                                您当前使用的版本
+                            <?php } else { ?>
+                                您当前使用的是最新版本
+                            <?php } ?>
+                        </td>
+                        <td>
+                            <?php echo iCMS_GIT_AUTHOR; ?>
+                        </td>
+                        <td>
+                            <?php echo date('Y-m-d H:i', iCMS_GIT_TIME); ?>
+                        </td>
+                        <td></td>
+                    </tr>                   
+                    <?php 
+                    if ($last) { 
+                        $bakdir = Patch::getBackupDir($last[1]);
+                    ?>
+                    <tr>
+                        <td>-1</td>
+                        <td>
+                            <?php echo substr($last[0], 0, 16); ?>
+                        </td>
+                        <td>
+                            上一个版本
+                        </td>
+                        <td>
+                            <?php echo iCMS_GIT_AUTHOR; ?>
+                        </td>
+                        <td>
+                            <?php echo date('Y-m-d H:i', $last[2]); ?>
+                        </td>
+                        <td class="text-right">
+                            <div class="btn-group btn-group-sm">
+                            <a href="<?php echo APP_URL; ?>&do=git_diff&commit_id=<?php echo $last[0]; ?>&last_commit_id=<?php echo iCMS_GIT_COMMIT; ?>&git=true<?php echo $uri; ?>" class="btn btn-alt-primary " data-toggle="modal" data-target="#iCMS-MODAL" data-meta="{&quot;width&quot;:&quot;85%&quot;,&quot;height&quot;:&quot;450px&quot;}" title="查看版本<?php echo $last[0].' - '.iCMS_GIT_COMMIT; ?>差异"><i class="fa fa-fw fa-border-style"></i> 差异</a>
+                            <?php if (is_dir($bakdir)) { ?>
+                                <a href="<?php echo APP_URL; ?>&do=roll&dir=<?php echo $last[1]; ?>" class="btn btn-alt-primary " target="_blank" title="回滚到这个版本"><i class="fa fa-fw fa-reply-all"></i> 回滚</a>
+                            <?php } ?>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<script>
+    // $(function(){
+    //   var param    = {}
+    //   var type_map = {'D':'删除','A':'增加','M':'更改'}
+    //   $(".gitlog").click(function(event) {
+    //     event.preventDefault();
+    //     var $this = $(this);
+    //     var url = $this.attr('href');
+    //     $.get(url, function(c) {
+    //       // $("#git_commit").html(c[0]);
+    //       var fileList =''
+    //       $.each(c[1], function(index, val) {
+    //         fileList+='<tr>'
+    //                     +'<td scope="row">'+index+'</td>'
+    //                     +'<td>'
+    //                       +'<div class="checkbox">'
+    //                         +'<label>'
+    //                           +'<input type="checkbox" name="filelist"'
+    //                           +'value="'+val[0]+'@~@'+val[1]+'" checked />'
+    //                         +'</label>'
+    //                       +'</div>'
+    //                     +'</td>'
+    //                     +'<td>'+type_map[val[0]]+'</td>'
+    //                     +'<td><div class="filepath">'+val[2]+'</div></td>'
+    //                   +'</tr>';
+    //       });
+    //       var table = '<table class="table table-hover">'
+    //                 +'<thead>'
+    //                   +'<tr>'
+    //                     +'<th>#</th>'
+    //                     +'<th>选择</th>'
+    //                     +'<th>执行</th>'
+    //                     +'<th></th>'
+    //                   +'</tr>'
+    //                 +'</thead>'
+    //                 +'<tbody>'
+    //                 +fileList
+    //                 +'</tbody>'
+    //               +'</table>';
+
+    //       iCMS.ui.dialog({
+    //           content: $(table)
+    //       });
+    //     },'json');
+    //   });
+    // });
+</script>
+<?php self::foot(); ?>

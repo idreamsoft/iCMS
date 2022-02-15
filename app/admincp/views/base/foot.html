@@ -1,0 +1,31 @@
+</main>
+<!-- END Main Container -->
+<?php AdmincpView::get('page.footer') && include self::display("base/page.footer", 'admincp'); ?>
+<?php AdmincpView::get('page.common') &&  include self::display("base/page.common", 'admincp'); ?>
+<?php AdmincpView::get('modal.dialog') && include self::display("base/modal.dialog", 'admincp'); ?>
+</div>
+<!-- END Page Container -->
+
+<?php
+if (AdmincpView::get('vue')) {
+    $vue = AdmincpView::display("vue");
+    file_exists($vue) && include $vue;
+}
+?>
+<script src="./assets/vue.init.js"></script>
+
+<?php
+// $_css = Admincp::$APP_NAME."/assets/".Admincp::$APP_DO.".css";
+// file_exists(iPHP_APP_DIR.'/'.$_css) && print('<link rel="stylesheet" href="./app/'.$_css.'" />');
+
+// $_js = Admincp::$APP_NAME."/assets/".Admincp::$APP_DO.".js";
+// file_exists(iPHP_APP_DIR.'/'.$_js) && print('<script src="./app/'.$_js.'"></script>');
+
+if (AdmincpView::get('script')) {
+    $script = self::display("script");
+    file_exists($script) && include $script;
+}
+?>
+</body>
+
+</html>

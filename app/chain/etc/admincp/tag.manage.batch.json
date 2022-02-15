@@ -1,0 +1,13 @@
+{
+
+    "chain": {
+        "name": "设置为内链",
+        "icon": "paperclip",
+        "sort": 15,
+        "call": "ChainAdmincp::batchTag"
+    },
+    "divider3": {
+        "name": "divider",
+        "sort": 16
+    }
+}

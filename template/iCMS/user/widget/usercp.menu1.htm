@@ -1,0 +1,13 @@
+<ul id="menuList" class="nav-items push">
+    <!--{foreach key="key" value="item" from="$menuList"}-->
+    <!--{if !$item.hidden}-->
+    <li>
+        <!--{"$item.id==$menu.id ? 'active' :''"|as:'active'}-->
+        <a i="<!--{$item.i}-->" class="media py-2 align-items-center justify-content-center <!--{$active}-->" href="<!--{$item.url}-->">
+            <i class="<!--{$item.icon}--> mr-1"></i>
+            <!--{$item.title}-->
+        </a>
+    </li>
+    <!--{/if}-->
+    <!--{/foreach}-->
+</ul>

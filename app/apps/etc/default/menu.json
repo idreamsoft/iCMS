@@ -1,0 +1,111 @@
+[
+    {
+        "id": "cms",
+        "children": [
+            {
+                "id": "{app}",
+                "caption": "{name}",
+                "icon": "si si-grid",
+                "children": [
+                    {
+                        "caption": "更新栏目缓存",
+                        "href": "{app}_node&do=cache",
+                        "icon": "sync",
+                        "target": "iPHP_FRAME"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "栏目管理",
+                        "href": "{app}_node",
+                        "icon": "sitemap"
+                    },
+                    {
+                        "caption": "添加栏目",
+                        "href": "{app}_node&do=add",
+                        "icon": "edit"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "添加{title}",
+                        "href": "{app}&do=add",
+                        "icon": "edit"
+                    },
+                    {
+                        "caption": "{title}管理",
+                        "href": "{app}&do=manage",
+                        "icon": "list-alt"
+                    },
+                    {
+                        "caption": "草稿箱",
+                        "href": "{app}&do=inbox",
+                        "icon": "inbox"
+                    },
+                    {
+                        "caption": "回收站",
+                        "href": "{app}&do=trash",
+                        "icon": "trash-alt"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "id": "{app}User",
+                        "sort": "99999",
+                        "icon": "si si-user",
+                        "caption": "用户{title}",
+                        "children": [
+                            {
+                                "caption": "管理",
+                                "href": "{app}&do=user",
+                                "icon": "check-circle"
+                            },
+                            {
+                                "caption": "等待审核",
+                                "href": "{app}&do=examine",
+                                "icon": "minus-circle"
+                            },
+                            {
+                                "caption": "未通过",
+                                "href": "{app}&do=off",
+                                "icon": "times-circle"
+                            },
+                            {
+                                "caption": "回收站",
+                                "href": "{app}&do=trash",
+                                "icon": "times-circle"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "评论管理",
+                        "href": "comment&appname={app}&appid={appid}",
+                        "icon": "comments"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "tools",
+        "children": [
+            {
+                "id": "cache",
+                "children": [
+                    {
+                        "caption": "更新{title}栏目缓存",
+                        "href": "{app}_node&do=cache",
+                        "icon": "sync",
+                        "target": "iPHP_FRAME"
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,0 +1,19 @@
+<?php self::head(); ?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a href="#access-menu" class="nav-link active"><b>菜单权限</b></a></li>
+            <li class="nav-item"><a href="#access-app" class="nav-link"><b>应用权限</b></a></li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_URL; ?>&do=save_access" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <div class="tab-content">
+                    <?php include self::view("widget/access", "apps"); ?>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

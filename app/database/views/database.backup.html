@@ -1,0 +1,100 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+* @site https://www.icmsdev.com * @licence https://www.icmsdev.com/LICENSE.html */ defined('iPHP') or exit('What are you doing?'); self::head(); ?>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <?php echo Menu::navTabs(Admincp::$APP_NAME); ?>
+        </ul>
+        <div class="block-content block-content-full">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>" />
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <th style="width: 24px"></th>
+                                <th>表名</th>
+                                <th>行数</th>
+                                <th>数据</th>
+                                <th>索引</th>
+                                <th>大小</th>
+                                <th>创建</th>
+                                <th>最后更新</th>
+                                <th>字符集</th>
+                                <th>备注</th>
+                            </tr>
+                        </thead>
+                    <?php for ($i = 0; $i < $_count; $i++) {
+                        $table    = $result[$i]['Name'];
+                    ?>
+                        <tr>
+                            <td>
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $table; ?>" name="table[]" value="<?php echo $table; ?>" />
+                                    <label class="custom-control-label" for="checkbox-<?php echo $table; ?>"></label>
+                                </div>
+                            </td>
+                            <td><?php echo $i + 1; ?></td>
+                            <td><?php echo $table; ?></td>
+                            <td><?php echo $result[$i]['Rows'];
+                                $Rows+=$result[$i]['Rows']; ?></td>
+                            <td><?php echo File::sizeUnit($result[$i]['Data_length']);
+                                $Data_length+=$result[$i]['Data_length'];
+                                ?></td>
+                            <td><?php echo File::sizeUnit($result[$i]['Index_length']); 
+                                $Index_length+=$result[$i]['Index_length'];
+                                ?></td>
+                            <td><?php echo File::sizeUnit($result[$i]['Data_length'] + $result[$i]['Index_length']); ?></td>
+                            <td><?php echo $result[$i]['Create_time']; ?></td>
+                            <td><?php echo $result[$i]['Update_time']; ?></td>
+                            <td><?php echo $result[$i]['Collation']; ?></td>
+                            <td><?php echo $result[$i]['Comment']; ?></td>
+                        </tr>
+                        <?php }  ?>
+                        <tr>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><?php echo $Rows; ?></td>
+                            <td><?php echo File::sizeUnit($Data_length); ?></td>
+                            <td><?php echo File::sizeUnit($Index_length); ?></td>
+                            <td><?php echo File::sizeUnit($Data_length + $Index_length); ?></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<div class="iCMS-batch">
+    <div id="backupBatch">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <div class="input-group-text">分卷备份</div>
+            </div>
+            <input name="volume" type="text" value="2048" class="form-control" />
+            <div class="input-group-append">
+                <div class="input-group-text">KB</div>
+            </div>
+        </div>
+        <small class="form-text text-muted">每个分卷文件长度</small>
+    </div>
+</div>
+<?php self::foot(); ?>

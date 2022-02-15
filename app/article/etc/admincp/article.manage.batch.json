@@ -1,0 +1,127 @@
+{
+    "pubdate;now": {
+        "name": "更新发布时间",
+        "icon": "clock",
+        "sort": 1,
+        "call": "default"
+    },
+    "status;1,pubdate;now": {
+        "name": "发布并更新时间",
+        "icon": "clock",
+        "sort": 2,
+        "call": "default",
+        "show": {
+            "stype": ["!=", "normal"]
+        }
+    },
+    "status;0": {
+        "name": "转为草稿",
+        "icon": "inbox",
+        "sort": 3,
+        "call": "default"
+    },
+    "status;1": {
+        "name": "发布",
+        "icon": "check",
+        "sort": 4,
+        "call": "default",
+        "show": {
+            "stype": ["!=", "normal"]
+        }
+    },
+    "status;2": {
+        "name": "移入回收站",
+        "icon": "trash-alt",
+        "sort": 5,
+        "call": "default"
+    },
+    "purge": {
+        "name": "清除缓存",
+        "icon": "",
+        "sort": 7,
+        "call": "purge"
+    },
+    "thumb": {
+        "name": "提取缩略图",
+        "icon": "picture-o",
+        "sort": 8,
+        "call": "thumb"
+    },
+    "divider1": {
+        "name": "divider",
+        "sort": 9
+    },
+    "move": {
+        "name": "移动栏目",
+        "icon": "fighter-jet",
+        "sort": 10,
+        "call": "move"
+    },
+    "scid": {
+        "name": "设置副栏目",
+        "icon": "code-fork",
+        "sort": 11,
+        "call": "scid"
+    },
+    "prop": {
+        "name": "设置属性",
+        "icon": "puzzle-piece",
+        "sort": 12,
+        "call": "prop"
+    },
+    "weight": {
+        "name": "设置置顶权重",
+        "icon": "cog",
+        "sort": 13,
+        "post": {
+            "weight": "bweight"
+        },
+        "call": "default"
+    },
+    "status": {
+        "name": "设置状态",
+        "icon": "cog",
+        "sort": 14,
+        "call": "default"
+    },
+    "postype": {
+        "name": "设置发布类型",
+        "icon": "cog",
+        "sort": 15,
+        "call": "default"
+    },
+    "keyword": {
+        "name": "设置关键字",
+        "icon": "star",
+        "sort": 16,
+        "call": "keyword"
+    },
+    "tag": {
+        "name": "设置标签",
+        "icon": "tags",
+        "sort": 17,
+        "call": "tag"
+    },
+    "meta": {
+        "name": "设置动态属性",
+        "icon": "sitemap",
+        "sort": 18,
+        "call": "meta"
+    },
+    "divider2": {
+        "name": "divider",
+        "sort": 19
+    },
+    "quick_dels": {
+        "name": "快速删除",
+        "icon": "trash-alt",
+        "sort": 20,
+        "call": "quick_dels"
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 21,
+        "call": "dels"
+    }
+}

@@ -1,0 +1,14 @@
+{
+    "prop": {
+        "name": "设置用户属性",
+        "icon": "puzzle-piece",
+        "sort": 1,
+        "call": "prop"
+    },
+    "dels": {
+        "name": "删除用户",
+        "icon": "trash-alt",
+        "sort": 2,
+        "call": "dels"
+    }
+}

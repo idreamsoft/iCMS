@@ -1,0 +1,49 @@
+<?php if ($enable) { ?>
+    <div class="float-left">
+        <div class="input-group" id="iCMS-batch">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="checkAll">全选</label>
+                <div class="input-group-text">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkAll" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>" />
+                        <label class="custom-control-label" for="checkAll"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group-append dropup">
+                <button type="button" class="btn btn-dark" data-toggle="dropdown"><i class="fa fa-fw fa-wrench"></i> 批 量 操 作 </button>
+                <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+                    <span class="sr-only">Toggle Dropdown</span>
+                </button>
+                <div class="dropdown-menu">
+                    <?php
+                    if ($actions) foreach ($actions as $action => $item) {
+                        // var_dump($item);
+                        if ($item['name'] == 'divider') {
+                            echo '<div class="dropdown-divider"></div>';
+                        } else {
+                            $item['action'] && $action = $item['action'];
+                            $text = isset($item['name']) ? $item['name'] : '设置 ' . $action;
+                            // $title = $item['title'] ? : '设置 ' . $action;
+                            if (!AdmincpBatch::showed($value['show'],AdmincpBatch::$config)) {
+                                continue;
+                            }
+                            empty($item['icon']) && $item['icon'] = 'cog';
+                            if ($item['icon'] && strpos($item['icon'], ' ') === false) {
+                                $item['icon'] = 'fa fa-' . $item['icon'];
+                            }
+                            $item['icon'] .= ' fa-fw';
+                            
+                            printf(
+                                '<button type="button" class="dropdown-item" data-toggle="batch" data-action="%s"><i class="%s"></i> %s</button>',
+                                $action,
+                                $item['icon'],
+                                $text
+                            );
+                        }
+                    } ?>
+                </div>
+            </div>
+        </div>
+    </div>
+<?php } ?>

@@ -1,0 +1,10 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">系统更新</label>
+    <div class="col-sm-8">
+        <select v-model="system_patch" name="config[system][patch]" id="system_patch" class="form-control">
+            <option value="1">自动下载,安装时询问(推荐)</option>
+            <option value="2">不自动下载更新,有更新时提示</option>
+            <option value="0">关闭自动更新</option>
+        </select>
+    </div>
+</div>

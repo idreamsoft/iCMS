@@ -1,0 +1,15 @@
+{
+    "name": "icmsdev/icms8",
+    "authors": [
+        {
+            "name": "iCMSdev",
+            "email": "master@icmsdev.com"
+        }
+    ],
+    "require": {
+        "hashids/hashids": "^2.0",
+        "pclzip/pclzip": "^2.8",
+        "phpmailer/phpmailer": "^6.5",
+        "ezyang/htmlpurifier": "^4.13"
+    }
+}

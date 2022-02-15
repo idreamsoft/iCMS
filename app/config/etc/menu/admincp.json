@@ -1,0 +1,103 @@
+[
+    {
+        "id": "system",
+        "children": [
+            {
+                "id": "config",
+                "caption": "系统设置",
+                "href": "config",
+                "icon": "cog",
+                "sort": "-999",
+                "children": [
+                    {
+                        "caption": "调试",
+                        "href": "config&tab=config.debug",
+                        "icon": "cog"
+                    },
+
+                    {
+                        "caption": "缓存",
+                        "href": "config&tab=config.cache&dir=cache",
+                        "icon": "cog"
+                    },
+
+                    {
+                        "caption": "缩略图",
+                        "href": "config&tab=config.thumb&dir=files",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "水印",
+                        "href": "config&tab=config.watermark&dir=files",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "时间",
+                        "href": "config&tab=config.time",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "更新",
+                        "href": "config&tab=config.system",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "后台",
+                        "href": "config&tab=config.other",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "动态属性",
+                        "href": "config&tab=apps.meta&dir=apps",
+                        "icon": "cog"
+                    }
+                ]
+            },
+            {
+                "id": "site",
+                "caption": "站点设置",
+                "href": "config&do=site",
+                "icon": "cog",
+                "sort": "-999",
+                "children": [
+                    {
+                        "caption": "站点",
+                        "href": "config&do=site&tab=site.base",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "模板",
+                        "href": "config&do=site&tab=site.template",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "URL",
+                        "href": "config&do=site&tab=site.route",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "附件",
+                        "href": "config&do=site&tab=site.file&dir=files",
+                        "icon": "cog"
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "id": "tools",
+        "children": [
+            {
+                "id": "cache",
+                "children": [
+                    {
+                        "caption": "更新系统设置",
+                        "href": "config&do=cache",
+                        "icon": "sync",
+                        "target": "iPHP_FRAME"
+                    }
+                ]
+            }
+        ]
+    }
+]

@@ -1,0 +1,12 @@
+<div class="btn-group">
+    <button type="button" class="btn btn-alt-primary dropdown-toggle" data-toggle="dropdown" tabindex="-1">选择</button>
+    <div class="dropdown-menu">
+        <div class="itemList">
+            <?php if ($propArray) foreach ((array) $propArray as $prop) { ?>
+                <a class="dropdown-item" href="javascript:;" data-mode="true" data-target="#<?php echo $target; ?>" data-insert="<?php echo $prop['val']; ?>"><?php echo $prop['name']; ?></a>
+            <?php } ?>
+        </div>
+        <div class="dropdown-divider"></div>
+        <?php echo PropWidget::btn('添加常用' . $title, $field, $app, 'dropdown-item', null); ?>
+    </div>
+</div>

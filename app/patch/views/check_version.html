@@ -1,0 +1,14 @@
+<script type="text/javascript">
+    $(function () {
+        window.setTimeout(function () {
+            $.getJSON("<?php echo ADMINCP_URL; ?>=patch&do=version&t=<?php echo time(); ?>", function (json) {
+                if (json.code) {
+                    $('[i="iCMS_RELEASE"]').text(json.release);
+                    $('[i="iCMS_RELEASE_TIME"]').text("REL:" + json.release_time);
+                    $('[i="iCMS_GIT"]').text(json.git);
+                    $('[i="iCMS_GIT_COUNT"]').removeClass("hide").text(json.git_count);
+                }
+            });
+        }, 1000);
+    });
+</script>

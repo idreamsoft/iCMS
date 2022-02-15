@@ -1,0 +1,120 @@
+<div class="form-group row">
+    <div class="col-sm-12">
+        <table class="table table-hover table-sm table-borderless">
+            <thead class="bg-light text-black">
+                <tr>
+                    <th>菜单编辑器</th>
+                </tr>
+            </thead>
+            <tbody id="menuEdit">
+                <?php
+                $GLOBALS['mIdx'][1] = 0;
+                function menuEdit($M, $level, $child, $pid = 0, $name = 'menuData')
+                {
+                    $value = $M;
+                    $name .= "[" . (int)$GLOBALS['mIdx'][$level] . "]";
+                    unset($value['children']);
+                    $ltag = ($level == '1' ? "" : "├ ");
+                    $childName = $name . '[children]';
+                    echo '<tr date-level="'.$level.'">';
+                    echo '<td>';
+                    echo '<div class="form-inline">';
+                    echo '<div class="input-group input-group-sm pl-0" data-name="' . $name . '">';
+                    $ltag && print '<label class="input-group-prepend"><span class="input-group-text">' . str_repeat("│　", $level - 1) . $ltag . '</span></label>';
+                    foreach ($value as $k => $val) {
+                        echo '<label class="input-group-prepend"><span class="input-group-text">' . $k . '</span></label>';
+                        echo '<input type="text" name="' . $name . '[' . $k . ']" class="form-control" value="' . $val . '" />';
+                        echo '<div class="input-group-append"></div>';
+                    }
+                    echo '<div class="input-group-append">';
+                    echo '<button i="add:tr" type="button" class="hide btn btn-sm btn-light input-group-text" data-name="' . $childName . '"><i class="si si-plus"></i></button>';
+                    echo '<button i="delete:tr" type="button" class="btn btn-sm btn-light input-group-text" data-name="' . $childName . '"><i class="si si-close"></i></button>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</div>';
+                    echo '</td>';
+                    echo '</tr>';
+                    $GLOBALS['mIdx'][$level]++;
+                    if ($child) {
+                        foreach ($M['children'] as $item) {
+                            $child = $item['children'] ? true : false;
+                            menuEdit($item, $level + 1, $child, $item['id'], $childName);
+                        }
+                    }
+                }
+                Menu::$callback['func'] = 'menuEdit';
+                Menu::$callback['recursive'] = false;
+                Menu::callfunc($menuArray);
+                ?>
+            </tbody>
+        </table>
+        <script>
+            $(function() {
+                $('#menuEdit').sortable({
+                    placeholder: "ui-state-highlight",
+                    // cancel: ".clearfloat",
+                    delay: 300,
+                    sort: function(event, ui) {},
+                    receive: function(event, ui) {
+
+                    }
+                });
+                var doc = $(document);
+                doc.on("click", "[i^=delete]", function(event) {
+                    var attr = $(this).attr('i').split(':');
+                    var par = $(this).parents(attr[1]);
+                    par.remove();
+                    console.log(par);
+                });
+                doc.on("click", "[i^=add]", function(event) {
+                    iCMS.ui.dialog({
+                        follow: this,
+                        height: 'auto',
+                        content: document.getElementById('addMenu-box'),
+                        modal: false,
+                        title: '添加新菜单',
+                        okValue: '创建',
+                        ok: function() {
+                            var a = $("#newdirname"),
+                                n = a.val(),
+                                d = this;
+                            if (n == "") {
+                                iCMS.ui.alert("请输入目录名称!");
+                                a.focus();
+                                return false;
+                            } else {
+                                $.post('<?php echo ADMINCP_URL; ?>=files&do=mkdir&CSRF_TOKEN=<?php echo Security::$CSRF_TOKEN; ?>', {
+                                        name: n,
+                                        pwd: '<?php echo $pwd; ?>'
+                                    },
+                                    function(json) {
+                                        if (json.code) {
+                                            d.content(json.message).button([{
+                                                value: '完成',
+                                                callback: function() {
+                                                    window.location.reload();
+                                                },
+                                                autofocus: true
+                                            }]);
+                                            window.setTimeout(function() {
+                                                window.location.reload();
+                                            }, 3000);
+                                        } else {
+                                            iCMS.ui.alert(json.message);
+                                            a.focus();
+                                            return false;
+                                        }
+                                    }, "json");
+                            }
+                            return false;
+                        }
+                    });
+                });
+            })
+        </script>
+        <textarea id="menujson" class="form-control hide" style="height:450px;font-family: Consolas,monospace;"><?php echo jsonFormat($menuArray); ?></textarea>
+    </div>
+</div>
+<div id="addMenu-box" style="width:150px;display: none;">
+    <input class="form-control" id="newdirname" type="text" placeholder="请输入目录名称">
+</div>

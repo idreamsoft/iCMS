@@ -1,0 +1,18 @@
+{
+    "base": {
+        "label": "基本信息",
+        "icon": "fa fa-info-circle",
+        "fields": [{
+            "id": "id",
+            "label": "内容id",
+            "comment": "主键 自增ID",
+            "field": "PRIMARY",
+            "name": "id",
+            "default": "",
+            "type": "PRIMARY",
+            "len": "10",
+            "unsigned": "1",
+            "class": ""
+        }]
+    }
+}

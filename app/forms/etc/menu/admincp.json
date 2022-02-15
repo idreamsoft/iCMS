@@ -1,0 +1,51 @@
+[{
+    "id": "assist",
+    "children": [{
+        "id": "forms",
+        "caption": "表单",
+        "icon": "object-group",
+        "children": [{
+                "caption": "更新分类缓存",
+                "href": "forms_node&do=cache",
+                "icon": "sync",
+                "target": "iPHP_FRAME"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "分类管理",
+                "href": "forms_node",
+                "icon": "sitemap"
+            },
+            {
+                "caption": "添加分类",
+                "href": "forms_node&do=add",
+                "icon": "edit"
+            },
+            {
+                "caption": "表单管理",
+                "href": "forms",
+                "icon": "building"
+            },
+            {
+                "caption": "新建表单",
+                "href": "forms&do=add",
+                "icon": "pencil-square-alt"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "表单数据",
+                "href": "forms&do=data",
+                "icon": "database"
+            },
+            {
+                "caption": "添加数据",
+                "href": "forms&do=submit",
+                "icon": "edit"
+            }
+        ]
+    }]
+}]

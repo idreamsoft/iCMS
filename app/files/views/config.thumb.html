@@ -1,0 +1,18 @@
+<!--<div class="form-group row">
+<label class="col-sm-1 col-form-label" for="example">缩略图</label>
+<div class="col-sm-8">
+<div class="switch">
+<input type="checkbox" data-toggle="switch" name="config[thumb][enable]" id="thumb_enable" <?php echo $config['thumb']['enable']?'checked':''; ?>/>
+</div>
+</div>
+-->
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">缩略图尺寸</label>
+    <div class="col-sm-8">
+        <textarea name="config[thumb][size]" id="thumb_size" class="form-control" style="height: 90px;"><?php echo $config['thumb']['size'] ; ?></textarea>
+        <small class="form-text text-muted">
+        	<a class="btn btn-small btn-info" href="https://www.icmsdev.com/docs/thumb.html" target="_blank"><i class="fa fa-fw fa-question-circle"></i> 缩略图配置帮助</a>　
+        	<br />每行一个尺寸；格式:300x300．没有在本列表中的缩略图尺寸，都将直接返回原图！防止空间被刷暴
+    	</small>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+AdmincpView::set([
+    'script.init','breadcrumb', 'side.overlay', 'sidebar', 'page.header'
+], null);
+AdmincpView::head();
+?>
+<div class="hero">
+    <div class="hero-inner text-center">
+        <div class="bg-white">
+            <div class="content content-full overflow-hidden">
+                <div class="py-4">
+                    <!-- Error Header -->
+                    <h1 class="display-3 text-primary animated zoomInDown" data-toggle="appear" data-class="animated zoomInDown">
+                        <?php echo $title; ?>
+                    </h1>
+                    <h2 class="h3 font-w300 text-muted mb-5 js-appear-enabled animated fadeInUp" data-toggle="appear" data-class="animated fadeInUp">
+                        <?php echo $message; ?>
+                    </h2>
+                    <div class="text-left">
+<pre>
+<?php
+$access = Member::$ACCESS;
+print_R($uri);
+echo '权限：';
+print_R($access);
+echo 'state：' . $state.PHP_EOL;
+echo 'code：' . $code.PHP_EOL;
+echo $trace;
+?>
+<hr />
+<?php Developer::systemInfo(); ?>
+                    </pre>
+                    </div>
+                    <!-- END Error Header -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php AdmincpView::foot(); ?>

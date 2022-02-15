@@ -1,0 +1,272 @@
+<?php self::head(); ?>
+<script>
+    iCMS.set('Vue.data', {
+        pid: <?php echo $rs['pid'] ? json_encode($rs['pid']) : '[0]'; ?>,
+        appid: "<?php echo $rs['appid']; ?>",
+        mode: "<?php echo $rs['mode']; ?>",
+        status: "<?php echo $rs['status']; ?>"
+    });
+    <?php if (self::isModal()) {?>
+    function jsonpCallback(json){
+        window.top.AdmDialogMsg(json);
+        window.top.iCMS_MODAL.destroy();
+    }
+    <?php }?>
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="#node-add-base"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-add-url"><i class="fa fa-fw fa-link"></i> 模式设置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-add-route"><i class="fa fa-fw fa-columns"></i> 路由&模版</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-extends"><i class="fa fa-fw fa-cog"></i> 配置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-add-custom"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-meta"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-app-meta"><i class="fa fa-fw fa-sitemap"></i> <?php echo $this->title; ?>预置动态属性</a></li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $rs['id']; ?>" />
+                <div id="node-add" class="tab-content">
+                    <div id="node-add-base" class="tab-pane active" role="tabpanel">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="rootid">上级<?php echo $this->NODE_NAME; ?></label>
+                            <div class="col-sm-8">
+                                <select name="rootid" class="form-control">
+                                    <?php if (NodeAccess::check($rootid, 'a')) {   ?>
+                                        <option value="0">======顶级<?php echo $this->NODE_NAME; ?>=====</option>
+                                    <?php } ?>
+                                    <?php echo Node::setAccess('a')->select(array('selId' => $rootid, 'url' => true)); ?>
+                                </select>
+                                <small class="form-text text-muted">本<?php echo $this->NODE_NAME; ?>的上级<?php echo $this->NODE_NAME; ?>或<?php echo $this->NODE_NAME; ?></small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="pid"><?php echo $this->NODE_NAME; ?>属性</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <select v-model="pid" name="pid[]" id="pid" class="form-control" data-placeholder="请选择<?php echo $this->NODE_NAME; ?>属性..." multiple="multiple">
+                                        <option disabled value="">请选择<?php echo $this->NODE_NAME; ?>属性...</option>
+                                        <option value="0">普通<?php echo $this->NODE_NAME; ?>[pid='0']</option>
+                                        <?php echo PropWidget::app('node')->getOption("pid"); ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <?php echo PropWidget::btn('添加常用属性'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <?php if (is_null($this->app_id)) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="appid">所属应用</label>
+                                <div class="col-sm-8">
+                                    <select v-model="appid" name="appid" id="appid" class="form-control" data-placeholder="请选择<?php echo $this->NODE_NAME; ?>所属应用...">
+                                        <option value="0">无应用[appid='0']</option>
+                                        <?php foreach (Apps::getTableArray() as $key => $value) { ?>
+                                            <option value="<?php echo $value['id']; ?>"><?php echo $value['name']; ?>:<?php echo $value['app']; ?> [appid=<?php echo $value['id']; ?>]</option>
+                                        <?php } ?>
+                                    </select>
+                                </div>
+                            </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="name"><?php echo $this->NODE_NAME; ?>名称</label>
+                            <div class="col-sm-8">
+                                <?php if (empty($this->id)) { ?>
+                                    <textarea name="name" id="name" class="form-control" style="height: 150px;"><?php echo $rs['name']; ?></textarea>
+                                    <small class="form-text text-muted">可批量添加<?php echo $this->NODE_NAME; ?>,每行一个</small>
+                                <?php } else { ?>
+                                    <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="subname"><?php echo $this->NODE_NAME; ?>别名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="subname" class="form-control" id="subname" value="<?php echo $rs['subname']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="dir"><?php echo $this->NODE_NAME; ?>目录</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="dir" class="form-control" id="dir" value="<?php echo $rs['dir']; ?>" />
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">{CDIR}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="pic">封面</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="pic" class="form-control" id="pic" value="<?php echo $rs['pic']; ?>" />
+                                    <?php FilesWidget::setData($rs['pic'])->picBtn("pic"); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="bpic">缩略图</label>
+                            <div class="col-sm-8">
+                                <div class="input-group mb-1">
+                                    <input type="text" name="bpic" class="form-control" id="bpic" value="<?php echo $rs['bpic']; ?>" />
+                                    <?php FilesWidget::setData($rs['bpic'])->picBtn("bpic"); ?>
+                                </div>
+                                <div class="input-group mb-1">
+                                    <input type="text" name="mpic" class="form-control" id="mpic" value="<?php echo $rs['mpic']; ?>" />
+                                    <?php FilesWidget::setData($rs['mpic'])->picBtn("mpic"); ?>
+                                </div>
+                                <div class="input-group">
+                                    <input type="text" name="spic" class="form-control" id="spic" value="<?php echo $rs['spic']; ?>" />
+                                    <?php FilesWidget::setData($rs['spic'])->picBtn("spic"); ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="title">SEO 标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="title" class="form-control" id="title" value="<?php echo $rs['title']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="keywords">关 键 字</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $rs['keywords']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                            </div>
+                        </div>
+                        <div class="form-group row" style="width:100%;">
+                            <label class="col-sm-1 col-form-label" for="description"><?php echo $this->NODE_NAME; ?>简介</label>
+                            <div class="col-sm-8">
+                                <textarea name="description" id="description" class="form-control" style="height: 150px;width:600;"><?php echo $rs['description']; ?></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="url">外部链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="url" class="form-control" id="url" value="<?php echo $rs['url']; ?>" />
+                                <small class="form-text text-muted"><span class="label label-important">外部链接设置后所有项目无效,此<?php echo $this->NODE_NAME; ?>仅为一个链接.不设置请留空</small></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="sortnum"><?php echo $this->NODE_NAME; ?>排序</label>
+                            <div class="col-sm-8">
+                                <input id="sortnum" class="form-control" value="<?php echo $rs['sortnum']; ?>" name="sortnum" type="text" />
+                            </div>
+                        </div>
+                        <?php if ($rs['userid'] && $rs['userid'] == Member::$user_id) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="creator">创建者</label>
+                                <div class="col-sm-8">
+                                    <input name="creator" id="creator" class="form-control" value="<?php echo $rs['creator'] ? $rs['creator'] : Member::$nickname; ?>" type="text" />
+                                    <input name="userid" type="hidden" value="<?php echo $rs['userid'] ? $rs['userid'] : Member::$user_id; ?>" />
+                                </div>
+                            </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="password">访问口令</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="password" class="form-control" id="password" value="<?php echo $rs['password']; ?>" />
+                                <small class="form-text text-muted">设置后需要输入正确口令才能访问该栏目及栏目下内容</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="status"><?php echo $this->NODE_NAME; ?>状态</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <select v-model="status" name="status" id="status" class="form-control">
+                                        <?php echo PropWidget::option(Node::$statusMap, "status"); ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <?php echo PropWidget::btn('添加状态'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="node-add-url" class="tab-pane" role="tabpanel">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="mode">访问模式</label>
+                            <div class="col-sm-8">
+                                <select v-model="mode" name="mode" id="mode" class="form-control js-chosen-disable">
+                                    <option value="0">动态</option>
+                                    <option value="1">静态</option>
+                                    <option value="2">伪静态(推荐)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="domain">绑定域名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="domain" class="form-control" id="domain" value="<?php echo $rs['domain']; ?>" />
+                                <small class="form-text text-muted">例 http://test.icmsdev.com</small>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-show="mode!='0'">
+                            <label class="col-sm-1 col-form-label" for="htmlext">URL后缀</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="htmlext" class="form-control" id="htmlext" value="<?php echo $rs['htmlext']; ?>" />
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">{EXT}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="node-add-route" class="tab-pane" role="tabpanel">
+                        <?php $s = array("rule" => true, "tpl" => true); ?>
+                        <?php include self::view('node.route', $this->VIEW_DIR); ?>
+                    </div>
+                    <div id="apps-extends" class="tab-pane" role="tabpanel">
+                        <?php self::appsExtends($rs); ?>
+                    </div>
+                    <div id="apps-meta" class="tab-pane" role="tabpanel">
+                        <?php AppsMeta::display(); ?>
+                    </div>
+                    <div id="node-app-meta" class="tab-pane" role="tabpanel">
+                        <div class="alert alert-warning">字段：只能由英文字母、数字或_-组成(不支持中文),留空则自动以名称拼音填充</div>
+                        <div class="block block-themed">
+                            <div class="block-header bg-primary-dark">
+                                <h3 class="block-title"><?php echo $this->title; ?>预置动态属性</h3>
+                                <div class="block-options">
+                                    <button i="meta-add" class="btn btn-alt-light" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加</button>
+                                </div>
+                            </div>
+                            <div class="block-content p-0">
+                                <table class="table table-hover">
+                                    <thead>
+                                        <tr>
+                                            <th>名称/字段</th>
+                                            <th>内容</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <?php if ($rs['config']['meta']) foreach ((array) $rs['config']['meta'] as $ckey => $meta) { ?>
+                                            <tr>
+                                                <?php echo AppsMeta::makeHtml($ckey, $meta, 'config[meta]'); ?>
+                                            </tr>
+                                        <?php } ?>
+                                    </tbody>
+                                    <tfoot>
+                                        <tr class="hide meta_clone">
+                                            <?php echo AppsMeta::makeHtml(null, null, 'config[meta]'); ?>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="node-add-custom" class="tab-pane" role="tabpanel">
+                        <?php Former::render(); ?>
+                    </div>
+                    <?php if (AdmincpAccess::checkApp(Admincp::$APP_NAME . '&do=')) { ?>
+                        <?php self::formSubmit(); ?>
+                    <?php } ?>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

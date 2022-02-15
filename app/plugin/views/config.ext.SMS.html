@@ -1,0 +1,41 @@
+<?php $title = "短信接口"; ?>
+<div class="alert alert-warning">当前只支持阿里云短信服务</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="plugin_SMS_aliyun_AccessKeyId">AccessKeyId</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[plugin][SMS][aliyun][AccessKeyId]" class="form-control" id="plugin_SMS_aliyun_AccessKeyId" value="<?php echo $config['plugin']['SMS']['aliyun']['AccessKeyId']; ?>" />
+        <small class="form-text text-muted">AccessKey Id</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="plugin_SMS_aliyun_AccessKeySecret">AccessKeySecret</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[plugin][SMS][aliyun][AccessKeySecret]" class="form-control" id="plugin_SMS_aliyun_AccessKeySecret" value="<?php echo $config['plugin']['SMS']['aliyun']['AccessKeySecret']; ?>" />
+        <small class="form-text text-muted">AccessKey Secret</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="plugin_SMS_aliyun_TemplateCode">短信模版</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[plugin][SMS][aliyun][TemplateCode]" class="form-control" id="plugin_SMS_aliyun_TemplateCode" value="<?php echo $config['plugin']['SMS']['aliyun']['TemplateCode']; ?>" />
+        <small class="form-text text-muted">短信模版</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="plugin_SMS_aliyun_SignName">短信签名</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[plugin][SMS][aliyun][SignName]" class="form-control" id="plugin_SMS_aliyun_SignName" value="<?php echo $config['plugin']['SMS']['aliyun']['SignName']; ?>" />
+        <small class="form-text text-muted">短信签名</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="plugin_SMS_expire">过期时间</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[plugin][SMS][expire]" class="form-control" id="plugin_SMS_expire" value="<?php echo $config['plugin']['SMS']['expire'] ?: 60; ?>" />
+            <div class="input-group-append"><span class="input-group-text">秒</span></div>
+        </div>
+        <small class="form-text text-muted">短信验证码过期时间</small>
+    </div>
+</div>

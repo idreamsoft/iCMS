@@ -1,0 +1,23 @@
+[{
+    "id": "tools",
+    "children": [{
+        "id": "cache",
+        "caption": "清理缓存",
+        "icon": "sync",
+        "children": [{
+                "caption": "更新所有缓存",
+                "href": "cache&do=all",
+                "icon": "sync",
+                "sort": "1",
+                "target": "iPHP_FRAME"
+            },
+            {
+                "caption": "清除模板缓存",
+                "href": "cache&do=tpl",
+                "icon": "sync",
+                "sort": "2",
+                "target": "iPHP_FRAME"
+            }
+        ]
+    }]
+}]

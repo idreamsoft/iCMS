@@ -1,0 +1,41 @@
+<?php self::head();?>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <button type="button" class="btn btn-primary add_route_item mb-1">
+            <i class="fa fa-fw fa-plus-square"></i>
+            添加
+        </button>
+        <div class="block-content block-content-full">
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>路由</th>
+                        <th>静态链接</th>
+                        <th>动态链接</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="routeList">
+                    <?php $ridx = 0;
+                if ($routes) foreach ($routes as $key =>
+                    $route) { ?>
+                    <tr>
+                        <td><input class="form-control" type="text" name="route[<?php echo $ridx; ?>][0]" value="<?php echo $key; ?>" /></td>
+                        <td><input class="form-control" type="text" name="route[<?php echo $ridx; ?>][1]" value="<?php echo $route[0]; ?>" /></td>
+                        <td><input class="form-control" type="text" name="route[<?php echo $ridx; ?>][2]" value="<?php echo $route[1]; ?>" /></td>
+                        <td>
+                            <button class="btn btn-danger del_route" type="button">
+                                <i class="fa fa-fw fa-trash-alt"></i>
+                                删除
+                            </button>
+                        </td>
+                    </tr>
+                    <?php $ridx++;
+                } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php self::foot();?>

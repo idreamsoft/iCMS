@@ -1,0 +1,99 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="debug_php">程序提示</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[debug][php]" id="debug_php" <?php echo $config['debug']['php'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">程序错误提示!如果网站显示空白或者不完整,可开启此项,方便排除
+            <a href="javascript:;" v-on:click="debug.php_trace=!debug.php_trace;debug.php_errorlog=!debug.php_errorlog;debug.access_log=!debug.access_log">更多</a>
+        </small>
+    </div>
+</div>
+<div v-show="debug.php_trace" class="debug_php_trace">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="debug_php_trace">程序调试信息</label>
+        <div class="col-sm-8">
+            <input type="checkbox" data-toggle="switch" name="config[debug][php_trace]" id="debug_php_trace" <?php echo $config['debug']['php_trace'] ? 'checked' : ''; ?> />
+            <small class="form-text text-muted">显示程序调试信息</small>
+        </div>
+    </div>
+</div>
+<div v-show="debug.php_errorlog" class="debug_php_errorlog">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="debug_php_errorlog">保存错误信息</label>
+        <div class="col-sm-8">
+            <input type="checkbox" data-toggle="switch" name="config[debug][php_errorlog]" id="debug_php_errorlog" <?php echo $config['debug']['php_errorlog'] ? 'checked' : ''; ?> />
+            <small class="form-text text-muted">保存错误信息到文件,方便调试</small>
+        </div>
+    </div>
+</div>
+<div v-show="debug.access_log" class="debug_access_log">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="debug_access_log">后台访问记录</label>
+        <div class="col-sm-8">
+            <input type="checkbox" data-toggle="switch" name="config[debug][access_log]" id="debug_access_log" <?php echo $config['debug']['access_log'] ? 'checked' : ''; ?> />
+            <small class="form-text text-muted">后台访问记录 默认为开启状态</small>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="debug_tpl">模板提示</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[debug][tpl]" id="debug_tpl" <?php echo $config['debug']['tpl'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">模板错误提示!如果网站显示空白或者不完整,可开启此项,方便排除错误!模板调整时也可
+            <a href="javascript:;" v-on:click="debug.tpl_trace=!debug.tpl_trace">更多</a>
+        </small>
+    </div>
+</div>
+<div v-show="debug.tpl_trace" class="debug_tpl_trace">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="debug_tpl_trace">模板调试信息</label>
+        <div class="col-sm-8">
+            <input type="checkbox" data-toggle="switch" name="config[debug][tpl_trace]" id="debug_tpl_trace" <?php echo $config['debug']['tpl_trace'] ? 'checked' : ''; ?> />
+            <small class="form-text text-muted">模板所有数据调试信息</small>
+        </div>
+    </div>
+</div>
+<hr />
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="debug_db">数据库提示</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[debug][db]" id="debug_db" <?php echo $config['debug']['db'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">
+            开启后将显示所有数据库错误信
+            <a href="javascript:;" v-on:click="debug.db_trace=!debug.db_trace;debug.db_explain=!debug.db_explain">更多</a>
+        </small>
+    </div>
+</div>
+<div v-show="debug.db_trace" class="debug_db_trace">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="debug_db_trace">SQL跟踪</label>
+        <div class="col-sm-8">
+            <input type="checkbox" data-toggle="switch" name="config[debug][db_trace]" id="debug_db_trace" <?php echo $config['debug']['db_trace'] ? 'checked' : ''; ?> />
+            <small class="form-text text-muted">开启后将显示所有SQL执行情况</small>
+        </div>
+    </div>
+</div>
+<div v-show="debug.db_explain" class="debug_db_explain">
+    <div class="form-group row">
+        <label class="col-sm-1 col-form-label" for="debug_db_explain">SQL解释</label>
+        <div class="col-sm-8">
+            <input type="checkbox" data-toggle="switch" name="config[debug][db_explain]" id="debug_db_explain" <?php echo $config['debug']['db_explain'] ? 'checked' : ''; ?> />
+            <small class="form-text text-muted">开启后将显示 SQL EXPLAIN 信息</small>
+        </div>
+    </div>
+</div>
+<hr />
+<h3 class="title">实验功能</h3>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="debug_db_optimize_in">数据优化</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[debug][db_optimize_in]" id="debug_db_optimize_in" <?php echo $config['debug']['db_optimize_in'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted">开启后,iCMS:article:list
+            相关性能将大大提升.如果文章数据量大,服务器负载很高可尝试开启</small>
+    </div>
+</div>
+<script>
+    iCMS.set('Vue.data', {
+        debug: <?php echo json_encode($config['debug']); ?>
+    });
+</script>

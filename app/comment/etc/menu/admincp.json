@@ -1,0 +1,22 @@
+[{
+    "id": "assist",
+    "children": [{
+        "id": "comment",
+        "caption": "评论",
+        "icon": "comments",
+        "children": [{
+                "caption": "评论配置",
+                "href": "comment&do=config",
+                "icon": "cog"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "评论管理",
+                "href": "comment",
+                "icon": "comments"
+            }
+        ]
+    }]
+}]

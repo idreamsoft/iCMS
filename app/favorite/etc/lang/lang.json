@@ -1,0 +1,14 @@
+{
+    "create_empty": "请输入标题！",
+    "create_filter": "您输入的内容中包含被系统屏蔽的字符，请重新填写！",
+    "create_max": "最多只能创建10个收藏夹！",
+    "create_success": "添加成功！",
+    "create_failure": "添加失败！",
+    "update": "更新成功！",
+    "url": "URL不能为空",
+    "cancel": "取消收藏！",
+    "success": "收藏成功！",
+    "failure": "收藏失败！",
+    "already": "您已经收藏过了！",
+    "error": "收藏出错！"
+}

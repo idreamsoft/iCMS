@@ -1,0 +1,8 @@
+{
+    "forms": {
+        "label": "表单",
+        "template": "{iTPL}\/forms.htm",
+        "rule": "\/forms\/{FKEY}{EXT}",
+        "tips": "{ID},{0xID},{FKEY},{NAME},{ZH_CN},{Hash@ID},{Hash@0xID}"
+    }
+}

@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+    <title>iCMS Administrator's Control Panel</title>
+    <meta name="Copyright" content="iCMSdev.com" />
+    <meta name="author" content="iCMSdev">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="./assets/favicons/favicon.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="./assets/favicons/favicon-192x192.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicons/apple-touch-icon-180x180.png">
+
+    <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400italic,600,700%7COpen+Sans:300,400,400italic,600,700"> -->
+    <link rel="stylesheet" href="./assets/oneui/css/oneui.min.css?t=<?php echo $t=time(); ?>" id="css-main">
+    <link rel="stylesheet" href="./assets/iCMS.css?t=<?php echo $t; ?>" id="css-iCMS" />
+
+    <!-- <link rel="stylesheet" id="font-awesome" href="./app/admincp/ui/font-awesome/4.2.0/css/font-awesome.min.css?t=<?php echo $t; ?>"> -->
+    <!-- You can include a specific file from css/themes/ folder to alter the default color theme of the template. eg: -->
+    <!-- <link rel="stylesheet" id="css-theme" href="./assets/oneui/css/themes/amethyst.min.css?t=<?php echo $t; ?>"> -->
+
+    <?php if (self::get('theme')) { ?>
+    <link rel="stylesheet" id="css-theme" href="./assets/oneui/css/themes/<?php echo self::get('theme'); ?>.min.css?t=<?php echo $t; ?>">
+    <?php } ?>
+    <link href="./assets/js/art-dialog/ui-dialog.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    <link href="./assets/js/chosen/chosen.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    <link href="./assets/js/bootstrap-switch/bootstrap-switch.min.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    <link href="./assets/js/bootstrap-table/bootstrap-table.min.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    <link href="./assets/js/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    <link href="./assets/oneui/js/plugins/bootstrap-datepicker/css/bootstrap-datepicker3.min.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    <link href="./assets/oneui/js/plugins/flatpickr/flatpickr.min.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+    
+    <link href="./assets/admincp.css?t=<?php echo $t; ?>" type="text/css" rel="stylesheet">
+
+    <!-- END Stylesheets -->
+    <!--
+    OneUI JS Core
+
+    Vital libraries and plugins used in all pages. You can choose to not include this file if you would like
+    to handle those dependencies through webpack. Please check out assets/_es6/main/bootstrap.js for more info.
+
+    If you like, you could also include them separately directly from the assets/OneUI/js/core folder in the following
+    order. That can come in handy if you would like to include a few of them (eg jQuery) from a CDN.
+
+    assets/OneUI/js/core/jquery.min.js
+    assets/OneUI/js/core/bootstrap.bundle.min.js
+    assets/OneUI/js/core/simplebar.min.js
+    assets/OneUI/js/core/jquery-scrollLock.min.js
+    assets/OneUI/js/core/jquery.appear.min.js
+    assets/OneUI/js/core/js.cookie.min.js
+-->
+    <script src="./assets/oneui/js/oneui.core.min.js?t=<?php echo $t; ?>"></script>
+    <!--
+    OneUI JS
+
+    Custom functionality including Blocks/Layout API as well as other vital and optional helpers
+    webpack is putting everything together at assets/_es6/main/app.js
+-->
+    <script src="./assets/oneui/js/oneui.app.min.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/oneui/js/plugins/es6-promise/es6-promise.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/oneui/js/plugins/bootstrap-datepicker/js/bootstrap-datepicker.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/oneui/js/plugins/flatpickr/flatpickr.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/oneui/js/plugins/flatpickr/l10n/zh.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/oneui/js/plugins/bootstrap-notify/bootstrap-notify.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/oneui/js/plugins/jquery-validation/jquery.validate.min.js?t=<?php echo $t; ?>"></script>
+
+    <script src="./assets/js/jquery.timer.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/js/chosen/chosen.jquery.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/js/bootstrap-switch/bootstrap-switch.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/js/bootstrap-table/bootstrap-table.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/js/bootstrap-table/extensions/fixed-columns/bootstrap-table-fixed-columns.min.js?t=<?php echo $t; ?>" type="text/javascript"></script>
+    <script src="./assets/js/art-dialog/dialog-plus-min.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/js/layer/dist/layer.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/js/art-template/template.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/js/jquery-migrate/jquery-migrate.min.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/iCMS.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/vue.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/admincp.js?t=<?php echo $t; ?>"></script>
+    <script src="./assets/class.js?t=<?php echo $t; ?>"></script>
+    <?php if (self::get('script.init')) { ?>
+    <script type="text/javascript">
+        var $IS_MODAL = <?php echo (int)self::isModal(); ?>;
+        var $CSRF_TOKEN = '<?php echo Security::$CSRF_TOKEN; ?>';
+        var $ADMINCP_URL = '<?php echo ADMINCP_URL; ?>';
+        var $APP_URL = "<?php echo APP_URL; ?>";
+        var $APP_MAINID = "#<?php echo APP_MAINID; ?>";
+        var $APP_FORMID = "#<?php echo APP_FORMID; ?>";
+        var $APP_CONFIG = <?php echo json_encode(AdmincpBase::$appConfig); ?>;
+        var $ERROR_ID = "#<?php echo iDebug::$ID; ?>";
+        iCMS.init({
+            API: '<?php echo iPHP_SELF; ?>',
+            URL: '<?php echo iCMS_URL; ?>',
+            PUBLIC: '<?php echo iCMS_PUBLIC_URL; ?>',
+            DEFTPL: '<?php echo Config::get('template.desktop.tpl'); ?>',
+            COOKIE: '<?php echo iPHP_COOKIE_PRE; ?>',
+        });
+        $(function() {
+            if ($($ERROR_ID).length) {
+                iCMS.ui.dialog({
+                    title: 'iCMS-警告',
+                    time: 999999,
+                    label: 'warning',
+                    icon: 'warning',
+                    content: "检测到页面未完全加载完成!<hr /><pre>以下是相关报错信息:<br />" + $($ERROR_ID).html() + "</pre>"
+                })
+            }
+        })
+    </script>
+    <?php } ?>
+</head>
+
+<body>
+    <iframe class="d-none" id="iPHP_FRAME" name="iPHP_FRAME"></iframe>
+    <?php if (self::get('page.loader')) { ?>
+        <!-- If #page-loader markup and also the "show" class is added, the loading screen will be enabled and auto hide once the page loads -->
+        <div id="page-loader" class="show"></div>
+    <?php } ?>
+    <!-- Page Container -->
+    <!--
+    Available classes for #page-container:
+
+GENERIC
+
+    'enable-cookies'                            Remembers active color theme between pages (when set through color theme helper Template._uiHandleTheme())
+
+SIDEBAR & SIDE OVERLAY
+
+    'sidebar-r'                                 Right Sidebar and left Side Overlay (default is left Sidebar and right Side Overlay)
+    'sidebar-mini'                              Mini hoverable Sidebar (screen width > 991px)
+    'sidebar-o'                                 Visible Sidebar by default (screen width > 991px)
+    'sidebar-o-xs'                              Visible Sidebar by default (screen width < 992px)
+    'sidebar-dark'                              Dark themed sidebar
+
+    'side-overlay-hover'                        Hoverable Side Overlay (screen width > 991px)
+    'side-overlay-o'                            Visible Side Overlay by default
+
+    'enable-page-overlay'                       Enables a visible clickable Page Overlay (closes Side Overlay on click) when Side Overlay opens
+
+    'side-scroll'                               Enables custom scrolling on Sidebar and Side Overlay instead of native scrolling (screen width > 991px)
+
+HEADER
+
+    ''                                          Static Header if no class is added
+    'page-header-fixed'                         Fixed Header
+
+HEADER STYLE
+
+    ''                                          Light themed Header
+    'page-header-dark'                          Dark themed Header
+
+MAIN CONTENT LAYOUT
+
+    ''                                          Full width Main Content if no class is added
+    'main-content-boxed'                        Full width Main Content with a specific maximum width (screen width > 1200px)
+    'main-content-narrow'                       Full width Main Content with a percentage width (screen width > 1200px)
+-->
+    <?php $navData = Menu::getNav(); ?>
+    <div id="page-container" class="<?php echo self::page_classes(); ?>">
+        <?php self::get('side.overlay') && include self::display("base/side.overlay", 'admincp'); ?>
+        <?php self::get('sidebar') && include self::display("base/sidebar", 'admincp'); ?>
+        <?php self::get('page.header') !== null && include self::display("base/page.header", 'admincp'); ?>
+        <!-- Main Container -->
+        <main id="main-container">
+            <?php (self::get('breadcrumb') && $navData) && include self::display("base/breadcrumb", 'admincp'); ?>

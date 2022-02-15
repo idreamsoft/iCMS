@@ -1,0 +1,122 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="do" value="<?php echo Admincp::$APP_DO; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-lg-2 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="orderby">排序</label>
+                        </div>
+                        <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                            <option value="">默认排序</option>
+                            <optgroup label="降序">
+                                <?php echo self::$orderBy['DESC']; ?>
+                            </optgroup>
+                            <optgroup label="升序">
+                                <?php echo self::$orderBy['ASC']; ?>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="alert alert-info alert-block">
+        访问记录无删除功能,如要删除请登录数据库删除相关信息
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">访问记录</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <span title="总共<?php echo Paging::$count; ?>条记录" class="badge badge-primary"><?php echo Paging::$count; ?></span>
+                </div>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px;" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <th style="width:60px;">用户ID</th>
+                                <th style="width:60px;">用户名</th>
+                                <th style="width:60px;">应用</th>
+                                <th>访问链接/时间</th>
+                                <th style="width:60px;">请求方式</th>
+                                <th style="width:100px;">IP</th>
+                                <th>User Agent/来路</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php if ($result) foreach ($result as $key => $value) { ?>
+                                <tr>
+                                    <td><?php echo $value['id']; ?></td>
+                                    <td><a href="<?php echo iPHP_SELF; ?>?do=log&uid=<?php echo $value['uid']; ?>"><?php echo $value['uid']; ?></a></td>
+                                    <td><?php echo $value['username']; ?></td>
+                                    <td><a href="<?php echo iPHP_SELF; ?>?do=log&sapp=<?php echo $value['app']; ?>"><?php echo $value['app']; ?></a></td>
+                                    <td>
+                                        <?php echo $value['uri']; ?>
+                                        <br />
+                                        <?php echo get_date($value['create_time'], 'Y-m-d H:i:s'); ?>
+                                    </td>
+                                    <td><?php echo $value['method']; ?></td>
+                                    <td><a href="<?php echo iPHP_SELF; ?>?do=log&ip=<?php echo $value['ip']; ?>"><?php echo $value['ip']; ?></a></td>
+                                    <td>
+                                        <?php echo $value['useragent']; ?>
+                                        <br />
+                                        <?php echo $value['referer']; ?>
+                                    </td>
+                                </tr>
+                            <?php }  ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

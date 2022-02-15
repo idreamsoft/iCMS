@@ -1,0 +1,25 @@
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="./app/editor/assets/admincp.vditor.js"></script>
+<script>
+    var <?php echo $editor_id; ?>;
+    $(function() {
+        var <?php echo $editor_id; ?> = iCMS.mdeditor.create("<?php echo $id; ?>");
+    })
+</script>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label"></label>
+    <div class="col-sm-10">
+        <div class="form-control" style="height: auto">
+            <button type="button" class="btn btn-alt-primary" onclick="javascript:<?php echo $editor_id; ?>.insPageBreak();">
+                <i class="fa fa-fw fa-ellipsis-h"></i>
+                插入分页符
+            </button>
+            <button type="button" class="btn btn-alt-primary" onclick="javascript:<?php echo $editor_id; ?>.delPageBreakflag();">
+                <i class="fa fa-fw fa-ban"></i>
+                删除分页符
+            </button>
+        </div>
+    </div>
+</div>

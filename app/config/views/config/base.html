@@ -1,0 +1,93 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="name">网站名称</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[site][name]" class="form-control" id="name" value="<?php echo $config['site']['name']; ?>" />
+        <small class="form-text text-muted">网站名称</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="seotitle">网站标题</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[site][seotitle]" class="form-control" id="seotitle" value="<?php echo $config['site']['seotitle']; ?>" />
+        <small class="form-text text-muted">网站标题通常是搜索引擎关注的重点，本设置将出现在标题中网站名称的后面，如果有多个关键字，建议用
+            "|"、","(不含引号)
+            等符号分隔</small>
+    </div>
+    <small class="col-sm-2 form-text text-muted">&lt;--{$site.seotitle}--&gt;</small>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="keywords">关 键 字</label>
+    <div class="col-sm-8">
+        <textarea name="config[site][keywords]" id="keywords" class="form-control" style="height: 90px;"><?php echo $config['site']['keywords']; ?></textarea>
+        <small class="form-text text-muted">网站关键字 用","号隔开</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="description">网站描述</label>
+    <div class="col-sm-8">
+        <textarea name="config[site][description]" id="description" class="form-control" style="height: 90px;"><?php echo $config['site']['description']; ?></textarea>
+        <small class="form-text text-muted">将被搜索引擎用来说明您网站的主要内容</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="site_code">统计代码</label>
+    <div class="col-sm-8">
+        <textarea name="config[site][code]" id="site_code" class="form-control" style="height: 90px;"><?php echo $config['site']['code']; ?></textarea>
+        <small class="form-text text-muted">统计代码</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="site_icp">备 案 号</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[site][icp]" class="form-control" id="site_icp" value="<?php echo $config['site']['icp']; ?>" />
+        <small class="form-text text-muted">页面底部可以显示 ICP 备案信息，如果网站已备案，在此输入您的备案号，如果没有请留空</small>
+    </div>
+</div>
+<hr>
+<div class="metadata">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">自定义网站配置</h3>
+            <div class="block-options">
+                <button i="meta-add" class="btn btn-sm btn-outline-secondary" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加</button>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>名称/字段</th>
+                        <th>内容</th>
+                        <th>模板标签</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $site_meta = $config['site']['meta'];
+                    if ($site_meta) foreach ((array) $site_meta as $mdkey => $mdata) {
+                    ?>
+                        <tr>
+                            <?php echo AppsMeta::makeHtml(
+                                $mdkey,
+                                $mdata,
+                                'config[site][meta]',
+                                function ($idx) {
+                                    return '<td>
+                                            <small class="form-text text-muted">&lt;!--{$site.meta[' . $idx . '].name}--&gt;</small>
+                                            <small class="form-text text-muted">&lt;!--{$site.meta[' . $idx . '].key}--&gt;</small>
+                                            <small class="form-text text-muted">&lt;!--{$site.meta[' . $idx . '].value}--&gt;</small>
+                                        </td>';
+                                }
+                            ); ?>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+                <tfoot>
+                    <tr class="hide meta_clone">
+                        <?php echo AppsMeta::makeHtml(null, null, 'config[site][meta]'); ?>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+    </div>
+</div>

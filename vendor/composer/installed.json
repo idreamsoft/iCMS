@@ -1,0 +1,235 @@
+[
+    {
+        "name": "ezyang/htmlpurifier",
+        "version": "v4.13.0",
+        "version_normalized": "4.13.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ezyang/htmlpurifier.git",
+            "reference": "08e27c97e4c6ed02f37c5b2b20488046c8d90d75"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ezyang/htmlpurifier/zipball/08e27c97e4c6ed02f37c5b2b20488046c8d90d75",
+            "reference": "08e27c97e4c6ed02f37c5b2b20488046c8d90d75",
+            "shasum": ""
+        },
+        "require": {
+            "php": ">=5.2"
+        },
+        "require-dev": {
+            "simpletest/simpletest": "dev-master#72de02a7b80c6bb8864ef9bf66d41d2f58f826bd"
+        },
+        "time": "2020-06-29T00:56:53+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "HTMLPurifier": "library/"
+            },
+            "files": [
+                "library/HTMLPurifier.composer.php"
+            ],
+            "exclude-from-classmap": [
+                "/library/HTMLPurifier/Language/"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1-or-later"
+        ],
+        "authors": [
+            {
+                "name": "Edward Z. Yang",
+                "email": "admin@htmlpurifier.org",
+                "homepage": "http://ezyang.com"
+            }
+        ],
+        "description": "Standards compliant HTML filter written in PHP",
+        "homepage": "http://htmlpurifier.org/",
+        "keywords": [
+            "html"
+        ]
+    },
+    {
+        "name": "hashids/hashids",
+        "version": "2.0.4",
+        "version_normalized": "2.0.4.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/vinkla/hashids.git",
+            "reference": "7a945a5192d4a5c8888364970feece9bc26179df"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/vinkla/hashids/zipball/7a945a5192d4a5c8888364970feece9bc26179df",
+            "reference": "7a945a5192d4a5c8888364970feece9bc26179df",
+            "shasum": ""
+        },
+        "require": {
+            "php": "^5.6.4 || ^7.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "^5.7 || ^6.3"
+        },
+        "suggest": {
+            "ext-bcmatch": "Required to use BC Math arbitrary precision mathematics (*).",
+            "ext-gmp": "Required to use GNU multiple precision mathematics (*)."
+        },
+        "time": "2017-10-28T11:24:20+00:00",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.1-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "Hashids\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Ivan Akimov",
+                "email": "ivan@barreleye.com",
+                "homepage": "https://twitter.com/IvanAkimov"
+            },
+            {
+                "name": "Vincent Klaiber",
+                "email": "hello@vinkla.com",
+                "homepage": "https://vinkla.com"
+            }
+        ],
+        "description": "Generate short, unique, non-sequential ids (like YouTube and Bitly) from numbers",
+        "homepage": "http://hashids.org/php",
+        "keywords": [
+            "bitly",
+            "decode",
+            "encode",
+            "hash",
+            "hashid",
+            "hashids",
+            "ids",
+            "obfuscate",
+            "youtube"
+        ]
+    },
+    {
+        "name": "pclzip/pclzip",
+        "version": "2.8.2",
+        "version_normalized": "2.8.2.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/ivanlanin/pclzip.git",
+            "reference": "19dd1de9d3f5fc4d7d70175b4c344dee329f45fd"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/ivanlanin/pclzip/zipball/19dd1de9d3f5fc4d7d70175b4c344dee329f45fd",
+            "reference": "19dd1de9d3f5fc4d7d70175b4c344dee329f45fd",
+            "shasum": ""
+        },
+        "time": "2014-06-05T11:42:24+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "classmap": [
+                "pclzip.lib.php"
+            ]
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1"
+        ],
+        "authors": [
+            {
+                "name": "Vincent Blavet"
+            }
+        ],
+        "description": "A PHP library that offers compression and extraction functions for Zip formatted archives",
+        "homepage": "http://www.phpconcept.net/pclzip",
+        "keywords": [
+            "php",
+            "zip"
+        ]
+    },
+    {
+        "name": "phpmailer/phpmailer",
+        "version": "v6.5.0",
+        "version_normalized": "6.5.0.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/PHPMailer/PHPMailer.git",
+            "reference": "a5b5c43e50b7fba655f793ad27303cd74c57363c"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/PHPMailer/PHPMailer/zipball/a5b5c43e50b7fba655f793ad27303cd74c57363c",
+            "reference": "a5b5c43e50b7fba655f793ad27303cd74c57363c",
+            "shasum": ""
+        },
+        "require": {
+            "ext-ctype": "*",
+            "ext-filter": "*",
+            "ext-hash": "*",
+            "php": ">=5.5.0"
+        },
+        "require-dev": {
+            "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+            "doctrine/annotations": "^1.2",
+            "phpcompatibility/php-compatibility": "^9.3.5",
+            "roave/security-advisories": "dev-latest",
+            "squizlabs/php_codesniffer": "^3.5.6",
+            "yoast/phpunit-polyfills": "^0.2.0"
+        },
+        "suggest": {
+            "ext-mbstring": "Needed to send email in multibyte encoding charset or decode encoded addresses",
+            "hayageek/oauth2-yahoo": "Needed for Yahoo XOAUTH2 authentication",
+            "league/oauth2-google": "Needed for Google XOAUTH2 authentication",
+            "psr/log": "For optional PSR-3 debug logging",
+            "stevenmaguire/oauth2-microsoft": "Needed for Microsoft XOAUTH2 authentication",
+            "symfony/polyfill-mbstring": "To support UTF-8 if the Mbstring PHP extension is not enabled (^1.2)"
+        },
+        "time": "2021-06-16T14:33:43+00:00",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "PHPMailer\\PHPMailer\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "LGPL-2.1-only"
+        ],
+        "authors": [
+            {
+                "name": "Marcus Bointon",
+                "email": "phpmailer@synchromedia.co.uk"
+            },
+            {
+                "name": "Jim Jagielski",
+                "email": "jimjag@gmail.com"
+            },
+            {
+                "name": "Andy Prevost",
+                "email": "codeworxtech@users.sourceforge.net"
+            },
+            {
+                "name": "Brent R. Matzelle"
+            }
+        ],
+        "description": "PHPMailer is a full-featured email creation and transfer class for PHP",
+        "funding": [
+            {
+                "url": "https://github.com/Synchro",
+                "type": "github"
+            }
+        ]
+    }
+]

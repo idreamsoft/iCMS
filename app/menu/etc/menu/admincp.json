@@ -1,0 +1,12 @@
+[{
+    "id": "tools",
+    "children": [{
+        "id": "cache",
+        "children": [{
+            "caption": "更新菜单缓存",
+            "href": "menu&do=cache",
+            "icon": "sync",
+            "target": "iPHP_FRAME"
+        }]
+    }]
+}]

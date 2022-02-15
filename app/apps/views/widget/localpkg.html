@@ -1,0 +1,43 @@
+<div id="local_app_wrap" style="display: none">
+    <form action="<?php echo APP_URL; ?>&do=install" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+        <div class="alert alert-info">
+            由于安全限制
+            <br />
+            请先把iCMS<?php $title;?>安装包文件(.<?php echo AppsPackage::EXT; ?>)
+            <br />
+            上传到 /cache 目录下
+        </div>
+        <div class="form-group">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">可用安装包</span>
+                </div>
+                <select name="zipfile" class="form-control" data-placeholder="请选择iCMS<?php $title;?>安装包文件(.<?php echo AppsPackage::EXT; ?>)...">
+                <?php
+                $pkgArray = AppsPackage::getLocalPkg();
+                if ($pkgArray) foreach ($pkgArray as $name) {
+                ?>
+                    <option value="<?php echo $name; ?>">
+                        <?php echo $name; ?>
+                    </option>
+                    <?php } ?>
+                </select>
+            </div>
+        </div>
+        <button class="btn btn-primary btn-lg btn-block" type="submit">
+            <i class="fa fa-fw fa-check"></i>
+            安装
+        </button>
+    </form>
+</div>
+<script type="text/javascript">
+    $(function() {
+        $("#local_app").click(function(event) {
+            var local_app_wrap = document.getElementById("local_app_wrap");
+            iCMS.ui.dialog({
+                title: 'iCMS - 安装本地<?php $title;?>',
+                content: local_app_wrap
+            });
+        });
+    });
+</script>

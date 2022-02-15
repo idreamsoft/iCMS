@@ -1,0 +1,19 @@
+<li class="nav-main-item">
+    <!--{if $node_list.child}-->
+    <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="false" href="<!--{$node_list.url}-->">
+        <i class="nav-main-link-icon fa fa-briefcase"></i>
+        <span class="nav-main-link-name"><!--{$node_list.name}--></span>
+        <span class="nav-main-link-badge badge badge-pill badge-primary"><!--{$node_list.childNum}--></span>
+    </a>
+    <ul class="nav-main-submenu">
+        <!--{iCMS:node:list loop="true" stype="sub" id="$node_list.id" row="10"}-->
+        <!--{include file="./nav-main-item.htm" Maximum='3'}-->
+        <!--{/iCMS}-->
+    </ul>
+    <!--{else}-->
+    <a class="nav-main-link" href="<!--{$node_list.url}-->">
+        <i class="nav-main-link-icon fa fa-globe-americas"></i>
+        <span class="nav-main-link-name"><!--{$node_list.name}--></span>
+    </a>
+    <!--{/if}-->
+</li>

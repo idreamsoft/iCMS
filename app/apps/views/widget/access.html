@@ -1,0 +1,169 @@
+<script type="text/javascript" src="./app/member/assets/access.js"></script>
+<script type="text/javascript">
+    var appAccess = <?php echo $appAccess; ?>;
+    $(function() {
+        inputChecked(appAccess, '#access-menu');
+        inputChecked(appAccess, '#access-app');
+    });
+</script>
+<style>
+    #access-menu {
+        font-size: 12px;
+    }
+</style>
+<input name="akey" type="hidden" value="admincp" />
+<div id="access-menu" class="tab-pane active">
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="checkAllMenu">全选</label>
+                <div class="input-group-text">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkAllMenu" data-toggle="checkAll" data-target="#access-menu" />
+                        <label class="custom-control-label" for="checkAllMenu"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+            </div>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="checkbox-admincp">允许登录后台</label>
+            </div>
+            <div class="input-group-append">
+                <div class="input-group-text">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkbox-admincp" name="access[menu][]" value="ADMINCP" />
+                        <label class="custom-control-label" for="checkbox-admincp"></label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="alert alert-danger">注:此处权限设置为后台的菜单权限是否显示,设置后还要设置具体的相关应用权限,否刚有可能出错</div>
+
+    <table class="table table-hover table-sm table-borderless">
+        <thead class="bg-light text-black">
+            <tr>
+                <th>菜单</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php
+            function menu_access($M, $level, $child, $pid)
+            {
+                $id = md5($M['id'] . $M['access'] . uniqid(true));
+                $ltag = ($level == '1' ? "" : "├ ");
+                $name = $M['children'] ? '<b>' . $M['caption'] . '</b>' : $M['caption'];
+                echo '<tr>';
+                echo '<td class="p-0">';
+                echo str_repeat("│　", $level - 1) . $ltag;
+                echo '<div class="custom-control custom-checkbox custom-control-inline">
+                        <input type="checkbox" class="custom-control-input menu_access"
+                        id="' . $id . '"
+                        mid="' . $M['id'] . '"
+                        pid="' . $pid . '"
+                        name="access[menu][]"
+                        value="' . $M['access'] . '"/>
+                        <label class="custom-control-label" for="' . $id . '">' . $name . '</label>
+                    </div>';
+                echo '</td>';
+                echo '</tr>';
+            }
+            Menu::$callback['func'] = 'menu_access';
+            Menu::callfunc();
+            ?>
+        </tbody>
+    </table>
+</div>
+<div id="access-app" class="tab-pane">
+    <div class="form-group">
+        <div class="input-group">
+            <div class="input-group-prepend">
+                <label class="input-group-text" for="checkAllApp">全选</label>
+                <div class="input-group-text">
+                    <div class="custom-control custom-checkbox">
+                        <input type="checkbox" class="custom-control-input" id="checkAllApp" data-toggle="checkAll" data-target="#access-app" />
+                        <label class="custom-control-label" for="checkAllApp"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="input-group-append">
+                <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+            </div>
+        </div>
+    </div>
+    <div class="clearfloat"></div>
+    <?php function app_access($accessAll, $value)
+    {
+        if (empty($accessAll)) return;
+        $trid = $value['app'] . $value['id'] . '_access';
+        $html = ' <div class="form-group">';
+        $access_get = $accessAll[iPHP_GET_PREFIX];
+        if ($access_get) {
+            ksort($access_get);
+            $batchAccess = $access_get['batch:access'];
+            $access_get['batch:access'] = '';
+            if ($batchAccess) foreach ($batchAccess as $bkey => $bval) {
+                $access_get['batch:access'] .= '│　├' . call_user_func_array(AppsAccess::$callback['method:access'],[$bval[0], $bval[1]]);
+            }
+            $html .= implode('', $access_get);
+        }
+        $html .= '</div>';
+        $html .= '<div class="form-group">';
+        $access_post = $accessAll[iPHP_POST_PREFIX];
+        if ($access_post) {
+            ksort($access_post);
+            $batchAccess = $access_post['batch:access'];
+            $access_post['batch:access'] = '';
+            if ($batchAccess) foreach ($batchAccess as $bkey => $bval) {
+                $access_post['batch:access'] .= '│　├' . call_user_func_array(AppsAccess::$callback['method:access'],[$bval[0], $bval[1]]);
+            }
+            $html .= implode('', $access_post);
+        }
+        $html .= '</div>';
+        return $html;
+    }
+    function method_access($url, $title, $level = 1)
+    {
+        $ltag = ($level == '1' ? "" : "├ ");
+        return $level > 1 ? str_repeat("│　", $level - 1) : '' . $ltag . '<div class="custom-control custom-checkbox custom-control-inline">' .
+            '<input type="checkbox" class="custom-control-input" id="' . md5($url) . '" name="access[app][]" value="' . $url . '"/>' .
+            '<label class="custom-control-label" for="' . md5($url) . '">' . $title . ' [' . $url . ']</label>' .
+            '</div>' .
+            '<div class="clearfix"></div>';
+    }
+    ?>
+    <?php AppsAccess::$callback['app:access'] = 'app_access'; ?>
+    <?php AppsAccess::$callback['method:access'] = 'method_access'; ?>
+    <?php $html = AppsAccess::get($appArray); ?>
+    <div class="block ">
+        <div class="block-content tab-content p-0">
+            <table class="table table-hover table-sm table-borderless">
+                <thead class="bg-light text-black">
+                    <tr>
+                        <th>权限</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    foreach ($appArray as $key => $app) {
+                    ?>
+                        <tr>
+                            <td class="p-0">
+                                <?php 
+                                echo method_access($app['app'], $app['name']);
+                                echo $html[$key];
+                                ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

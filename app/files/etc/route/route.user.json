@@ -1,0 +1,7 @@
+{
+    "FilesUser": "api.php?app=FilesUser",
+    "FilesUser/add": "api.php?app=FilesUser&do=add",
+    "FilesUser/multi": "api.php?app=FilesUser&do=multi",
+    "FilesUser/browse": "api.php?app=FilesUser&do=browse",
+    "FilesUser/preview": "api.php?app=FilesUser&do=preview"
+}

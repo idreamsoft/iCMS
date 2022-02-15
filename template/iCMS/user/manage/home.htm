@@ -1,0 +1,40 @@
+<div class="block">
+    <div class="block-content p-0">
+        <p>
+            账号：
+            <!--{$ME.account}-->
+        </p>
+        <p>
+            手机号：
+            <!--{$ME.phone}-->
+            <a href="<!--{iCMS:route url='user:manage:phone'}-->" class="font-size-sm ml-1">[更换手机号]</a>
+        </p>
+        <p>
+            邮箱：
+            <!--{$ME.email}-->
+            <a href="<!--{iCMS:route url='user:manage:email'}-->" class="font-size-sm ml-1">[更换邮箱]</a>
+        </p>
+        <p>
+            当前等级：
+            <!--{$ME.role.name}-->
+            <a href="<!--{iCMS:route url='user:manage:vip'}-->" class="font-size-sm ml-1">[升级]</a>
+        </p>
+        <!--{iCMS:config name="payment"}-->
+        <p>
+            可用
+            <!--{$config.name}-->
+            ：
+            <!--{$ME.credit}-->
+            <!--{$config.unit}-->
+            <a href="<!--{iCMS:route url='user:manage:charge'}-->" class="font-size-sm ml-1">[充值]</a>
+        </p>
+        <p>
+            VIP免费
+            <!--{$config.name}-->
+            ：
+            <!--{$ME.free}-->
+            <!--{$config.unit}-->
+            <a href="<!--{iCMS:route url='user:manage:charge'}-->" class="font-size-sm ml-1">[充值]</a>
+        </p>
+    </div>
+</div>

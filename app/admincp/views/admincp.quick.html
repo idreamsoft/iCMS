@@ -1,0 +1,36 @@
+<div class="content">
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">
+                <i class="fa fa-fw fa-bars"></i>
+                快捷方式
+            </h3>
+            <div class="block-options">
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close"><i class="si si-close"></i></button>
+            </div>
+        </div>
+        <div class="block-content p-0 m-0">
+            <div class="row items-push text-center">
+                <?php if ($btnList) foreach ($btnList as $key =>$value) {?>
+                <div class="<?php echo $value['col:class']; ?>">
+                    <a class="mb-0 block block-rounded block-link-pop <?php echo $value['a:class']; ?>" data-toggle="appear" href="<?php echo ADMINCP_URL; ?>=<?php echo $value['url']; ?>" target="<?php echo $value['a:target']; ?>">
+                        <div class="block-content block-content-full">
+                            <div class="py-1 text-center">
+                                <div class="item item-2x item-rounded bg-<?php echo $value['item:bg-color']?:'primary'; ?> text-<?php echo $value['icon:text-color']?:'white';?> mx-auto">
+                                    <i class="<?php echo $value['icon']; ?>"></i>
+                                </div>
+                                <div class="pt-2 mb-0"><?php echo $value['title']; ?></div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+

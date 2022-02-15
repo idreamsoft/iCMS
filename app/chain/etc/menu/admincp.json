@@ -1,0 +1,24 @@
+[{
+    "id": "assist",
+    "children": [{
+        "id": "chain",
+        "caption": "内链",
+        "icon": "paperclip",
+        "children": [{
+                "caption": "内链设置",
+                "href": "chain&do=config",
+                "icon": "cog"
+            },
+            {
+                "caption": "内链管理",
+                "href": "chain",
+                "icon": "paperclip"
+            },
+            {
+                "caption": "添加内链",
+                "href": "chain&do=add",
+                "icon": "edit"
+            }
+        ]
+    }]
+}]

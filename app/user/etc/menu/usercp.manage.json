@@ -1,0 +1,78 @@
+[{
+        "id": "home",
+        "sort": -99999999,
+        "caption": "个人中心",
+        "url": "user:manage:home",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/manage/home.htm"
+    },
+    {
+        "id": "content",
+        "sort": -99999998,
+        "caption": "内容中心",
+        "url": "user:content:home",
+        "icon": "fa fa-cog"
+    },{
+        "sort": -99999997,
+        "caption": "-"
+    },
+    {
+        "id": "order",
+        "sort": 5,
+        "caption": "我的订单",
+        "url": "user:manage:order",
+        "icon": "fa fa-cog",
+        "app": "payment",
+        "template": "iCMS://user/manage/order.htm"
+    },
+    {
+        "id": "aff",
+        "sort": 9999995,
+        "caption": "我的推广",
+        "url": "user:manage:aff",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/manage/aff.htm"
+    },
+    {
+        "id": "profile",
+        "sort": 9999997,
+        "caption": "我的资料",
+        "url": "user:manage:profile",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/manage/profile.htm"
+    },
+    {
+        "id": "phone",
+        "sort": 9999997,
+        "caption": "更换手机号",
+        "url": "user:manage:phone",
+        "icon": "fa fa-phone",
+        "hidden": true,
+        "template": "iCMS://user/manage/phone.htm"
+    },
+    {
+        "id": "email",
+        "sort": 9999997,
+        "caption": "更换邮箱",
+        "url": "user:manage:email",
+        "icon": "fa fa-email",
+        "hidden": true,
+        "template": "iCMS://user/manage/email.htm"
+    },
+    {
+        "id": "modifypwd",
+        "sort": 9999998,
+        "caption": "修改密码",
+        "url": "user:manage:modifypwd",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/manage/modifypwd.htm"
+    }, {
+        "id": "logout",
+        "sort": 9999999,
+        "caption": "安全退出",
+        "i": "user:logout",
+        "url": "user:logout",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/manage/logout.htm"
+    }
+]

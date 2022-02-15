@@ -1,0 +1,50 @@
+<div class="block block-rounded">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">
+            <i class="fa fa-fw fa-bug"></i>
+            iCMS BUG反馈
+        </h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+        </div>
+    </div>
+    <div class="block-content px-1 py-0 pb-2">
+        <form action="<?php echo ADMINCP_URL; ?>=developer&do=bugs" method="post" id="iCMS-feedback" target="iPHP_FRAME">
+            <div class="form-group form-group-sm m-0 mt-1">
+                <textarea
+                    id="content"
+                    name="content"
+                    class="form-control p-1 pb-3"
+                    rows="7"
+                    data-toggle="popover"
+                    data-placement="top"
+                    title="注意事项"
+                    data-content="为了保证效率，请务必描述清楚你的问题，例如包含 iCMS 版本号、服务器操作系统、WEB服务器版本、浏览器版本等必要信息，不合格问题将可能会被无视掉"
+                >
+出问题的URL:
+问题描述:
+------------------------------------------------
+<?php Developer::systemInfo(); ?></textarea
+                >
+            </div>
+            <div class="form-group form-group-sm m-0 mt-1">
+                <div class="input-group">
+                    <input type="text" maxlength="4" class="form-control form-control-lg form-control-alt" id="captcha" name="captcha" placeholder="请输入图形验证码" />
+                    <img src="<?php echo ADMINCP_URL; ?>=developer&do=getCaptcha" alt="验证码" class="captcha-img rounded-right tip" title="看不清楚？换一张" />
+                </div>
+            </div>
+            <div class="form-group form-group-sm m-0 mt-1">
+                <div class="input-group">
+                    <input id="title" name="title" type="text" class="form-control form-control-lg form-control-alt" placeholder="请填写问题的标题" />
+                    <div class="input-group-append">
+                        <button class="btn btn-dark" type="submit">
+                            <i class="fa fa-fw fa-check pr-4"></i>
+                            提交
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<script type="text/javascript" src="./app/developer/assets/bugs.js"></script>

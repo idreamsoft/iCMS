@@ -1,0 +1,69 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">服务器时区</label>
+    <div class="col-sm-8">
+        <select v-model="time_zone" name="config[time][zone]" id="time_zone" class="form-control">
+            <option value="Pacific/Kwajalein">(标准时-12：00) 日界线西 </option>
+            <option value="Pacific/Samoa">(标准时-11：00) 中途岛、萨摩亚群岛 </option>
+            <option value="Pacific/Honolulu">(标准时-10：00) 夏威夷 </option>
+            <option value="America/Juneau">(标准时-9：00) 阿拉斯加 </option>
+            <option value="America/Los_Angeles">(标准时-8：00) 太平洋时间(美国和加拿大) </option>
+            <option value="America/Denver">(标准时-7：00) 山地时间(美国和加拿大) </option>
+            <option value="America/Mexico_City">(标准时-6：00) 中部时间(美国和加拿大)、墨西哥城 </option>
+            <option value="America/New_York">(标准时-5：00) 东部时间(美国和加拿大)、波哥大 </option>
+            <option value="America/Caracas">(标准时-4：00) 大西洋时间(加拿大)、加拉加斯 </option>
+            <option value="America/St_Johns">(标准时-3：30) 纽芬兰 </option>
+            <option value="America/Argentina/Buenos_Aires">(标准时-3：00) 巴西、布宜诺斯艾利斯、乔治敦 </option>
+            <option value="Atlantic/Azores">(标准时-2：00) 中大西洋 </option>
+            <option value="Atlantic/Azores">(标准时-1：00) 亚速尔群岛、佛得角群岛 </option>
+            <option value="Europe/London">(格林尼治标准时) 西欧时间、伦敦、卡萨布兰卡 </option>
+            <option value="Europe/Paris">(标准时+1：00) 中欧时间、安哥拉、利比亚 </option>
+            <option value="Europe/Helsinki">(标准时+2：00) 东欧时间、开罗，雅典 </option>
+            <option value="Europe/Moscow">(标准时+3：00) 巴格达、科威特、莫斯科 </option>
+            <option value="Asia/Tehran">(标准时+3：30) 德黑兰 </option>
+            <option value="Asia/Baku">(标准时+4：00) 阿布扎比、马斯喀特、巴库 </option>
+            <option value="Asia/Kabul">(标准时+4：30) 喀布尔 </option>
+            <option value="Asia/Karachi">(标准时+5：00) 叶卡捷琳堡、伊斯兰堡、卡拉奇 </option>
+            <option value="Asia/Calcutta">(标准时+5：30) 孟买、加尔各答、新德里 </option>
+            <option value="Asia/Colombo">(标准时+6：00) 阿拉木图、 达卡、新亚伯利亚 </option>
+            <option value="Asia/Bangkok">(标准时+7：00) 曼谷、河内、雅加达 </option>
+            <option value="Asia/Shanghai">(北京时间) 北京、重庆、香港、新加坡 </option>
+            <option value="Asia/Tokyo">(标准时+9：00) 东京、汉城、大阪、雅库茨克 </option>
+            <option value="Australia/Darwin">(标准时+9：30) 阿德莱德、达尔文 </option>
+            <option value="Pacific/Guam">(标准时+10：00) 悉尼、关岛 </option>
+            <option value="Asia/Magadan">(标准时+11：00) 马加丹、索罗门群岛 </option>
+            <option value="Asia/Kamchatka">(标准时+12：00) 奥克兰、惠灵顿、堪察加半岛 </option>
+        </select>
+        <small class="form-text text-muted">服务器所在时区</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">服务器时间校正</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[time][cvtime]" class="form-control" id="time_cvtime" value="<?php echo $config['time']['cvtime']; ?>" />
+            <div class="input-group-append">
+                <span class="input-group-text">分钟</span>
+            </div>
+        </div>
+        <small class="form-text text-muted">此功能用于校正服务器操作系统时间设置,当确认程序默认时区设置正确后，程序显示时间仍有错误，请使用此功能校正</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="example">默认时间格式</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[time][dateformat]" class="form-control" id="time_dateformat" value="<?php echo $config['time']['dateformat']; ?>" />
+            <div class="input-group-append">
+                <a class="btn btn-dark dropdown-toggle" id="time_dateformat_menu" data-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-question-circle"></i> 帮助</a>
+                <ul class="dropdown-menu" aria-labelledby="time_dateformat_menu">
+                    <li><a class="dropdown-item" href="#Y" data-toggle="insertContent" data-target="#time_dateformat"><span class="badge badge-info">Y</span> 4位数年份</a></li>
+                    <li><a class="dropdown-item" href="#y" data-toggle="insertContent" data-target="#time_dateformat"><span class="badge badge-info">y</span> 2位数年份</a></li>
+                    <li><a class="dropdown-item" href="#m" data-toggle="insertContent" data-target="#time_dateformat"><span class="badge badge-info">m</span> 月份01-12</a></li>
+                    <li><a class="dropdown-item" href="#n" data-toggle="insertContent" data-target="#time_dateformat"><span class="badge badge-info">n</span> 月份1-12</a></li>
+                    <li><a class="dropdown-item" href="#d" data-toggle="insertContent" data-target="#time_dateformat"><span class="badge badge-info">n</span> 日期01-31</a></li>
+                    <li><a class="dropdown-item" href="#j" data-toggle="insertContent" data-target="#time_dateformat"><span class="badge badge-info">j</span> 日期1-31</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

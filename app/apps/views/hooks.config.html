@@ -1,0 +1,108 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+$title  = "应用钩子";
+$action = 'hooks';
+$items = [];
+if (is_array($config['fields'])) foreach ($config['fields'] as $hook_app => $hooks) {
+    foreach ((array)$hooks as $hook_field => $hook_method) {
+        foreach ($hook_method as $key => $_method) {
+            $method = is_array($_method) ? implode('::', $_method) : $_method;
+            // $script .= sprintf('hooks_item_clone("%s","%s","%s");', $hook_app, $hook_field, $method);
+            $items[] = [$hook_app, $hook_field, $method];
+        }
+    }
+}
+AppsHooks::appMethod();
+?>
+<div class="hooks_item hide">
+    <div class="form-group row">
+        <div class="input-group col-12 mt-1">
+            <div class="input-group-prepend">
+                <label class="input-group-text">应用</label>
+            </div>
+            <select name="hooks[app][]" class="hook_app form-control js-chosen-disable" disabled="disabled">
+                <option value="">.....请先选择应用.....</option>
+                <?php echo AppsHooks::appSelect(); ?>
+            </select>
+            <div class="input-group-append"></div>
+            <div class="input-group-prepend">
+                <label class="input-group-text">字段</label>
+            </div>
+            <select name="hooks[field][]" class="hook_field form-control js-chosen-disable" disabled="disabled"></select>
+            <div class="input-group-append"></div>
+            <div class="input-group-prepend">
+                <label class="input-group-text">钩子</label>
+            </div>
+            <select name="hooks[method][]" class="hook_method form-control js-chosen-disable" disabled="disabled">
+                <?php echo AppsHooks::appMethod() ?: '<option value="">暂无可用方法</option>'; ?>
+            </select>
+            <div class="input-group-append">
+                <a class="btn btn-sm btn-light input-group-text del_hooks" href="javascript:;"><i class="si si-close"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="app_fields_select hide">
+    <?php echo AppsHooks::appFieldsSelect(); ?>
+</div>
+<a class="btn btn-primary add_hooks mb-3" href="javascript:;" title="添加钩子"><i class="fa fa-fw fa-plus-square"></i> 添加钩子</a>
+<div class="hooks_container"></div>
+
+<script>
+    var items = <?php echo json_encode($items); ?>;
+    $(function() {
+        $.each(items, function(i, value) {
+            hooks_item_clone(value[0], value[1], value[2]);
+        });
+        $(".add_hooks").click(function(event) {
+            event.preventDefault();
+            hooks_item_clone();
+        });
+    })
+
+    function hooks_item_clone($app, $field, $method) {
+        var set_field = function(hooks_item, $field, html) {
+            $(".hook_field", hooks_item).html('');
+            $(".hook_field", hooks_item).html(html);
+            if ($field) {
+                $(".hook_field", hooks_item).val($field)
+            }
+            $(".hook_field", hooks_item).trigger("chosen:updated");
+        }
+        var hooks_item = $(".hooks_item").clone(true);
+        hooks_item.removeClass('hide hooks_item');
+        $('[disabled]', hooks_item).removeAttr("disabled");
+        console.log(hooks_item);
+
+        hooks_item.on('chosen:updated change', '.hook_app', function(event) {
+            event.preventDefault();
+            var me = this,
+                app = this.value;
+            $(".hook_field", hooks_item).html('<option value="">加载中....请稍候!</option>');
+            var option = $("#app_" + app + "_select").html();
+
+            set_field(hooks_item, $field, option);
+        }).on('click', '.del_hooks', function(event) {
+            event.preventDefault();
+            var ppp = $(this).parent().parent().parent();
+            ppp.remove();
+        });
+        if ($app) {
+            $(".hook_app", hooks_item).val($app).trigger("chosen:updated");
+        }
+        if ($method) {
+            $(".hook_method", hooks_item).val($method).trigger("chosen:updated");
+        }
+        $(".hooks_container").append(hooks_item)
+        // $("select", hooks_item).chosen();
+    }
+</script>

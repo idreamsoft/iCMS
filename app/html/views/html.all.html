@@ -1,0 +1,42 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="javascript:;"><i class="fa fa-fw fa-floppy-alt"></i> 全站静态</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo APP_URL; ?>&do=index"><i class="fa fa-fw fa-floppy-alt"></i> 首页</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo APP_URL; ?>&do=node"><i class="fa fa-fw fa-floppy-alt"></i> 栏目</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo APP_URL; ?>&do=article"><i class="fa fa-fw fa-floppy-alt"></i> 文章</a></li>
+        </ul>
+        <div class="block-content">
+            <p>
+                <strong>iCMS</strong> 不是很支持全站静态这种模式，推荐使用伪静态方式<br />
+                所说的不支持不是指技术上不支持。<br />
+                有人说纯静态对搜索引擎比较友好<br />
+                百度站长学院 http://zhanzhang.baidu.com/college/documentinfo?id=193&page=6<br />
+                已经说明 URL是动态还是静态，对百度没有影响<br />
+                而且生成静态期间对服务器性能有很大的影响<br />
+                如果您还坚持要全站静态，那请手动生成 首页 栏目 文章
+                <hr />
+                <strong>iCMS 推荐方式 </strong><br />
+                首页静态<br />
+                其它全部使用伪静态方式<br />
+                如果您的流量很大，可使用nginx的缓存功能。速度不比纯静态差多少<br />
+                如果您的流量很大很大很大很大很大很大很大，那您已经是土豪了，还怕没有解决的办法
+            </p>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

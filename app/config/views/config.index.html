@@ -1,0 +1,74 @@
+<?php self::head(); ?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block" data-toggle="tabs" role="tablist">
+            <?php if ($tabsArray) foreach ($tabsArray as $key => $nav) { ?>
+                <li class="nav-item"><a class="nav-link <?php echo $nav[4]; ?>" href="#<?php echo $nav[3]; ?>"><?php echo $nav[1]; ?></a></li>
+            <?php } ?>
+            <?php if ($extends) foreach ($extends as $key => $ext) { ?>
+                <li class="nav-item"><a class="nav-link" href="#config-<?php echo $key; ?>"><?php echo $ext['title']; ?>配置</a></li>
+            <?php } ?>
+            <li class="nav-item ml-auto">
+                <div class="block-options p-2">
+                    <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+                    <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                    <!-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                        <i class="si si-refresh"></i>
+                    </button> -->
+                    <!-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close">
+                        <i class="si si-close"></i>
+                    </button> -->
+                </div>
+            </li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="tab-content">
+                    <?php if ($tabsArray) foreach ($tabsArray as $key => $nav) { ?>
+                        <div id="<?php echo $nav[3]; ?>" class="tab-pane <?php echo $nav[4]; ?>" role="tabpanel">
+                            <?php include self::view($nav[0], $nav[2]); ?>
+                        </div>
+                    <?php } ?>
+                    <?php if ($extends) foreach ($extends as $key => $ext) { ?>
+                        <div id="config-<?php echo $key; ?>" class="tab-pane" role="tabpanel">
+                            <div class="block">
+                                <?php if ($ext['nav']) { ?>
+                                    <ul class="nav nav-tabs nav-tabs-alt" data-toggle="tabs" role="tablist">
+                                        <?php $tidx = 0;
+                                        foreach ($ext['tabs'] as $tkey => $tab) { ?>
+                                            <li class="nav-item"><a class="nav-link <?php echo $tidx ? '' : 'active'; ?>" href="#ext-<?php echo $key; ?>-<?php echo $tkey; ?>"><i class="<?php echo $tab['icon']; ?>"></i><?php echo $tab['title']; ?></a></li>
+                                        <?php $tidx++;
+                                        } ?>
+                                    </ul>
+                                <?php } ?>
+                                <div class="block-content">
+                                    <div class="tab-content">
+                                        <?php $tidx = 0;
+                                        foreach ($ext['tabs'] as $tkey => $tab) { ?>
+                                            <div id="ext-<?php echo $key; ?>-<?php echo $tkey; ?>" class="tab-pane <?php echo $tidx ? '' : 'active'; ?>" role="tabpanel">
+                                                <?php include $tab['path']; ?>
+                                            </div>
+                                        <?php $tidx++;
+                                        } ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <div class="form-group row py-4 bg-body-light">
+                        <label class="col-sm-2 col-xl-1"></label>
+                        <div class="col-sm-8"><button type="submit" class="btn btn-lg btn-primary px-5 py-2">提交</button></div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script>
+    iCMS.set('Vue.data', {
+        time_zone: "<?php echo $config['time']['zone']; ?>",
+        system_patch: "<?php echo (int) $config['system']['patch']; ?>",
+    });
+</script>
+<script type="text/javascript" src="<?php echo APP_ASSETS; ?>/page.js"></script>
+<?php self::foot(); ?>

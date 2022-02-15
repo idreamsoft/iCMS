@@ -1,0 +1,34 @@
+<div class="bg-white">
+    <div class="d-flex justify-content-between p-2">
+        <div class="d-flex align-items-center">
+            <a style="font-size: 26px;" class="font-w600 font-size-h5 tracking-wider text-dual" href="<!--{$site.url}-->"><!--{$site.title}--></a>
+        </div>
+        <div class="d-flex align-items-center">
+            <!-- Search Form (visible on larger screens) -->
+            <form i="event:search:form" class="d-none d-sm-inline-block mr-2" action="<!--{iCMS:route url='api'}-->" method="get" target="_blank">
+                <div class="input-group input-group-sm">
+                    <select name="app" class="form-control form-control-alt" style="max-width: 90px">
+                        <option value="article">文章</option>
+                    </select>
+                    <input name="do" type="hidden" value="search" />
+                    <input type="text" name="keyword" class="form-control form-control-alt" placeholder="请输入关键词..." value="<!--{$search.keyword}-->"/>
+                    <div class="input-group-append">
+                        <button class="input-group-text bg-body border-0">
+                            <i class="si si-magnifier"></i>
+                        </button>
+                    </div>
+                </div>
+            </form>
+            <!-- END Search Form -->
+            <div i="user:status:0">
+                <a i="event:user:login" class="btn btn-sm btn-alt-primary mr-2" href="<!--{iCMS:route url='user:login'}-->" title="登录">登录</a>
+                <a i="event::user:register" class="btn btn-sm btn-alt-danger mr-2" href="<!--{iCMS:route url='user:register'}-->" title="注册">注册</a>
+                <a class="btn btn-sm btn-alt-secondary" href="<!--{iCMS:route url='user:content:home'}-->" title="用户投稿">投稿</a>
+            </div>
+            <div i="user:status:1" style="display: none;">
+                <!--{include file="iCMS://user/widget.dropdown.htm"}-->
+                <a class="btn btn-sm btn-alt-secondary" href="<!--{iCMS:route url='user:content:home'}-->" title="用户投稿">投稿</a>
+            </div>
+        </div>
+    </div>
+</div>

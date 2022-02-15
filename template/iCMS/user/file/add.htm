@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+        <title>上传</title>
+        <!--{iCMS:public:ui}-->
+    </head>
+
+    <body>
+        <div class="block m-0  block-transparent">
+            <div class="block-content">
+                <form i="upload" action="<!--{iCMS:route url='FilesUser' id='$_REQUEST.id'}-->" method="POST" target="iPHP_FRAME" enctype="multipart/form-data">
+                    <input type="hidden" name="action" value="upload" />
+                    <input type="hidden" name="callback" value="<!--{$_REQUEST.callback}-->_callback" />
+                    <input type="hidden" name="udir" value="<!--{$_REQUEST.dir}-->" />
+
+                    <div id="upload-container">
+                        <div class="justify-content-center align-items-center">
+                            <label for="upfile" type="button" class="btn btn-alt-primary btn-block">
+                                <span><i class="fa fa-fw fa-upload"></i>选择文件</span>
+                                <input type="file" name="upfile" id="upfile" i="upfile" />
+                            </label>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <iframe class="d-none" id="iPHP_FRAME" name="iPHP_FRAME"></iframe>
+
+        <!-- END Page Container -->
+        <style>
+            #upload-container label {
+                position: relative;
+                display: inline-block;
+                overflow: hidden;
+                text-align: center;
+                margin-bottom: 0px;
+            }
+            #upload-container input {
+                display: none;
+                position: absolute;
+                left: 0;
+                top: 0;
+                opacity: 0;
+            }
+        </style>
+    </body>
+</html>

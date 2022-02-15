@@ -1,0 +1,149 @@
+<script type="text/javascript">
+    var $APP_CONFIG = <!--{$iCMS.CONFIG.article|json_encode}-->;
+    window.catchRemoteImageEnable = $APP_CONFIG.catch_remote ? true : false;
+    var $ID = "<!--{$article.id}-->";
+    var $isMarkdown = <!--{$isMarkdown?'true':'false'}-->;
+</script>
+<!--{if $isMarkdown}-->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vditor/dist/index.css" />
+<script src="https://cdn.jsdelivr.net/npm/vditor/dist/index.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="<!--{$site.urls.app}-->/editor/assets/usercp.vditor.js"></script>
+<!--{else}-->
+<script type="text/javascript" charset="utf-8" src="<!--{$site.urls.app}-->/editor/assets/usercp.ueditor.js"></script>
+<script type="text/javascript" charset="utf-8" src="<!--{$site.urls.app}-->/editor/assets/ueditor/ueditor.all.min.js"></script>
+<!--{/if}-->
+<script type="text/javascript" charset="utf-8" src="<!--{$site.urls.app}-->/editor/assets/editor.init.js"></script>
+
+<form i="form:article:publish" action="<!--{iCMS:route url='ArticleUser'}-->" method="POST" target="iPHP_FRAME">
+    <input name="action" type="hidden" value="save" />
+    <input name="sign" type="hidden" value="<!--{$sign}-->" />
+    <input name="once" type="hidden" value="<!--{$once}-->" />
+    <input name="isMarkdown" type="hidden" value="<!--{$isMarkdown}-->" />
+    <input name="id" type="hidden" value="<!--{$article.id}-->" />
+    <div class="form-group row">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="cid">栏 目</label>
+        <div class="input-group col-sm-8">
+            <select name="cid" id="cid" class="form-control" data-placeholder="== 请选择所属栏目 ==">
+                <option value="0">== 请选择所属栏目 ==</option>
+                <!--{iCMS:node:select selected="$article.cid" appid="1"}-->
+            </select>
+            <div class="input-group-append">
+                <a class="btn btn-dark" href="<!--{iCMS:route url='UserNode:manage'}-->" data-toggle="modal" data-meta='{"width":"60%","height":"600px"}' title="添加栏目"><i class="fa fa-fw fa-plus"></i></a>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="title">标 题</label>
+        <div class="col-sm-8">
+            <input type="text" name="title" class="form-control" id="title" value="<!--{$article.title}-->" />
+            <small id="title-tip" class="form-text text-muted"></small>
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="source">出处</label>
+        <div class="col-sm-4 col-md-8 col-lg-4">
+            <input type="text" name="source" class="form-control" id="source" value="<!--{$article.source}-->" />
+        </div>
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="author">作者</label>
+        <div class="col-sm-3 col-md-8 col-lg-3">
+            <input type="text" name="author" class="form-control" id="author" value="<!--{$article.author}-->" />
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="pic">封面</label>
+        <div class="input-group col-sm-8">
+            <input type="text" name="pic" class="form-control" id="pic" value="<!--{$article.pic}-->" />
+            <!--{include file="iCMS://user/file/picbtn.htm" 
+                field="pic" 
+                value="$article.pic" 
+                id="$article.id"
+            }-->
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="tags">标签</label>
+        <div class="col-sm-8">
+            <div class="input-group">
+                <input type="text" name="tags" class="form-control" id="tags" value="<!--{$article.tags}-->" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                <div class="input-group-append">
+                    <button class="btn btn-dark" id="tag_extrac" data-target="#tags" class="btn" type="button" title="智能提取标签"><i class="fa fa-fw fa-magic"></i></button>
+                </div>
+            </div>
+            <small class="form-text text-muted">多个标签用,分隔</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label" for="description">摘 要</label>
+        <div class="col-sm-8">
+            <textarea name="description" id="description" class="form-control" style="height: 150px"><!--{$article.description}--></textarea>
+        </div>
+    </div>
+    <div class="form-group">
+        <label class="col-sm-1 col-md-8 col-lg-1 col-form-label">内容</label>
+        <div i="event:editor" id="editor-wrap-1" class="editor-container">
+            <div class="form-group">
+                <!--{if $isMarkdown}-->
+                <script type="text/plain" id="editor-body-1"><!--{$articleData.body}--></script>
+                <textarea type="text/plain" name="body" style="display: none;"><!--{$articleData.body}--></textarea>
+                <!--{else}-->
+                <textarea type="text/plain" id="editor-body-1" name="body"><!--{$articleData.body}--></textarea>
+                <!--{/if}-->
+            </div>
+        </div>
+        <!--{if $USER_CONFIG.post.captcha }-->
+        <div class="form-group row">
+            <label class="col-sm-1 col-md-8 col-lg-1 col-form-label">验证码</label>
+            <div class="input-group col-sm-4">
+                <input type="text" maxlength="4" class="form-control form-control-lg form-control-alt" id="captcha" name="captcha" placeholder="图形验证码" />
+                <div class="input-group-append">
+                    <!--{iCMS:public:captcha name="publish" class="rounded-right"}-->
+                </div>
+            </div>
+        </div>
+        <!--{/if}-->
+    </div>
+    <div class="form-group row py-4 mt-4 bg-body-light">
+        <label class="col-sm-2"></label>
+        <div class="col-sm-8">
+            <button type="submit" class="btn btn-lg btn-primary px-5 py-2" data-loading-text="提交中，请稍候...">
+                <i class="fa fa-fw fa-check"></i>
+                提 交
+            </button>
+        </div>
+    </div>
+    <div id="aa"></div>
+</form>
+<script>
+    function pic_callback(a) {
+        if (a.state == "SUCCESS") {
+            $("#pic").val(a.data.url);
+            window.iCMS_MODAL.destroy();
+        }
+    }
+    jQuery(() => {
+        submit("文章提交", "form:article:publish", {
+            rules: {
+                title: {
+                    required: true,
+                },
+                cid: {
+                    required: true,
+                    min: 1,
+                },
+                body: {
+                    required: true,
+                },
+                captcha: {
+                    required: true,
+                },
+            },
+            messages: {
+                title: "<!--{iCMS:lang key='user:publish:empty:title'}-->",
+                cid: "<!--{iCMS:lang key='user:publish:empty:cid'}-->",
+                body: "<!--{iCMS:lang key='user:publish:empty:body'}-->",
+                captcha: "请输入图形验证码",
+            },
+        });
+    });
+</script>

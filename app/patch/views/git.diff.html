@@ -1,0 +1,45 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head(false);
+?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-content">
+            <pre style="margin:4px;padding: 4px; background: #fff;"><?php echo str_replace('<br />', "\n", $log[0]); ?></pre>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content">
+            <table class="table table-sm table-bordered table-condensed table-hover">
+                <thead>
+                    <tr>
+                        <th><i class="fa fa-fw fa-arraws-down"></i></th>
+                        <th>动作</th>
+                        <th>文件</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    if ($log) foreach ($log as $k => $value) {
+                    ?>
+                        <tr>
+                            <td><?php echo $k + 1; ?></td>
+                            <td><?php echo $type_map[$value[0]]; ?></td>
+                            <td><?php echo $value[1]; ?></td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

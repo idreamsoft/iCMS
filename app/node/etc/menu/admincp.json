@@ -1,0 +1,26 @@
+[{
+    "id": "cms",
+    "children": [{
+        "id": "node",
+        "sort": "2",
+        "caption": "节点管理",
+        "icon": "sitemap",
+        "children": [{
+                "caption": "更新缓存",
+                "href": "node&do=cache",
+                "icon": "sync",
+                "target": "iPHP_FRAME"
+            },
+            {
+                "caption": "节点管理",
+                "href": "node",
+                "icon": "sitemap"
+            },
+            {
+                "caption": "添加节点",
+                "href": "node&do=add",
+                "icon": "edit"
+            }
+        ]
+    }]
+}]

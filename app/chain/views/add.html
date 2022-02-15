@@ -1,0 +1,41 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+* @site https://www.icmsdev.com * @licence https://www.icmsdev.com/LICENSE.html */ defined('iPHP') or exit('What are you doing?'); self::head(); ?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">
+                <?php echo empty($this->
+                id) ? '添加' : '修改'; ?>关键词
+            </h3>
+        </div>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <div id="keyword-add" class="tab-content">
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="keyword">关键词</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="keyword" class="form-control" id="keyword" value="<?php echo $rs['keyword']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="replace">替换词</label>
+                        <div class="col-sm-8">
+                            <textarea name="replace" id="replace" class="form-control" style="height: 150px"><?php echo $rs['replace']; ?></textarea>
+                            <small class="form-text text-muted">可添加html</small>
+                            <small class="form-text text-muted">纯链接的话，将自动为关键词加上该链接</small>
+                        </div>
+                    </div>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

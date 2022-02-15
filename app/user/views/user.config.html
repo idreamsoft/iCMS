@@ -1,0 +1,230 @@
+<?php $content_class = "p-0"; ?>
+<ul class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item"><a class="nav-link active" href="#tab-reg">注册</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-login">登录</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-pub">发布</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-other">其它</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-report">举报</a></li>
+</ul>
+<div class="tab-content pt-2">
+    <div id="tab-reg" role="tabpanel" class="tab-pane active">
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_register_enable">开放注册</label>
+            <div class="col-sm-8">
+                <input v-model="register_enable" type="checkbox" data-toggle="switch" name="config[register][enable]" id="user_register_enable" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label">注册方式</label>
+            <div class="col-sm-8">
+                <div class="custom-control custom-checkbox custom-control-lg custom-control-inline">
+                    <input v-model="register_mode" type="checkbox" class="custom-control-input" id="register_mode_0" name="config[register][mode][]" value="account">
+                    <input type="hidden" name="config[register][modeText][account]" value="用户名">
+                    <label class="custom-control-label" for="register_mode_0">用户名</label>
+                </div>
+                <div class="custom-control custom-checkbox custom-control-lg custom-control-inline">
+                    <input v-on:change="verify_phone = $event.target.checked" v-model="register_mode" type="checkbox" class="custom-control-input" id="register_mode_1" name="config[register][mode][]" value="phone">
+                    <input type="hidden" name="config[register][modeText][phone]" value="手机号">
+                    <label class="custom-control-label" for="register_mode_1">手机号</label>
+                </div>
+                <div class="custom-control custom-checkbox custom-control-lg custom-control-inline">
+                    <input v-on:change="verify_email = $event.target.checked" v-model="register_mode" type="checkbox" class="custom-control-input" id="register_mode_2" name="config[register][mode][]" value="email">
+                    <input type="hidden" name="config[register][modeText][email]" value="邮箱">
+                    <label class="custom-control-label" for="register_mode_2">邮箱</label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row" v-show="verify_phone">
+            <label class="col-sm-1 col-form-label" for="user_register_verify_phone">短信验证</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[register][verify][phone]" id="user_register_verify_phone" <?php echo @$config['register']['verify']['phone'] ? 'checked' : ''; ?> />
+                <small class="form-text text-muted">推荐开启手机短信验证,必需开启注册验证码，否则无法使用</small>
+            </div>
+        </div>
+        <div class="form-group row" v-show="verify_email">
+            <label class="col-sm-1 col-form-label" for="user_login_captcha">邮箱验证</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[register][verify][email]" id="user_register_verify_email" <?php echo @$config['register']['verify']['email'] ? 'checked' : ''; ?> />
+                <small class="form-text text-muted">推荐开启邮箱验证</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_register_captcha">注册验证码</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[register][captcha]" id="user_register_captcha" />
+                <small class="form-text text-muted">推荐开启注册验证码，防止机器暴力注册</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_register_interval">注册间隔</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="config[register][interval]" class="form-control" id="user_register_interval" value="<?php echo @(int) $config['register']['interval']; ?>" />
+                    <div class="input-group-append">
+                        <div class="input-group-text">秒</div>
+                    </div>
+                </div>
+                <small class="form-text text-muted">同IP注册时间间隔</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="config_group_publish">默认用户组</label>
+            <div class="col-sm-8">
+                <select v-model="register_role" name="config[register][role]" id="user_register_role" class="form-control" data-placeholder="请选择用户组...">
+                    <?php echo Role::userSelect(); ?>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_agreement">注册条款</label>
+            <div class="col-sm-8">
+                <textarea name="config[agreement]" id="user_agreement" class="form-control" style="height: 150px;"><?php echo $config['agreement']; ?></textarea>
+            </div>
+        </div>
+    </div>
+    <div id="tab-login" role="tabpanel" class="tab-pane">
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_login_enable">开放登录</label>
+            <div class="col-sm-8">
+                <input v-model="login_enable" type="checkbox" data-toggle="switch" name="config[login][enable]" id="user_login_enable" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label">登录方式</label>
+            <div class="col-sm-8">
+                <div class="custom-control custom-checkbox custom-control-lg custom-control-inline">
+                    <input v-on:change="auto_register = $event.target.checked" v-model="login_mode" type="checkbox" class="custom-control-input" id="login_mode_1" name="config[login][mode][]" value="phone">
+                    <input type="hidden" name="config[login][modeText][phone]" value="免密登录">
+                    <label class="custom-control-label" for="login_mode_1">免密登录</label>
+                </div>
+                <div class="custom-control custom-checkbox custom-control-lg custom-control-inline">
+                    <input v-model="login_mode" type="checkbox" class="custom-control-input" id="login_mode_2" name="config[login][mode][]" value="account">
+                    <input type="hidden" name="config[login][modeText][account]" value="密码登录">
+                    <label class="custom-control-label" for="login_mode_2">密码登录</label>
+                </div>
+                <div class="custom-control custom-checkbox custom-control-lg custom-control-inline">
+                    <input v-model="login_mode" type="checkbox" class="custom-control-input" id="login_mode_3" name="config[login][mode][]" value="weixin">
+                    <input type="hidden" name="config[login][modeText][weixin]" value="扫码登录">
+                    <label class="custom-control-label" for="login_mode_3">扫码登录</label>
+                </div>
+                <small class="form-text text-muted">免密登录,需要配置短信接口</small>
+                <small class="form-text text-muted">扫码登录,需要配置公众号接口</small>
+            </div>
+        </div>
+        <div class="form-group row" v-show="auto_register">
+            <label class="col-sm-1 col-form-label" for="user_login_auto_register">自动注册</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[login][auto_register]" id="user_login_auto_register" <?php echo @$config['login']['auto_register'] ? 'checked' : ''; ?> />
+                <small class="form-text text-muted">免密登录时,账号不存在自动注册</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_login_captcha">登录验证码</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[login][captcha]" id="user_login_captcha" <?php echo @$config['login']['captcha'] ? 'checked' : ''; ?> />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_login_interval">登录间隔</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="config[login][interval]" class="form-control" id="user_login_interval" value="<?php echo @(int) $config['login']['interval']; ?>" />
+                    <div class="input-group-append">
+                        <div class="input-group-text">秒</div>
+                    </div>
+                </div>
+                <small class="form-text text-muted">登录错误，重试时间间隔</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_login_times">错误次数</label>
+            <div class="col-sm-8">
+                <div class="input-group">
+                    <input type="text" name="config[login][times]" class="form-control" id="user_login_times" value="<?php echo @(int) $config['login']['times']; ?>" />
+                    <div class="input-group-append">
+                        <div class="input-group-text">次</div>
+                    </div>
+                </div>
+                <small class="form-text text-muted">登录错误次数,超过次数限制登录，0为不限制</small>
+            </div>
+        </div>
+    </div>
+    <div id="tab-pub" role="tabpanel" class="tab-pane">
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_post_captcha">发贴验证码</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[post][captcha]" id="user_post_captcha" <?php echo $config['post']['captcha'] ? 'checked' : ''; ?> />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_post_interval">发贴间隔</label>
+            <div class="input-group col-sm-8">
+                <input type="text" name="config[post][interval]" class="form-control" id="user_post_interval" value="<?php echo (int) $config['post']['interval']; ?>" />
+                <div class="input-group-append">
+                    <div class="input-group-text">秒</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="tab-other" role="tabpanel" class="tab-pane">
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_forward">来路跟随</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[forward]" id="user_forward" <?php echo $config['forward'] ? 'checked' : ''; ?> />
+                <small class="form-text text-muted">开启后注册、登录的URL中将保留来路数据</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_coverpic">默认封面</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[coverpic]" class="form-control" id="user_coverpic" value="<?php echo $config['coverpic']; ?>" />
+                <small class="form-text text-muted">请将图片放在public目录下</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_coverpic">分类数量</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[node][max]" class="form-control" id="user_node_max" value="<?php echo $config['node']['max']; ?>" />
+                <small class="form-text text-muted">用户可建立的最大分类数量</small>
+            </div>
+        </div>
+    </div>
+    <div id="tab-report" role="tabpanel" class="tab-pane">
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="user_report_reason">举报理由</label>
+            <div class="col-sm-8">
+                <textarea name="config[report][reason]" id="user_report_reason" class="form-control" style="height: 150px;"><?php echo $config['report']['reason']; ?></textarea>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    iCMS.set('Vue.config', {
+        data: {
+            verify_phone: <?php echo array_search('phone', (array) $config['register']['mode']) === false ? '0' : '1'; ?>,
+            verify_email: <?php echo array_search('email', (array) $config['register']['mode']) === false ? '0' : '1'; ?>,
+            register_enable: "<?php echo (int) $config['register']['enable']; ?>",
+            register_mode: <?php echo json_encode((array) $config['register']['mode']); ?>,
+            register_captcha: "<?php echo (int) $config['register']['captcha']; ?>",
+            register_role: "<?php echo (int) $config['register']['role']; ?>",
+            auto_register: "<?php echo (int) $config['login']['auto_register']; ?>",
+            login_enable: "<?php echo (int) $config['login']['enable']; ?>",
+            login_mode: <?php echo json_encode((array) $config['login']['mode']); ?>,
+            // login_mode: <?php echo json_encode((array) $config['login']['mode']); ?>,
+        },
+        watch: {
+            register_mode: function(val) {
+                var checked = $("#user_register_enable").prop("checked");
+                if (!val.length && checked) {
+                    iCMS.ui.alert('至少需要一种注册方式');
+                }
+            },
+            login_mode: function(val) {
+                var checked = $("#user_login_enable").prop("checked");
+                if (!val.length && checked) {
+                    iCMS.ui.alert('至少需要一种登录方式');
+                }
+            }
+        }
+    });
+</script>

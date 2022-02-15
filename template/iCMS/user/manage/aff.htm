@@ -1,0 +1,47 @@
+<div class="alert alert-info">
+    您的专属推广链接：
+    <!--{iCMS:route url='api' query="aff=$ME.uid"}-->
+</div>
+<table class="table table-vcenter">
+    <thead>
+        <tr>
+            <th class="text-center" style="width: 50px">#</th>
+            <th>用户</th>
+            <th class="d-none d-sm-table-cell" style="width: 30%">注册时间</th>
+            <th class="text-center" style="width: 100px">消费额</th>
+            <th class="text-center" style="width: 100px">奖励</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <th class="text-center" scope="row">1</th>
+            <td class="font-w600 font-size-sm">
+                <a href="be_pages_generic_profile.html">Adam McCoy</a>
+            </td>
+            <td class="d-none d-sm-table-cell">
+                <!--{$user_aff.create_time|date:'Y-m-d H:i:s'}-->
+            </td>
+            <td class="text-center">
+                900金币
+            </td>
+            <td class="text-center">
+                10金币
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div class="alert alert-warning">
+    <h4>推广说明：</h4>
+    <ul>
+        <li>请勿作弊，否则封相关账户不通知；</li>
+        <li>
+            推广链接可以是任意页面后加
+            <span class="badge badge-warning">
+                ?aff=
+                <!--{$ME.uid}-->
+            </span>
+            即可；
+        </li>
+        <li>推广统计可能与实际存在差异，具体以实际数据为准。</li>
+    </ul>
+</div>

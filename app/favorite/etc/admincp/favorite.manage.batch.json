@@ -1,0 +1,8 @@
+{
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 18,
+        "call": "dels"
+    }
+}

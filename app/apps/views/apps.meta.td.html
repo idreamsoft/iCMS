@@ -1,0 +1,22 @@
+<td>
+    <div class="input-group mb-2">
+        <div class="input-group-prepend">
+            <span class="input-group-text">名称</span>
+        </div>
+        <input class="form-control" name="<?php echo $field; ?>[{key}][name]" type="text" disabled="disabled" value="<?php echo $data['name']; ?>" />
+    </div>
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <span class="input-group-text">字段</span>
+        </div>
+        <input class="form-control" name="<?php echo $field; ?>[{key}][key]" type="text" disabled="disabled" value="<?php echo $data['key']; ?>" />
+    </div>
+</td>
+<td>
+    <div class="input-group">
+        <textarea class="form-control" name="<?php echo $field; ?>[{key}][value]" type="text" disabled="disabled" style="height:85px;"><?php echo $data['value']; ?></textarea>
+        <div class="input-group-append">
+            <button class="btn btn-secondary" type="button" data-toggle="delete" data-delete="tr"><i class="fa fa-fw fa-times"></i></button>
+        </div>
+    </div>
+</td>

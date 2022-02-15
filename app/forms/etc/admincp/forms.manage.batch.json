@@ -1,0 +1,20 @@
+{
+    "data-dels": {
+        "name": "删除数据",
+        "icon": "trash-alt",
+        "sort": 18,
+        "show": {
+            "sdo":"data"
+        },
+        "call": "dels"
+    },
+    "dels": {
+        "name": "删除表单",
+        "icon": "trash-alt",
+        "sort": 18,
+        "show": {
+            "sdo":"manage"
+        },
+        "call": "dels"
+    }
+}

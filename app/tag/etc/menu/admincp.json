@@ -1,0 +1,56 @@
+[
+    {
+        "id":"assist",
+        "children":[
+            {
+                "id":"tag",
+                "caption":"标签",
+                "icon":"tags",
+                "children":[
+                    {
+                        "caption":"标签配置",
+                        "href":"tag&do=config",
+                        "icon":"cog"
+                    },
+                    {
+                        "caption":"-"
+                    },
+                    {
+                        "caption":"标签管理",
+                        "href":"tag",
+                        "icon":"tag"
+                    },
+                    {
+                        "caption":"添加标签",
+                        "href":"tag&do=add",
+                        "icon":"edit"
+                    },
+                    {
+                        "caption":"-"
+                    },
+                    {
+                        "caption":"分类管理",
+                        "href":"tagCategory",
+                        "icon":"sitemap"
+                    },
+                    {
+                        "caption":"添加分类",
+                        "href":"tagCategory&do=add",
+                        "icon":"edit"
+                    }
+                ]
+            }
+        ]
+    },{
+        "id": "tools",
+        "children": [{
+            "id": "cache",
+            "children": [{
+                "caption": "更新标签分类缓存",
+                "href": "tagCategory&do=cache",
+                "icon": "sync",
+                "target": "iPHP_FRAME"
+            }]
+        }]
+    }
+]

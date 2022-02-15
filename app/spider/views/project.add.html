@@ -1,0 +1,416 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script>
+    iCMS.set('Vue.data', {
+        checker: "<?php echo $rs['config']['checker']; ?>",
+        cid: "<?php echo (int)$rs['cid']; ?>",
+        rid: "<?php echo (int)$rs['rid']; ?>",
+        poid: "<?php echo (int)$rs['poid']; ?>",
+        self: "<?php echo (int)$rs['config']['self']; ?>"
+    });
+    $(function() {
+        var box = document.getElementById("mkurls");
+        $('#makeurls').click(function() {
+            iCMS.ui.dialog({
+                title: '添加采集地址',
+                content: box,
+                okValue: '确定',
+                ok: function() {
+                    var urls_text = $("#urls").val();
+                    if (urls_text) {
+                        urls_text += "\n";
+                    }
+                    var urls_rs = $("#urls_rs").val();
+                    $("#urls").val(urls_text + urls_rs);
+                },
+                cancelValue: "取消",
+                cancel: function() {}
+            });
+        });
+        $(":text", box).keyup(function(event) {
+            if (this.id == 'url_pattern') {
+                return;
+            }
+            var pp = $(this).closest("div.form-group");
+            var a = $("[name='format']", pp);
+            preview(a[0]);
+        });
+        $(":radio,:checkbox", box).click(function(event) {
+            preview(this);
+        });
+
+        function preview(a) {
+            var pp = $(a).closest("div.form-group"),
+                format = parseInt($("[name='format']", pp).val()),
+                begin = $("[name='begin']", pp).val() || 0,
+                num = $("[name='num']", pp).val() || 0,
+                step = $("[name='step']", pp).val() || 1,
+                zeroize = $("[name='zeroize']", pp).prop("checked"),
+                reverse = $("[name='reverse']", pp).prop("checked"),
+                url = $('#url_pattern').val(),
+                start = 0,
+                end = 0,
+                pattern = '<' + format + ',' + begin + ',' + num + ',' + step + ',' + zeroize + ',' + reverse + '>';
+            if (format == "2") {
+                pattern = '<' + format + ',' + begin + ',' + num + ',' + reverse + '>';
+            }
+            $("[name='format']").prop("checked", false).parent().removeClass('checked');
+            $("[name='format']", pp).prop("checked", true).parent().addClass('checked');
+
+            if (url == "") {
+                iCMS.ui.alert("请先输入网址");
+                return;
+            }
+            if (url.indexOf("(*)") == -1) {
+                iCMS.ui.alert("请使用(*)格式通配符匹配网址");
+                return;
+            }
+
+            if (format == 0) {
+                var num = parseInt(num) - 1;
+                if (num < 0) num = 0;
+                start = parseInt(begin);
+                // end   = start+parseInt(num);
+                end = start + step * num;
+            } else if (format == 1) {
+                // if(parseInt(step)==1){
+                //   iCMS.ui.alert("等比不能为1");
+                //   return;
+                // }
+                if (num > 32) {
+                    iCMS.ui.alert("等比数列数值太大,请重新设置初始值,项数,比值");
+                    return;
+                }
+                start = parseInt(begin);
+                // end   = start*Math.pow(parseInt(step), num-1);//parseInt(num)*parseInt(step);
+                end = start + step * num;
+            } else if (format == 2) {
+                start = begin.charCodeAt(0);
+                end = num.charCodeAt(0);
+            }
+            urls = urlist(format, start, end, url, reverse, parseInt(step), zeroize, num);
+            $("#urls_rs").val(url.replace('(*)', pattern));
+            $("#preview").html(urls);
+        }
+
+        function urlist(format, start, end, url, reverse, step, zeroize, num) {
+            var urls = '',
+                n = 0;
+            if (format == 2) {
+                num = end - start;
+            }
+            if (reverse) {
+                for (var i = end; i >= start;) {
+                    if (n < 5) {
+                        urls += _url(url,format, i, zeroize, end);
+                    } else {
+                        break;
+                    }
+                    n++;
+                    // if(format==1){
+                    //   i=i/step;
+                    // }else{
+                    // }
+                    i = i - step;
+                }
+
+                if (num > 5) {
+                    urls += '..................<br />';
+                    urls += _url(url,format, start, zeroize, end);
+                }
+            } else {
+                for (var i = start; i <= end;) {
+                    if (n < 5) {
+                        urls += _url(url,format, i, zeroize, end)
+                    } else {
+                        break;
+                    }
+                    n++;
+                    // if(format==1){
+                    //   i=i*step;
+                    // }else{
+                    // }
+                    i = i + step;
+                }
+                if (num > 5) {
+                    urls += '..................<br />';
+                    urls += _url(url,format, end, zeroize, end);
+                }
+            }
+            return urls;
+        };
+
+        function _url(url,format, i, zeroize, end) {
+            var ii = i
+            if (format == 2) {
+                ii = String.fromCharCode(i);
+            } else {
+                if (zeroize) {
+                    var len = end.toString().length;
+                    if (len == 1) {
+                        len = 2;
+                    }
+                    ii = pad(i, len);
+                }
+            }
+            return url.replace('(*)', ii) + '<br />';
+        }
+    })
+</script>
+<style>
+    #urls {
+        height: 90px;
+        font-size: 16px;
+        font-family: "Consolas", "Courier New", Courier, monospace
+    }
+</style>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"><?php echo empty($this->pid) ? '添加' : '修改'; ?>方案</h3>
+        </div>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div id="addproject" class="tab-content">
+                    <input name="id" type="hidden" value="<?php echo $this->pid; ?>" />
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">方案名称</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">列表网址</label>
+                        <div class="col-sm-8">
+                            <textarea name="urls" id="urls" class="form-control" style=""><?php echo $rs['urls']; ?></textarea>
+                            <a class="btn btn-primary mt-1" id="makeurls">生成采集地址</a>
+
+                        </div>
+                        <small class="form-text text-muted">可用简单方法<br />
+                            &lt;EACH:1,2,3,4&gt;
+                            <br />
+                            &lt;FOR:1-100&gt;
+                            <br />
+                            &lt;FOR:100-1&gt;
+                            <br />
+                            &lt;DATE:Y-M-D&gt;</small>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">网址合成</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="config[list_url]" class="form-control" id="list_url" value="<?php echo $rs['config']['list_url']; ?>" />
+                                <div class="input-group-append">
+                                    <a class="btn btn-primary mt-1" href="javascript:;" data-insert="<%url%>" data-target="#list_url">网址</a>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">一般不用填写</small>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">绑定栏目</label>
+                        <div class="col-sm-8">
+                            <select v-model="cid" id="cid" name="cid" class="form-control">
+                                <option value="0"> == 请选择采集绑定的栏目 == </option>
+                                <?php echo $cata_option; ?>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">采集规则</label>
+                        <div class="col-sm-8">
+                            <select v-model="rid" id="rid" name="rid" class="form-control">
+                                <option value="0"> == 请选择采集规则 == </option>
+                                <?php echo SpiderRule::option($rs['rid'], $ruleArray); ?>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">发布模块</label>
+                        <div class="col-sm-8">
+                            <select v-model="poid" id="poid" name="poid" class="form-control">
+                                <option value="0"> == 请选择发布模块 == </option>
+                                <?php echo SpiderPost::option($rs['poid'], $postArray); ?>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">检查模式</label>
+                        <div class="col-sm-8">
+                            <select v-model="checker" id="checker" name="config[checker]" class="form-control">
+                                <option value="0">不检查重复</option>
+                                <option value="1">按[网址]检查</option>
+                                <option value="2">按[标题]检查</option>
+                                <option value="3">按[网址]和[标题]检查</option>
+                                <option value="4">按[网址]检查更新</option>
+                                <option value="5">按[标题]检查更新</option>
+                                <option value="6">按[网址]和[标题]检查更新</option>
+                                <option value="7">按[网址]检查,只更新[子采集]</option>
+                                <option value="8">按[hash]检查</option>
+                            </select>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">检查范围</label>
+                        <div class="col-sm-8">
+                            <select v-model="self" id="self" name="config[self]" class="form-control col-sm-3">
+                                <option value="0">全部</option>
+                                <option value="1">仅限本方案</option>
+                                <option value="2">仅限本规则</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">自动采集</label>
+                        <div class="col-sm-8">
+                            <input type="checkbox" data-toggle="switch" data-on-text="是" data-off-text="否" name="auto" id="auto" <?php echo $rs['auto'] ? 'checked' : ''; ?> />
+                            <small class="form-text text-muted">此选项只作标识,如果要实现自动采集功能 需要在服务器上部署计划任务</small>
+                        </div>
+
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">单条间隔</label>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input type="text" name="config[sleep]" class="form-control" id="sleep" value="<?php echo $rs['config']['sleep']; ?>" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text">毫秒</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">单条数据采集的间隔 (自动采集)</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">方案间隔</label>
+                        <div class="col-sm-3">
+                            <div class="input-group">
+                                <input type="text" name="config[psleep]" class="form-control" id="psleep" value="<?php echo $rs['config']['psleep']; ?>" />
+                                <div class="input-group-append">
+                                    <span class="input-group-text">秒</span>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">本方案下次采集的间隔 (自动采集)</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="">完成时间</label>
+                        <div class="col-sm-3">
+                            <input id="lastupdate" class="form-control" value="<?php echo $rs['lastupdate'] ? get_date($rs['lastupdate'], 'Y-m-d H:i:s') : ''; ?>" name="lastupdate" type="text" style="width:230px" />
+                            <small class="form-text text-muted">本方案上次采集完成时间 (自动采集)</small>
+                        </div>
+                    </div>
+                    <?php if ($this->pid) { ?>
+                        <a href="<?php echo ADMINCP_URL; ?>=spiderRule&do=test&pid=<?php echo $this->pid; ?>" class="btn btn-success" data-toggle="modal" title="测试方案"><i class="fa fa-fw fa-bug"></i> 测试</a>
+                    <?php } ?>
+                    <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="mkurls" class="hide">
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="">地址格式</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <input type="text" class="form-control" id="url_pattern" value="" />
+                <input type="hidden" id="urls_rs" value="" />
+                <div class="input-group-append">
+                    <a class="btn btn-primary" href="javascript:;" data-insert="(*)" data-target="#url_pattern">(*)</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="">
+            <input type="radio" name="format" class="radio" value="0" /> 等差数列
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">初始值</span>
+                </div>
+                <input type="text" class="form-control" name="begin" value="1" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text">项数</span>
+                </div>
+                <input type="text" class="form-control" name="num" value="5" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text">步长</span>
+                </div>
+                <input type="text" class="form-control" name="step" value="1" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><input type="checkbox" class="checkbox" name="zeroize" />补零</span>
+                </div>
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><input type="checkbox" class="checkbox" name="reverse" />倒序</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="">
+            <input type="radio" name="format" class="radio" value="1" /> 等比数列
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">初始值</span>
+                </div>
+                <input type="text" class="form-control" name="begin" value="1" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text">项数</span>
+                </div>
+                <input type="text" class="form-control" name="num" value="5" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text">比值</span>
+                </div>
+                <input type="text" class="form-control" name="step" value="2" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><input type="checkbox" class="checkbox" name="zeroize" />补零</span>
+                </div>
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><input type="checkbox" class="checkbox" name="reverse" />倒序</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="">
+            <input type="radio" name="format" class="radio" value="2" /> 字母变化
+        </label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text">从</span>
+                </div>
+                <input type="text" class="form-control" name="begin" value="a" maxlength="1" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text">到</span>
+                </div>
+                <input type="text" class="form-control" name="num" value="z" maxlength="1" />
+                <div class="input-group-prepend">
+                    <span class="input-group-text"><input type="checkbox" class="checkbox" name="reverse" />倒序</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="jumbotron" role="alert" id="preview"></div>
+</div>
+<?php self::foot(); ?>

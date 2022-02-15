@@ -1,0 +1,80 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="cache_engine">缓存引擎</label>
+    <div class="col-sm-8">
+        <select v-model="cache_engine" name="config[cache][engine]" id="cache_engine" class="form-control js-chosen-disable">
+            <option value="file">文件缓存 FileCache</option>
+            <option value="memcached">分布式缓存 memcached</option>
+            <option value="redis">分布式缓存 Redis</option>
+        </select>
+        <small class="form-text text-muted">Memcache,Redis 需要服务器支持,如果不清楚请询问管理员,iCMS推荐使用Redis</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="cache_host">缓存配置</label>
+    <div class="col-sm-8">
+        <textarea name="config[cache][host]" id="cache_host" class="form-control" style="height: 150px;"><?php echo $config['cache']['host']; ?></textarea>
+        <small class="form-text text-muted">
+            <div v-show="cache_engine=='file'" class="file_help">
+                文件缓存目录(默认为空)
+                <hr />
+                例:data<br />
+                推荐设置为空,缓存目录层级太多将影响性能
+            </div>
+            <div v-show="cache_engine=='memcached'" class="memcached_help">
+                memcached缓存 示例
+                <hr />
+                服务器IP:端口(每行一个) <br />
+                例:<br />127.0.0.1:11211<br />
+                192.168.0.1:11211
+            </div>
+            <div v-show="cache_engine=='redis'" class="redis_help">
+                Redis缓存 示例
+                <hr />
+                例:<br />unix:///tmp/redis.sock@db:1 <br />
+                unix:///tmp/redis.sock@db:1@password<br />
+                127.0.0.1:6379@db:1<br />
+                127.0.0.1:6379@db:1@password
+            </div>
+        </small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="cache_time">缓存时间</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[cache][time]" class="form-control" id="cache_time" value="<?php echo $config['cache']['time']; ?>" />
+            <div class="input-group-append">
+                <span class="input-group-text">秒</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="cache_compress">数据压缩</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" name="config[cache][compress]" id="cache_compress" <?php echo $config['cache']['compress'] ? 'checked' : ''; ?> />
+        <small class="form-text text-muted"></small>
+    </div>
+</div>
+<hr />
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="page_total">分页缓存</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[cache][page_total]" class="form-control" id="page_total" value="<?php echo $config['cache']['page_total'] ?: $config['cache']['time']; ?>" />
+            <div class="input-group-append">
+                <span class="input-group-text">秒</span>
+            </div>
+        </div>
+        <small class="form-text text-muted">设置分页总数缓存时间,设置此项分页性能将会有极大的提高.</small>
+        <small class="form-text text-muted">文件型缓存,请定时清理<span class="badge badge-danger">cache/iCMS/page_total</span>目录</small>
+    </div>
+</div>
+<input type="hidden" name="config[cache][prefix]" id="cache_prefix" value="<?php echo iPHP_APP_SITE ?>" />
+<script>
+    iCMS.set('Vue.data',{
+        cache_engine: "<?php echo $config['cache']['engine']; ?>",
+    });
+</script>

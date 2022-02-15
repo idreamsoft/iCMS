@@ -1,0 +1,62 @@
+<!-- User Dropdown -->
+<div class="dropdown d-inline-block ml-2">
+    <button type="button" class="btn btn-sm btn-dual d-flex align-items-center" id="page-header-user-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img class="rounded-circle" src="./assets/img/avatar.jpg" alt="<?php echo Member::$nickname; ?>" style="width: 21px;">
+        <span class="d-none d-sm-inline-block ml-2"><?php echo Member::$nickname; ?></span>
+        <i class="fa fa-fw fa-angle-down d-none d-sm-inline-block ml-1 mt-1"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-md dropdown-menu-right p-0 border-0" aria-labelledby="page-header-user-dropdown">
+        <div class="p-3 text-center bg-primary-dark rounded-top">
+            <img class="img-avatar img-avatar48 img-avatar-thumb" src="./assets/img/avatar.jpg" alt="">
+            <p class="mt-2 mb-0 text-white font-w500"><?php echo Member::$nickname; ?></p>
+            <p class="mb-0 text-white-50 font-size-sm"><?php echo Member::$ROLE['name']; ?></p>
+        </div>
+        <div class="p-2">
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="be_pages_generic_inbox.html">
+                <span class="font-size-sm font-w500">收件箱</span>
+                <i class="si si-bubble"></i>
+            </a>
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo ADMINCP_URL; ?>=member&do=profile">
+                <span class="font-size-sm font-w500">个人信息</span>
+                <i class="si si-user"></i>
+            </a>
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="javascript:void(0)">
+                <span class="font-size-sm font-w500">设置</span>
+                <i class="si si-settings"></i>
+            </a>
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo ADMINCP_URL; ?>=member&do=job">
+                <span class="font-size-sm font-w500">工作统计</span>
+                <i class="si si-pie-chart"></i>
+            </a>
+            <div role="separator" class="dropdown-divider"></div>
+            <?php if ($developer = Developer::getConfig()) { ?>
+                <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo ADMINCP_URL; ?>=developer&do=goto" target="_blank">
+                    <span class="font-size-sm font-w500">进入开发者平台</span>
+                    <i class="si si-wrench"></i>
+                </a>
+            <?php } else { ?>
+                <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo ADMINCP_URL; ?>=developer&do=login">
+                    <span class="font-size-sm font-w500">登录 icmsdev.com</span>
+                </a>
+            <?php } ?>
+            <?php if (Member::isSuperRole()) { ?>
+                <?php if (!Config::get('debug.access_log')) { ?>
+                <div role="separator" class="dropdown-divider"></div>
+                    <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo iPHP_SELF; ?>?do=log">
+                        <span class="font-size-sm font-w500">操作记录</span>
+                        <i class="si si-list"></i>
+                    </a>
+                <?php } ?>
+            <?php } ?>
+            <!-- <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo iPHP_SELF; ?>?do=lock">
+                <span class="font-size-sm font-w500">锁屏</span>
+            </a> -->
+            <div role="separator" class="dropdown-divider"></div>
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="<?php echo iPHP_SELF; ?>?action=logout" target="iPHP_FRAME">
+                <span class="font-size-sm font-w500">退出</span>
+                <i class="si si-logout"></i>
+            </a>
+        </div>
+    </div>
+</div>
+<!-- END User Dropdown -->

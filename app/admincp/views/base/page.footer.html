@@ -1,0 +1,19 @@
+<!-- Footer -->
+<footer id="page-footer" class="bg-body-light">
+    <div class="content py-3">
+        <div class="row font-size-sm">
+            <div class="col-sm-6 order-sm-2 py-1 text-center text-sm-right">
+                Crafted with <i class="fa fa-fw fa-heart text-danger"></i> by <a class="font-w600" href="https://www.icmsdev.com" target="_blank">iCMSdev.com</a>
+            </div>
+            <div class="col-sm-6 order-sm-1 py-1 text-center text-sm-left">
+                Powered <i class="fa fa-fw fa-fire text-danger"></i> by <a class="font-w600" href="https://www.icmsdev.com" target="_blank">iCMS
+                    <!--{$iCMS.CONST.iCMS_VERSION}--></a> &copy; <span data-toggle="year-copy"></span>
+                <div class="text-success font-size-sm">Memory:
+                    <?php echo File::sizeUnit(memory_get_usage()); ?> Time:
+                    <?php echo Helper::timerStop(); ?> s</div>
+            </div>
+        </div>
+    </div>
+</footer>
+<?php //iDebug::info(AdmincpView::$PATH); ?>
+<!-- END Footer -->

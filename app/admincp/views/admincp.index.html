@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+AdmincpView::set('breadcrumb', false);
+self::head();
+$bgNum = rand(1,39);
+?>
+<?php include self::view("admincp.hero"); ?>
+<?php include self::view("admincp.version"); ?>
+<?php $this->quickView(); ?>
+<?php $this->statsView(); ?>
+<!-- Page Content -->
+<div class="content">
+    <?php include self::view("system.info"); ?>
+    <?php include self::view("developer.info"); ?>
+</div>
+<!-- END Page Content -->
+<?php iPHP::callback(array('AppsStoreAdmincp', 'check_update')); ?>
+<?php iPHP::callback(array('PatchAdmincp', 'check_version')); ?>
+<?php iPHP::callback(array('PatchAdmincp', 'check_release')); ?>
+<?php iPHP::callback(array('PatchAdmincp', 'check_upgrade')); ?>
+<?php iPHP::callback(array('CacheAdmincp', 'do_clearAll')); ?>
+<?php self::foot(); ?>

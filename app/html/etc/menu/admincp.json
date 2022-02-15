@@ -1,0 +1,44 @@
+[{
+    "id": "assist",
+    "children": [{
+        "id": "html",
+        "sort": "-992",
+        "caption": "静态",
+        "icon": "file",
+        "children": [{
+                "caption": "首页静态化",
+                "href": "html&do=index",
+                "icon": "sync"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "栏目静态化",
+                "href": "html&do=node",
+                "icon": "sync"
+            },
+            {
+                "caption": "文章静态化",
+                "href": "html&do=article",
+                "icon": "sync"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "全站生成静态",
+                "href": "html&do=all",
+                "icon": "sync"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "静态设置",
+                "href": "config&tab=url",
+                "icon": "cog"
+            }
+        ]
+    }]
+}]

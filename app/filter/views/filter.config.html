@@ -1,0 +1,18 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_img_title">禁用词</label>
+    <div class="col-sm-8">
+        <textarea name="config[disable]" class="form-control" style="height: 300px;"><?php echo implode("\n", (array) $config['disable']); ?></textarea>
+        <small class="form-text text-muted">每行一个 </small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="article_img_title">过滤词</label>
+    <div class="col-sm-8">
+        <textarea name="config[filter]" class="form-control" style="height: 300px;"><?php echo implode("\n", (array) $config['filter']); ?></textarea>
+        <small class="form-text text-muted">
+            每行一个<br />
+            格式:过滤词=***<br />
+            过滤词=替换词
+        </small>
+    </div>
+</div>

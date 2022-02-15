@@ -1,0 +1,61 @@
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="rule">标签URL规则</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[rule]" class="form-control" id="rule" value="<?php echo $config['rule']; ?>" />
+            <div class="input-group-append">
+                <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-question-circle"></i> 帮助</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" data-insert="{ID}" data-target="#rule"><span class="badge badge-important">{ID}</span> 标签ID</a></li>
+                    <li><a class="dropdown-item" href="#" data-insert="{TKEY}" data-target="#rule"><span class="badge badge-important">{TKEY}</span> 标签标识</a></li>
+                    <li><a class="dropdown-item" href="#" data-insert="{ZH_CN}" data-target="#rule"><span class="badge badge-important">{ZH_CN}</span> 标签名(中文)</a></li>
+                    <li><a class="dropdown-item" href="#" data-insert="{NAME}" data-target="#rule"><span class="badge badge-important">{NAME}</span> 标签名</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#" data-insert="{TCID}" data-target="#rule"><span class="badge badge-inverse">{TCID}</span> 分类ID</a></li>
+                    <li><a class="dropdown-item" href="#" data-insert="{TCDIR}" data-target="#rule"><span class="badge badge-inverse">{TCDIR}</span> 分类目录</a></li>
+                    <li><a class="dropdown-item" href="#" data-insert="{CDIR}" data-target="#rule"><span class="badge badge-inverse">{CDIR}</span> 栏目目录</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#" data-insert="{P}" data-target="#rule"><span class="badge badge-inverse">{P}</span> 分页数</a></li>
+                    <li><a class="dropdown-item" href="#" data-insert="{EXT}" data-target="#rule"><span class="badge badge-inverse">{EXT}</span> 后缀</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#" data-insert="{PHP}" data-target="#rule"><span class="badge badge-inverse">{PHP}</span> 动态程序</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="alert alert-warning mt-1">
+            伪静态模式时规则一定要包含
+            <span class="badge badge-important">{ID}</span>或
+            <span class="badge badge-important">{NAME}</span>或
+            <span class="badge badge-important">{ZH_CN}</span>或
+            <span class="badge badge-important">{TKEY}</span>
+            <hr />
+            此配置为标签的URL默认配置<br />
+            标签规则优先级
+            标签自定义链接 > 标签分类 > 标签所属栏目 > 标签系统设置
+        </div>
+
+    </div>
+</div>
+
+<!--
+<div class="input-group-prepend">
+  <label class="col-sm-1 col-form-label" for="dir">标签目录</label>
+  <div class="col-sm-8">
+  <input type="text" name="config[dir]" class="form-control" id="dir" value="<?php echo $config['dir']; ?>"/>
+</div>
+<small class="form-text text-muted">存放标签静态页面目录，相对于app目录。可用../表示上级目录</small>
+ -->
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="tpl">标签模板</label>
+    <div class="input-group col-sm-8">
+        <input type="text" name="config[tpl]" class="form-control" id="tpl" value="<?php echo $config['tpl']; ?>" />
+        <?php echo FilesWidget::modalBtn('模板', 'tpl'); ?>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="tkey">TKEY分割符</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[tkey]" class="form-control" id="tkey" value="<?php echo $config['tkey']; ?>" />
+        <small class="form-text text-muted">留空，按紧凑型生成(pinyin)</small>
+    </div>
+</div>

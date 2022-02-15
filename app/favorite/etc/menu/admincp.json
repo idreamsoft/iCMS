@@ -1,0 +1,23 @@
+[{
+    "id": "members",
+    "children": [{
+            "caption": "-"
+        },
+        {
+            "id": "favorite",
+            "caption": "收藏夹",
+            "icon": "link",
+            "children": [{
+                    "caption": "收藏夹管理",
+                    "href": "favorite&do=manage",
+                    "icon": "link"
+                },
+                {
+                    "caption": "添加收藏夹",
+                    "href": "favorite&do=add",
+                    "icon": "edit"
+                }
+            ]
+        }
+    ]
+}]

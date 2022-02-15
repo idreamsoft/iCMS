@@ -1,0 +1,813 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript" src="./assets/oneui/js/plugins/jquery-ui/jquery-ui.min.js"></script>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        rule_charset: "<?php echo $rule['charset'] ?: 'auto'; ?>",
+        rule_data_charset: "<?php echo $rule['data_charset']; ?>",
+        rule_sort: "<?php echo $rule['sort'] ?: '1'; ?>",
+        rule_mode: "<?php echo $rule['mode'] ?: '1'; ?>",
+        rule_watermark_mode: "<?php echo $rule['watermark_mode'] ?: '0'; ?>",
+        rule_watermark_pos: "<?php echo (int)$rule['watermark']['pos']; ?>"
+    });
+    $(function() {
+        select_sort_change('.helper-wrap');
+        <?php if ($_GET['tab']) { ?>
+            var $itab = $("#<?php echo $_GET['app']; ?>-tab");
+            $("li", $itab).removeClass("active");
+            $(".tab-pane").removeClass("active").addClass("hide");
+            $("a[href='#<?php echo $_GET['app']; ?>-<?php echo $_GET['tab']; ?>']", $itab).parent().addClass("active");
+            $("#<?php echo $_GET['app']; ?>-<?php echo $_GET['tab']; ?>").addClass("active").removeClass("hide");
+        <?php } ?>
+
+        $('#spider-data').on("click", ".delprop", function() {
+            if (confirm('确定要删除?')) {
+                $(this).closest('tr').remove();
+            }
+        });
+
+        $('#spider').on("click", 'a[data-toggle="insertContent"]', function() {
+            var href = $(this).attr("href"); // console.log(href.indexOf('<%'),href.indexOf('aaaaaaaaaa'));
+            if (href.indexOf('<%') != "-1") {
+                var target = $(this).attr('data-target');
+                var text = $(target).val();
+                if (text.indexOf(href) != "-1") {
+                    alert(href + "只能有一个!其它请用 变量标识!");
+                    return false;
+                }
+            }
+        });
+
+        $('.PresetMethod').on("mouseover", 'a.dropdown-DHMenu', function() {
+            var pp = $(this).parent();
+            var li = $("li.dropdown-submenu", ".data_helper_clone").clone(true);
+            // li.mouseout(function(event) {
+            //   console.log(this);
+            //   $(".dropdown-menu",pp).html('');
+            // });
+            $(".dropdown-menu", pp).empty().html(li);
+        })
+        $('.data-processing-group').on("click", 'a[data-act]', function() {
+            var tr = $(this).closest('tr');
+            var name = $('.rule_data_rule', tr).attr('name'),
+                id = $('.rule_data_rule', tr).attr('id');
+            var act = $(this).data('act'),
+                title = $(this).attr('title');
+            var length = parseInt($(".processing div.input-group:last", tr).attr('data-key')) + 1;
+
+            if (!length) length = 0;
+
+            if (act == 'dataclean') {
+                var div = '<?php helperItem("'+name+'", array('helper' => "dataclean", 'dataclean' => true), "'+length+'", '规则采集后数据整理'); ?>';
+            } else {
+                var div = '<?php helperItem("'+name+'", array('helper' => "'+act+'"), "'+length+'", "'+title+'"); ?>';
+            }
+            $(".processing", tr).append(div);
+        });
+
+        $('.processing').sortable({
+            update: function(event, ui) {
+                var target = $(event.target);
+                $('[data-key]', target).each(function(idx) {
+                    var dk = $(this).attr('data-key');
+                    $(this).attr('data-key', idx);
+                    $('input', this).each(function(i) {
+                        this.name = this.name.replace('[process][' + dk + ']', '[process][' + idx + ']');
+                    });
+                });
+            }
+        }).disableSelection();
+
+        $('.processing').on("click", ".process_del", function() {
+            $(this).closest('.input-group').remove();
+        });
+
+        $(".add_items").click(function(e) {
+            e.preventDefault();
+            // var length=$("#spider-data tbody tr").length+1;
+            var length = parseInt($("#spider-data tbody tr:last").attr('data-key')) + 1;
+            var href = $(this).attr("href");
+            var tb = $(href);
+            var tbody = $("tbody", tb);
+            var ntr = $(".rule_data_clone tr").clone(true);
+
+            if (!length) length = 0;
+            ntr.attr('data-key', length);
+
+            $('[id],[name],[type],[data-target],[for]', ntr).each(function(i) {
+                var id = $(this).attr('id');
+                if (id) {
+                    $(this).attr('id', id.replace('__KEY__', length));
+                }
+                var $for = $(this).attr('for');
+                if ($for) {
+                    $(this).attr('for', $for.replace('__KEY__', length));
+                }
+
+                var name = $(this).attr('name');
+                if (name) {
+                    $(this).attr('name', name.replace('[__KEY__]', '[' + length + ']'));
+                }
+                var target = $(this).attr('data-target');
+                if (target) {
+                    $(this).attr('data-target', target.replace('__KEY__', length));
+                }
+
+                var type = $(this).attr('type');
+                if (type == "dr_checkbox") {
+                    $(this).attr('type', 'checkbox');
+                }
+            });
+
+            // chosen_config.width = $(".rule_data_helper").width() + 'px';
+            // $(".dr_chosen", ntr).chosen(chosen_config);
+            // $('.dr_tip', ntr).tooltip();
+            // $(':checkbox', ntr).uniform();
+
+            ntr.appendTo(tbody);
+
+            return false;
+        });
+
+
+
+        $(".preg_checkbox,.dom_checkbox").on("click", function() {
+            var pp = $(this).closest('td');
+            var checkedStatus = $(this).prop("checked");
+            var btn = $(".preg_rule", pp);
+            if ($(this).hasClass('dom_checkbox')) {
+                btn.css('display', !checkedStatus ? '' : 'none');
+                var cb = $(".preg_checkbox", pp);
+            } else {
+                btn.css('display', checkedStatus ? '' : 'none');
+                var cb = $(".dom_checkbox", pp);
+            }
+            cb.prop("checked", !checkedStatus);
+        });
+
+        $(".rule_data_page").on("click", function() {
+            var checkedStatus = $(this).prop("checked");
+            if (checkedStatus) {
+                alert("此数据项您选择有分页,\n\n请记得设置[分页设置]选项卡的内容!");
+            }
+        });
+        $(".rule_data_datasource").on("click", function() {
+            var pp = $(this).closest('td');
+            var checkedStatus = $(this).prop("checked");
+            if (checkedStatus) {
+                $(".data_datasource", pp).removeClass('hide');
+            } else {
+                $(".data_datasource", pp).addClass('hide');
+            }
+        });
+    });
+
+    function select_sort_option(e, v) {
+        var option = e.find('option[value="' + v + '"]').clone();
+        option.attr('selected', 'selected');
+        return option;
+    }
+
+    function select_sort_change($e) {
+        $('select[multiple="multiple"]', $e).each(function(index, select) {
+            var s_id = this.id;
+            $("#sort_" + s_id, $e).html('');
+            $(this).on('change', function(e, p) {
+                select_sort_value(this, e, p);
+            });
+        });
+    }
+
+    function select_sort_value(a, e, p) {
+        var s_id = a.id,
+            select = $("#sort_" + s_id);
+        if (p['selected']) {
+            select.append(select_sort_option($(a), p['selected']));
+        }
+        if (p['deselected']) {
+            select.find('option[value="' + p['deselected'] + '"]').remove();
+        }
+    }
+
+    function jsonpCallback(json) {
+        // console.log(json);
+        if(json.code){
+            iCMS.notify.success('提交成功！');
+            if(json.forward.indexOf('rid=')== "-1"){
+                var url = json.forward+'&rid='+json.data.id;
+                window.location.href = url;
+            }
+        }else{
+            iCMS.ui.alert(json.message)
+        }
+    }
+</script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"><?php echo ($this->rid ? '修改' . "[{$rs['name']}]" : '添加新'); ?>规则</h3>
+        </div>
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="#spider-base"><i class="fa fa-fw fa-info-circle"></i> 基本设置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#spider-data"><i class="fa fa-fw fa-truck"></i> 数据项</a></li>
+            <li class="nav-item"><a class="nav-link" href="#spider-page"><i class="fa fa-fw fa-columns"></i> 分页设置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#spider-remote"><i class="fa fa-fw fa-cog"></i> 下载设置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#spider-proxy"><i class="fa fa-fw fa-cog"></i> 代理设置</a></li>
+        </ul>
+        <div class="block-content block-content-full">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->rid; ?>" />
+                <div id="spider" class="tab-content">
+                    <div id="spider-base" class="tab-pane active">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">规则名称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">User Agent</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rule[user_agent]" class="form-control" id="user_agent" value="<?php echo $rule['user_agent']; ?>" />
+                                    <div class="input-group-append">
+                                        <?php $dataTarget = "user_agent";
+                                        include self::view("widget/user_agent"); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">Cookie</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[curl][cookie]" class="form-control" id="CURLOPT_COOKIE" value="<?php echo $rule['curl']['cookie']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">客户端解码</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[curl][encoding]" class="form-control" id="CURLOPT_ENCODING" value="<?php echo $rule['curl']['encoding']; ?>" />
+                                <span class="form-text text-muted">CURL设置 为客户端解码 默认为空,如果采集乱码可以填上gzip,deflate</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">来路页</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[curl][referer]" class="form-control" id="CURLOPT_REFERER" value="<?php echo $rule['curl']['referer']; ?>" />
+                                <span class="form-text text-muted">CURL伪造来路页 默认为空,如果网站限制来路可填上相关来路</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">网页编码</label>
+                            <div class="col-sm-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_charset" type="radio" class="custom-control-input" id="rule_charset_utf8" name="rule[charset]" value="utf-8">
+                                    <label class="custom-control-label" for="rule_charset_utf8">UTF-8</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_charset" type="radio" class="custom-control-input" id="rule_charset_gbk" name="rule[charset]" value="gbk">
+                                    <label class="custom-control-label" for="rule_charset_gbk">GBK</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_charset" type="radio" class="custom-control-input" id="rule_charset_gb2312" name="rule[charset]" value="gb2312">
+                                    <label class="custom-control-label" for="rule_charset_gb2312">gb2312</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_charset" type="radio" class="custom-control-input" id="rule_charset_auto" name="rule[charset]" value="auto">
+                                    <label class="custom-control-label" for="rule_charset_auto">自动识别</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">采集顺序</label>
+                            <div class="col-sm-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_sort" type="radio" class="custom-control-input" id="rule_sort_1" name="rule[sort]" value="1">
+                                    <label class="custom-control-label" for="rule_sort_1">自上向下</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_sort" type="radio" class="custom-control-input" id="rule_sort_2" name="rule[sort]" value="2">
+                                    <label class="custom-control-label" for="rule_sort_2">自下向上</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_sort" type="radio" class="custom-control-input" id="rule_sort_3" name="rule[sort]" value="3">
+                                    <label class="custom-control-label" for="rule_sort_3">随机乱序</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">列表采集模式</label>
+                            <div class="col-sm-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_mode" type="radio" class="custom-control-input" id="rule_mode_1" name="rule[mode]" value="1">
+                                    <label class="custom-control-label" for="rule_mode_1">正则</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_mode" type="radio" class="custom-control-input" id="rule_mode_2" name="rule[mode]" value="2">
+                                    <label class="custom-control-label" for="rule_mode_2">phpQuery</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_mode" type="radio" class="custom-control-input" id="rule_mode_3" name="rule[mode]" value="3">
+                                    <label class="custom-control-label" for="rule_mode_3">JSON解析</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">列表网址</label>
+                            <div class="col-sm-8">
+                                <textarea name="rule[list_urls]" id="list_urls" class="form-control"><?php echo $rule['list_urls']; ?></textarea>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">列表采集结果整理</label>
+                            <div class="col-sm-8">
+                                <textarea name="rule[list_urls_format]" id="list_urls_format" class="form-control"><?php echo $rule['list_urls_format']; ?></textarea>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">列表区域规则</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <textarea name="rule[list_area_rule]" id="list_area_rule" class="form-control"><?php echo $rule['list_area_rule']; ?></textarea>
+                                    <div class="input-group-append">
+                                        <div class="btn-group btn-group-vertical">
+                                            <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%content%>" data-target="#list_area_rule">内容标识</a>
+                                            <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%var%>" data-target="#list_area_rule">变量标识</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">列表区域整理</label>
+                            <div class="col-sm-8">
+                                <textarea name="rule[list_area_format]" id="list_area_format" class="form-control"><?php echo $rule['list_area_format']; ?></textarea>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">列表链接规则</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <textarea name="rule[list_url_rule]" id="list_url_rule" class="form-control"><?php echo $rule['list_url_rule']; ?></textarea>
+                                    <div class="input-group-append">
+                                        <div class="btn-group btn-group-vertical">
+                                            <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%title%>" data-target="#list_url_rule">标题</a>
+                                            <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%url%>" data-target="#list_url_rule">网址</a>
+                                            <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%var%>" data-target="#list_url_rule">变量标识</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">网址合成</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rule[list_url]" class="form-control" id="list_url" value="<?php echo $rule['list_url']; ?>" />
+                                    <div class="input-group-append">
+                                        <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%url%>" data-target="#list_url">网址</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">网址整理</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <textarea name="rule[list_url_clean]" id="list_url_clean" class="form-control" tip-title="合成后整理"><?php echo $rule['list_url_clean']; ?></textarea>
+                                    <div class="input-group-append">
+                                        <a class="btn btn-alt-primary" href="javascript:;" data-insert="<%url%>" data-target="#list_url_clean">变量标识</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="spider-data" class="tab-pane">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label" for="">内容页UserAgent</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rule[data_user_agent]" class="form-control" id="data_user_agent" value="<?php echo $rule['data_user_agent']; ?>" />
+                                    <div class="input-group-append">
+                                        <?php $dataTarget = "user_agent";
+                                        include self::view("widget/user_agent"); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label" for="">内容页编码</label>
+                            <div class="col-sm-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_data_charset" type="radio" class="custom-control-input" id="rule_data_charset_utf8" name="rule[data_charset]" value="utf-8">
+                                    <label class="custom-control-label" for="rule_data_charset_utf8">UTF-8</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_data_charset" type="radio" class="custom-control-input" id="rule_data_charset_gbk" name="rule[data_charset]" value="gbk">
+                                    <label class="custom-control-label" for="rule_data_charset_gbk">GBK</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_data_charset" type="radio" class="custom-control-input" id="rule_data_charset_gb2312" name="rule[data_charset]" value="gb2312">
+                                    <label class="custom-control-label" for="rule_data_charset_gb2312">gb2312</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_data_charset" type="radio" class="custom-control-input" id="rule_data_charset_auto" name="rule[data_charset]" value="auto">
+                                    <label class="custom-control-label" for="rule_data_charset_auto">自动识别</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_data_charset" type="radio" class="custom-control-input" id="rule_data_charset_0" name="rule[data_charset]" value="">
+                                    <label class="custom-control-label" for="rule_data_charset_0">同列表编码</label>
+                                </div>
+                            </div>
+                        </div>
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th style="width: 240px;">数据项名称</th>
+                                    <th style="width: 50%;">规则</th>
+                                    <th class="text-left">数据处理</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                function rule_data_rule_td($dkey, $data = array())
+                                {
+                                    $DR_target     = 'rule_data_' . $dkey . '_rule';
+                                    $DR_id         = 'data_rule_' . $dkey;
+                                    $DR_name       = 'rule[data][' . $dkey . ']';
+                                    $tip_class     = ($dkey === '__KEY__') ? 'dr_tip' : 'tip';
+                                    $chosen_class  = ($dkey === '__KEY__') ? 'dr_chosen' : 'chosen-select';
+                                    $checkbox_type = ($dkey === '__KEY__') ? 'dr_checkbox' : 'checkbox';
+                                ?>
+
+                                    <td>
+                                        <div class="input-group">
+                                            <div class="input-group-prepend">
+                                                <span class="input-group-text"><a class="delprop"><i class="fa fa-fw fa-times"></i></a></span>
+                                            </div>
+                                            <input name="<?php echo $DR_name; ?>[name]" type="text" class="form-control rule_data_name" value="<?php echo $data['name']; ?>" />
+                                        </div>
+                                    </td>
+                                    <td class="rule_data_rule" id="<?php echo $DR_id; ?>" name="<?php echo $DR_name; ?>">
+                                        <div class="form-group row <?php $data['data@source'] or print('hide'); ?> data_datasource mb-2">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text">数据源</span>
+                                                </div>
+                                                <input name="<?php echo $DR_name; ?>[data@source]" type="text" class="form-control <?php echo $tip_class; ?>" placeholder="默认为空" title="可填写多个数据项名称，格式[DATA@数据项1][DATA@数据项2][DATA@title]" value="<?php echo $data['data@source']; ?>" />
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <textarea name="<?php echo $DR_name; ?>[rule]" class="form-control mb-2" id="<?php echo $DR_target; ?>"><?php echo htmlspecialchars($data['rule']); ?></textarea>
+                                            <div class="btn-group preg_rule " <?php $data['dom'] && print(' style="display:none;"'); ?>>
+                                                <a class="btn btn-alt-light" href="javascript:;" data-insert="<%content%>" data-target="#<?php echo $DR_target; ?>">插入内容标识</a>
+                                                <a class="btn btn-alt-light" href="javascript:;" data-insert="<%var%>" data-target="#<?php echo $DR_target; ?>">插入变量标识</a>
+                                            </div>
+                                            <div class="data-processing-group">
+                                                <a class="btn btn-alt-primary dropdown-toggle" data-toggle="dropdown" tabindex="-1">添加数据处理 <span class="caret"></span></a>
+                                                <div class="dropdown-menu">
+                                                    <a class="dropdown-item tip-right" href="##" title="处理项目采集规则匹配前的原始数据">规则前:数据处理</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item tip-right" href="##" title="处理项目的匹配数据" data-act='dataclean'>数据处理</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <div class="dropdown-submenu PresetMethod" title="预置方法">
+                                                        <a href="javascript:;" title="使用预置方法对数据进行处理" class="dropdown-item dropdown-toggle dropdown-DHMenu" data-toggle="dropdown"><i class="fa fa-fw fa-code"></i> <span>预置方法</span></a>
+                                                        <ul class="dropdown-menu">
+
+                                                        </ul>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="form-group row">
+                                            <div class="form-check form-check-inline">
+                                                <input type="<?php echo $checkbox_type; ?>" id="preg_checkbox_<?php echo $DR_id; ?>" class="form-check-input preg_checkbox" name="<?php echo $DR_name; ?>[preg]" value="1" <?php (!$data['dom'] || $data['preg']) && print(' checked="true"'); ?>>
+                                                <label class="form-check-label" for="preg_checkbox_<?php echo $DR_id; ?>">正则匹配</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="<?php echo $checkbox_type; ?>" id="dom_checkbox_<?php echo $DR_id; ?>" class="form-check-input dom_checkbox" name="<?php echo $DR_name; ?>[dom]" value="1" <?php ($data['dom']) && print(' checked="true"'); ?>>
+                                                <label class="form-check-label" for="dom_checkbox_<?php echo $DR_id; ?>">phpQuery匹配</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="<?php echo $checkbox_type; ?>" id="rule_data_datasource_<?php echo $DR_id; ?>" class="form-check-input rule_data_datasource" <?php ($data['data@source']) && print(' checked="true"'); ?>>
+                                                <label class="form-check-label" for="rule_data_datasource_<?php echo $DR_id; ?>">设置数据源</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="<?php echo $checkbox_type; ?>" id="rule_data_empty_<?php echo $DR_id; ?>" class="form-check-input" name="<?php echo $DR_name; ?>[empty]" value="1" <?php ($data['empty']) && print(' checked="true"'); ?>>
+                                                <label class="form-check-label" for="rule_data_empty_<?php echo $DR_id; ?>">不允许为空</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="<?php echo $checkbox_type; ?>" id="rule_data_page_<?php echo $DR_id; ?>" class="form-check-input rule_data_page" name="<?php echo $DR_name; ?>[page]" value="1" <?php ($data['page']) && print(' checked="true"'); ?>>
+                                                <label class="form-check-label" for="rule_data_page_<?php echo $DR_id; ?>">有分页</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="<?php echo $checkbox_type; ?>" id="rule_data_multi_<?php echo $DR_id; ?>" class="form-check-input" name="<?php echo $DR_name; ?>[multi]" value="1" <?php ($data['multi']) && print(' checked="true"'); ?>>
+                                                <label class="form-check-label" for="rule_data_multi_<?php echo $DR_id; ?>">匹配多条</label>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="processing">
+                                        <?php if ($data['process']) {
+                                            foreach ($data['process'] as $pkey => $pval) {
+                                                if (is_array($pval)) {
+                                                    $helper = SpiderHelper::getTitles($pval['helper']);
+                                                    helperItem($DR_name, $pval, $pkey, $helper['name'] ?: $pval['helper']);
+                                                }
+                                            }
+                                        }
+                                        ?>
+                                    </td>
+                                <?php } ?>
+                                <?php
+                                function helperItem($name, $item = array(), $length = 0, $title = '')
+                                {
+                                    if ($item['helper'] == 'dataclean') {
+                                        $div = '<div class="input-group processing-item-dcl" data-key="%s">' .
+                                            '<div class="input-group-prepend"><span class="input-group-text"><a class="process_del"><i class="fa fa-fw fa-times"></i></a></span></div>' .
+                                            //'<div class="input-group-append"><span class="input-group-text">整理</div>' .
+                                            '<input name="%s[process][%s][helper]" type="hidden" value="%s" />' .
+                                            '<input type="text" name="%s[process][%s][rule]" class="form-control tip-top" title="%s" value="%s"/>' .
+                                            '</div>';
+                                        $div = sprintf($div, $length, $name, $length, $item['helper'], $name, $length, $title, htmlspecialchars($item['rule']));
+                                    } else {
+                                        $div = '<div class="input-group processing-item-fun mt-1" data-key="%s">' .
+                                            '<div class="input-group-prepend"><span class="input-group-text"><a class="process_del"><i class="fa fa-fw fa-times"></i></a></span></div>' .
+                                            '<div class="input-group-append"><span class="input-group-text">%s<input name="%s[process][%s][helper]" type="hidden" value="%s" /></div>' .
+                                            '</div>';
+                                        $div = sprintf($div, $length, $title, $name, $length, $item['helper']);
+                                    }
+                                    echo $div;
+                                } ?>
+                                <?php
+                                if ($rule['data']) foreach ((array)$rule['data'] as $dkey => $data) {
+                                    echo '<tr data-key="' . $dkey . '">';
+                                    echo rule_data_rule_td($dkey, $data);
+                                    echo '</tr>';
+                                }
+                                ?>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="4">
+                                        <p>
+                                            <span class="badge badge-info">摘要:description</span>
+                                            <span class="badge badge-info">标签:tags</span>
+                                            <span class="badge badge-info">出处:source</span>
+                                            <span class="badge badge-info">作者:author</span>
+                                            <span class="badge badge-info">关键字:keywords</span>
+                                        </p>
+                                        <a href="#spider-data" class="btn btn-primary add_items" /><i class="fa fa-fw fa-plus-square"></i> 新增数据项</a>
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                    <div id="spider-page" class="tab-pane">
+                        <ul class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+                            <li class="nav-item"><a class="nav-link active" href="#spider-page-area-rule"><i class="fa fa-fw fa-wrench"></i> 采集方式</a></li>
+                            <li class="nav-item"><a class="nav-link" href="#spider-page-url-parse"><i class="fa fa-fw fa-random"></i> 逻辑方式</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="spider-page-area-rule" class="tab-pane active">
+                                <div class="alert alert-info my-3">采集方式适合所有分页都列出来的分页模式</div>
+                                <div class="form-group row">
+                                    <label class="col-sm-1 col-form-label" for="">分页区域规则</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <textarea name="rule[page_area_rule]" id="page_area_rule" class="form-control"><?php echo $rule['page_area_rule']; ?></textarea>
+                                            <div class="input-group-append">
+                                                <div class="btn-group btn-group-vertical">
+                                                    <a class="btn btn-alt-light" href="javascript:;" data-insert="<%content%>" data-target="#page_area_rule">内容标识</a>
+                                                    <a class="btn btn-alt-light" href="javascript:;" data-insert="<%var%>" data-target="#page_area_rule">变量标识</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="form-text text-muted">支持phpQuery,格式DOM::选择器</span>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-1 col-form-label" for="">分页链接规则</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <textarea name="rule[page_url_rule]" id="page_url_rule" class="form-control"><?php echo $rule['page_url_rule']; ?></textarea>
+                                            <div class="input-group-append">
+                                                <div class="btn-group btn-group-vertical">
+                                                    <a class="btn btn-alt-light" href="javascript:;" data-insert="<%url%>" data-target="#page_url_rule">网址</a>
+                                                    <a class="btn btn-alt-light" href="javascript:;" data-insert="<%var%>" data-target="#page_url_rule">变量标识</a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <span class="form-text text-muted">过滤网址:支持<%正则%>配或者数据处理格式</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div id="spider-page-url-parse" class="tab-pane pt-3">
+                                <div class="form-group row">
+                                    <label class="col-sm-1 col-form-label" for="">当前网址分解</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <input type="text" name="rule[page_url_parse]" class="form-control" id="page_url_parse" value="<?php echo $rule['page_url_parse']; ?>" />
+                                            <div class="input-group-append">
+                                                <a class="btn btn-alt-light" href="javascript:;" data-insert="<%url%>" data-target="#page_url_parse">分页网址</a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="col-sm-1 col-form-label" for="">分页增量</label>
+                                    <div class="col-sm-8">
+                                        <div class="input-group">
+                                            <div class="input-group-prepend"><span class="input-group-text">起始编号</span></div>
+                                            <input type="text" name="rule[page_no_start]" class="form-control" id="page_no_start" value="<?php echo $rule['page_no_start']; ?>" />
+                                            <div class="input-group-append"><span class="input-group-text">结束编号</span></div>
+                                            <input type="text" name="rule[page_no_end]" class="form-control" id="page_no_end" value="<?php echo $rule['page_no_end']; ?>" />
+                                            <div class="input-group-append"><span class="input-group-text">步长</span></div>
+                                            <input type="text" name="rule[page_no_step]" class="form-control" id="page_no_step" value="<?php echo $rule['page_no_step']; ?>" />
+                                            <div class="input-group-append"><span class="input-group-text">补位</span></div>
+                                            <input type="text" name="rule[page_no_fill]" class="form-control" id="page_no_fill" value="<?php echo (int)$rule['page_no_fill']; ?>" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">有效分页特征码</label>
+                            <div class="col-sm-8">
+                                <textarea name="rule[page_url_right]" id="page_url_right" class="form-control"><?php echo $rule['page_url_right']; ?></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">无效分页特征码</label>
+                            <div class="col-sm-8">
+                                <textarea name="rule[page_url_error]" id="page_url_error" class="form-control"><?php echo $rule['page_url_error']; ?></textarea>
+                            </div>
+                        </div>
+                        <hr />
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">网址合成</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rule[page_url]" class="form-control" id="page_url" value="<?php echo $rule['page_url']; ?>" />
+                                    <div class="input-group-append">
+                                        <div class="btn-group">
+                                            <a class="btn btn-alt-light" href="javascript:;" data-insert="<%url%>" data-target="#page_url">分页网址</a>
+                                            <a class="btn btn-alt-light" href="javascript:;" data-insert="<%step%>" data-target="#page_url">分页增量</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="spider-remote" class="tab-pane">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">CURLOPT_ENCODING</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[http][ENCODING]" class="form-control" id="http_ENCODING" value="<?php echo $rule['http']['ENCODING']; ?>" />
+                                <span class="form-text text-muted">CURLOPT_ENCODING 默认为空,如果采集乱码可以填上gzip,deflate</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">CURLOPT_REFERER</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[http][REFERER]" class="form-control" id="http_REFERER" value="<?php echo $rule['http']['REFERER']; ?>" />
+                                <span class="form-text text-muted">CURLOPT_REFERER 默认为空,如果网站限制来路可填上相关来路</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">CURLOPT_TIMEOUT</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[http][TIMEOUT]" class="form-control" id="http_TIMEOUT" value="<?php echo $rule['http']['TIMEOUT']; ?>" />
+                                <span class="form-text text-muted">CURLOPT_TIMEOUT 默认为10秒,数据传输的最大允许时间</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">CURLOPT_CONNECTTIMEOUT</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[http][CONNECTTIMEOUT]" class="form-control" id="http_CONNECTTIMEOUT" value="<?php echo $rule['http']['CONNECTTIMEOUT']; ?>" />
+                                <span class="form-text text-muted">CURLOPT_CONNECTTIMEOUT 默认为3秒,连接超时时间</span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">水印设置</label>
+                            <div class="col-sm-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_watermark_mode" type="radio" class="custom-control-input" id="watermark_mode0" name="rule[watermark_mode]" value="0">
+                                    <label class="custom-control-label" for="watermark_mode0">系统全局</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_watermark_mode" type="radio" class="custom-control-input" id="watermark_mode1" name="rule[watermark_mode]" value="1">
+                                    <label class="custom-control-label" for="watermark_mode1">本规则</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input v-model="rule_watermark_mode" type="radio" class="custom-control-input" id="watermark_mode2" name="rule[watermark_mode]" value="2">
+                                    <label class="custom-control-label" for="watermark_mode2">关闭水印</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="watermark_pos">水印位置</label>
+                            <div class="col-sm-8">
+                                <select v-model="rule_watermark_pos" name="rule[watermark][pos]" id="watermark_pos" class="form-control">
+                                    <option value="0">随机位置</option>
+                                    <option value="1">顶部居左</option>
+                                    <option value="2">顶部居中</option>
+                                    <option value="3">顶部居右</option>
+                                    <option value="4">中部居左</option>
+                                    <option value="5">中部居中</option>
+                                    <option value="6">中部居右</option>
+                                    <option value="7">底部居左</option>
+                                    <option value="8">底部居中</option>
+                                    <option value="9">底部居右</option>
+                                    <option value="-1">自定义</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">水印位置偏移</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <div class="input-group-prepend">
+                                        <div class="input-group-text">X</div>
+                                    </div>
+                                    <input type="text" name="rule[watermark][x]" class="form-control" id="watermark_x" value="<?php echo $rule['watermark']['x']; ?>" />
+                                    <div class="input-group-append">
+                                        <div class="input-group-text">Y</div>
+                                    </div>
+                                    <input type="text" name="rule[watermark][y]" class="form-control" id="watermark_y" value="<?php echo $rule['watermark']['y']; ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">水印图片文件</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rule[watermark][img]" class="form-control" id="watermark_img" value="<?php echo $rule['watermark']['img']; ?>" />
+                                <span class="form-text text-muted">水印图片存放路径：conf/iCMS/watermark.png， 如果水印图片不存在，则使用文字水印</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="spider-proxy" class="tab-pane">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="">代理IP</label>
+                            <div class="col-sm-8">
+                                <textarea name="rule[proxy]" id="rule_proxy" class="form-control" style="height:150px;"><?php echo $rule['proxy']; ?></textarea>
+                            </div>
+                        </div>
+                        <span class="form-text text-muted">
+                            每行一个<br />
+                            socks5格式:socks5://127.0.0.1:1080@username:password<br />
+                            http格式:http://127.0.0.1:1080@username:password<br />
+                            例:127.0.0.1:1080 (默认为http模式 无验证信息)
+                        </span>
+                    </div>
+                </div>
+                <div class="form-group row py-4 mt-4 bg-body-light">
+                    <label class="col-sm-1"></label>
+                    <div class="col-sm-8">
+                        <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+                        <a id="test" href="<?php echo APP_URL; ?>&do=test&rid=<?php echo $this->rid; ?>" class="btn btn-danger" data-toggle="modal" title="测试规则"><i class="fa fa-fw fa-bug"></i> 测试</a>
+                        <a href="<?php echo APP_URL; ?>&do=manage&rid=<?php echo $this->rid; ?>" class="btn btn-success" target="_blank"><i class="fa fa-fw fa-list-alt"></i> 已采集</a>
+                        <a href="<?php echo ADMINCP_URL; ?>=spiderProject&do=manage&rid=<?php echo $this->rid; ?>" class="btn btn-info" target="_blank"><i class="fa fa-fw fa-magnet"></i> 方案</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+</div>
+<table class="hide rule_data_clone">
+    <tr>
+        <?php echo rule_data_rule_td('__KEY__'); ?>
+    </tr>
+</table>
+<div class="hide data_helper_clone">
+    <?php foreach (SpiderHelper::getArray() as $groupTitle => $helpers) { ?>
+        <li class="dropdown-submenu">
+            <a href="javascript:;" title="<?php echo $groupTitle; ?>" class="dropdown-item dropdown-toggle tip-left" data-toggle="dropdown"><i class="fa fa-fw fa-code"></i> <span><?php echo $groupTitle; ?></span></a>
+            <ul class="dropdown-menu">
+                <?php foreach ($helpers as $act => $value) { ?>
+                    <li><a class="dropdown-item" href="javascript:;" title="<?php echo $value['title']; ?>" data-act='<?php echo $act; ?>'> <i class="fa fa-fw fa-magic"></i> <span><?php echo $value['name']; ?></span></a></li>
+                <?php } ?>
+            </ul>
+        </li>
+    <?php } ?>
+</div>
+
+<?php self::foot(); ?>

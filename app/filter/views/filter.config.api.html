@@ -1,0 +1,71 @@
+<?php $title = "过滤接口";$header_enable = false; ?>
+<ul class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item"><a class="nav-link active" href="#tab-aliyun">阿里云内容识别接口</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-baidu">百度内容识别接口</a></li>
+</ul>
+<div class="tab-content pt-2">
+    <div id="tab-aliyun" role="tabpanel" class="tab-pane active">
+        <div class="alert alert-warning">
+            申请地址:<a href="https://ai.aliyun.com/lvwang/text?spm=icmsdev.com" target="_blank">https://www.aliyun.com/product/oss</a>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">域名</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][AliYun][domain]" class="form-control" id="aliyun_domain" value="<?php echo $config['sdk']['AliYunOSS']['domain']; ?>" />
+                <small class="form-text text-muted">OSS外网域名</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">Bucket</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][AliYun][Bucket]" class="form-control" id="aliyun_Bucket" value="<?php echo $config['sdk']['AliYunOSS']['Bucket']; ?>" />
+                <small class="form-text text-muted">空间名称</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">AccessKey</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][AliYun][AccessKey]" class="form-control" id="aliyun_AccessKey" value="<?php echo $config['sdk']['AliYunOSS']['AccessKey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">SecretKey</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][AliYun][SecretKey]" class="form-control" id="aliyun_SecretKey" value="<?php echo $config['sdk']['AliYunOSS']['SecretKey']; ?>" />
+            </div>
+        </div>
+    </div>
+    <div id="tab-baidu" role="tabpanel" class="tab-pane">
+        <div class="alert alert-warning">
+            申请地址:<a href="https://www.aliyun.com/product/oss?spm=iCMS" target="_blank">https://www.aliyun.com/product/oss</a>
+        </div>
+
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">域名</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][BaiDu][domain]" class="form-control" id="baidu_domain" value="<?php echo $config['sdk']['AliYunOSS']['domain']; ?>" />
+                <small class="form-text text-muted">OSS外网域名</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">Bucket</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][BaiDu][Bucket]" class="form-control" id="baidu_Bucket" value="<?php echo $config['sdk']['AliYunOSS']['Bucket']; ?>" />
+                <small class="form-text text-muted">空间名称</small>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">AccessKey</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][BaiDu][AccessKey]" class="form-control" id="baidu_AccessKey" value="<?php echo $config['sdk']['AliYunOSS']['AccessKey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="cloud_enable">SecretKey</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[sdk][BaiDu][SecretKey]" class="form-control" id="baidu_SecretKey" value="<?php echo $config['sdk']['AliYunOSS']['SecretKey']; ?>" />
+            </div>
+        </div>
+    </div>
+</div>

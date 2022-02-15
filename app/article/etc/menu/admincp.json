@@ -1,0 +1,101 @@
+[
+    {
+        "id": "cms",
+        "children": [
+            {
+                "id": "article",
+                "sort": "2",
+                "caption": "文章管理",
+                "icon": "si si-grid",
+                "children": [
+                    {
+                        "caption": "文章配置",
+                        "href": "article&do=config",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "更新栏目缓存",
+                        "href": "articleCategory&do=cache",
+                        "icon": "sync",
+                        "target": "iPHP_FRAME"
+                    },
+                    {
+                        "caption": "栏目管理",
+                        "href": "articleCategory",
+                        "icon": "sitemap"
+                    },
+                    {
+                        "caption": "添加栏目",
+                        "href": "articleCategory&do=add",
+                        "icon": "edit"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "添加文章",
+                        "href": "article&do=add",
+                        "icon": "edit"
+                    },
+                    {
+                        "caption": "文章管理",
+                        "href": "article&do=manage",
+                        "icon": "list"
+                    },
+                    {
+                        "caption": "草稿箱",
+                        "href": "article&do=inbox",
+                        "icon": "inbox"
+                    },
+                    {
+                        "caption": "回收站",
+                        "href": "article&do=trash",
+                        "icon": "trash-alt"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "id": "articleUser",
+                        "sort": "99999",
+                        "icon": "si si-user",
+                        "caption": "用户文章",
+                        "children": [
+                            {
+                                "caption": "管理",
+                                "href": "article&do=user",
+                                "icon": "check-circle"
+                            },
+                            {
+                                "caption": "等待审核",
+                                "href": "article&do=examine",
+                                "icon": "minus-circle"
+                            },
+                            {
+                                "caption": "未通过",
+                                "href": "article&do=off",
+                                "icon": "times-circle"
+                            },
+                            {
+                                "caption": "回收站",
+                                "href": "article&do=trash",
+                                "icon": "times-circle"
+                            }
+                        ]
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "评论管理",
+                        "href": "comment&appname=article&appid=1",
+                        "icon": "comments"
+                    }
+                ]
+            }
+        ]
+    }
+]

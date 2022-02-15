@@ -1,0 +1,14 @@
+{
+    "comment": {
+        "id": "comment",
+        "name": "",
+        "title": "{$v.comment}条评论",
+        "icon": "comments",
+        "url": "{$c.ADMINCP_URL}=comment&appname=article&appid={$s.appId}&iid={$v.id}",
+        "a:class": "btn btn-alt-light",
+        "target": "",
+        "show": {
+            "status": ["=", "1"]
+        }
+    }
+}

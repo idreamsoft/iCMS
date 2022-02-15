@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+        <title><!--{$ME.nickname}-->的 <!--{$site.title}-->_ <!--{$site.seotitle}--></title>
+        <meta name="keywords" content="<!--{$site.keywords}-->" />
+        <meta name="description" content="<!--{$ME.nickname}-->的<!--{$site.title}-->" />
+        <meta name="mobile-agent" content="format=html5;url=<!--{$ME.urls.home}-->" />
+        <!--{iCMS:public:ui}-->
+        <link rel="stylesheet" href="<!--{$site.urls.public}-->/css/usercp.css" />
+        <script src="<!--{$site.urls.public}-->/js/usercp.js"></script>
+    </head>
+
+    <body>
+        <div id="page-container">
+            <main id="main-container">
+                <!--{include file="iCMS://user/top.htm"}-->
+                <!-- Hero Content -->
+                <!--{"1"|rand:"16"|as:"bgNum"}-->
+                <div class="bg-primary-dark" style="background: url(<!--{$site.urls.assets}-->/img/bg/photo<!--{$bgNum}-->.jpg) center center no-repeat; background-size: cover">
+                    <div class="content content-full overflow-hidden bg-black-25">
+                        <div class="my-5 text-center">
+                            <h1 class="h2 text-white mb-2 animated fadeInDown" data-toggle="appear" data-class="animated fadeInDown"><!--{$site.title}--></h1>
+                            <h2 class="h4 font-w400 text-white-75 animated fadeInDown" data-toggle="appear" data-class="animated fadeInDown"><!--{$site.seotitle}--></h2>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Hero Content -->
+                <!-- Page Content -->
+                <div class="content content-boxed">
+                    <div class="row bg-white py-4">
+                        <div class="col-md-4 col-xl-3">
+                            <div class="block block-transparent">
+                                <div class="block-content py-0">
+                                    <div class="block block-rounded block-link-shadow">
+                                        <div class="block-content block-content-full text-center ">
+                                            <div class="mb-3">
+                                                <img i="event:user:avatar:upload" class="img-avatar img-avatar96 rounded-circle" src="<!--{$ME.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
+                                                <form i="user:avatar:upload" class="d-none" action="<!--{iCMS:route url='FilesUser'}-->" method="POST" target="iPHP_FRAME" enctype="multipart/form-data">
+                                                    <input type="hidden" name="action" value="avatar" />
+                                                    <input type="file" name="upfile" i="user:avatar:upfile" />
+                                                </form>
+                                                <p class="text-gray font-size-sm">点击上传头像</p>
+                                            </div>
+                                            <div class="font-size-h5 mb-1">
+                                                <!--{$ME.nickname}-->
+                                                <span class="badge badge-secondary"><!--{$ME.role.name}--></span>
+                                            </div>
+                                            <div class="font-size-sm text-muted"><!--{$ME.data.slogan|default:'这家伙太懒了,什么都没有留下!'}--></div>
+                                        </div>
+                                        <div class="border-top"></div>
+                                        <div class="d-md-none push py-3">
+                                            <div class="row gutters-tiny">
+                                                <div class="col-6">
+                                                    <button type="button" class="btn btn-light btn-block" data-toggle="class-toggle" data-target=".js-menuList" data-class="d-none">
+                                                        <i class="fa fa-fw fa-bars text-muted mr-1"></i>
+                                                        菜单
+                                                    </button>
+                                                </div>
+                                                <div class="col-6">
+                                                    <button type="button" class="btn btn-light btn-block" data-toggle="class-toggle" data-target=".js-ecom-div-cart" data-class="d-none">
+                                                        <i class="fa fa-fw fa-shopping-cart text-muted mr-1"></i>
+                                                        Cart (3)
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="block-content js-menuList d-none d-md-block">
+                                            <!--{include file="iCMS://user/widget/usercp.menu.htm"}-->
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-8 col-xl-9">
+                            <div class="block block-transparent">
+                                <nav class="flex-sm-00-auto" aria-label="breadcrumb">
+                                    <ol class="breadcrumb breadcrumb-alt">
+                                        <li class="breadcrumb-item"><a href="<!--{$site.url}-->">首页</a></li>
+                                        <!--{foreach value="crumb" from="$breadcrumb"}-->
+                                        <li class="breadcrumb-item"><a href="<!--{iCMS:route url='$crumb.url'}-->"><!--{$crumb.caption}--></a></li>
+                                        <!--{/foreach}-->
+                                    </ol>
+                                </nav>
+                                <div class="block-header block-header-default">
+                                    <h3 class="block-title">
+                                        <i class="fa fa-<!--{$menu.icon}--> text-muted mr-1"></i>
+                                        <!--{$menu.caption}-->
+                                    </h3>
+                                    <div class="block-options">
+                                        <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                                            <i class="si si-refresh"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="block-content">
+                                    <!--{if $menu.template}-->
+                                    <!--{include file="$menu.template"}-->
+                                    <!--{/if}-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- END Page Content -->
+            </main>
+            <!-- END Main Container -->
+        </div>
+        <!-- END Page Container -->
+        <!--{include file="iCMS://user/widget/modal.htm"}-->
+        <iframe class="d-none" id="iPHP_FRAME" name="iPHP_FRAME"></iframe>
+    </body>
+</html>

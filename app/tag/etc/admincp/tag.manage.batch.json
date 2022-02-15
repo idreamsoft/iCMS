@@ -1,0 +1,91 @@
+{
+    "status;0": {
+        "name": "启用",
+        "icon": "ban",
+        "sort": 1,
+        "call": "default"
+    },
+    "status;1": {
+        "name": "禁用",
+        "icon": "check",
+        "sort": 2,
+        "call": "default"
+    },
+    "move": {
+        "name": "移动栏目",
+        "icon": "fighter-jet",
+        "sort": 4,
+        "call": "move"
+    },
+    "mvtcid": {
+        "name": "移动分类",
+        "icon": "fighter-jet",
+        "sort": 5,
+        "call": "mvtcid"
+    },
+    "divider1": {
+        "name": "divider",
+        "sort": 6
+    },
+    "prop": {
+        "name": "设置属性",
+        "icon": "puzzle-piece",
+        "sort": 7,
+        "call": "prop"
+    },
+    "weight": {
+        "name": "设置权重",
+        "icon": "cog",
+        "sort": 8,
+        "post": {
+            "weight":"bweight"
+        },
+        "call": "default"
+    },
+    "rootid": {
+        "name": "设置父标签ID",
+        "icon": "cog",
+        "sort": 9,
+        "post": {
+            "rootid":"brootid"
+        },
+        "call": "default"
+    },
+    "tpl": {
+        "name": "设置模板",
+        "icon": "tags",
+        "sort": 10,
+        "post": {
+            "tpl":"btpl"
+        },
+        "call": "default"
+    },
+    "tkey": {
+        "name": "重建标识",
+        "icon": "tags",
+        "sort": 11,
+        "call": "tkey"
+    },
+    "keyword": {
+        "name": "设置关键字",
+        "icon": "star",
+        "sort": 12,
+        "call": "keyword"
+    },
+    "tag": {
+        "name": "设置相关标签",
+        "icon": "tags",
+        "sort": 13,
+        "call": "tag"
+    },
+    "divider2": {
+        "name": "divider",
+        "sort": 14
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 17,
+        "call": "dels"
+    }
+}

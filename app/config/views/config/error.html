@@ -1,0 +1,17 @@
+<div class="alert alert-warning">配置文件加载错误</div>
+<?php
+if (isset($nav[5])) {
+    if ($nav[5] instanceof sException) {
+        $ex = $nav[5];
+        $message = Security::filterPath($ex->getMessage());
+        $state   = $ex->getState();
+        $code    = $ex->getCode();
+        $line    = $ex->getLine();
+        $file    = $ex->getFile();
+        $trace   = Security::filterPath($ex->getTraceAsString());
+        echo $message;
+    }
+}
+?>
+<pre><?php print_r($nav[6]); ?></pre>
+<pre><?php echo $trace; ?></pre>

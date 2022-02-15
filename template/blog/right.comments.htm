@@ -1,0 +1,27 @@
+<!-- Recent Comments -->
+<div class="block block-rounded">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">最新评论</h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                <i class="si si-refresh"></i>
+            </button>
+        </div>
+    </div>
+    <div class="block-content font-size-sm">
+        <!--{iCMS:comment:list loop="true" row="6" cid="$node.id"}-->
+        <div class="push">
+            <a class="font-w600" href="<!--{$comment_list.user.url}-->"><!--{$comment_list.user.name}--></a>
+            on
+            <a href="<!--{$comment_list.content_url}-->"><!--{$comment_list.target_title}--></a>
+            <p class="mt-1"><!--{$comment_list.content|cut:40}--></p>
+        </div>
+        <!--{/iCMS}-->
+        <div class="text-center push">
+            <small>
+                <a class="font-w600" href="javascript:void(0)">Read More..</a>
+            </small>
+        </div>
+    </div>
+</div>
+<!-- END Recent Comments -->

@@ -1,0 +1,28 @@
+{
+    "http": {
+        "type": "0",
+        "primary": ""
+    },
+    "index": {
+        "type": "0",
+        "primary": ""
+    },
+    "node": {
+        "type": "1",
+        "primary": "id"
+    },
+    "article": {
+        "type": "2",
+        "primary": "id",
+        "page": "p"
+    },
+    "tag": {
+        "type": "3",
+        "primary": "id"
+    },
+    "content": {
+        "type": "4",
+        "primary": "id",
+        "page": "p"
+    }
+}

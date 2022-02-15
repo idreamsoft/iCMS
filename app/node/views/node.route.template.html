@@ -1,0 +1,9 @@
+<div class="row" i="template">
+    <div class="input-group">
+        <div class="input-group-prepend">
+            <div class="input-group-text">模板</div>
+        </div>
+        <input type="text" name="template[<?php echo $key; ?>]" class="form-control" id="<?php echo $template_id; ?>" value="<?php echo isset($rs['template'][$key]) ? $rs['template'][$key] : $value['template']; ?>" />
+        <?php echo FilesWidget::modalBtn('模板', $template_id); ?>
+    </div>
+</div>

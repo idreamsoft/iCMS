@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+$preview = isset($_GET['preview']);
+self::head(!$preview);
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        sfid: "<?php echo (int)$_GET['fid']; ?>",
+    });
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <?php if ($preview) { ?>
+                <h3 class="block-title">预览表单</h3>
+            <?php } else { ?>
+                <h3 class="block-title"><?php echo ($this->id ? '修改' : '添加'); ?><?php echo Forms::$DATA['title']; ?></h3>
+            <?php } ?>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <div class="input-group input-group-sm">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="sfid">切换表单</label>
+                        </div>
+                        <select v-model="sfid" id="sfid" class="form-control" onchange="window.location.href='<?php echo APP_DOURL; ?>&fid='+this.value" data-placeholder="== 请选择表单 ==">
+                            <option value="">== 请选择表单 ==</option>
+                            <?php echo $this->select(); ?>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="block-content block-content-full">
+            <div class="form-group">
+                <div class="btn-group btn-group-sm">
+                    <a href="<?php echo $value['url']; ?>" class="btn btn-alt-primary" target="_blank"><i class="fa fa-fw fa-dashboard"></i> 表单</a>
+                    <a href="<?php echo APP_URL; ?>&do=data&fid=<?php echo $this->fid; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-dashboard"></i> 数据</a>
+                    <a href="<?php echo APP_URL; ?>&do=submit&fid=<?php echo $this->fid; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i> 添加</a>
+                    <a href="<?php echo APP_URL; ?>&do=edit&id=<?php echo $this->fid; ?>" class="btn btn-alt-primary"><i class="fa fa-fw fa-pencil-alt"></i> 编辑</a>
+                </div>
+            </div>
+            <?php if ($this->fid) { ?>
+                <form action="<?php echo APP_URL; ?>&do=_data" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                    <input id="fid" name="fid" type="hidden" value="<?php echo $this->fid; ?>" />
+                    <input name="REFERER" type="hidden" value="<?php echo iPHP_REFERER; ?>" />
+                    <?php Former::render(); ?>
+                    <?php self::formSubmit(); ?>
+                </form>
+            <?php } else { ?>
+                <select v-model="sfid" class="form-control" onchange="window.location.href='<?php echo APP_DOURL; ?>&fid='+this.value" data-placeholder="== 请选择表单 ==">
+                    <option value="">== 请选择表单 ==</option>
+                    <?php echo $this->select(); ?>
+                </select>
+            <?php } ?>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

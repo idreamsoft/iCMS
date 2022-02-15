@@ -1,0 +1,245 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script>
+    iCMS.set('Vue.data', {
+        vmenu: '<?php echo $rs['menu'] ?: 0; ?>',
+        vtype: '<?php echo $rs['type']; ?>',
+        vapptype: '<?php echo $rs['apptype']; ?>',
+        vrootid: '<?php echo $rs['rootid']; ?>',
+        iformer: <?php echo ($rs['apptype']) ? true : false; ?>,
+        tables: <?php echo json_encode($rs['table']); ?>
+    });
+</script>
+<link rel="stylesheet" href="<?php echo APP_ASSETS; ?>/add.css" />
+<script type="text/javascript" src="<?php echo APP_ASSETS; ?>/add.js"></script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a href="#apps-add-base" class="nav-link active"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+            <li class="nav-item"><a href="#apps-add-menu" class="nav-link"><i class="fa fa-fw fa-bars"></i> 菜单配置</a></li>
+            <li class="nav-item"><a href="#apps-add-route" class="nav-link"><i class="fa fa-fw fa-bars"></i> 路由配置</a></li>
+            <?php if ($rs['table']) foreach ($rs['table'] as $key => $tval) { ?>
+                <li class="nav-item"><a href="#apps-add-<?php echo $key; ?>-field" class="nav-link"><i class="fa fa-fw fa-database"></i>
+                        <?php echo $tval['label'] ? $tval['label'] : $tval['name']; ?>表字段</a>
+                </li>
+            <?php } ?>
+            <?php if ($rs['apptype']) { ?>
+                <?php if (!$rs['table']) { ?>
+                    <li class="nav-item" v-show="iformer"><a href="#apps-add-field" class="nav-link"><i class="fa fa-fw fa-cog"></i> 基础字段</a></li>
+                <?php } ?>
+                <li class="nav-item" v-show="iformer"><a href="#apps-add-custom" class="nav-link"><i class="fa fa-fw fa-cog"></i> 字段编辑器</a></li>
+            <?php } ?>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <input v-model="vapptype" name="apptype" type="hidden" value="<?php echo $rs['apptype']; ?>" />
+                <div id="apps-add" class="tab-content">
+                    <div id="apps-add-base" class="tab-pane active">
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="name">应用名称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                                <small class="form-text text-muted">应用中文名称</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="_app">应用标识</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="_app" class="form-control" id="_app" value="<?php echo $rs['app']; ?>" />
+                                <small class="form-text text-muted">应用唯一标识</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="rootid">父级应用</label>
+                            <div class="col-sm-8">
+                                <select v-model="vrootid" name="rootid" id="rootid" class="form-control" data-placeholder="请选择...">
+                                    <option value="0">顶级应用</option>
+                                    <?php foreach (Apps::getTableArray() as $key => $value) { ?>
+                                        <option value="<?php echo $value['id']; ?>" data-app="<?php echo $value['app']; ?>" data-title="<?php echo $value['title']; ?>"><?php echo $value['name']; ?>:<?php echo $value['app']; ?></option>
+                                    <?php } ?>
+                                </select>
+                                <small class="form-text text-muted">用于关联应用</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="title">应用标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="title" class="form-control" id="title" value="<?php echo $rs['title']; ?>" />
+                                <small class="form-text text-muted">应用标题.例:应用名称(文章系统),应用标题(文章)</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="_name">应用简介</label>
+                            <div class="col-sm-8">
+                                <textarea name="config[info]" id="config_info" class="form-control" style="height: 150px;"><?php echo $rs['config']['info']; ?></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="config_template">模板标签</label>
+                            <div class="col-sm-8">
+                                <textarea name="config[template]" id="config_template" class="form-control" style="height: 150px;" readonly><?php echo $rs['config']['template']; ?></textarea>
+                                <small class="form-text text-muted">程序自动获取</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="config_version">应用版本</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="config[version]" class="form-control" id="config_version" value="<?php echo $rs['config']['version'] ?: 'v1.0.0'; ?>" />
+                                <small class="form-text text-muted">版本号</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="menu">应用菜单</label>
+                            <div class="col-sm-8">
+                                <select v-model="vmenu" id="menu" name="menu" class="form-control" data-placeholder="请选择应用类型...">
+                                    <option value="0">无菜单</option>
+                                    <option value="default">默认配置[default]</option>
+                                    <option value="main">主菜单[main]</option>
+                                    <optgroup label="应用菜单">
+                                        <?php
+                                        foreach (Menu::getAccessData() as $key => $value) {
+                                            if ($value['caption'] == '-' || $key == $rs['app']) {
+                                                continue;
+                                            }
+                                        ?>
+                                            <option value="<?php echo $key ?>">
+                                                <?php echo $value['caption'] ?>菜单[<?php echo $key ?>]</option>
+                                        <?php } ?>
+                                    </optgroup>
+                                </select>
+                                <small class="form-text text-muted">应用的菜单,无菜单后台将不显示入口</small>
+                            </div>
+                        </div>
+                        <?php if ($rs['type']) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="type">应用类型</label>
+                                <div class="col-sm-8">
+                                    <select v-model="vtype" id="type" name="type" class="form-control js-chosen-disable" data-placeholder="请选择应用类型...">
+                                        <?php echo Apps::getTypeSelect(); ?>
+                                    </select>
+                                    <div class="alert alert-warning mb-0" v-show="vtype==3||vtype==4">第三方应用类型,仅供用户开发应用添加数据用,此类型不会自动创建相关表,仅添加一条应用数据</div>
+                                </div>
+                            </div>
+                        <?php } else { ?>
+                            <input name="type" type="hidden" value="<?php echo $rs['type']; ?>" />
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="nodeTable">分类表</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" data-toggle="switch" data-on-text="独立" data-off-text="通用" name="config[nodeTable]" id="nodeTable" <?php echo $rs['config']['nodeTable'] ? 'checked' : ''; ?> />
+                                <small class="form-text text-muted">启用后,该应用将使用独立分类表</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="usercp">用户中心</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" data-toggle="switch" data-on-text="启用" data-off-text="禁用" name="config[usercp]" id="usercp" <?php echo $rs['config']['usercp'] ? 'checked' : ''; ?> />
+                                <small class="form-text text-muted">启用后,用户中心将显示此应用并根据字段设计 (未完成)</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="status">应用状态</label>
+                            <div class="col-sm-8">
+                                <input type="checkbox" data-toggle="switch" data-on-text="启用" data-off-text="禁用" name="status" id="status" <?php echo $rs['status'] ? 'checked' : ''; ?> />
+                                <small class="form-text text-muted"></small>
+                            </div>
+                        </div>
+                        <?php //if(empty($this->id)){
+                        ?>
+                        <?php if (false) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="create">是否同时创建数据表</label>
+                                <div class="col-sm-8">
+                                    <div class="switch" data-on-label="是" data-off-label="否">
+                                        <input type="checkbox" data-type="switch" name="create" id="create" <?php echo $rs['create'] ? 'checked' : ''; ?> />
+                                    </div>
+                                    <span class="form-text text-muted">
+                                        如果选择不同时创建数据表,将只保存应用数据而不创建应用表.需要手工建表<br />
+                                        一般用于二次开发添加应用.
+                                    </span>
+                                </div>
+                            </div>
+                        <?php } ?>
+
+                        <div class="block block-themed">
+                            <div class="block-header bg-primary-dark">
+                                <div class="block-title">数据表</div>
+                                <div class="block-options">
+                                    <button type="button" class="btn btn-alt-light add_table_item" v-show="vtype==3||vtype==4">
+                                        <i class="fa fa-fw fa-plus-square"></i> 添加
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="block-content p-0">
+                                <table class="table table-bordered bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>表名</th>
+                                            <th>主键</th>
+                                            <th>关联</th>
+                                            <th>名称</th>
+                                            <th v-show="vtype==3||vtype==4"></th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table_list">
+                                        <?php if ($rs['table']) { ?>
+                                            <?php foreach ((array) $rs['table'] as $tkey => $tval) { ?>
+                                                <tr>
+                                                    <td><input type="text" name="table[<?php echo $tkey; ?>][0]" class="form-control" id="table_<?php echo $tkey; ?>_0" value="<?php echo $tval['name']; ?>" /></td>
+                                                    <td><input type="text" name="table[<?php echo $tkey; ?>][1]" class="form-control" id="table_<?php echo $tkey; ?>_1" value="<?php echo $tval['primary']; ?>" /></td>
+                                                    <td><input type="text" name="table[<?php echo $tkey; ?>][2]" class="form-control" id="table_<?php echo $tkey; ?>_2" value="<?php echo $tval['union']; ?>" /></td>
+                                                    <td><input type="text" name="table[<?php echo $tkey; ?>][3]" class="form-control" id="table_<?php echo $tkey; ?>_3" value="<?php echo $tval['label']; ?>" /></td>
+                                                    <td v-show="vtype==3||vtype==4"><button class="btn btn-sm btn-danger del_table" type="button"><i class="fa fa-fw fa-trash-alt"></i></button></td>
+                                                </tr>
+                                            <?php } ?>
+                                        <?php } else { ?>
+                                            <input name="table" type="hidden" value="<?php echo $rs['table']; ?>" />
+                                        <?php } ?>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <small class="form-text text-muted">非二次开发,请勿修改表名</small>
+                    </div>
+                    <div id="apps-add-menu" class="tab-pane">
+                        <?php include self::view("block/menu", "apps"); ?>
+                    </div>
+                    <div id="apps-add-route" class="tab-pane">
+                        <?php include self::view("block/route", "apps"); ?>
+                    </div>
+                    <!-- 数据表字段 -->
+                    <?php include self::view("block/table", "apps"); ?>
+                    <?php if ($rs['apptype']) { ?>
+                        <div id="apps-add-field" class="tab-pane">
+                            <!-- 基础字段 -->
+                            <?php include self::view("block/base", "apps"); ?>
+                        </div>
+                        <div id="apps-add-custom" class="tab-pane">
+                            <?php include self::view("former.build", "former"); ?>
+                        </div>
+                    <?php } ?>
+                    <?php self::formSubmit(); ?>
+                    <?php if (0) { ?>
+                        <a href="<?php echo APP_URL; ?>&do=uninstall&id=<?php echo $rs['id']; ?>" target="iPHP_FRAME" class="del btn btn-sm btn-danger" title='卸载' data-action="delete"/><i class="fa fa-fw fa-trash-alt"></i> 卸载</a>
+                    <?php } ?>
+                </div>
+            </form>                            
+
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>
+<?php include self::view("former.editor", "former"); ?>

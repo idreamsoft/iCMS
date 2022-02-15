@@ -1,0 +1,6 @@
+{
+    "public/captcha": "api.php?app=public&do=captcha",
+    "public/privacy": "api.php?app=public&do=privacy",
+    "public/terms": "api.php?app=public&do=terms",
+    "public/license:charge": "api.php?app=public&do=license&s=charge"
+}

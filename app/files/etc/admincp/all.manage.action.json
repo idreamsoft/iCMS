@@ -1,0 +1,20 @@
+{
+    "findpics": {
+        "id": "findpics",
+        "name": "",
+        "title": "查找所有图片",
+        "icon": "file-image",
+        "url": "{$c.ADMINCP_URL}=files&indexid={$v.id}",
+        "a:class": "btn btn-alt-light",
+        "target": "_blank"
+    },
+    "findpicsdb": {
+        "id": "findpicsdb",
+        "name": "",
+        "title": "查看图片库",
+        "icon": "file-image",
+        "url": "{$c.ADMINCP_URL}=files&indexid={$v.id}&appid={$s.appId}",
+        "a:class": "btn btn-alt-light",
+        "target": "_blank"
+    }
+}

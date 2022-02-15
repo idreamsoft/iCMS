@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+        <title><!--{if $user}-->欢迎加入 <!--{else}-->新用户注册 <!--{/if}-->| <!--{$site.title}--></title>
+        <meta name="keywords" content="<!--{$site.keywords}-->" />
+        <meta name="description" content="<!--{$site.description}-->" />
+         <!--{iCMS:public:ui}-->
+        <script src="<!--{$site.urls.public}-->/js/register.js"></script>
+    </head>
+    <body>
+        <div id="page-container">
+            <!-- Main Container -->
+            <!--{"1"|rand:"39"|as:"bgNum"}-->
+            <main id="main-container" style="background: url(<!--{$site.urls.assets}-->/img/bg/photo<!--{$bgNum}-->.jpg) top center no-repeat; background-size: cover">
+                <!-- Page Content -->
+                <div class="hero-static d-flex align-items-center">
+                    <div class="container">
+                        <!-- Sign In Section -->
+                        <div class="bg-black-50 rounded mt-5">
+                            <div class="content content-full">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-6 col-lg-7 d-flex align-items-center">
+                                        <div class="content content-full">
+                                            <div class="text-center">
+                                                <h1 class="h1 text-white mb-2" data-toggle="appear" data-class="animated fadeInDown">
+                                                    欢迎使用
+                                                    <!--{$site.name}-->
+                                                </h1>
+                                                <h2 class="h4 font-w400 text-white-75" data-toggle="appear" data-class="animated fadeInDown"><!--{$site.seotitle}--></h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 col-lg-5 py-3 bg-white-90 rounded">
+                                        <!-- Header -->
+                                        <div class="text-center">
+                                            <p class="mb-2">
+                                                <i class="fa fa-2x fa-info-circle text-primary"></i>
+                                            </p>
+                                            <h1 class="h4 mb-1">
+                                                加入
+                                                <!--{$site.name}-->
+                                            </h1>
+                                            <h2 class="h6 font-w400 text-muted mb-3">只需简单的步骤就可以立即访问</h2>
+                                        </div>
+                                        <!-- END Header -->
+
+                                        <!-- Sign Up Form -->
+                                        <!-- jQuery Validation (.js-validation-signup class is initialized in js/pages/op_auth_signup.min.js which was auto compiled from _es6/pages/op_auth_signup.js) -->
+                                        <!-- For more info and examples you can check out https://github.com/jzaefferer/jquery-validation -->
+                                        <form i="form:user:register" class="js-signup" action="<!--{iCMS:route url='user'}-->" method="POST">
+                                            <input type="hidden" name="action" value="register" />
+                                            <input type="hidden" id="forward" name="forward" value="<!--{$forward}-->" />
+                                            <div class="py-3">
+                                                <!--{foreach value='mode' from="$USER_CONFIG.register.mode"}-->
+                                                <div class="form-group mb-2">
+                                                    <input type="text" class="form-control form-control-lg form-control-alt" id="<!--{$mode}-->" name="<!--{$mode}-->" placeholder="请输入您的<!--{$USER_CONFIG.register.modeText[$mode]}-->" />
+                                                </div>
+                                                <!--{/foreach}-->
+                                                <div class="form-group mb-2">
+                                                    <input type="password" class="form-control form-control-lg form-control-alt" id="password" name="password" placeholder="请输入您的登录密码" />
+                                                </div>
+                                                <div class="form-group mb-2">
+                                                    <input type="password" class="form-control form-control-lg form-control-alt" id="password-confirm" name="password-confirm" placeholder="请再次输入您的密码" />
+                                                </div>
+                                                <!--{if $USER_CONFIG.register.captcha }-->
+                                                <div class="form-group mb-2">
+                                                    <div class="input-group">
+                                                        <input type="text" maxlength="4" class="form-control form-control-lg form-control-alt" id="captcha" name="captcha" placeholder="图形验证码" />
+                                                        <div class="input-group-append">
+                                                            <!--{iCMS:public:captcha name="register" class="rounded-right"}-->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!--{if $USER_CONFIG.register.verify.phone }-->
+                                                <div class="form-group mb-2">
+                                                    <div class="input-group">
+                                                        <input maxlength="6" type="text" class="form-control form-control-lg form-control-alt" id="smscode" name="smscode" placeholder="请输入6位短信验证码" />
+                                                        <div class="input-group-append">
+                                                            <button i="event:public:smscode" type="button" class="btn btn-alt-primary">获取短信验证码</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!--{/if}-->
+                                                <!--{/if}-->
+                                                <div class="form-group mb-2">
+                                                    <div class="row no-gutters align-items-center justify-content-between">
+                                                        <div class="col-sm-8">
+                                                            <div class="custom-control custom-checkbox">
+                                                                <input type="checkbox" class="custom-control-input" id="signup-terms" name="signup-terms" />
+                                                                <label class="custom-control-label font-w400" for="signup-terms">
+                                                                    我同意
+                                                                    <a class="font-size-sm font-w500" href="javascript:;" data-toggle="modal" data-target="#icmsdev-signup-terms">
+                                                                        <!--{$site.name}-->
+                                                                        网站服务条款
+                                                                    </a>
+                                                                </label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-sm-4 text-sm-right">
+                                                            <div class="py-2">
+                                                                <a href="<!--{iCMS:route url='user:login'}-->" class="font-size-sm font-w500">已有账号 >></a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group row justify-content-center mb-0">
+                                                <div class="col-md-6 col-xl-5">
+                                                    <button type="submit" class="btn btn-block btn-success">
+                                                        <i class="fa fa-fw fa-plus mr-1"></i>
+                                                        注 册
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </form>
+                                        <!-- END Sign Up Form -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END Sign In Section -->
+
+                        <!--{include file="iCMS://user/footer.htm"}-->
+                    </div>
+                </div>
+                <!-- END Page Content -->
+            </main>
+            <!-- END Main Container -->
+        </div>
+        <!-- END Page Container -->
+        <!-- Terms Modal -->
+        <div class="modal fade" id="icmsdev-signup-terms" tabindex="-1" role="dialog" aria-labelledby="icmsdev-signup-terms" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-popout" role="document">
+                <div class="modal-content">
+                    <div class="block block-rounded block-themed block-transparent mb-0">
+                        <div class="block-header bg-primary-dark">
+                            <h3 class="block-title">
+                                <!--{$site.name}-->
+                                网站服务条款
+                            </h3>
+                            <div class="block-options">
+                                <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                    <i class="fa fa-fw fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="block-content" style="max-height: 500px; overflow-y: scroll">
+                            <!--{include file="./terms.htm"}-->
+                        </div>
+                        <div class="block-content block-content-full text-right border-top">
+                            <button type="button" class="btn btn-alt-primary mr-1" data-dismiss="modal">关闭</button>
+                            <button type="button" class="btn btn-primary" data-dismiss="modal">我同意</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

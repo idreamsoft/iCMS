@@ -1,0 +1,7 @@
+<form action="<!--{iCMS:route url='api'}-->" method="post">
+    <input name="action" type="hidden" value="save" />
+    <input name="formid" type="hidden" value="<!--{$form.id}-->" />
+    <input name="token" type="hidden" value="<!--{$form.token}-->" />
+    <input name="signature" type="hidden" value="<!--{$form.signature}-->" />
+    <!--{$form.layout}-->
+</form>

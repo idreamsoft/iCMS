@@ -1,0 +1,89 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+* @site https://www.icmsdev.com * @licence https://www.icmsdev.com/LICENSE.html */ defined('iPHP') or exit('What are you doing?'); self::head(); ?>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link" href="<?php echo APP_URL; ?>&do=index">首页</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="<?php echo APP_URL; ?>&do=node">栏目</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link active" href="javascript:;">文章</a>
+            </li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo iPHP_SELF; ?>" method="get" id="iCMS-html" target="iPHP_FRAME">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <input type="hidden" name="action" value="create_article" />
+                <input type="hidden" name="CSRF_TOKEN" value="<?php echo Security::$CSRF_TOKEN; ?>" />
+                <div id="html-add" class="tab-content">
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="rootid">按栏目</label>
+                        <div class="col-sm-8">
+                            <select name="cid[]" multiple="multiple" class="form-control" size="15">
+                                <option value="all">所 有 栏 目</option>
+                                <optgroup label="======================================"></optgroup>
+                                <?php echo Node::set('APPID',iCMS_APP_ARTICLE)->
+                                set('ACCESS', 'cm')->select(); ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="rootid">按时间</label>
+                        <div class="input-group col-sm-8">
+                            <div class="input-group-append">
+                                <div class="input-group-text"><i class="fa fa-fw fa-calendar"></i></div>
+                            </div>
+                            <input type="text" class="form-control" name="startime" value="<?php echo $_GET['startime']; ?>" placeholder="开始时间" />
+                            <div class="input-group-append">
+                                <div class="input-group-text"><i class="fa fa-fw fa-minus"></i></div>
+                            </div>
+                            <input type="text" class="form-control" name="endtime" value="<?php echo $_GET['endtime']; ?>" placeholder="结束时间" />
+                            <div class="input-group-append">
+                                <div class="input-group-text"><i class="fa fa-fw fa-calendar"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="rootid">按文章ID</label>
+                        <div class="input-group col-sm-8">
+                            <div class="input-group-prepend">
+                                <div class="input-group-text">起始ID</div>
+                            </div>
+                            <input type="text" name="startid" class="form-control" id="startId" />
+
+                            <div class="input-group-append">
+                                <div class="input-group-text">结束ID</div>
+                            </div>
+                            <input type="text" name="endid" class="form-control" id="endid" />
+                            <div class="input-group-append">
+                                <div class="input-group-text"><i class="fa fa-fw fa-filter"></i></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="rootid">生成顺序</label>
+                        <div class="col-sm-8">
+                            <select v-model="orderby" id="orderby" name="orderby" class="form-control">
+                                <option value=""></option>
+                                <optgroup label="降序"><?php echo self::$orderBy['DESC']; ?></optgroup>
+                                <optgroup label="升序"><?php echo self::$orderBy['ASC']; ?></optgroup>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

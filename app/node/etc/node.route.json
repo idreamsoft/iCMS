@@ -1,0 +1,23 @@
+{
+    "index": {
+        "label": "首页",
+        "template": "{iTPL}\/node.index.htm",
+        "rule": "\/{CDIR}\/",
+        "tips": "{CID},{0xCID},{CDIR},{Hash@CID},{Hash@0xCID}",
+        "info": "[NODE@NAME]的首页模板(可制作用于频道封面、单页等)"
+    },
+    "list": {
+        "label": "列表",
+        "template": "{iTPL}\/node.list.htm",
+        "rule": "\/{CDIR}\/index_{P}{EXT}",
+        "tips": "{CID},{0xCID},{CDIR},{Hash@CID},{Hash@0xCID}",
+        "info": "当[NODE@NAME]有分页且当前页号大于1时使用该模板"
+    },
+    "tag": {
+        "label": "标签",
+        "template": "{iTPL}\/tag.htm",
+        "rule": "\/{CDIR}\/t-{TKEY}{EXT}",
+        "tips": "{ID},{0xID},{TKEY},{NAME},{ZH_CN},{Hash@ID},{Hash@0xID}",
+        "sort":1000
+    }
+}

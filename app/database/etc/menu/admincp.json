@@ -1,0 +1,44 @@
+[{
+    "id": "tools",
+    "children": [{
+            "caption": "-"
+        },
+        {
+            "id": "database",
+            "caption": "数据库管理",
+            "icon": "database",
+            "children": [{
+                    "caption": "数据备份",
+                    "href": "database&do=backup",
+                    "icon": "database"
+                },
+                {
+                    "caption": "备份管理",
+                    "href": "database&do=recover",
+                    "icon": "upload"
+                },
+                {
+                    "caption": "-"
+                },
+                {
+                    "caption": "修复优化",
+                    "href": "database&do=repair",
+                    "icon": "gavel"
+                },
+                {
+                    "caption": "性能优化",
+                    "href": "database&do=sharding",
+                    "icon": "puzzle-piece"
+                },
+                {
+                    "caption": "-"
+                },
+                {
+                    "caption": "数据替换",
+                    "href": "database&do=replace",
+                    "icon": "retweet"
+                }
+            ]
+        }
+    ]
+}]

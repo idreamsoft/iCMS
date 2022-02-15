@@ -1,0 +1,192 @@
+<?php self::head(); ?>
+<script>
+    iCMS.set('Vue.data', {
+        status: "<?php echo $rs['status']; ?>"
+    });
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <?php echo $this->id ? "编辑" : "添加"; ?>管理员
+        </div>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <input name="type" type="hidden" value="0" />
+                <div id="members-add" class="tab-content">
+                    <div id="members-info" class="tab-pane active">
+                        <?php if (Member::isSuperRole()) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label">角色</label>
+                                <div class="col-sm-8">
+                                    <select v-model="role_id" id="role_id" name="role_id" class="form-control" data-placeholder="请选择管理组">
+                                        <?php echo Role::memberSelect(); ?>
+                                    </select>
+                                </div>
+                            </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="status">状态</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <select v-model="status" name="status" id="status" class="form-control">
+                                        <?php echo PropWidget::option(Member::$statusMap, "status"); ?>
+                                    </select>
+                                    <div class="input-group-append">
+                                        <?php echo PropWidget::btn('添加状态'); ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label"> 账号</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="account" class="form-control" id="account" value="<?php echo $rs['account'] ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label"> 密码</label>
+                            <div class="input-group col-sm-8">
+                                <input type="text" name="password" class="form-control" id="password" value="" />
+                                <div class="input-group-append">
+                                    <a href="###" class="btn btn-dark" data-toggle="random" data-target="#password">生成</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">昵称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="nickname" class="form-control" id="nickname" value="<?php echo $rs['nickname'] ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">用户ID</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="user_id" class="form-control" id="user_id" value="<?php echo $rs['user_id'] ?>" />
+                                <small class="form-text text-muted">关联用户组用户ID，一般添加时，会同时创建一个同名用户</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">姓名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="realname" class="form-control" id="realname" value="<?php echo $rs['realname'] ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">性别</label>
+                            <div class="col-sm-8">
+                                <select v-model="info_gender" id="info_gender" name="info[gender]" class="form-control">
+                                    <option value="2">保密</option>
+                                    <option value="1">男</option>
+                                    <option value="0">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">Q Q</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="info[QQ]" id="info_QQ" class="form-control" value="<?php echo $rs['info']['QQ']; ?>" maxlength="12" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">博客</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="info[blog]" id="info_blog" class="form-control" value="<?php echo $rs['info']['blog']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">生日</label>
+                            <div class="input-group col-sm-8">
+                                <select v-model="info_year" id="info_year" name="info[year]" class="form-control" data-placeholder="年">
+                                    <option value=""></option>
+                                    <?php $year = (int) date('Y');
+                                    $syear = $year - 60;
+                                    $eyear = $year - 6;
+                                    for ($i = $syear; $i < $eyear; $i++) { ?>
+                                        <option value="<?php echo $i ?>">
+                                            <?php echo $i ?>
+                                        </option>
+                                    <?php } ?>
+                                </select>
+                                <div class="input-group-prepend"><span class="input-group-text">年</span></div>
+                                <select v-model="info_month" id="info_month" name="info[month]" class="form-control" data-placeholder="月">
+                                    <option value=""></option>
+                                    <option value="1">01</option>
+                                    <option value="2">02</option>
+                                    <option value="3">03</option>
+                                    <option value="4">04</option>
+                                    <option value="5">05</option>
+                                    <option value="6">06</option>
+                                    <option value="7">07</option>
+                                    <option value="8">08</option>
+                                    <option value="9">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                                <div class="input-group-prepend"><span class="input-group-text">月</span></div>
+                                <select v-model="info_day" id="info_day" name="info[day]" class="form-control" data-placeholder="日">
+                                    <option value=""></option>
+                                    <option value="1">01</option>
+                                    <option value="2">02</option>
+                                    <option value="3">03</option>
+                                    <option value="4">04</option>
+                                    <option value="5">05</option>
+                                    <option value="6">06</option>
+                                    <option value="7">07</option>
+                                    <option value="8">08</option>
+                                    <option value="9">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                    <option value="13">13</option>
+                                    <option value="14">14</option>
+                                    <option value="15">15</option>
+                                    <option value="16">16</option>
+                                    <option value="17">17</option>
+                                    <option value="18">18</option>
+                                    <option value="19">19</option>
+                                    <option value="20">20</option>
+                                    <option value="21">21</option>
+                                    <option value="22">22</option>
+                                    <option value="23">23</option>
+                                    <option value="24">24</option>
+                                    <option value="25">25</option>
+                                    <option value="26">26</option>
+                                    <option value="27">27</option>
+                                    <option value="28">28</option>
+                                    <option value="29">29</option>
+                                    <option value="30">30</option>
+                                    <option value="31">31</option>
+                                </select>
+                                <div class="input-group-append"><span class="input-group-text">日</span></div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">来自</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="info[from]" class="form-control" value="<?php echo $rs['info']['from']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label">签名</label>
+                            <div class="col-sm-8">
+                                <textarea name="info[sign]" cols="45" rows="5" class="form-control"><?php echo $rs['info']['sign']; ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        'role_id': "<?php echo $rs['role_id'] ?>",
+        'info_gender': "<?php echo $rs['gender'] ?>",
+        'info_year': "<?php echo $rs['info']['year']; ?>",
+        'info_month': "<?php echo $rs['info']['month']; ?>",
+        'info_day': "<?php echo $rs['info']['day']; ?>"
+    });
+</script>
+<?php self::foot(); ?>

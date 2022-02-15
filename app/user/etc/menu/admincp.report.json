@@ -1,0 +1,11 @@
+[{
+    "id": "assist",
+    "children": [
+        {
+            "caption": "举报管理",
+            "href": "UserReport&do=manage",
+            "sort": "9999999",
+            "icon": "flag"
+        }
+    ]
+}]

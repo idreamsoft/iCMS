@@ -1,0 +1,28 @@
+.job {
+    font-size: 14px;
+}
+
+.job table {
+    background: #FFF;
+    text-align: center;
+}
+
+.day td.today {
+    background: #0054E3;
+    color: #FFF;
+    font-weight: bold;
+}
+
+.job hr {
+    height: 1px;
+    margin: 2px 0px;
+}
+
+.job .week th {
+    text-align: center;
+    color: rgb(187, 31, 1);
+    text-align: center;
+}
+
+.status3{background-color: #d26a5c;}
+.status2{background-color: #343a40;}

@@ -1,0 +1,9 @@
+<?php AdmincpView::head(); ?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <form action="<?php echo APP_URL; ?>&do=save_<?php echo $action;?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+            <div class="block-header block-header-default">
+                <h3 class="block-title"> <?php echo $title;?> <small><?php echo $subTitle;?></small></h3>
+            </div>
+            <div class="block-content">
+

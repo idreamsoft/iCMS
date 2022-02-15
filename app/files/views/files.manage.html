@@ -1,0 +1,230 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        type: "<?php echo $_GET['type']; ?>",
+        orderby: "<?php echo $_GET['orderby']; ?>",
+        st: "<?php echo $_GET['st']; ?>"
+    });
+    $(function() {
+        $("#<?php echo APP_FORMID; ?>").batch({
+            edit: function(checkbox) {
+                var pics = new Array();
+                $.each(checkbox, function(key, val) {
+                    //fids[key] = $(val).val();
+                    var id = "#id" + $(val).val();
+                    pics[key] = $("a:eq(0)", id).attr("href");
+                });
+                //console.log(pics);
+                $(this).modal({
+                    href: "<?php echo ADMINCP_URL; ?>=files&do=editpic&modal=true&pics=" + (pics.join(',')),
+                    width: "85%",
+                    height: "600px",
+                    overflow: true
+                });
+                return 'false';
+            }
+        });
+    });
+</script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <?php if ($widget['search']) { ?>
+        <div class="block">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">搜索</h3>
+            </div>
+            <div class="block-content block-content-full">
+                <form action="<?php echo iPHP_SELF; ?>" method="get">
+                    <input type="hidden" name="app" value="files" />
+                    <input type="hidden" name="indexid" value="<?php echo $_GET['indexid']; ?>" />
+                    <input type="hidden" name="userid" value="<?php echo $_GET['userid']; ?>" />
+                    <div class="form-row">
+                        <div class="input-group input-group-sm col-md-6 mt-1">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">发布时间</span>
+                            </div>
+                            <input type="text" class="form-control js-flatpickr" name="starttime" value="<?php echo $_GET['starttime']; ?>" placeholder="开始时间" />
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">-</span>
+                            </div>
+                            <input type="text" class="form-control js-flatpickr" name="endtime" value="<?php echo $_GET['endtime']; ?>" placeholder="结束时间" />
+                        </div>
+                        <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="type">类型</label>
+                            </div>
+                            <select v-model="type" id="type" name="type" class="form-control">
+                                <option value="all">所有</option>
+                                <option value="0">上传</option>
+                                <option value="1">远程下载</option>
+                                <option value="3">数据流</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="input-group input-group-sm col-sm-6 col-lg-2 mt-1">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="orderby">排序</label>
+                            </div>
+                            <select v-model="orderby" name="orderby" id="orderby" class="form-control">
+                                <option value="">默认排序</option>
+                                <optgroup label="降序">
+                                    <?php echo self::$orderBy['DESC']; ?>
+                                </optgroup>
+                                <optgroup label="升序">
+                                    <?php echo self::$orderBy['ASC']; ?>
+                                </optgroup>
+                            </select>
+                        </div>
+                        <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="pageSize">每页</label>
+                            </div>
+                            <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                            <div class="input-group-append">
+                                <label class="input-group-text" for="pageSize">条记录</label>
+                            </div>
+                        </div>
+                        <div class="input-group input-group-sm col-sm-6 col-lg-4 mt-1">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="type">查找方式</label>
+                            </div>
+                            <select v-model="st" id="st" name="st" class="form-control">
+                                <option value="name">文件名</option>
+                                <option value="indexid">关联ID</option>
+                                <option value="userid">用户ID</option>
+                                <option value="source">源文件</option>
+                                <option value="size">文件大小</option>
+                                <option value="path">路径</option>
+                                <option value="ext">后缀名</option>
+                            </select>
+                        </div>
+                        <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                            <div class="input-group-prepend">
+                                <label class="input-group-text" for="keywords">关键字</label>
+                            </div>
+                            <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    <?php }; ?>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">文件列表</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <span title="总共<?php echo Paging::$count; ?>个文件" class="badge badge-primary">
+                        <?php echo Paging::$count; ?></span>
+                </div>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="table-responsive">
+                    <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+                        <thead class="bg-light text-black">
+                            <tr>
+                                <th style="width: 36px;" class="align-middle">
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                        <label class="custom-control-label" for="check-all"></label>
+                                    </div>
+                                </th>
+                                <?php if ($widget['id']) { ?>
+                                    <th>ID</th>
+                                <?php } ?>
+                                <?php if ($widget['uid']) { ?>
+                                    <th style="width:30px;">UID</th>
+                                <?php } ?>
+                                <th>路径</th>
+                                <th style="width:90px;">大小</th>
+                                <th style="width:120px;">时间</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php
+                            $cloudMap = FilesCloud::clients();
+                            if ($result) foreach ($result as $key => $value) {
+                                $href = FilesClient::getUrl($value['path']);
+                            ?>
+                                <tr id="id<?php echo $value['id']; ?>">
+                                    <td>
+                                        <div class="custom-control custom-checkbox">
+                                            <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $value['id']; ?>" name="id[]" value="<?php echo $value['id']; ?>" />
+                                            <label class="custom-control-label" for="checkbox-<?php echo $value['id']; ?>"></label>
+                                        </div>
+                                    </td>
+                                    <?php if ($widget['id']) { ?>
+                                        <td><?php echo $value['id']; ?></td>
+                                    <?php } ?>
+                                    <?php if ($widget['uid']) { ?>
+                                        <td><?php echo $value['userid']; ?></td>
+                                    <?php } ?>
+                                    <td>
+                                        <a href="<?php echo $href; ?>" title="点击查看" target="_blank"><?php echo Files::icon($value['path']); ?></a>
+                                        <a class="tip" title="<?php echo $value['path']; ?><hr />源文件名:<?php echo htmlspecialchars($value['source']); ?>"><?php echo $value['name'] . '.' . $value['ext']; ?></a>
+                                    </td>
+                                    <td><?php echo File::sizeUnit($value['size']); ?></td>
+                                    <td><?php echo get_date($value['time'], 'Y-m-d H:s'); ?></td>
+                                    <td class="text-right">
+                                        <div class="btn-group btn-group-sm">
+                                            <?php if ($cloudMap) { ?>
+                                                <div class="btn-group">
+                                                    <a class="btn btn-alt-primary dropdown-toggle" href="javascript:;" data-toggle="dropdown" tabindex="-1"> <span class="caret"></span></a>
+                                                    <ul class="dropdown-menu">
+                                                        <?php
+                                                        foreach ($cloudMap as $vendor => $cloud) {
+                                                            $cloud_href = $cloud->url($value['path']);
+                                                        ?>
+                                                            <a class="dropdown-item" href="<?php echo $cloud_href; ?>" data-toggle="modal" title="查看<?php echo $vendor; ?>"><i class="fa fa-fw fa-eye"></i> <?php echo $vendor; ?></a>
+                                                        <?php } ?>
+                                                        <a class="dropdown-item" href="<?php echo $href; ?>" data-toggle="modal" title="查看"><i class="fa fa-fw fa-eye"></i> 本地</a>
+                                                    </ul>
+                                                </div>
+                                            <?php } else { ?>
+                                                <a class="btn btn-alt-primary" href="<?php echo $href; ?>" data-toggle="modal" title="查看"><i class="fa fa-fw fa-eye"></i></a>
+                                            <?php } ?>
+                                            <?php if (AdmincpAccess::app('files.EDIT') && 0) { ?>
+                                                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=files&do=editpic&from=z&pic=<?php echo $value['path']; ?>" data-toggle="modal" title="编辑图片(<?php echo $value['name'] . '.' . $value['ext']; ?>)"><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                            <?php } ?>
+                                            <?php if (Request::isUrl($value['source'])) { ?>
+                                                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=files&do=download&id=<?php echo $value['id']; ?>" title="正常重新下载" target="iPHP_FRAME"><i class="fa fa-fw fa-download"></i></a>
+                                                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=files&do=download&id=<?php echo $value['id']; ?>&noWatermark=0" title="重新下载 不添加水印" target="iPHP_FRAME"><i class="fa fa-fw fa-file-download"></i></a>
+                                            <?php } ?>
+                                            <?php if (AdmincpAccess::app('files.ADD')) { ?>
+                                                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=files&do=edit&id=<?php echo $value['id']; ?>" data-toggle="modal" data-meta='{"width":"500px","height":"300px"}' title="重新上传"><i class="fa fa-fw fa-upload"></i> </a>
+                                            <?php } ?>
+                                            <?php if (AdmincpAccess::app('files.DELETE')) { ?>
+                                                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=files&do=delete&id=<?php echo $value['id']; ?>&indexid=<?php echo $value['indexid']; ?>" target="iPHP_FRAME" title='永久删除' data-action="delete" /><i class="fa fa-fw fa-trash-alt"></i></a>
+                                            <?php } ?>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php }  ?>
+                        </tbody>
+                    </table>
+                </div>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

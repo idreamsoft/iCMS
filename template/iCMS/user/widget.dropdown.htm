@@ -1,0 +1,31 @@
+<div class="dropdown d-inline-block">
+    <button type="button" class="btn btn-sm btn-dual" id="page-header-user-dropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <img class="rounded-circle" src="/assets/img/avatar.jpg" style="width: 21px" />
+        <span i="user:status:name" class="d-none d-sm-inline-block ml-1">iCMS</span>
+        <i class="fa fa-fw fa-angle-down d-none d-sm-inline-block"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-shadow dropdown-menu-md dropdown-menu-right p-0 border-0" aria-labelledby="page-header-user-dropdown">
+        <div class="p-3 text-center bg-primary-dark rounded-top">
+            <img i="user:status:avatar" class="img-avatar img-avatar48 img-avatar-thumb" src="/assets/img/avatar.jpg" alt="" />
+            <p i="user:status:name" class="mt-2 mb-0 text-white font-w500">iCMS</p>
+            <p i="user:status:role" class="mb-0 text-white-50 font-size-sm">会员</p>
+        </div>
+        <div class="p-2">
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user:message:inbox'}-->">
+                <span class="font-size-sm font-w500">收件箱</span>
+                <span i="user:status:msgNum" class="badge badge-pill badge-primary ml-2">0</span>
+            </a>
+            <div role="separator" class="dropdown-divider"></div>
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user:manage:profile'}-->">
+                <span class="font-size-sm font-w500">我的资料</span>
+            </a>
+            <a class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user:manage'}-->">
+                <span class="font-size-sm font-w500">个人中心</span>
+            </a>
+            <div role="separator" class="dropdown-divider"></div>
+            <a i="user:logout" class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user:logout'}-->">
+                <span class="font-size-sm font-w500">退出</span>
+            </a>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,17 @@
+[{
+    "id": "members",
+    "children": [{
+            "caption": "-"
+        },
+        {
+            "caption": "角色列表",
+            "href": "role",
+            "icon": "users"
+        },
+        {
+            "caption": "添加角色",
+            "href": "role&do=add",
+            "icon": "user-plus"
+        }
+    ]
+}]

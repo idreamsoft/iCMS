@@ -1,0 +1,38 @@
+[{
+    "id": "tools",
+    "children": [{
+            "id": "files",
+            "sort": "-998",
+            "caption": "文件管理",
+            "icon": "folder",
+            "children": [{
+                    "caption": "云存储配置",
+                    "href": "files&do=cloud_config",
+                    "icon": "cog"
+                },
+                {
+                    "caption": "-"
+                },
+                {
+                    "caption": "文件管理",
+                    "href": "files",
+                    "icon": "folder"
+                },
+                {
+                    "caption": "上传文件",
+                    "href": "files&do=multi&from=modal",
+                    "icon": "upload",
+                    "data-toggle": "modal",
+                    "data-meta": {
+                        "width": "85%",
+                        "height": "600px"
+                    }
+                }
+            ]
+        },
+        {
+            "caption": "-",
+            "sort": "-997"
+        }
+    ]
+}]

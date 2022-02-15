@@ -1,0 +1,67 @@
+[{
+    "id": "article-manage",
+    "sort": -99999999,
+    "title": "文章管理",
+    "url": "article&do=manage",
+    "icon": "fa fa-2x fa-edit",
+    "icon:text-color": "",
+    "item:bg-color": "primary",
+    "col:class": "col-6 col-sm-3 col-lg-2",
+    "a:class": "",
+    "a:target": ""
+}, {
+    "id": "tag-manage",
+    "sort": 1,
+    "title": "标签管理",
+    "url": "tag&do=manage",
+    "icon": "fa fa-2x fa-tags",
+    "icon:text-color": "",
+    "item:bg-color": "success",
+    "col:class": "col-6 col-sm-3 col-lg-2",
+    "a:class": "",
+    "a:target": ""
+}, {
+    "id": "spiderProject-manage",
+    "sort": 2,
+    "title": "采集管理",
+    "url": "spiderProject&do=manage",
+    "icon": "fa fa-2x fa-spider",
+    "icon:text-color": "",
+    "item:bg-color": "dark",
+    "col:class": "col-6 col-sm-3 col-lg-2",
+    "a:class": "",
+    "a:target": ""
+}, {
+    "id": "user-manage",
+    "sort": 3,
+    "title": "用户管理",
+    "url": "user&do=manage",
+    "icon": "fa fa-2x fa-users",
+    "icon:text-color": "",
+    "item:bg-color": "warning",
+    "col:class": "col-6 col-sm-3 col-lg-2",
+    "a:class": "",
+    "a:target": ""
+}, {
+    "id": "database-backup",
+    "sort": 4,
+    "title": "数据库管理",
+    "url": "database&do=backup",
+    "icon": "fa fa-2x fa-database",
+    "icon:text-color": "",
+    "item:bg-color": "danger",
+    "col:class": "col-6 col-sm-3 col-lg-2",
+    "a:class": "",
+    "a:target": ""
+}, {
+    "id": "cache-all",
+    "sort": 99999999,
+    "title": "更新缓存",
+    "url": "cache&do=all",
+    "icon": "fa fa-2x fa-sync",
+    "icon:text-color": "",
+    "item:bg-color": "primary",
+    "col:class": "col-6 col-sm-3 col-lg-2",
+    "a:class": "js-frame",
+    "a:target": "iPHP_FRAME"
+}]

@@ -1,0 +1,20 @@
+{
+    "status;0": {
+        "name": "禁用",
+        "icon": "ban",
+        "sort": 1,
+        "call": "default"
+    },
+    "status;1": {
+        "name": "通过审核",
+        "icon": "check",
+        "sort": 2,
+        "call": "default"
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash-alt",
+        "sort": 3,
+        "call": "dels"
+    }
+}

@@ -1,0 +1,258 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        sub: "<?php echo $_GET['sub']; ?>",
+        cid: "<?php echo (int)$_GET['cid']; ?>",
+        rid: "<?php echo (int)$_GET['rid']; ?>",
+        poid: "<?php echo (int)$_GET['poid']; ?>",
+        auto: "<?php echo $_GET['auto']; ?>"
+    });
+    $(function() {
+        $("#<?php echo APP_FORMID; ?>").batch({
+            poid: function() {
+                return $("#poidBatch").clone(true);
+            }
+        });
+    });
+</script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <button class="btn btn-success btn-sm" type="button" id="import"><i class="fa fa-fw fa-paper-plane"></i> 导入方案</button>
+                </div>
+            </div>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="<?php echo iPHP_SELF; ?>" method="get">
+                <input type="hidden" name="app" value="<?php echo Admincp::$APP_NAME; ?>" />
+                <input type="hidden" name="do" value="<?php echo Admincp::$APP_DO; ?>" />
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-sm-6 col-xl-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="cid">栏目</label>
+                        </div>
+                        <select v-model="cid" id="cid" name="cid" class="col-sm-3 form-control">
+                            <option value=""></option>
+                            <option value="0">所有栏目</option>
+                            <?php echo $cid_select =  Node::select(); ?>
+                        </select>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <div class="custom-control custom-checkbox">
+                                    <input v-model="sub" type="checkbox" class="custom-control-input" id="sub" name="sub">
+                                    <label class="custom-control-label" for="sub">子栏目</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-xl-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="rid">采集规则</label>
+                        </div>
+                        <select v-model="rid" id="rid" name="rid" class="col-sm-3 form-control">
+                            <option value=""></option>
+                            <option value="0">所有规则</option>
+                            <?php echo SpiderRule::option(0, $ruleArray); ?>
+                        </select>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-xl-4 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="poid">发布规则</label>
+                        </div>
+                        <select v-model="poid" id="poid" name="poid" class="col-sm-3 form-control">
+                            <option value=""></option>
+                            <option value="0">所有发布规则</option>
+                            <?php echo SpiderPost::option(0, $postArray); ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="input-group input-group-sm col-md-6 col-xl-5 mt-1">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">发布时间</span>
+                        </div>
+                        <input type="text" class="form-control js-flatpickr" name="starttime" value="<?php echo $_GET['starttime']; ?>" placeholder="开始时间" />
+                        <div class="input-group-prepend">
+                            <span class="input-group-text">-</span>
+                        </div>
+                        <input type="text" class="form-control js-flatpickr" name="endtime" value="<?php echo $_GET['endtime']; ?>" placeholder="结束时间" />
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-2 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="auto">自动采集</label>
+                        </div>
+                        <input type="checkbox" data-toggle="switch" data-on-text="是" data-off-text="否" name="auto" id="auto" <?php echo $config['debug']['php_trace'] ? 'checked' : ''; ?> />
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-2 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                        </div>
+                        <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                        <div class="input-group-append">
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="input-group input-group-sm col-sm-6 col-lg-3 mt-1">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                        </div>
+                        <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        <div class="input-group-append">
+                            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">方案列表</h3>
+            <div class="block-options">
+                <div class="block-options-item">
+                    <span title="总共<?php echo Paging::$count; ?>个方案" class="badge badge-primary"><?php echo Paging::$count; ?></span>
+                </div>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <form action="<?php echo APP_URL; ?>&do=batch" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <table class="dataTable table table-hover table-striped table-vcenter font-size-sm mb-0">
+                    <thead class="bg-light text-black">
+                        <tr>
+                            <th style="width: 36px;" class="align-middle">
+                                <div class="custom-control custom-checkbox">
+                                    <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                                    <label class="custom-control-label" for="check-all"></label>
+                                </div>
+                            </th>
+                            <th>ID</th>
+                            <th>名称</th>
+                            <th>规则</th>
+                            <th>栏目</th>
+                            <th>发布</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        $nodeArray = Node::many($result, 'cid');
+                        if ($result) foreach ($result as $key => $value) {
+                            $C = (array)$nodeArray[$value['cid']];
+                        ?>
+                            <tr id="id<?php echo $value['id']; ?>">
+                                <td>
+                                    <div class="custom-control custom-checkbox">
+                                        <input type="checkbox" class="custom-control-input" id="checkbox-<?php echo $value['id']; ?>" name="id[]" value="<?php echo $value['id']; ?>" />
+                                        <label class="custom-control-label" for="checkbox-<?php echo $value['id']; ?>"></label>
+                                    </div>
+                                </td>
+                                <td><?php echo $value['id']; ?></td>
+                                <td>
+                                    <h3 class="m-1">
+                                        <span class="badge badge-info" tip-title="最后采集时间"><?php echo $value['lastupdate'] ? get_date($value['lastupdate'], 'Y-m-d H:i:s') : ''; ?></span>
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=manage&pid=<?php echo $value['id']; ?>"><?php echo $value['name']; ?></a>
+                                        <?php $value['auto'] && print('<i class="fa fa-fw fa-rocket" tip-title="自动采集"></i>'); ?>
+                                    </h3>
+
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo ADMINCP_URL; ?>=spiderRule&do=test&rid=<?php echo $value['rid']; ?>" class="btn btn-alt-light" data-toggle="modal" title="测试规则"><i class="fa fa-fw fa-keyboard"></i> 测试规则</a>
+                                        <a href="<?php echo ADMINCP_URL; ?>=spiderRule&do=test&pid=<?php echo $value['id']; ?>" class="btn btn-alt-light" data-toggle="modal" title="测试方案"><i class="fa fa-fw fa-keyboard"></i> 测试方案</a>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=manual&pid=<?php echo $value['id']; ?>" class="btn btn-primary" data-toggle="modal" title="采集列表,手动发布"><i class="fa fa-fw fa-hand-point-up"></i> 手动采集</a>
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=start&pid=<?php echo $value['id']; ?>" class="btn btn-success tip" target="iPHP_FRAME" title="自动采集列表,并发布"><i class="fa fa-fw fa-play"></i> 采集</a>
+                                    </div>
+
+                                </td>
+                                <td>
+                                    <div style="width: 90px;" class="text-wrap">
+                                    <a href="<?php echo APP_URL; ?>&do=manage&rid=<?php echo $value['rid']; ?>&<?php echo $uri; ?>"><?php echo $ruleArray[$value['rid']]; ?></a>
+                                    <a href="<?php echo ADMINCP_URL; ?>=spiderRule&do=edit&rid=<?php echo $value['rid']; ?>" target="_blank"><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                    </div>
+                                </td>
+                                <td><a href="<?php echo APP_URL; ?>&do=manage&cid=<?php echo $value['cid']; ?>&<?php echo $uri; ?>"><?php echo $C['name']; ?></a></td>
+                                <td>
+                                    <a href="<?php echo APP_URL; ?>&do=manage&poid=<?php echo $value['poid']; ?>&<?php echo $uri; ?>"><?php echo $postArray[$value['poid']]; ?></a>
+                                    <a href="<?php echo ADMINCP_URL; ?>=spiderPost&do=edit&poid=<?php echo $value['poid']; ?>" target="_blank"><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                </td>
+                                <td style="text-align: right;">
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo APP_URL; ?>&do=copy&pid=<?php echo $value['id']; ?>" class="btn btn-alt-light" target="iPHP_FRAME" title="复制"><i class="fa fa-fw fa-copy"></i></a>
+                                        <a href="<?php echo APP_URL; ?>&do=edit&pid=<?php echo $value['id']; ?>" class="btn btn-alt-light" title="编辑"><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=manage&pid=<?php echo $value['id']; ?>" class="btn btn-alt-light" target="_blank" title="数据"><i class="fa fa-fw fa-list-alt"></i></a>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=dropurl&pid=<?php echo $value['id']; ?>&type=all" class="btn btn-warning" target="iPHP_FRAME" data-action="delete" title='清空采集内容'><i class="fa fa-fw fa-trash-restore"></i> </a>
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=dropurl&pid=<?php echo $value['id']; ?>&type=0" class="btn btn-warning" target="iPHP_FRAME" data-action="delete" title='清除未发布内容'><i class="fa fa-fw fa-recycle"></i> </a>
+                                    </div>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="<?php echo ADMINCP_URL; ?>=spider&do=dropdata&pid=<?php echo $value['id']; ?>" class="btn btn-danger" target="iPHP_FRAME" data-action="delete" title="删除所有采集数据及内容"><i class="fa fa-fw fa-trash"></i></a>
+                                        <a href="<?php echo APP_URL; ?>&do=delete&pid=<?php echo $value['id']; ?>" class="del btn btn-danger" target="iPHP_FRAME" data-action="delete" title='删除本方案'><i class="fa fa-fw fa-times"></i></a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php } ?>
+                    </tbody>
+                </table>
+                <?php self::formFoot(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<div class='iCMS-batch'>
+    <div id="poidBatch" style="width: 330px;">
+        <div class="input-group-prepend">
+            <div class="input-group-text">发布规则</div>
+            <select v-model="poid" id="poid" name="poid" class="col-sm-3 form-control">
+                <option value="0">无</option>
+                <?php foreach ((array)$postArray as $poid => $poname) {
+                    echo '<option value="' . $poid . '">' . $poname . '</option>';
+                } ?>
+            </select>
+        </div>
+    </div>
+    <div id="ridBatch" style="width: 330px;">
+        <div class="input-group-prepend">
+            <div class="input-group-text">采集规则</div>
+            <select v-model="rid" id="rid" name="rid" class="col-sm-3 form-control">
+                <option value="0">无</option>
+                <?php foreach ((array)$ruleArray as $rid => $rname) {
+                    echo '<option value="' . $rid . '">' . $rname . '</option>';
+                } ?>
+            </select>
+        </div>
+    </div>
+</div>
+<div id="import_project_wrap" style="display:none;">
+    <div class="alert alert-info">
+        只允许导入TXT文件
+    </div>
+    <?php FilesWidget::uploadBtn(APP_URL.'&do=import'); ?>
+</div>
+<script type="text/javascript">
+$(function() {
+    $("#import").click(function(event) {
+        iCMS.ui.dialog({
+            title: 'iCMS - 导入方案',
+            content: document.getElementById("import_project_wrap")
+        });
+    });
+});
+</script>
+<?php self::foot(); ?>

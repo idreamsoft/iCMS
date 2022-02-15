@@ -1,0 +1,7 @@
+iCMS 版本号:iCMS <?php echo iCMS_VERSION; ?>[<?php echo iCMS_RELEASE; ?>];
+开发版本:<?php echo iCMS_GIT_COMMIT; ?> [<?php echo date("Y-m-d H:i",iCMS_GIT_TIME); ?>];
+操作系统:<?php echo PHP_OS; ?>;
+WEB服务器版本:<?php echo Request::server('SERVER_SOFTWARE'); ?>;
+PHP版本:<?php echo PHP_VERSION; ?>;
+MYSQL版本:<?php echo DB::version(0); ?>;
+浏览器版本:<?php echo Request::server('HTTP_USER_AGENT'); ?>;

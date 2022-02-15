@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+        <title>重置超级管理密码(未完成)</title>
+        <!--{iCMS:public:ui}-->
+    </head>
+    <body>
+        <div id="page-container">
+            <!-- Main Container -->
+            <!--{"1"|rand:"39"|as:"bgNum"}-->
+            <main id="main-container" style="background: url(<!--{$site.urls.assets}-->/img/bg/photo<!--{$bgNum}-->.jpg) top center no-repeat; background-size: cover">
+                <!-- Page Content -->
+                <div class="hero-static d-flex align-items-center">
+                    <div class="w-100">
+                        <!-- Sign In Section -->
+                        <div class="bg-black-50">
+                            <div class="content content-full">
+                                <div class="row justify-content-center">
+                                    <div class="col-md-8 col-lg-6 py-4">
+                                        <form i="form:admin:password" action="<!--{iCMS:route url='UserProfile'}-->" method="POST">
+                                            <input type="hidden" name="action" value="modifypwd" />
+                                            <div class="block">
+                                                <div class="block-content">
+                                                    <div class="form-group">
+                                                        <label for="secretkey">iPHP_KEY</label>
+                                                        <input type="password" class="form-control" id="secretkey" name="secretkey" value="" />
+                                                        <small class="form-text text-muted">打开 config/secretkey.php 获取密钥</small>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="pwd">新密码</label>
+                                                        <input type="password" class="form-control" id="passwd" name="passwd" value="" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="pwd">确认新密码</label>
+                                                        <input type="password" class="form-control" id="passwd-confirm" name="passwd-confirm" value="" />
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="captcha">图形验证码</label>
+                                                        <div class="input-group">
+                                                            <input type="text" maxlength="4" class="form-control" id="captcha" name="captcha" placeholder="图形验证码" />
+                                                            <div class="input-group-append">
+                                                                <!--{iCMS:public:captcha class="rounded-right"}-->
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <button type="submit" class="btn btn-alt-primary btn-block">修改密码</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END Sign In Section -->
+
+                        <!--{include file="iCMS://user/footer.htm"}-->
+                    </div>
+                </div>
+                <!-- END Page Content -->
+            </main>
+            <!-- END Main Container -->
+        </div>
+        <!-- END Page Container -->
+        <script>
+            jQuery(() => {
+                submit("密码修改", "form:admin:password", {
+                    rules: {
+                        secretkey: {
+                            required: true
+                        },
+                        passwd: {
+                            required: true,
+                            minlength: 6,
+                        },
+                        "passwd-confirm": {
+                            required: true,
+                            equalTo: "#passwd",
+                        },
+                        captcha: {
+                            required: true,
+                        },
+                    },
+                    messages: {
+                        secretkey: {
+                            required: "请输入您的密钥",
+                        },
+                        passwd: {
+                            required: "请输入您的新密码",
+                            minlength: "新密码不能少于6个字符",
+                        },
+                        "passwd-confirm": {
+                            required: "请确认您的密码",
+                            minlength: "确认密码不能少于6个字符",
+                            equalTo: "确认密码与您的密码不一致",
+                        },
+                        captcha: "请输入图形验证码",
+                    },
+                });
+            });
+        </script>
+    </body>
+</html>

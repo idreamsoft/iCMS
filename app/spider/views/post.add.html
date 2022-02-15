@@ -1,0 +1,82 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        app: "<?php echo $rs['app']; ?>"
+    });
+    $(function() {
+        $("#app").on('change', function(evt, params) {
+            var fun = $(this).find('option[value="' + params['selected'] + '"]').attr('fun');
+            $("#fun").val(fun);
+            var tipMap = {
+                'forms': '自定义表单 需要填写 form_id',
+                'content': '自定义应用 需要填写 appid'
+            }
+            var tip = tipMap[params['selected']] || '';
+            $(".post-tip").addClass('hide').removeClass('hide').html(tip);
+        });
+    });
+</script>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"><?php echo empty($this->poid) ? '添加' : '修改'; ?>发布模块</h3>
+        </div>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->poid; ?>" />
+                <div id="addpost" class="tab-content">
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="_app">应用</label>
+                        <div class="col-sm-8">
+                            <select v-model="app" id="_app" name="_app" class="form-control js-chosen-disable">
+                                <option value="0"></option>
+                                <option value="article" fun="do_add"> 文章 </option>
+                                <option value="book" fun="do_add"> 阅读 </option>
+                                <option value="video" fun="do_add"> 视频 </option>
+                                <option value="tag" fun="do_add"> 标签 </option>
+                                <option value="articleCategory" fun="do_add"> 文章栏目 </option>
+                                <option value="tag_node" fun="do_add"> 标签分类 </option>
+                                <option value="forms" fun="do_add"> 自定义表单 </option>
+                                <option value="content" fun="do_add"> 自定义应用 </option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="name">名称</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="fun">接口</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="fun" class="form-control" id="fun" value="<?php echo $rs['fun'] ? $rs['fun'] : 'do_save'; ?>" />
+                            <small class="form-text text-muted">可使用URL 远程post方式发布</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="post">发布项</label>
+                        <div class="col-sm-8">
+                            <textarea name="post" id="post" class="form-control" style="height: 90px;"><?php echo $rs['post']; ?></textarea>
+                            <small class="form-text text-muted">一行一项，格式：key=value</small>
+                        </div>
+                    </div>
+                    <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

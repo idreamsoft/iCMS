@@ -1,0 +1,46 @@
+<?php $title = "用户组"; ?>
+<?php $role_select = Role::userSelect(); ?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_allow">允许访问</label>
+    <div class="col-sm-8">
+        <select v-model="config_role_allow" name="config[role][allow][]" id="config_role_allow" class="form-control" multiple="multiple" data-placeholder="请选择用户组(可多选)...">
+          <?php echo $role_select; ?>
+        </select>
+        <small class="form-text text-muted">设置允许访问的用户组</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_forbid">限制访问</label>
+    <div class="col-sm-8">
+        <select v-model="config_role_forbid" name="config[role][forbid][]" id="config_role_forbid" class="form-control" multiple="multiple" data-placeholder="请选择用户组(可多选)...">
+          <?php echo $role_select; ?>
+        </select>
+        <small class="form-text text-muted">设置限制访问的用户组</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_publish">支持投稿</label>
+    <div class="col-sm-8">
+        <select v-model="config_role_publish" name="config[role][publish][]" id="config_role_publish" class="form-control" multiple="multiple" data-placeholder="请选择用户组(可多选)...">
+          <?php echo $role_select; ?>
+        </select>
+        <small class="form-text text-muted">设置支持投稿的用户组</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_examine">审核投稿</label>
+    <div class="col-sm-8">
+        <select v-model="config_role_examine" name="config[role][examine][]" id="config_role_examine" class="form-control" multiple="multiple" data-placeholder="请选择用户组(可多选)...">
+          <?php echo $role_select; ?>
+        </select>
+        <small class="form-text text-muted">设置需要审核投稿的用户组</small>
+    </div>
+</div>
+<script type="text/javascript">
+   iCMS.set('Vue.data',{
+        config_role_allow: <?php echo json_encode((array)$data['config']['role']['allow']); ?>,
+        config_role_forbid: <?php echo json_encode((array)$data['config']['role']['forbid']); ?>,
+        config_role_publish: <?php echo json_encode((array)$data['config']['role']['publish']); ?>,
+        config_role_examine: <?php echo json_encode((array)$data['config']['role']['examine']); ?>,
+    });
+</script>

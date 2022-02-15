@@ -1,0 +1,94 @@
+<div class="row">
+    <div class="col-md-7 d-none d-sm-block">
+        <div class="block block-rounded">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">
+                    <i class="fa fa-fw fa-info-circle"></i>
+                    iCMS 开发信息
+                </h3>
+            </div>
+            <div class="block-content block-content-full p-0">
+                <table class="table table-sm table-borderless table-striped table-vcenter">
+                    <tr>
+                        <td class="w-25">版权所有</td>
+                        <td>
+                            <a class="btn btn-light" href="https://www.icmsdev.com" target="_blank">
+                                <i class="far fa-copyright"></i>
+                                iCMS（iCMSdev.com）
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>开 发 者</td>
+                        <td>
+                            <a class="btn btn-alt-primary" href="https://github.com/idreamsoft/iCMS" target="_blank">
+                                <i class="fab fa-github"></i>
+                                GitHub
+                            </a>
+                            <a class="btn btn-alt-primary" href="http://git.oschina.net/php/icms" target="_blank">
+                                <i class="fab fa-github"></i>
+                                Git@OSC
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>帮助文档</td>
+                        <td>
+                            <a class="btn btn-link btn-light" href="https://www.icmsdev.com/docs/" target="_blank">模版标签说明</a>
+                            <a class="btn btn-link btn-light" href="https://www.icmsdev.com/LICENSE.html" target="_blank">LGPL 开源协议</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>技术服务</td>
+                        <td>
+                            <a class="btn btn-alt-danger" href="https://www.icmsdev.com/service.html" target="_blank">
+                                <i class="fa fa-fw fa-award"></i>
+                                技术服务
+                            </a>
+                            <a class="btn btn-alt-success" href="https://www.icmsdev.com/donate.html" target="_blank">
+                                <i class="fa fa-fw fa-yen-sign"></i>
+                                捐赠支持
+                            </a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>相关链接</td>
+                        <td>
+                            <a class="btn btn-alt-info" href="https://www.icmsdev.com" target="_blank">官网</a>
+                            <a class="btn btn-alt-info" href="https://www.icmsdev.com/template/" target="_blank">模板</a>
+                            <a class="btn btn-alt-info" href="https://www.icmsdev.com/docs/" target="_blank">文档</a>
+                            <a class="btn btn-alt-info" href="https://www.icmsdev.com/issues/" target="_blank">讨论区</a>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>公众平台</td>
+                        <td>
+                            <button type="button" class="btn btn-success" data-toggle="modal" data-target="#icmsdev_wechat">
+                                <i class="fab fa-weixin"></i>
+                                关注 iCMS 微信公众号，获取更多信息
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <?php DeveloperAdmincp::do_bugs(); ?>
+    </div>
+</div>
+<div class="modal fade" id="icmsdev_wechat" tabindex="-1" role="dialog" aria-labelledby="icmsdev_wechat" aria-hidden="true">
+    <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+            <div class="block block-rounded block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-dark">
+                    <h3 class="block-title">关注“iCMS”微信公众号</h3>
+                </div>
+                <div class="block-content block-content-full text-center">
+                    <img src="https://www.icmsdev.com/ui/iCMS.qrcode.png" style="width: 100%;">
+                    <p>微信扫一扫，关注“iCMS”微信公众号</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

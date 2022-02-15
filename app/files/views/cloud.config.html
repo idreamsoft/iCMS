@@ -1,0 +1,31 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+$action = Admincp::$APP_DO;
+?>
+<div class="alert alert-warning">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    <strong>注意!</strong> 设置云存储,将会影响文件的上传效率
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="cloud_enable">云存储</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch"  name="config[enable]" id="cloud_enable" <?php echo $config['enable'] ? 'checked' : ''; ?>>
+        <small class="form-text text-muted">使用云存储后,文件管理请到云存储管理</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-1 col-form-label" for="cloud_enable">本地资源</label>
+    <div class="col-sm-8">
+        <input type="checkbox" data-toggle="switch" data-on-text="不保留" data-off-text="保留"  name="config[local]" id="cloud_local" <?php echo $config['local'] ? 'checked' : ''; ?>>
+        <small class="form-text text-muted">默认保留本地资源,仅当备份用</small>
+    </div>
+</div>

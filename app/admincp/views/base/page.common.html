@@ -1,0 +1,95 @@
+<!-- Apps Modal -->
+<!-- Opens from the modal toggle button in the header -->
+<div class="modal fade" id="one-modal-apps" tabindex="-1" role="dialog" aria-labelledby="one-modal-apps" aria-hidden="true">
+    <div class="modal-dialog modal-md" role="document">
+        <div class="modal-content">
+            <div class="block block-rounded block-themed block-transparent mb-0">
+                <div class="block-header bg-primary-dark">
+                    <h3 class="block-title">所有应用</h3>
+                    <div class="block-options">
+                        <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                            <i class="si si-close"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="block-content block-content-full">
+                    <div class="row gutters-tiny">
+                        <?php
+                        foreach (Menu::getAccessData() as $node) {
+                            if ($node['caption'] == '-') continue;
+
+                            $url = Menu::url($node);
+                            Menu::nodeArray($node);
+                            $link_prop =  $node['children'] ?
+                                ' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"' : '';
+                            // $color = self::randColor(true);
+                        ?>
+                            <div class="col-3">
+                                <a class="block block-rounded block-link-shadow bg-body" id="dropdown-<?php echo $node['id'] ?>" href="<?php echo $url; ?>" <?php echo $link_prop; ?>>
+                                    <div class="block-content text-center">
+                                        <i class="<?php echo $node['icon'] ?> fa-2x text-primary"></i>
+                                        <p class="font-w600 font-size-sm mt-2 mb-3" style="height: 24px;">
+                                            <?php echo $node['caption']; ?>
+                                        </p>
+                                    </div>
+                                </a>
+                                <?php $node['children'] && Menu::dropdown_menu($node); ?>
+                            </div>
+                        <?php } ?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END Apps Modal -->
+<!-- iCMS batch -->
+<div class="iCMS-batch">
+    <div id="weightBatch">
+        <div class="form-group">
+            <label class="col-form-label" for="bweight">权重</label>
+            <input type="text" class="form-control" name="bweight" />
+        </div>
+    </div>
+    <div id="keywordBatch">
+        <div class="form-group">
+            <label class="col-form-label" for="bkeyword">关键字</label>
+            <input type="text" class="form-control" name="bkeyword" id="bkeyword" />
+        </div>
+        <div class="form-group">
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" class="custom-control-input" name="pattern" id="pattern_kw_1" value="addto" />
+                <label class="custom-control-label" for="pattern_kw_1">前追加</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" class="custom-control-input" name="pattern" id="pattern_kw_2" value="replace" />
+                <label class="custom-control-label" for="pattern_kw_2">后追加</label>
+            </div>
+            <div class="custom-control custom-radio custom-control-inline">
+                <input type="radio" class="custom-control-input" name="pattern" id="pattern_kw_3" value="delete" checked />
+                <label class="custom-control-label" for="pattern_kw_3">替换</label>
+            </div>
+        </div>
+    </div>
+    <div id="tagBatch">
+        <div class="form-group">
+            <label class="col-form-label" for="btag">标签</label>
+            <input type="text" class="form-control" name="btag" id="btag" />
+        </div>
+        <div class="form-group">
+            <div class="btn-group btn-group-toggle" data-toggle="buttons">
+                <label class="btn btn-primary">
+                    <input type="radio" name="pattern" id="pattern_tag_1" value="prepend"> 前置
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="pattern" id="pattern_tag_2" value="append"> 追加
+                </label>
+                <label class="btn btn-primary">
+                    <input type="radio" name="pattern" id="pattern_tag_3" value="replace" checked> 替换
+                </label>
+            </div>
+        </div>
+    </div>
+    <?php AdmincpBatch::html(); ?>
+</div>
+<!-- END iCMS batch -->

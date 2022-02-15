@@ -1,0 +1,8 @@
+{
+    "article": {
+        "label": "文章",
+        "template": "{iTPL}\/article.htm",
+        "rule": "\/{CDIR}\/{YYYY}\/{MM}{DD}\/{ID}{EXT}",
+        "tips": "{ID},{0xID},{LINK},{Hash@ID},{Hash@0xID}"
+    }
+}

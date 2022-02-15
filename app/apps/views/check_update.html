@@ -1,0 +1,14 @@
+<script type="text/javascript">
+    $(function() {
+        <?php if(Member::isSuperRole()){?>
+        $.getJSON('<?php echo ADMINCP_URL;?>=appsStore&do=check_update&t=<?php echo time(); ?>',
+            function(json) {
+                if (json.code == "0") {
+                    return;
+                }
+                $("#store_update").removeClass('hide').text(json.count)
+            }
+        );
+        <?php } ?>
+    });
+</script>

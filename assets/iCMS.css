@@ -1,0 +1,22 @@
+/* common */
+html, body { word-wrap: break-word; word-break: break-all; }
+body {padding: 0px; margin: 0px;font-family: -apple-system, BlinkMacSystemFont, PingFang SC, "Hiragino Sans GB", Tahoma, Helvetica, Arial, SimSun, Heiti, sans-serif; font-size: 14px; line-height: 1.75; word-wrap: break-word; color: #262626; }
+ul { list-style: none; margin: 0px; padding: 0px; }
+b { font-weight: 700; font-size: 14px; outline: 0; }
+button { padding: 0; line-height: 1.7 }
+h1, h2, h3, h4, h5 { font-weight: 700; font-size: 14px; outline: 0 }
+i, em { font-style: italic }
+ins { text-decoration: none; padding: 3px 0; background: #EAF0DD; color: #5B7918 }
+del { text-decoration: line-through; padding: 3px 0; background: #f5dfdf; color: #ac1414 }
+
+.hide,.hidden{display: none;}
+.captcha-img{/* height: 35px; */}
+.pointer{cursor: pointer;}
+.block.no-shadow,.block-no-shadow{box-shadow: none;}
+
+.xdebug-var-dump{max-height: 600px;overflow-y: scroll;}
+.dropdown-menu-shadow {
+    -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}

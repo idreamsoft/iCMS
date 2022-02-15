@@ -1,0 +1,116 @@
+<?php Cookie::set(Admincp::$APP_NAME . '_tabs', $this->tabs); ?>
+<?php self::head(); ?>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <?php include self::view($this->VIEW_MANAGE . '_nav', $this->VIEW_DIR); ?>
+        <div class="block-content">
+            <form action="<?php echo $this->NODE_URL; ?>&do=update" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div class="tab-content w-100">
+                    <label class="form-control" style="font-weight:bold">/根<?php echo $this->NODE_NAME; ?></label>
+                    <ul id="nodeTree">
+                        <img id="tree-loading" src="./assets/img/ajax_loader.gif" />
+                    </ul>
+                </div>
+                <?php self::formSubmit(); ?>
+                <div class="col-sm-2 block-options pl-3 pr-2" id="treecontrol">
+                    <a href="javascript:;" class="btn-block-option"><i class="si si-arrow-up"></i> 折叠</a>
+                    <a href="javascript:;" class="btn-block-option"><i class="si si-arrow-down"></i> 展开</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<script type="text/javascript" src="./assets/oneui/js/plugins/jquery-ui/jquery-ui.min.js"></script>
+
+<link rel="stylesheet" href="./assets/js/treeview/treeview.css" type="text/css" />
+<script type="text/javascript" src="./assets/js/treeview/treeview.js"></script>
+<script type="text/javascript" src="./assets/js/treeview/treeview.async.js"></script>
+<style type="text/css">
+    input.sortnum {
+        flex: none !important;
+        width: 45px !important;
+    }
+
+    #nodeTree .btn-group a {
+        font-size: 12px;
+        overflow: hidden;
+        height: 26px;
+    }
+
+    #nodeTree .row {
+        margin-left: 0px;
+    }
+
+    #nodeTree .treeCol1 {
+        padding-left: 0px;
+    }
+</style>
+<script id="tree-li" type="text/html">
+    <div class="row status<%status%>">
+        <div class="col-md-5 treeCol1">
+            <div class="input-group input-group-sm">
+                <input class="form-control sortnum" type="text" id="<%id%>" name="sortnum[<%id%>]" value="<%sortnum%>" />
+                <div class="input-group-append">
+                    <label class="input-group-text"><a href="<%href%>" target="_blank">CID:<%id%></a></label>
+                </div>
+                <div class="input-group-append"></div>
+                <input class="form-control" <%if rootid=="0"%> style="font-weight:bold" <%/if%> type="text" name="name[<%id%>]" value="<%name%>" />
+                <div class="input-group-append">
+                    <label class="input-group-text" data-toggle="tooltip" title="统计数"><span class="badge badge-primary"><%count%></span></label>
+                    <%if status=="0"%>
+                    <label class="input-group-text" data-toggle="tooltip" title="隐藏<?php echo $this->NODE_NAME; ?>"><i class="si si-eye"></i></label>
+                    <%/if%>
+                    <%if url%>
+                    <label class="input-group-text" data-toggle="tooltip" title="外部链接"><i class="si si-link"></i></label>
+                    <%/if%>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2 text-left">
+            <%if pids %><span class="badge badge-dark">pid:<%pids%></span><%/if%>
+            <?php if (is_null($this->app_id)) { ?>
+                <span class="badge badge-dark">appid:<%appid%></span>
+            <?php } ?>
+            <%if domain%><span class="badge badge-dark" data-toggle="tooltip" title="绑定域名:<%domain%>"><i class="si si-vector"></i></span><%/if%>
+            <%if creator%><span class="badge badge-dark" data-toggle="tooltip" title="创建者"><%creator%></span><%/if%>
+        </div>
+        <div class="col-md-5 text-md-left text-lg-right">
+            <div class="btn-group btn-group-sm">
+                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=<?php echo $this->app; ?>&do=add&<?php echo $this->primary; ?>=<%id%>"><i class="fa fa-fw fa-plus-square"></i> </a>
+                <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=<?php echo $this->app; ?>&<?php echo $this->primary; ?>=<%id%>&sub=on"><i class="fa fa-fw fa-list-alt"></i> </a>
+            </div>
+            <div class="btn-group btn-group-sm">
+                <a class="btn btn-alt-primary" href="<%href%>" target="_blank" data-toggle="tooltip" title="访问"><i class="fa fa-fw fa-link"></i></a>
+                <%if CP_ADD%>
+                <a class="btn btn-alt-primary" href="<?php echo $this->NODE_URL; ?>&do=add&rootid=<%id%>" data-toggle="tooltip" title="添加子<?php echo $this->NODE_NAME; ?>"><i class="fa fa-fw fa-plus-square"></i> </a>
+                <%/if%>
+                <%if CP_EDIT%>
+                <a class="btn btn-alt-primary" href="<?php echo $this->NODE_URL; ?>&do=<%id%>" target="iPHP_FRAME" title="克隆"><i class="fa fa-fw fa-copy"></i> </a>
+                <a class="btn btn-alt-primary" href="<?php echo $this->NODE_URL; ?>&do=edit&id=<%id%>" title="编辑<?php echo $this->NODE_NAME; ?>"><i class="fa fa-fw fa-pencil-alt"></i> </a>
+                <%/if%>
+                <%if CP_DEL%>
+                <a class="btn btn-alt-primary" href="<?php echo $this->NODE_URL; ?>&do=delete&id=<%id%>"  target="iPHP_FRAME" data-action="delete"><i class="fa fa-fw fa-times"></i> </a>
+                <%/if%>
+            </div>
+
+        </div>
+    </div>
+</script>
+<script type="text/javascript">
+    var $updateApi = "<?php echo $this->NODE_URL; ?>&do=update_sort&CSRF_TOKEN=<?php echo Security::$CSRF_TOKEN; ?>";
+    var $treeApi = "<?php echo $this->NODE_URL; ?>&do=ajaxtree&expanded=1&CSRF_TOKEN=<?php echo Security::$CSRF_TOKEN; ?>";
+    var $treeTpl = template('tree-li');
+    $(function() {
+        var nodeTree = $("#nodeTree").treeview({
+            updateApi: $updateApi,
+            tpl: $treeTpl,
+            url: $treeApi,
+            collapsed: false,
+            sortable: true,
+            animated: "medium",
+            control: "#treecontrol",
+            callback: function(a) {}
+        });
+    });
+</script>
+<?php self::foot(); ?>

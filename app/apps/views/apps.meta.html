@@ -1,0 +1,55 @@
+<script type="text/javascript" src="./app/apps/assets/meta.js"></script>
+<div class="block block-themed" id="AppPreMeta">
+    <div class="alert alert-warning">字段：只能由英文字母、数字或_-组成,不支持中文</div>
+    <div class="block-header bg-primary-dark">
+        <h3 class="block-title">动态属性</h3>
+        <div class="block-options">
+            <button i="meta-add" class="btn btn-alt-light" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加</button>
+        </div>
+    </div>
+    <div class="block-content p-0">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th class="col2">名称/字段</th>
+                    <th>内容</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php
+                $mdIdx = 0;
+                if (AppsMeta::$target) foreach ((array) AppsMeta::$target as $mskey => $mts) {
+                    $md = AppsMeta::$data[$mts['key']];
+                    empty($md['name'])  && $md['name']  = $mts['name'];
+                    empty($md['value']) && $md['value'] = $mts['value'];
+                    empty($md['key'])   && $md['key']   = $mts['key'];
+                    unset(AppsMeta::$data[$mts['key']]);
+                ?>
+                    <tr id="app_meta_<?php echo $cid; ?>_<?php echo $md['key']; ?>">
+                        <?php
+                        if (is_array($mdata) && $md['key']) {
+                            echo AppsMeta::makeHtml($mdIdx, $md);
+                            ++$mdIdx;
+                        }
+                        ?>
+                    </tr>
+                <?php } ?>
+                <?php if (AppsMeta::$data) foreach ((array) AppsMeta::$data as $mdkey => $mdata) { ?>
+                    <tr>
+                        <?php
+                        if (is_array($mdata) && $mdata['key']) {
+                            echo AppsMeta::makeHtml($mdIdx, $mdata);
+                            ++$mdIdx;
+                        }
+                        ?>
+                    </tr>
+                <?php } ?>
+            </tbody>
+            <tfoot>
+                <tr class="hide meta_clone">
+                    <?php echo AppsMeta::makeHtml(); ?>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>

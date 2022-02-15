@@ -1,0 +1,64 @@
+<script type="text/javascript">
+    window.catchRemoteImageEnable = <?php echo Config::get($app, 'catch_remote') ? 'true' : 'false'; ?>;
+</script>
+<script type="text/javascript" charset="utf-8" src="./app/editor/assets/<?php echo $gateway; ?>.ueditor.js"></script>
+<script type="text/javascript" charset="utf-8" src="./app/editor/assets/ueditor/ueditor.all.min.js"></script>
+<script>
+    var <?php echo $editor_id; ?> ;
+    $(function() {
+        <?php echo $editor_id; ?> = iCMS.editor.create("<?php echo $id; ?>",{'autoFloatEnabled':false});
+    });
+
+    iCMS.set('Vue.data', {
+        remote: "<?php echo Config::get($app, 'remote') ? 1 : 0; ?>"
+    });
+</script>
+<div class="form-group d-none">
+    <div class="form-control" style="height: auto">
+        <div class="form-row">
+            <div class="custom-control custom-switch custom-control-inline js-switch-default col-6 col-md-auto">
+                <input v-model="isChapter" type="checkbox" class="custom-control-input" id="isChapter" name="isChapter" value="1" />
+                <label class="custom-control-label" for="isChapter">章节模式</label>
+            </div>
+            <div class="custom-control custom-switch custom-control-inline js-switch-default col-6 col-md-auto">
+                <input v-model="remote" type="checkbox" class="custom-control-input" id="remote" name="remote" value="1" />
+                <label class="custom-control-label" for="remote">下载远程图片</label>
+            </div>
+            <div class="custom-control custom-switch custom-control-inline js-switch-default col-6 col-md-auto">
+                <input v-model="autopic" type="checkbox" class="custom-control-input" id="autopic" name="autopic" value="1" />
+                <label class="custom-control-label" for="autopic">提取缩略图</label>
+            </div>
+            <div class="custom-control custom-switch custom-control-inline js-switch-default col-6 col-md-auto">
+                <input type="checkbox" class="custom-control-input" id="dellink" name="dellink" />
+                <label class="custom-control-label" for="dellink">清除链接</label>
+            </div>
+            <?php if (Config::get('watermark.enable')) { ?>
+            <div class="custom-control custom-switch custom-control-inline js-switch-default col-6 col-md-auto">
+                <input type="checkbox" class="custom-control-input" id="noWatermark" name="noWatermark" value="1" checked="" />
+                <label class="custom-control-label" for="noWatermark">不添加水印</label>
+            </div>
+            <?php } ?>
+            <button type="button" class="btn btn-dark dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="dropdownMenuLink">快捷操作</button>
+            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                <a class="dropdown-item" href="javascript:<?php echo $editor_id; ?>.insPageBreak();">
+                    <i class="fa fa-fw fa-ellipsis-h"></i>
+                    插入分页符
+                </a>
+                <a class="dropdown-item" href="javascript:<?php echo $editor_id; ?>.delPageBreakflag();">
+                    <i class="fa fa-fw fa-ban"></i>
+                    删除分页符
+                </a>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item" href="javascript:mergeEditorPage();">
+                    <i class="fa fa-fw fa-align-justify"></i>
+                    合并编辑
+                </a>
+                <a class="dropdown-item" href="javascript:<?php echo $editor_id; ?>.cleanup();">
+                    <i class="fa fa-fw fa-magic"></i>
+                    自动排版
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="clearfloat mt10"></div>

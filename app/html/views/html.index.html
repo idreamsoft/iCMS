@@ -1,0 +1,50 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="javascript:;">首页</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo APP_URL; ?>&do=node">栏目</a></li>
+            <li class="nav-item"><a class="nav-link" href="<?php echo APP_URL; ?>&do=article">文章</a></li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_URL; ?>&do=create_index" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <div id="html-add" class="tab-content">
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="rootid">主页模板</label>
+                        <div class="input-group col-sm-8">
+                            <input type="text" name="indexTPL" class="form-control" id="indexTPL" value="<?php echo Config::get('template.index.tpl'); ?>" />
+                            <?php echo FilesWidget::modalBtn('模板', 'indexTPL'); ?>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="rootid">文 件 名</label>
+                        <div class="col-sm-8">
+                            <div class="input-group">
+                                <input type="text" name="indexName" class="form-control" id="indexName" value="<?php echo Config::get('template.index.name'); ?>" />
+                                <div class="input-group-append">
+                                    <div class="input-group-text"><?php echo Config::get('route.ext'); ?></div>
+                                </div>
+                            </div>
+                            <small class="form-text text-muted">首页文件名,一般为<span class="badge badge-danger">index</small> 不用填写文件后缀名</span>
+                        </div>
+                    </div>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

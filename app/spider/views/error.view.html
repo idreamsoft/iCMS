@@ -1,0 +1,58 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head(false);
+?>
+<div class="block">
+    <div class="block-content p-0">
+        <table class="dataTable table text-nowrap table-hover table-striped table-vcenter font-size-sm mb-0">
+            <thead class="bg-light text-black">
+                <tr>
+                    <th style="width: 36px;" class="align-middle">
+                        <div class="custom-control custom-checkbox">
+                            <input type="checkbox" class="custom-control-input" id="check-all" data-toggle="checkAll" data-target="#<?php echo APP_FORMID; ?>">
+                            <label class="custom-control-label" for="check-all"></label>
+                        </div>
+                    </th>
+                    <th>网址</th>
+                    <th>错误</th>
+                    <th>位置</th>
+                    <th>时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <?php foreach ((array) $rs as $key => $value) { 
+                $msgArray = explode(',',$value['msg']);
+                $msgArray = array_unique($msgArray);
+
+                $typeArray = explode(',',$value['type']);
+                $typeArray = array_unique($typeArray);
+            ?>
+                <tr>
+                    <td><?php echo $value['id']; ?></td>
+                    <td>
+                        <?php echo $value['url']; ?>(<?php echo $value['ct']; ?>)
+                    </td>
+                    <td><?php echo implode('<br />', $msgArray); ?></td>
+                    <td><?php echo implode('<br />', $typeArray); ?></td>
+                    <td><?php echo date("Y-m-d H:i:s", $value['addtime']); ?></td>
+                    <td>
+                        <div class="btn-group">
+                            <a href="<?php echo ADMINCP_URL; ?>=spiderProject&do=test&url=<?php echo urlencode($value['url']); ?>&rid=<?php echo $value['rid']; ?>&pid=<?php echo $value['pid']; ?>" class="btn btn-alt-primary" target="_blank">测试网址</a>
+                            <a href="<?php echo ADMINCP_URL; ?>=spiderRule&do=test&rid=<?php echo $value['rid']; ?>" class="btn btn-alt-primary" data-toggle="modal" title="测试规则"><i class="fa fa-fw fa-bug"></i> 测试规则</a>
+                            <a href="<?php echo ADMINCP_URL; ?>=spiderRule&do=edit&rid=<?php echo $value['rid']; ?>" class="btn btn-alt-primary" target="_blank"><i class="fa fa-fw fa-pencil-alt"></i> 编辑规则</a>
+                        </div>
+                    </td>
+                </tr>
+            <?php } ?>
+        </table>
+    </div>
+</div>

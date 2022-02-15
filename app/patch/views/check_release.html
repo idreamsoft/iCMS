@@ -1,0 +1,30 @@
+<script type="text/javascript">
+    function patch_check_release(flag) {
+        $.getJSON("<?php echo ADMINCP_URL; ?>=patch&do=check_release&jt=<?php echo time(); ?>", function (json) {
+            if (json.code == "0") {
+                if (flag) iCMS.ui.success(json.message);
+                return;
+            }
+            iCMS.ui.dialog({
+                content: json.message,
+                okValue: "马上更新",
+                ok: function () {
+                    window.location.href = json.url;
+                },
+                cancelValue: "以后在说",
+                cancel: function () {
+                    return true;
+                },
+            });
+        });
+    }
+    $(function () {
+        $("[i=iCMS_RELEASE]").click(function (e) {
+            e.preventDefault();
+            patch_check_release(1);
+        });
+        window.setTimeout(function () {
+            patch_check_release();
+        }, 1000);
+    });
+</script>

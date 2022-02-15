@@ -1,0 +1,153 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<script type="text/javascript">
+    iCMS.set('Vue.data', {
+        'cid': "<?php echo $rs['cid']; ?>",
+        'sapp': "<?php echo $rs['app']; ?>",
+        'status': "<?php echo $rs['status']; ?>",
+    });
+
+    $(function() {
+        $("#sapp").on('change', function(evt, params) {
+            var appid = $(this).find('option[value="' + params['selected'] + '"]').attr('appid');
+            $("#appid").val(appid);
+        });
+    });
+
+    function callback(json) {
+        if (json.state == 'SUCCESS') {
+            $.each(json.data, function(idx, value) {
+                var cb = window.top.<?php echo $rs['field']; ?>Callback||window.top.jsonpCallback;
+                var state = cb(
+                    value.field,
+                    '<option value="' + value.val + '">' + value.name + ' [' + value.field + '="' + value.val + '"]</option>'
+                );
+            });
+            window.top.iCMS_MODAL.destroy();
+        } else {
+            return iCMS.ui.alert(json.message);
+        }
+    }
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title"><?php echo empty($this->id) ? '添加' : '修改'; ?>属性</h3>
+        </div>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <div class="tab-content">
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="status">属性状态</label>
+                        <div class="input-group col-sm-8">
+                            <select v-model="status" id="status" name="status" class="form-control">
+                                <?php foreach (Prop::$statusMap as $key => $value) { ?>
+                                    <option value="<?php echo $key ?>"> <?php echo $value ?> [status='<?php echo $key ?>']</option>
+                                <?php }; ?>
+                                <?php echo PropWidget::getOption("status"); ?>
+                            </select>
+                            <div class="input-group-append">
+                                <?php echo PropWidget::btn('添加状态'); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="cid">所属栏目</label>
+                        <div class="col-sm-8">
+                            <select v-model="cid" id="cid" name="cid" class="form-control">
+                                <option value="0"> ==== 暂无所属栏目 ==== </option>
+                                <?php echo Node::setAccess('ca')->select(array('selId' => $rs['cid'], 'url' => true)); ?>
+                            </select>
+                            <small class="form-text text-muted">本属性所属的栏目</small>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="sapp">所属应用</label>
+                        <div class="col-sm-8">
+                            <select v-model="sapp" id="sapp" name="sapp" class="form-control">
+                                <option value="">所有应用</option>
+                                <?php
+                                foreach (Apps::getTableArray() as $key => $value) {
+                                    $app_array[$value['app']] = $key;
+                                ?>
+                                    <option value="<?php echo $value['app']; ?>" appid="<?php echo $key; ?>"><?php echo $value['app']; ?>:<?php echo $value['name']; ?></option>
+                                <?php } ?>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="info">属性说明</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="info" class="form-control" id="info" value="<?php echo $rs['info']; ?>" />
+                        </div>
+                    </div>
+                    <input name="appid" type="hidden" id="appid" value="<?php echo ($rs['appid'] ?: $app_array[$rs['app']]); ?>" />
+                    <div class="form-group row">
+                        <label class="col-sm-1 col-form-label" for="field">属性字段</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="field" class="form-control" id="field" value="<?php echo $rs['field']; ?>" />
+                        </div>
+                    </div>
+
+                    <div class="form-group row">
+                        <?php if ($this->id) { ?>
+                            <label class="col-sm-1 col-form-label" for="name">属性名称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="name" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                                <small class="form-text text-muted">可填写中文</small>
+                            </div>
+                        <?php } else { ?>
+                            <label class="col-sm-1 col-form-label" for="name">属性数据</label>
+                            <div class="col-sm-8">
+                                <textarea name="name" id="name" class="form-control" style="height: 150px;"><?php echo $data; ?></textarea>
+                                <small class="form-text text-muted">可填写中文 <br />
+                                    <?php if (!$this->id) { ?>
+                                        批量添加格式:<br />
+                                        <span class="badge badge-danger">名称:值</span><br />
+                                        <span class="badge badge-danger">名称:</span>(属性值将按序号填充)<br />
+                                        <span class="badge badge-danger">名称</span>(属性值将用名称填充)<br />
+                                        每行一个
+                                    <?php } ?>
+                                </small>
+                            </div>
+                        <?php } ?>
+                    </div>
+                    <?php if ($this->id) { ?>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="val">属 性 值</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="val" class="form-control" id="val" value="<?php echo $rs['val']; ?>" />
+                                <small class="form-text text-muted">id 属性值只能填写数字</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-1 col-form-label" for="sortnum">属性排序</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="sortnum" class="form-control" id="sortnum" value="<?php echo $rs['sortnum']; ?>" />
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <div class="alert alert-warning">
+                        <h4>注意事项</h4>
+                        添加属性时,请综合考虑下前台的调用还有数据的保存问题!<br />
+                        具体考虑使用数值或者直接使用名称类的值
+                    </div>
+                </div>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

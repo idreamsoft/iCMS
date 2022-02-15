@@ -1,0 +1,44 @@
+<div id="former-block" class="block">
+    <ul id="former-tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+        <?php $active = true;
+        if ($formerArray) foreach ($formerArray as $key => $item) { ?>
+            <li class="nav-item"><a class="nav-link <?php $active && print('active'); ?>" href="#former-layout-<?php echo $key ?>"><i class="<?php echo $item['icon'] ?>"></i> <?php echo $item['label'] ?></a></li>
+        <?php $active = false;
+        } ?>
+        <li class="nav-item ml-auto">
+            <div class="block-options pl-3 pr-2">
+                <button type="button" class="btn-block-option" data-action="add_tabs"><i class="si si-plus"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+            </div>
+        </li>
+    </ul>
+    <div class="block-content my-0 py-0">
+        <div class="tab-content">
+            <?php $active = true;
+            if ($formerArray) foreach ($formerArray as $key => $item) { ?>
+                <div id="former-layout-<?php echo $key ?>" class="tab-pane <?php $active && print('active'); ?>">
+                    <ul data-tabs='["<?php echo $key ?>","<?php echo $item['label'] ?>"]' id="former-wrap-<?php echo $key ?>" class="iFormer-layout">
+                        <div class="clearfloat m-4"></div>
+                    </ul>
+                </div>
+            <?php $active = false;
+            } ?>
+            <div class="clearfloat mt-2"></div>
+        </div>
+    </div>
+</div>
+<div id="mktabs-box" style="width:150px;display: none;">
+    <div class="form-group mb-1">
+        <label for="newtabid">ID</label>
+        <input class="form-control" id="newtabid" type="text" placeholder="请输入表单卡ID">
+    </div>
+    <div class="form-group mb-1">
+        <label for="newtabname">名称</label>
+        <input class="form-control" id="newtabname" type="text" placeholder="请输入表单卡名称">
+    </div>
+    <div class="form-group mb-1">
+        <label for="newtabicon">icon</label>
+        <input class="form-control" id="newtabicon" type="text" placeholder="表单卡icon">
+    </div>
+</div>

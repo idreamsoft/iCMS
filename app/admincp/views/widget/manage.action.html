@@ -1,0 +1,12 @@
+<div class="row-actions btn-group btn-group-sm">
+    <?php
+    if ($actions) foreach ($actions as $key => $value) {
+        if (!AdmincpBatch::showed($value['show'],$data,$node)) {
+            continue;
+        }
+    ?>
+        <a class="<?php echo $value['a:class']; ?>" href="<?php echo $value['url']; ?>" title="<?php echo $value['title']; ?>" target="<?php echo $value['target']; ?>" <?php echo $value['attr']; ?>>
+            <?php echo $value['icon']; ?><?php echo $value['text']; ?>
+        </a>
+    <?php }; ?>
+</div>

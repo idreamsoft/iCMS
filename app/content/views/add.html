@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+$preview = isset($_GET['preview']);
+$preview && Menu::$SET['nav.name'] = '预览表单';
+self::head(!$preview);
+?>
+<script>
+    function jsonpCallback(params) {
+        AdmSuccess(params); 
+    }
+</script>
+<div class="content" id="<?php echo APP_MAINID; ?>">
+    <div class="block">
+        <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <?php $active = true;
+            foreach (Former::$FIELDS as $key => $value) { ?>
+                <li class="nav-item"><a class="nav-link <?php $active && print(' active'); ?>" href="#-add-<?php echo $key; ?>"><i class="<?php echo $value['icon']; ?>"></i> <?php echo $value['label']; ?></a></li>
+            <?php $active = false;
+            } ?>
+            <li class="nav-item"><a class="nav-link" href="#apps-meta"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+            <li class="nav-item ml-auto">
+                <div class="block-options pl-3 pr-2">
+                    <a class="btn btn-alt-primary" href="<?php echo ADMINCP_URL; ?>=apps&do=edit&id=<?php echo self::$appId; ?>" target="_blank"><i class="fa fa-fw fa-plus-circle"></i> 新增字段</a>
+                </div>
+            </li>
+        </ul>
+        <div class="block-content">
+            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+                <input id="appid" name="appid" type="hidden" value="<?php echo self::$appId; ?>" />
+                <input name="REFERER" type="hidden" value="<?php echo iPHP_REFERER; ?>" />
+                <div class="tab-content">
+                    <?php $active = true;
+                    foreach (Former::$FIELDS as $key => $value) { ?>
+                        <div id="-add-<?php echo $key; ?>" class="tab-pane <?php $active && print(' active'); ?>">
+                            <?php echo Former::display($value['fields']); ?>
+                        </div>
+                    <?php $active = false;
+                    } ?>
+                    <div id="apps-meta" class="tab-pane hide">
+                    <?php AppsMeta::display(); ?>
+                    </div>
+                </div>
+                <?php if ($preview) { ?>
+                <?php } else { ?>
+                <?php } ?>
+                <?php self::formSubmit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

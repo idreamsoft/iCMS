@@ -1,0 +1,31 @@
+[{
+    "id": "members",
+    "children": [{
+        "id": "user",
+        "caption": "会员",
+        "icon": "users",
+        "children": [{
+                "caption": "会员设置",
+                "href": "user&do=config",
+                "icon": "cog"
+            },
+            {
+                "caption": "-"
+            },
+            {
+                "caption": "会员管理",
+                "href": "user",
+                "icon": "users"
+            },
+            {
+                "caption": "添加会员",
+                "href": "user&do=add",
+                "icon": "user-plus"
+            },            {
+                "caption": "消费记录",
+                "href": "user&do=order",
+                "icon": "list"
+            }
+        ]
+    }]
+}]

@@ -1,0 +1,46 @@
+<div class="media mt-3">
+    <a class="mr-3" href="<!--{$comment_reply.user.url}-->">
+        <img class="img-avatar img-avatar32" src="<!--{$comment_reply.user.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
+    </a>
+    <div class="media-body">
+        <a class="font-w600" href="<!--{$comment_reply.user.url}-->">
+            <!--{$comment_reply.user.name}-->
+        </a>
+        <!--{if $comment_reply.user.uid==$author.uid}-->
+        <mark class="font-size-sm font-w600 text-success ml-1">作者</mark>
+        <!--{elseif $comment_reply.user.uid==$comment_list.user.uid}-->
+        <mark class="font-size-sm font-w600 text-success ml-1">评论者</mark>
+        <!--{/if}-->
+        <span class="font-w600 mx-1">回复</span>
+        <a class="font-w600" href="<!--{$comment_reply.reply_user.url}-->">
+            <!--{$comment_reply.reply_user.name}-->
+        </a>
+        <!--{if $comment_reply.reply_user.uid==$author.uid}-->
+        <mark class="font-size-sm font-w600 text-success ml-1">作者</mark>
+        <!--{elseif $comment_reply.reply_user.uid==$comment_list.user.uid}-->
+        <mark class="font-size-sm font-w600 text-success ml-1">评论者</mark>
+        <!--{/if}-->
+        <p class="my-1">
+            <!--{$comment_reply.content}-->
+        </p>
+        <div class="font-size-sm" data-param="<!--{$comment_reply.param|json_param}-->">
+            <a class="text-muted mr-1" href="javascript:void(0)" i="event:comment:reply:up">
+                <i class="fa fa-thumbs-up"></i>
+                <span i="comment:reply:up:num"><!--{$comment_reply.up|default:'赞'}--></span>
+            </a>
+            <a class="text-muted mr-1" href="javascript:void(0)" i="event:comment:reply">
+                <i class="fa fa-reply"></i>
+                回复
+            </a>
+            <a class="text-muted mr-1" href="javascript:void(0)" i="event:user:report">
+                <i class="fa fa-flag"></i>
+                举报
+            </a>
+            <span class="text-muted">
+                <em>
+                    <!--{$comment_reply.update_time|format_date}-->
+                </em>
+            </span>
+        </div>
+    </div>
+</div>

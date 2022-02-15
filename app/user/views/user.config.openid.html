@@ -1,0 +1,131 @@
+<?php $title   = '开放平台'; ?>
+<?php $header_enable = !true; ?>
+<?php $content_class = 'p-0'; ?>
+<ul class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item"><a class="nav-link active" href="#tab-weinxin"><i class="fab fa-weixin"></i> 微信开放平台</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-QQ"><i class="fab fa-qq"></i> QQ开放平台</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-weibo"><i class="fab fa-weibo"></i> 微博开放平台</a></li>
+    <li class="nav-item"><a class="nav-link" href="#tab-taobao"><i class="fa fa-fw fa-cubes"></i> 淘宝开放平台</a></li>
+</ul>
+<div class="tab-content">
+    <div id="tab-weinxin" role="tabpanel" class="tab-pane active">
+        <div class="alert alert-info mt-1"><i class="fa fa-fw fa-info-circle"></i> 申请地址: https://open.weixin.qq.com</div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="open_wx_enable">开启</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[open][WX][enable]" id="open_wx_enable" <?php echo @$config['open']['WX']['enable'] ? 'checked' : ''; ?>/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPID:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="config[open][WX][id]" value="1" />
+                <input type="hidden" name="config[open][WX][name]" value="微信" />
+                <input type="text" name="config[open][WX][appid]" class="form-control" id="wx_appid" value="<?php echo $config['open']['WX']['appid']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPKEY:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][WX][appkey]" class="form-control" id="wx_appkey" value="<?php echo $config['open']['WX']['appkey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">回调域名:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][WX][redirect]" class="form-control" id="wx_redirect" value="<?php echo $config['open']['WX']['redirect']; ?>" />
+                <small class="form-text text-muted">例:https://www.icmsdev.com</small>
+            </div>
+        </div>
+    </div>
+    <div id="tab-QQ" role="tabpanel" class="tab-pane">
+        <div class="alert alert-info mt-1"><i class="fa fa-fw fa-info-circle"></i> 申请地址:http://connect.qq.com</div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="open_qq_enable">开启</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[open][QQ][enable]" id="open_qq_enable" <?php echo @$config['open']['QQ']['enable'] ? 'checked' : ''; ?>/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPID:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="config[open][QQ][id]" value="2" />
+                <input type="hidden" name="config[open][QQ][name]" value="QQ" />
+                <input type="text" name="config[open][QQ][appid]" class="form-control" id="qq_appid" value="<?php echo $config['open']['QQ']['appid']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPKEY:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][QQ][appkey]" class="form-control" id="qq_appkey" value="<?php echo $config['open']['QQ']['appkey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">回调域名:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][QQ][redirect]" class="form-control" id="qq_redirect" value="<?php echo $config['open']['QQ']['redirect']; ?>" />
+                <small class="form-text text-muted">例:https://www.icmsdev.com</small>
+            </div>
+        </div>
+    </div>
+    <div id="tab-weibo" role="tabpanel" class="tab-pane">
+        <div class="alert alert-info mt-1"><i class="fa fa-fw fa-info-circle"></i> 申请地址:http://open.weibo.com/authentication</div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="open_wb_enable">开启</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[open][WB][enable]" id="open_wb_enable" <?php echo @$config['open']['WB']['enable'] ? 'checked' : ''; ?>/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPID:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="config[open][WB][id]" value="3" />
+                <input type="hidden" name="config[open][WB][name]" value="微博" />
+                <input type="text" name="config[open][WB][appid]" class="form-control" id="WB_appid" value="<?php echo $config['open']['WB']['appid']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPKEY:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][WB][appkey]" class="form-control" id="WB_appkey" value="<?php echo $config['open']['WB']['appkey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">回调域名:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][WB][redirect]" class="form-control" id="WB_redirect" value="<?php echo $config['open']['WB']['redirect']; ?>" />
+                <small class="form-text text-muted">例:https://www.icmsdev.com</small>
+            </div>
+        </div>
+    </div>
+    <div id="tab-taobao" role="tabpanel" class="tab-pane">
+        <div class="alert alert-info mt-1"><i class="fa fa-fw fa-info-circle"></i> 申请地址:http://open.taobao.com</div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="open_tb_enable">开启</label>
+            <div class="col-sm-8">
+                <input type="checkbox" data-toggle="switch" name="config[open][TB][enable]" id="open_tb_enable" <?php echo @$config['open']['TB']['enable'] ? 'checked' : ''; ?>/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPID:</label>
+            <div class="col-sm-8">
+                <input type="hidden" name="config[open][TB][id]" value="4" />
+                <input type="hidden" name="config[open][TB][name]" value="淘宝" />
+                <input type="text" name="config[open][TB][appid]" class="form-control" id="TB_appid" value="<?php echo $config['open']['TB']['appid']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">APPKEY:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][TB][appkey]" class="form-control" id="TB_appkey" value="<?php echo $config['open']['TB']['appkey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-1 col-form-label" for="example">回调域名:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[open][TB][redirect]" class="form-control" id="TB_redirect" value="<?php echo $config['open']['TB']['redirect']; ?>" />
+                <small class="form-text text-muted">例:https://www.icmsdev.com</small>
+            </div>
+        </div>
+    </div>
+</div>

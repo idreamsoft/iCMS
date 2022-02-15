@@ -1,0 +1,91 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html 
+*/ 
+defined('iPHP') or exit('What are you doing?'); 
+self::head(); 
+?>
+
+<?php !AdmincpView::$IS_MODAL && print '<div class="content p-0" id="' . APP_MAINID . '">'; ?>
+<div class="block m-0 <?php if (AdmincpView::$IS_MODAL && empty($rs)) { ?> block-transparent<?php } ?>" id="files-add">
+    <div class="block-content block-content-full">
+        <?php if ($rs) { ?>
+        <table class="table table-sm table-bordered table-condensed table-hover">
+            <thead class="bg-light text-black">
+                <tr>
+                    <td colspan="2">文件信息</td>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <th>文件名</th>
+                    <td>
+                        <?php echo $rs['name']; ?>
+                        .
+                        <?php echo $rs['ext']; ?>
+                        <a href="<?php echo $href; ?>" target="_blank">查看</a>
+                    </td>
+                </tr>
+                <tr>
+                    <th>路径</th>
+                    <td>
+                        <?php echo $rs['path']; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>原文件名</th>
+                    <td>
+                        <?php echo $rs['source']; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>类型</th>
+                    <td>
+                        <?php echo Files::icon($rs['ext']); ?>
+                        .
+                        <?php echo $rs['ext']; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>保存方式</th>
+                    <td>
+                        <?php echo $rs['type'] ? "远程" : "本地上传"; ?>
+                    </td>
+                </tr>
+                <tr>
+                    <th>保存时间</th>
+                    <td>
+                        <?php echo get_date($rs['time'], 'Y-m-d H:i:s'); ?>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <?php } ?>
+        <form i="upload" action="<?php echo APP_URL; ?>&do=upload&id=<?php echo $this->id; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME" enctype="multipart/form-data">
+            <input type="hidden" name="callback" value="modal_<?php echo $this->callback; ?>" />
+            <input type="hidden" name="udir" value="<?php echo Request::get('dir'); ?>" />
+            <div id="upload-container">
+                <div class="input-group input-group-sm justify-content-center align-items-center">
+                    <div class="input-group-prepend">
+                        <input type="checkbox" data-toggle="switch" data-label-text="水印" name="noWatermark" id="noWatermark" <?php echo Config::get('watermark.enable') ? 'checked' : ''; ?>/>
+                    </div>
+                    <div class="input-group-append">
+                        <label for="upfile" type="button" class="btn btn-primary">
+                            <span><i class="fa fa-fw fa-upload"></i>选择文件</span>
+                            <input type="file" name="upfile" id="upfile" i="upfile"/>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<?php !AdmincpView::$IS_MODAL && print '</div>'; ?>
+<?php self::foot(); ?>

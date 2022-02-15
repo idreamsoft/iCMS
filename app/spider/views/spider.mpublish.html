@@ -1,0 +1,75 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+?>
+<script type="text/javascript">
+    var $crawl_request = new Array();
+    var $crawl_data = <?php echo json_encode($listArray); ?>;
+    var $crawl_count = $crawl_data.length,
+        $crawl_complete = 0;
+
+    d.addEventListener("remove", function() {
+        crawl_stop();
+    });
+
+    if ($crawl_count > 0) {
+        $crawl_data.forEach(function(v, i) {
+            crawl_run(v);
+            return;
+        });
+    }
+
+    top.$.ajaxSetup({
+        cache: false,
+        compelete: function(jqXHR) {
+            delete jqXHR;
+            jqXHR = null;
+        }
+    });
+
+    function crawl_stop() {
+        for (var i = 0; i < $crawl_request.length; i++) {
+            $crawl_request[i].abort();
+        }
+        $crawl_request = new Array();
+
+        window.stop ? window.stop() : document.execCommand("Stop");
+    }
+
+    function is_complete() {
+        if ($crawl_complete == $crawl_count) {
+            d.content('<table class="ui-dialog-table" align="center"><tr><td valign="middle">全部采集完成!</td></tr></table>');
+            top.$.get("<?php echo ADMINCP_URL ?>=spiderProject&do=update_lastupdate&CSRF_TOKEN=<?php echo Security::$CSRF_TOKEN ?>", {
+                "id": "<?php echo $this->pid ?>"
+            });
+
+            window.setTimeout(function() {
+                d.destroy();
+            }, 1000);
+        }
+    }
+
+    function crawl_run(a) {
+        var $request = top.$.ajax({
+            type: "POST",
+            url: "<?php echo APP_URL ?>&do=crawl&CSRF_TOKEN=<?php echo Security::$CSRF_TOKEN ?>",
+            data: a,
+            success: function(msg) {
+                ++$crawl_complete;
+                d.content('<table class="ui-dialog-table" align="center"><tr><td valign="middle">' + msg + '[' + a.index + ']采集完成 (' + $crawl_complete + ':' + $crawl_count + ')</td></tr></table>');
+                parent.$("#" + a.md5).remove();
+                is_complete();
+            }
+        });
+        $crawl_request.push($request);
+    }
+</script>
+<?php Script::flush(); ?>

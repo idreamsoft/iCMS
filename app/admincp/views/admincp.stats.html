@@ -1,0 +1,50 @@
+<!-- 数据统计 -->
+<div class="content" id="admincpStats">
+    <div class="block block-rounded block-mode-hidden">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">
+                <i class="fa fa-fw fa-sitemap"></i>
+                数据统计
+            </h3>
+            <div class="block-options">
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close"><i class="si si-close"></i></button>
+            </div>
+        </div>
+        <div class="block-content font-size-sm">
+            <div class="row">
+                <?php if ($lists) foreach ($lists as $key =>$value) { ?>
+                <div class="<?php echo $value['col'] ?: 'col-sm-6 col-md-4 '; ?>">
+                    <a id="<?php echo $value['id']; ?>" class="block block-rounded block-themed block-link-shadow text-center" href="javascript:void(0)">
+                        <div class="<?php echo $value['show']?:'d-none'; ?> block-header p-1 bg-<?php echo randColor(); ?>">
+                            <h3 class="block-title">
+                                <?php echo $value['title']; ?>
+                                <span class="badge badge-secondary"></span>
+                            </h3>
+                        </div>
+                        <div class="block-content bg-body-light p-2 text-left">
+                            <canvas class="js-chartjs-bar"></canvas>
+                        </div>
+                    </a>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./assets/oneui/js/plugins/chart.js/Chart.bundle.min.js"></script>
+<script type="text/javascript" src="<?php echo APP_ASSETS; ?>/stats.js"></script>
+<script>
+function widgetChartBarStart(){    
+    <?php if ($lists) foreach ($lists as $key => $value) {?>
+        widgetChartBar("<?php echo $value['id']; ?>", "<?php echo $value['url']; ?>");
+    <?php } ?>
+}    
+$(function(){
+    $('#admincpStats [data-action="content_toggle"]').one("click", function (e) {
+        widgetChartBarStart();
+    });
+})
+</script>

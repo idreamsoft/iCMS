@@ -1,0 +1,322 @@
+<!-- 字段编辑器 -->
+<div id="iFormer-field-editor" class="hide" style="width:600px;text-align: left;overflow-y: auto;max-height: 600px;">
+    <form id="iFormer-field-form">
+        <input type="hidden" name="id" id="iFormer-id" />
+        <input type="hidden" name="multiple" id="iFormer-multiple" />
+        <div class="field-tab-box block">
+            <ul class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+                <li class="nav-item"><a class="nav-link active" href="#field-tab-b"><i class="fa fa-fw fa-cogs"></i> 配置</a></li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-0"><i class="fa fa-fw fa-layer-group"></i> UI</a></li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-1"><i class="fa fa-fw fa-check-double"></i> 验证</a>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-2"><i class="fa fa-fw fa-cog"></i> 权限</a></li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-3"><i class="fa fa-fw fa-info-circle"></i> 提示</a>
+                </li>
+                <!-- <li class="nav-item"><a class="nav-link" href="#field-tab-5"><i class="fa fa-fw fa-cog"></i> 优化</a></li> -->
+                <li class="nav-item"><a class="nav-link" href="#field-tab-6"><i class="fa fa-fw fa-code"></i> 脚本</a></li>
+            </ul>
+            <div class="tab-content block-content block-content-full" style="overflow-y: auto;
+            max-height: 540px;">
+                <div id="field-tab-b" class="tab-pane active">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-label">字段名称</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="iFormer-label" name="label" placeholder="字段名称">
+                            <small class="form-text text-muted">* 必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-name">字段名</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" id="iFormer-name" name="name" placeholder="字段名">
+                            <small class="form-text text-muted">* 必填,只能填写英文字母</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-field">字段类型</label>
+                        <div class="col-sm-8">
+                            <select v-model="iFormer-field" id="iFormer-field" name="field" class="form-control" data-toggle="chosen2" data-placeholder="请选择...">
+                                <optgroup label="字符类型">
+                                    <option value='VARCHAR'>字符串(VARCHAR)</option>
+                                    <option value='TEXT'>文本(TEXT)</option>
+                                    <option value='MEDIUMTEXT'>大文本(MEDIUMTEXT)</option>
+                                    <option value='LONGTEXT'>超大文本(LONGTEXT)</option>
+                                </optgroup>
+                                <optgroup label="整数类型">
+                                    <option value='TINYINT'>小整数(TINYINT)</option>
+                                    <option value='SMALLINT'>大整数(SMALLINT)</option>
+                                    <option value='MEDIUMINT'>大整数(MEDIUMINT)</option>
+                                    <option value='INT'>超大整数(INT)</option>
+                                    <option value='BIGINT'>极大整数(BIGINT)</option>
+                                </optgroup>
+                                <optgroup label="浮点数类型">
+                                    <option value='DECIMAL'>小数值(DECIMAL)</option>
+                                    <option value='FLOAT'>单精度(FLOAT)</option>
+                                    <option value='DOUBLE'>双精度(DOUBLE)</option>
+                                </optgroup>
+                            </select>
+                            <small class="form-text text-muted">* 必填 不熟悉的请勿修改</small>
+                        </div>
+                    </div>
+                    <div class="unsigned-wrap hide">
+                        <div class="form-group row mb-1">
+                            <label class="col-sm-2 col-form-label" for="iFormer-unsigned">整数类型</label>
+                            <div class="col-sm-8">
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" id="iFormer-unsigned-1" name="unsigned" value="1">
+                                    <label class="custom-control-label" for="iFormer-unsigned-1">无符号</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" class="custom-control-input" id="iFormer-unsigned-0" name="unsigned" value="0">
+                                    <label class="custom-control-label" for="iFormer-unsigned-0">有符号</label>
+                                </div>
+                                <small class="form-text text-muted">* 必填</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-len">字段长度</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="len" class="form-control" id="iFormer-len" value="" />
+                            <small class="form-text text-muted">* 必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-default">默&nbsp;&nbsp;认&nbsp;值</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="default" class="form-control" id="iFormer-default" value="" />
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-comment">字段注释</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="comment" class="form-control" id="iFormer-comment" value="" />
+                            <small class="form-text text-muted">选填,不熟悉的可不填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-type">数据类型</label>
+                        <div class="col-sm-8">
+                            <select id="iFormer-type" data-toggle="chosen2" data-placeholder="请选择...">
+                                <?php foreach (FormerField::$DATAS as $key => $fields) { ?>
+                                    <option value='<?php echo $fields['type'] ?>'><?php echo $fields['text'] ?></option>
+                                <?php } ?>
+                            </select>
+                            <small class="form-text text-muted">* 必填 不熟悉的请勿修改</small>
+                        </div>
+                    </div>
+                    <div id="iFormer-option-wrap" class="form-group row mb-1 hide">
+                        <label class="col-sm-2 col-form-label" for="iFormer-option">选项列表</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" name="option" class="form-control" id="iFormer-option" disabled /></textarea>
+                            <small class="form-text text-muted">* 必填.格式: 选项=值;<br />
+                                电脑=pc;<br />
+                                手机=phone;<br />
+                                iPad;
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-0" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-tabs">表单卡</label>
+                        <div class="col-sm-8">
+                            <select id="iFormer-tabs" data-toggle="chosen2" data-placeholder="请选择...">
+                                <?php if ($formerArray) foreach ($formerArray as $key => $item) { ?>
+                                    <option value='<?php echo $key ?>' data-icon="<?php echo $item['icon'] ?>"><?php echo $item['label'] ?></option>
+                                <?php } ?>
+                            </select>
+                            <small class="form-text text-muted">提交后，刷新 </small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-help">字段说明</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="help" class="form-control" id="iFormer-help" value="" />
+                            <small class="form-text text-muted">选填 </small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-class">字段样式</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="class" class="form-control" id="iFormer-class" value="" />
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div id="iFormer-label-after-wrap" class="form-group row mb-1 hide">
+                        <label class="col-sm-2 col-form-label" for="iFormer-label-after">扩展信息</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="label-after" class="form-control" id="iFormer-label-after" value="" />
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-1" class="tab-pane">
+                    <div class="alert alert-warning p-1 m-1">可多选按顺序验证</div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-validate">数据验证</label>
+                        <div class="col-sm-8">
+                            <select v-model="iFormer-validate" id="iFormer-validate" data-toggle="chosen2" data-placeholder="请选择数据验证方式..." multiple="multiple">
+                                <option value='empty'>不能为空</option>
+                                <option value='number'>只能输入数字</option>
+                                <option value='hanzi'>只能输入汉字</option>
+                                <option value='character'>只能输入字母</option>
+                                <option value='minmax'>验证范围</option>
+                                <option value='count'>字数检测</option>
+                                <option value='email'>E-Mail地址</option>
+                                <option value='url'>网址</option>
+                                <option value='mobphone'>手机号码</option>
+                                <option value='telphone'>固定电话</option>
+                                <option value='phone'>电话/手机</option>
+                                <option value='idcard'>身份证号码</option>
+                                <option value='zipcode'>邮政编码</option>
+                                <option value='defined'>自定义</option>
+                            </select>
+                            <select v-model="sort-validate" id="sort-validate" multiple="multiple" class="hide js-chosen-disable" name="validate[]"></select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div id="iFormer-validate-minmax" class="hide form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-validate">验证范围</label>
+                        <div class="input-group col-sm-8">
+                            <div class="input-group-prepend"><span class="input-group-text">最小值</span></div>
+                            <input type="text" name="minmax[0]" class="form-control" id="iFormer-minmax_0" value="" />
+                            <div class="input-group-prepend"><span class="input-group-text">-</span></div>
+                            <div class="input-group-prepend"><span class="input-group-text">最大值</span></div>
+                            <input type="text" name="minmax[1]" class="form-control" id="iFormer-minmax_1" value="" />
+                        </div>
+                    </div>
+                    <div id="iFormer-validate-count" class="hide form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-count">字数检测</label>
+                        <div class="input-group col-sm-8">
+                            <div class="input-group-prepend"><span class="input-group-text">最小字数</span></div>
+                            <input type="text" name="count[0]" class="form-control" id="iFormer-count_0" value="" />
+                            <div class="input-group-prepend"><span class="input-group-text">-</span></div>
+                            <div class="input-group-prepend"><span class="input-group-text">最大字数</span></div>
+                            <input type="text" name="count[1]" class="form-control" id="iFormer-count_1" value="" />
+                        </div>
+                    </div>
+                    <div id="iFormer-validate-defined" class="hide form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-defined">代码</label>
+                        <div class="col-sm-8">
+                            <textarea name="defined" id="iFormer-defined" class="form-control" style="height:60px;"></textarea>
+                            <div class="alert alert-warning">
+                                可以自己填写提交时数据验证代码(javascript) <br />
+                                注:该代码将会包含在表单的submit事件里<br />
+                                <pre class="m-0"><code>
+$(表单ID).submit(function(){
+    .....
+    验证代码
+    .....
+})</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-2" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-access-view">查看权限</label>
+                        <div class="col-sm-8">
+                            <select v-model="iFormer-access-view" id="iFormer-access-view" data-toggle="chosen2" data-placeholder="请选择..." multiple="multiple">
+                            <?php echo Role::select();?>
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-access-edit">编辑权限</label>
+                        <div class="col-sm-8">
+                            <select v-model="iFormer-access-edit" id="iFormer-access-edit" data-toggle="chosen2" data-placeholder="请选择..." multiple="multiple">
+                            <?php echo Role::select();?>
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-21" class="tab-pane">
+                    <div class="alert alert-warning p-1 m-1">保存数据时或者展示时执行,可多选按顺序执行</div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-func">数据处理</label>
+                        <div class="col-sm-8">
+                            <select v-model="iFormer-func" id="iFormer-func" data-toggle="chosen2" data-placeholder="请选择数据处理方式..." multiple="multiple">
+                                <optgroup label="保存数据时">
+                                    <option value='input:repeat'>检查重复</option>
+                                    <option value='input:pinyin'>转成拼音</option>
+                                    <option value='input:cleanhtml'>清除HTML</option>
+                                    <option value='input:formathtml'>格式化HTML</option>
+                                    <option value='input:strtolower'>小写字母</option>
+                                    <option value='input:strtoupper'>大写字母</option>
+                                    <option value='input:firstword'>获取头字母大写</option>
+                                    <option value='input:md5'>md5</option>
+                                </optgroup>
+                                <optgroup label="通用">
+                                    <option value='rand'>生成随机数</option>
+                                </optgroup>
+                                <optgroup label="互转">
+                                    <option value='implode' data-args="" data-title="分隔字符">数组转字符串</option>
+                                    <option value='explode'>数组转字符串</option>
+                                    <option value='json_encode'>JSON编码</option>
+                                    <option value='json_decode'>JSON解码</option>
+                                    <option value='serialize'>序转列化编码</option>
+                                    <option value='unserialize'>序列化解码</option>
+                                    <option value='base64_encode'>base64编码</option>
+                                    <option value='base64_decode'>base64解码</option>
+                                    <option value='rawurlencode'>url编码</option>
+                                    <option value='rawurldecode'>url解码</option>
+                                </optgroup>
+                                <optgroup label="展示时">
+                                    <option value='output:md5'>md5</option>
+                                    <option value='output:redirect'>网址跳转</option>
+                                </optgroup>
+                            </select>
+                            <select v-model="sort-func" id="sort-func" multiple="multiple" class="hide js-chosen-disable" name="func[]"></select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="input-group-prepend hide">
+                        <label class="col-sm-2 col-form-label" for="iFormer-app">关联应用</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="app" class="form-control" id="iFormer-app" value="" />
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-3" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-holder">默认提示</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="holder" class="form-control" id="iFormer-holder" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-error">错误提示</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="error" class="form-control" id="iFormer-error" value="" />
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-5" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-db">数据优化</label>
+                        <div class="col-sm-8">
+                            <select v-model="iFormer-db" id="iFormer-db" data-toggle="chosen2" data-placeholder="请选择..." multiple="multiple">
+                            </select>
+                            <select v-model="sort-db" id="sort-db" multiple="multiple" class="hide js-chosen-disable" name="db[]"></select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-6" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label" for="iFormer-javascript">JS代码</label>
+                        <div class="col-sm-8">
+                            <textarea name="javascript" id="iFormer-javascript" class="form-control" style="height:60px;"></textarea>
+                            <small class="form-text text-muted">可填写javascript代码</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

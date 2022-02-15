@@ -1,0 +1,96 @@
+{
+    "update1": {
+        "id": "update1",
+        "name": "",
+        "title": "通过审核",
+        "icon": "check-circle",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;1",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": {
+            "postype": ["=", "0"]
+        }
+    },
+    "update3": {
+        "id": "update3",
+        "name": "",
+        "title": "等待审核",
+        "icon": "clock",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;3",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": {
+            "postype": ["=", "0"],
+            "status": ["!=", "3"]
+        }
+    },
+    "update4": {
+        "id": "update4",
+        "name": "",
+        "title": "拒绝通过",
+        "icon": "ban",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;4",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": {
+            "postype": ["=", "0"]
+        }
+    },
+    "update0": {
+        "id": "update0",
+        "name": "",
+        "title": "转为草稿",
+        "icon": "inbox",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;0",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": {
+            "status": ["=", "1"]
+        }
+    },
+    "pubdate": {
+        "id": "pubdate",
+        "name": "",
+        "title": "更新文章时间",
+        "icon": "sync",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=pubdate;now",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME"
+    },
+    "publish": {
+        "id": "publish",
+        "name": "",
+        "title": "发布文章",
+        "icon": "paper-plane",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;1",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": {
+            "status": ["!=", "1"]
+        }
+    },
+    "restore": {
+        "id": "restore",
+        "name": "",
+        "title": "从回收站恢复",
+        "icon": "reply-all",
+        "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;1",
+        "a:class": "btn btn-alt-light",
+        "target": "iPHP_FRAME",
+        "show": {
+            "status": ["=", "2"]
+        }
+    },
+    "chapter": {
+        "id": "chapter",
+        "name": "",
+        "title": "",
+        "text": "({$v.chapter})",
+        "icon": "bookmark",
+        "url": "#",
+        "a:class": "btn btn-alt-light",
+        "show": {
+            "chapter": ["=", true]
+        }
+    }
+}

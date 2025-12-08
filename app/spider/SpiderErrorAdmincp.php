@@ -9,52 +9,75 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 defined('iPHP') or exit('What are you doing?');
-
-class SpiderErrorAdmincp extends AdmincpBase
+/**
+ * 采集错误
+ */
+class SpiderErrorAdmincp extends SpiderBase
 {
-	public $ACCESC_TITLE = '采集错误';
+	use AdmincpCommonTrait;
 
-	public function __construct()
+	// public function __construct()
+	// {
+	// 	parent::__construct();
+	// 	// DB::query("set session sql_mode='NO_ENGINE_SUBSTITUTION'");
+	// }
+
+	public function index($a = null)
 	{
-		DB::query("set session sql_mode='NO_ENGINE_SUBSTITUTION'");
-		SpiderAdmincp::init($this);
-	}
-	/**
-	 * [采集错误结果管理]
-	 * @return [type] [description]
-	 */
-	public function do_manage()
-	{
-		$sql = " WHERE 1=1";
-		$_GET['pid'] && $sql .= " AND `pid` ='" . (int) $_GET['pid'] . "'";
-		$_GET['rid'] && $sql .= " AND `rid` ='" . (int) $_GET['rid'] . "'";
-		$days = $_GET['days'] ? $_GET['days'] : 0;
-		$days && $sql .= " AND `addtime`>" . strtotime('-' . $days . ' day');
-		// $postArray = $this->post_opt(0, 'array');
-		// $orderby = self::setOrderBy();
-		$pageSize = $_GET['pageSize'] > 0 ? (int) $_GET['pageSize'] : 100;
-		// $total = Paging::totalCache( "SELECT count(*) FROM `#iCMS@__spider_error` {$sql}", "G");
-		// Paging::get($total, $pageSize, "个网页");
-		// $rs = DB::select("SELECT * FROM `#iCMS@__spider_error` {$sql} order by {$orderby} LIMIT " . Paging::$offset . " , {$pageSize}");
+		$pid = Request::get('pid');
+		$pid && $where['pid'] = $pid;
+		$rid = Request::get('rid');
+		$rid && $where['rid'] = $rid;
+		$type = Request::get('type');
+		$type && $where['type'] = $type;
+		$days = Request::get('days',0);
+		$days && $where[] = array('addtime', '>=', str2time('-' . $days . ' day'));
 
-		$prefix = DB::getTablePrefix();
-		$rs = DB::select("
-		    SELECT
-		      `pid`,`rid`,COUNT(id) AS ct,`date`
-		    FROM
-		      `{$prefix}spider_error`
-		    {$sql}
-		    GROUP BY pid DESC
-		    ORDER BY ct DESC, `date` DESC
-		    LIMIT {$pageSize}
-		");
+		return self::tableData([
+			'where' => $where
+		], function ($rows) {
+			$rows = array_map(function ($row) {
+				return $row;
+			}, $rows);
+			return $rows;
+		});
 
-		$_count = count($rs);
-		include self::view("error.manage");
+        // $param = Request::param();
+
+		// $model = SpiderErrorModel::where($where)->groupBy('pid DESC');
+        // $total    = Paging::getTotal();
+        // $total    = $total ?: $model->count();
+		// $sql[] = $model->getQueryLog();
+        // $pageSize = Paging::getPageSize(10);
+        // $offset   = Paging::get($total, $pageSize);
+
+		// $rows = $model->field('`pid`,`rid`,COUNT(id) AS ct,`date`')
+		// ->orderBy(['ct DESC', '`date` DESC'])
+		// ->limit($offset, $pageSize)
+		// ->select();
+		// $sql[] = $model->getQueryLog();
+
+		// // $prefix = DB::getTablePrefix();
+		// // $rs = DB::select("
+		// //     SELECT
+		// //       `pid`,`rid`,COUNT(id) AS ct,`date`
+		// //     FROM
+		// //       `{$prefix}spider_error`
+		// //     {$sql}
+		// //     GROUP BY pid DESC
+		// //     ORDER BY ct DESC, `date` DESC
+		// //     LIMIT {$pageSize}
+		// // ");
+        // return [
+        //     "total" => Paging::$count,
+        //     "rows" => $rows,
+        //     "sql" => $sql,
+        //     "fixedScroll" => true
+        // ];
 	}
 	public function do_view()
 	{
-		$where = [['pid', $this->pid]];
+		$where = [['pid', Spider::$pid]];
 		$date = Request::get('date');
 		$date && $where[] = ['date', $date];
 
@@ -75,13 +98,13 @@ class SpiderErrorAdmincp extends AdmincpBase
 		include self::view("error.view");
 	}
 	/**
-	 * [删除错误信息]
-	 * @return [type] [description]
+	 * 删除错误信息
+	 * @return void
 	 */
 	public function do_delete($id = null)
 	{
-		$this->pid or self::alert("请选择要删除的项目");
-		SpiderErrorModel::delete(['pid' => $this->pid]);
-		self::success('删除完成');
+		Spider::$pid or self::alert("请选择要删除的项目");
+		SpiderErrorModel::delete(['pid' => Spider::$pid]);
 	}
+
 }

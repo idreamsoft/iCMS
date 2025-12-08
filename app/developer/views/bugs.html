@@ -9,13 +9,14 @@
         </div>
     </div>
     <div class="block-content px-1 py-0 pb-2">
-        <form action="<?php echo ADMINCP_URL; ?>=developer&do=bugs" method="post" id="iCMS-feedback" target="iPHP_FRAME">
+        <form action="{{developer/bugs}}" method="POST" id="iCMS-feedback" i="cms:developer:bugs">
             <div class="form-group form-group-sm m-0 mt-1">
                 <textarea
                     id="content"
                     name="content"
                     class="form-control p-1 pb-3"
                     rows="7"
+                    i="cms:ui:popover"
                     data-toggle="popover"
                     data-placement="top"
                     title="注意事项"
@@ -24,27 +25,25 @@
 出问题的URL:
 问题描述:
 ------------------------------------------------
-<?php Developer::systemInfo(); ?></textarea
-                >
+<?php AdmincpAdmincp::systemInfo(); ?></textarea>
             </div>
             <div class="form-group form-group-sm m-0 mt-1">
                 <div class="input-group">
-                    <input type="text" maxlength="4" class="form-control form-control-lg form-control-alt" id="captcha" name="captcha" placeholder="请输入图形验证码" />
-                    <img src="<?php echo ADMINCP_URL; ?>=developer&do=getCaptcha" alt="验证码" class="captcha-img rounded-right tip" title="看不清楚？换一张" />
+                    <input type="text" data-rule="required" maxlength="4" class="form-control form-control-lg form-control-alt" name="captcha" placeholder="请输入图形验证码" />
+                    <div class="input-group-text">
+                        <img src="{{developer/getCaptcha}}" alt="验证码" i="cms:ui:captcha" class="captcha-img rounded-end" title="看不清楚？换一张" />
+                    </div>
                 </div>
             </div>
             <div class="form-group form-group-sm m-0 mt-1">
                 <div class="input-group">
-                    <input id="title" name="title" type="text" class="form-control form-control-lg form-control-alt" placeholder="请填写问题的标题" />
-                    <div class="input-group-append">
+                    <input data-rule="required" name="title" type="text" class="form-control form-control-lg form-control-alt" placeholder="请填写问题的标题" />
                         <button class="btn btn-dark" type="submit">
-                            <i class="fa fa-fw fa-check pr-4"></i>
+                            <i class="fa fa-fw fa-check pe-4"></i>
                             提交
                         </button>
-                    </div>
                 </div>
             </div>
         </form>
     </div>
 </div>
-<script type="text/javascript" src="./app/developer/assets/bugs.js"></script>

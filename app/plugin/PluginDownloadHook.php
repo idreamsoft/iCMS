@@ -9,11 +9,11 @@
 */
 class PluginDownloadHook{
     /**
-     * [插件:正文文件下载]
+     * 插件:正文文件下载
      * @param [type] $content  [参数]
      * @param [type] $resource [返回替换过的内容]
      */
-    public static function run($content) {
+    public static function field_hook($content) {
         Plugin::init(__CLASS__);
         preg_match_all('#<a\s*class="attachment".*?href=["|\'](.*?)["|\'].*?</a>#is',$content, $variable);
         foreach ((array)$variable[1] as $key => $path) {

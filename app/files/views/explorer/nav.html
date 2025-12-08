@@ -1,0 +1,37 @@
+<ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item dropdown">
+        <a class="nav-btn dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false"><i class="fa fa-fw fa-file"></i> 文件</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item btn-mkdir" href="#" data-sdir="<?php echo $dir ?>">
+                <i class="si fa-fw si-folder-alt"></i> 新建目录
+            </a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item " i="cms:ui:modal" href="{{files/multi}}?udir=<?php echo $pwd; ?>&callback=uploads" title="上传文件" data-params='{"width":"60%","height":"500px"}'>
+                <i class="si fa-fw si-plus"></i> 上传文件
+            </a>
+        </div>
+    </li>
+    <li class="nav-item dropdown">
+        <a class="nav-btn dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">查看</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="<?php echo $urls['browse']; ?>">
+                <i class="si fa-fw si-list"></i> 列表
+            </a>
+            <a class="dropdown-item" href="<?php echo $urls['grid']; ?>">
+                <i class="si fa-fw si-grid"></i> 大图标
+            </a>
+        </div>
+    </li>
+    <li class="nav-item">
+        <a style="border-radius: 36px;padding: 5px 10px;" href="<?php echo self::url(['dir'=>$parent]); ?>" class="form-control" title="当前路径">
+        iCMS://<?php echo Config::get('file.dir'); ?>/<?php echo $pwd; ?>
+        <input type="hidden" id="pwd" value="<?php echo $pwd; ?>">
+    </a>
+    </li>
+    <li class="nav-item ms-auto">
+        <div class="block-options ps-3 pe-2">
+            <button type="button" class="btn-block-option text-secondary btn-refresh"><i class="si fa-fw si-refresh"></i> </button>
+            <button type="button" class="btn-block-option text-secondary" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+        </div>
+    </li>
+</ul>

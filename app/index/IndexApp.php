@@ -8,38 +8,53 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class IndexApp
+class IndexApp extends AppsBase
 {
-    public function __construct()
-    {
-        Index::init();
-    }
-    public function do_iCMS()
-    {
-        return $this->display();
-    }
-    public function API_iCMS()
-    {
-        return $this->display();
-    }
-    public function display($a = [])
-    {
-        $config = Config::get('template.index');
-        $name = $a[1] ?: $config['name'];
-        $tpl  = $a[0] ?: $config['tpl'];
+    const RULE = 'index{EXT}';
+    const PAGE = 'index_{P}{EXT}'; //只能设置
 
-        $rule = '{PHP}';
-        empty($name) && $name = 'index';
-        if (View::$gateway == "html" || $config['rewrite']) {
-            $rule = $name . Config::get('route.ext');
+    public function do_index()
+    {
+        $tpl = Adapter::$device['index'];
+        if (strpos($tpl, '::') !== false) {
+            return iPHP::invoke($tpl);
         }
-        $route = (array) Route::get('index', array('rule' => $rule));
-        $rule == '{PHP}' or Route::getPageUrl($route);
-        if ($config['mode'] && iPHP_DEVICE == "desktop") {
-            AppsApp::redirectToHtml($route);
+        $app = 'index';
+        $rules = $this->rules();
+        $route = (array) Route::get($app, $rules);
+        $rules['rule'] == '{PHP}' or Route::setPageUrl($route);
+        if (self::$CONFIG['mode']) {
+            self::redirectToHtml($route);
         }
-        View::setGlobal($route, 'iURL');
-        $view = View::render($tpl, 'index');
-        if ($view) return array($view, $route);
+        return View::render($tpl, $app, $route);
+    }
+
+    public static function page()
+    {
+        $path = IndexBoot::$PATH;
+        $ext = iCMS::$config['route']['ext'];
+        $ext = preg_quote($ext, '.');
+        $pattern = str_replace(['{P}', '{EXT}'], ['(\d+)', $ext], self::PAGE);
+        $needle  = str_replace(['{P}', '{EXT}'], ['', ''], self::PAGE);
+        if (stripos($path, '/' . $needle) === 0) {
+            if (preg_match("/$pattern/", $path, $matches)) {
+                if ($matches[1]) {
+                    $_GET['page'] = (int)$matches[1];
+                }
+            }
+        }
+        return $needle;
+    }
+
+    public function rules()
+    {
+        // $file = Adapter::$device['file'] ?: 'index';
+        $file = 'index';
+        $rules = ['rule'=>'{PHP}'];
+        if (View::$gateway == 'html' || self::$CONFIG['rewrite']) {
+            $rules = ['rule'=> self::RULE, 'page'=> self::PAGE];
+            self::page();
+        }
+        return $rules;
     }
 }

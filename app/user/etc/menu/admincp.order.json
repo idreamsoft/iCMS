@@ -1,0 +1,17 @@
+[
+    {
+        "id": "members",
+        "children": [
+            {
+                "id": "users",
+                "children": [
+                    {
+                        "caption": "收支记录",
+                        "icon": "link",
+                        "href": "/UserOrder/index"
+                    }
+                ]
+            }
+        ]
+    }
+]

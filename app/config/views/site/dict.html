@@ -1,0 +1,56 @@
+<div i="cms:config:dist">
+    <div class="container mt-4">
+        <!-- 添加表单项 -->
+        <div class="row mb-3 align-items-center">
+            <div class="col-md-3 col-sm-6 mb-2">
+                <input type="text" v-model="newKey" placeholder="请输入键名" class="form-control" />
+            </div>
+            <div class="col-md-4 col-sm-6 mb-2">
+                <textarea v-model="newValue" placeholder="请输入键值(支持换行)" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="col-md-2 col-sm-4 mb-2">
+                <a @click="addItem" class="btn btn-success w-100">添加</a>
+            </div>
+        </div>
+
+        <!-- 数据表格 -->
+        <table class="table table-striped table-bordered table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>键名</th>
+                    <th>键值</th>
+                    <th>模板标签</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(item, index) in dictionary" :key="item.id || item.key">
+                    <td>
+                        <input v-if="editingIndex === index" class="form-control edit-input" v-model="item.key" placeholder="Key" />
+                        <span v-else>{{ item.key }}</span>
+                    </td>
+                    <td>
+                        <textarea v-if="editingIndex === index" class="form-control edit-input" v-model="item.value" placeholder="Value" rows="2"></textarea>
+                        <span v-else style="white-space: pre-line">{{ item.value }}</span>
+                    </td>
+                    <td>
+                        &lt;!--{config:dist:{{item.key}}}--&gt;
+                    </td>
+                    <td>
+                        <div class="btn-group" role="group">
+                            <a v-if="editingIndex === index" @click="saveItem(index)" class="btn btn-primary btn-sm me-1">
+                                保存
+                            </a>
+                            <a v-else @click="editItem(index)" class="btn btn-warning btn-sm me-1">
+                                编辑
+                            </a>
+                            <a @click="removeItem(index)" class="btn btn-danger btn-sm">
+                                删除
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+AdmincpView::head([['breadcrumb', 'side.overlay', 'sidebar', 'page.header' ], null]); 
+?>
+<div class="content">
+    <div class="hero">
+        <div class="hero-inner text-center">
+            <div class="bg-white">
+                <div class="content content-full overflow-hidden">
+                    <div class="py-4">
+                        <!-- Error Header -->
+                        <div class="display-3 text-<?=$color?:'primary'?> animated zoomInDown" data-toggle="appear" data-class="animated zoomInDown">
+                            <i class="<?php echo $icon; ?>"></i><?php echo $title; ?>
+                        </div>
+                        <div class="h3 fw-light text-muted mb-5 animated fadeInUp" data-toggle="appear" data-class="animated fadeInUp">
+                            <?php echo $message.$error; ?>
+                        </div>
+                        <!-- END Error Header -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="content text-start">
+<pre>
+<?php
+/**
+    $access = Admin::$ACCESS;
+    print_R($uri);
+    echo '权限：';
+    print_R($access);
+    echo '<hr />';
+    AdmincpAdmincp::systemInfo(); 
+    $class_vars = get_class_vars('Admincp');
+    print_R(Security::filterPath($class_vars)); 
+    */
+?>
+</pre>
+</div>
+<script>
+    const state = "<?php echo $state;?>";
+    const code = "<?php echo $code;?>";
+    if (['illegal'].includes(state)) {
+        setTimeout(function () {
+            window.location.href = "<?php echo ADMINCP_URL;?>";
+        }, 3000);
+    }
+</script>
+<?php AdmincpView::foot(); ?>

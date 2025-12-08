@@ -12,8 +12,13 @@ defined('iPHP') or exit('What are you doing?');
 
 class NodeModel extends Model
 {
+    public static $statusMap = array(
+        '0' => '隐藏',
+        '1' => '正常',
+        '2' => '虚拟',
+    );
     protected $casts = [
-        'pid'      => 'array',
+        // 'pid'      => 'array',
         'rule'     => 'array',
         'template' => 'array',
         'config'   => 'array',

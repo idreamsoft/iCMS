@@ -1,4 +1,5 @@
 {
-    "comment":"api.php?app=comment",
-    "CommentUser/manage":"api.php?app=CommentUser&do=manage"
+    "comment":"app=comment",
+    "commentReply":"app=commentReply",
+    "CommentUser/manage":"app=CommentUser&do=manage"
 }

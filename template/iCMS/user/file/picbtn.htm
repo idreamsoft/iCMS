@@ -1,30 +1,30 @@
 <div class="input-group-append">
     <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown" tabindex="-1">选择图片</button>
     <div class="dropdown-menu">
-        <a class="dropdown-item" href="<!--{iCMS:route url='FilesUser:add' callback='$field'}-->" data-toggle="modal" data-meta='{"width":"300px","height":"80px"}' title="本地上传">
+        <a class="dropdown-item" href="<!--{iCMS:route url='d/dd' callback='$field'}-->" data-toggle="modal" data-meta='{"width":"300px","height":"80px"}' title="本地上传">
             <i class="fa fa-fw fa-upload"></i>
             本地上传
         </a>
         <!--{if $multi}-->
-        <a class="dropdown-item" href="<!--{iCMS:route url='FilesUser:multi' callback='$field'}-->" data-toggle="modal" title="多图上传">
+        <a class="dropdown-item" href="<!--{iCMS:route url='d/ulti' callback='$field'}-->" data-toggle="modal" title="多图上传">
             <i class="fa fa-fw fa-upload"></i>
             多图上传
         </a>
         <!--{/if}-->
 
-        <a class="dropdown-item" href="<!--{iCMS:route url='FilesUser:browse' callback='$field'}-->" data-toggle="modal" title="从网站选择">
+        <a class="dropdown-item" href="<!--{iCMS:route url='d/rowse' callback='$field'}-->" data-toggle="modal" title="从网站选择">
             <i class="fa fa-fw fa-search"></i>
             从网站选择
         </a>
         <div class="dropdown-divider"></div>
-        <a data-preview="<!--{$field}-->" class="dropdown-item" href="<!--{iCMS:route url='FilesUser:preview' callback='$field'}-->" data-toggle="modal" data-check="1" title="预览">
+        <a data-preview="<!--{$field}-->" class="dropdown-item" href="<!--{iCMS:route url='d/review' callback='$field'}-->" data-toggle="modal" data-check="1" title="预览">
             <i class="fa fa-fw fa-eye"></i>
             预览
         </a>
     </div>
     <!--{if $multi}-->
-    <link rel="stylesheet" href="./assets/oneui/js/plugins/magnific-popup/magnific-popup.css">   
-    <script src="./assets/oneui/js/plugins/magnific-popup/jquery.magnific-popup.min.js"></script>
+    <link rel="stylesheet" href="./assets/admincp/oneui/js/plugins/magnific-popup/magnific-popup.css">   
+    <script src="./assets/admincp/oneui/js/plugins/magnific-popup/jquery.magnific-popup.min.js"></script>
     <script>jQuery(function(){One.helpers('magnific-popup');});</script>
     <script id="multiTpl-multi_image" type="text/html">
         <div class="col-md-6 col-lg-4 col-xl-3">

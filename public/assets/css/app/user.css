@@ -1,0 +1,12 @@
+.cms-card-head-wrap { box-sizing: border-box;     /* margin: 20px 0px 0px; */ min-width: 0px; }
+.cms-card-head { margin: 0px; min-width: 0px; box-sizing: border-box; position: relative; border-bottom: 1px solid rgb(245, 245, 245);     /* padding-top: 8px; */ padding-bottom: 8px; -webkit-box-align: center; align-items: center; display: flex; }
+.cms-card-head-avatar { box-sizing: border-box; margin: 0px; min-width: 0px; max-width: 100%; background-color: rgb(255, 255, 255); width: 68px; height: 68px; border-radius: 4px; position: absolute; top: -20px; border: 2px solid rgb(255, 255, 255); }
+.cms-card-head-inner { box-sizing: border-box; margin: 0px 0px 0px 84px; min-width: 0px; flex-direction: column; min-height: 42px; padding-bottom: 2px; -webkit-box-pack: center; justify-content: center; overflow: hidden; flex: 1 1 0%; display: flex; }
+.cms-card-head-inner .UserLink { box-sizing: border-box; margin: 0px; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 16px; font-weight: 500; }
+.cms-card-head-inner .slogan { box-sizing: border-box; margin: 4px 0px 0px; min-width: 0px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.cms-card-foot { padding: 8px 10px; text-align: center; border: 0px; }
+.cms-card-num-wrap { display: flex; justify-content: space-around !important;}
+.cms-card-num-item { line-height: 1.6; text-align: center; }
+.cms-card-num-item-title { color: #8493a5; font-size: 14px; }
+.cms-card-num-item-num { color: #121212; display: inline-block; font-size: 18px; font-weight: 600; }
+.cms-card-btns { display: flex; margin-top: 10px; justify-content: space-between; }

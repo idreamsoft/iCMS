@@ -10,63 +10,89 @@
  */
 class SearchAdmincp extends AdmincpCommon
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->id    = (int) $_GET['id'];
-    }
-    public function save_config()
-    {
-        Config::$data = Request::post('config');
-        Config::$data['disable'] = array_unique(explode("\n", Config::$data['disable']));
-        Config::vsave('search');
-        $this->autoCache();
-        // self::success('保存成功');
-    }
+    public static $orderBy = [
+        'id'    => 'ID',
+        'times' => '搜索次数',
+    ];
+    public static $MODEL = 'SearchLogModel';
+
     /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
+     * 管理{title}
+     *
+     * @return void
+     */
+    public function do_index()
+    {
+        if ($statusMap = Prop::getMap(self::$MODEL, 'status')) {
+            self::setContext([
+                'tablist'   => 'params',
+                'statusMap' => $statusMap,
+                'params'    => [
+                    'status' => Request::get('status'),
+                ]
+            ]);
+        }
+
+        if (Request::isAjax()) {
+            return $this->index();
+        }
+
+        include self::view('index');
+    }
+
+    public function done_config()
+    {
+        $data = Request::post('config');
+        $data['disable'] = array_unique(explode("\n", $data['disable']));
+        Config::vsave('search', $data);
+        $this->autoCache();
+    }
+
+    /**
+     * autoCache 在更新所有缓存时，将会自动执行
      */
     public static function autoCache($config = null)
     {
-        $config === null && $config  = Config::vget('search');
+        $config === null && $config = Config::vget('search');
         $config && Cache::set('search/disable', $config['disable'], 0);
     }
 
-    public function do_manage()
+    public function index()
     {
-        $config = Config::vapp('search', true);
-
         $keywords = Request::get('keywords');
-        $keywords && $where['search'] = array('like', "%{$keywords}%");
-
-        $orderby = self::setOrderBy(array(
-            'id'    => "ID",
-            'times' => "搜索次数",
-        ));
-
-        $result = SearchLogModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
-        include self::view("search.manage");
+        $keywords && $where['search'] = ['like', "%{$keywords}%"];
+        return  self::tableData(['where' => $where]);
     }
-    public function do_delete($id = null)
+
+    /**
+     * 删除{title}
+     */
+    public function done_delete($ids = null)
     {
-        $id === null && $id = $this->id;
-        $id or self::alert('请选择要删除的记录');
-        SearchLogModel::delete($id);
-        // $dialog && self::success('记录删除完成');
+        $model = self::$MODEL; //兼容php5
+        $ids === null && $ids = $this->ids;
+        $ids or self::alert('Please select items to delete');
+        is_array($ids) or $ids = [$ids];
+        if ($ids) {
+            $model::delete($ids);
+        }
+        return ['action' => 'delete', 'id' => $ids];
     }
-    public function do_batch()
+
+    /**
+     * 批处理{title}
+     */
+    public function done_batch()
     {
-        $stype = AdmincpBatch::$config['stype'];
-        $actions = array(
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    $this->do_delete($id);
-                }
-                // self::success('记录删除完成');
+        $model = self::$MODEL; //兼容php5
+        $actions = [
+            'dels' => [$this, 'done_delete'],
+            'prop' => function ($ids, $data, $batch) use ($model) {
+                $pid = $data['pid'];
+                $model::update(compact('pid'), $ids);
             },
-        );
-        return AdmincpBatch::run($actions, "标签");
+        ];
+        $result = AdmincpBatch::run($actions);
+        return $result;
     }
 }

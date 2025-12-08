@@ -1,0 +1,49 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="{{APP_DOURL}}" method="get" class="table-search">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="status">状态</label>
+                            <input type="text" data-source='statusMap' class="form-control" i="cms:ui:selectpicker" name="status" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="role_id">角色</label>
+                            <input type="text" data-source='/role/selectpage/admin' class="form-control" i="cms:ui:selectpicker" name="role_id" value="">
+                        </div>
+                    </div>
+                </div>
+                <?php AdmincpForm::tableSearchDefault(); ?>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-content p-0">
+            <div id="toolbar" class="toolbar">
+                <div class="row">
+                    <div class="input-group input-group-sm" role="group">
+                        <a href="{{./add}}" id="add" class="btn btn-alt-primary">
+                            <i class="fa fa-fw fa-add"></i> {{#Lang('Add')}}
+                        </a>
+                        <a href="{{./edit}}" id="edit" class="btn btn-alt-primary table-btn-edit disabled" disabled>
+                            <i class="fa fa-fw fa-edit"></i> {{#Lang('Edit')}}
+                        </a>
+                        <a href="{{./delete}}" id="delete" class="btn btn-alt-primary table-btn-delete disabled" disabled>
+                            <i class="fa fa-fw fa-trash"></i> {{#Lang('Delete')}}
+                        </a>
+                        <?php AdmincpBatch::group(); ?>
+                    </div>
+                </div>
+            </div>
+            <table id="table" width="100%"></table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

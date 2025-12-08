@@ -12,87 +12,134 @@ defined('iPHP') or exit('What are you doing?');
 
 class AdmincpBatch
 {
-    public static $config = array();
+    public static $config = [];
+    public static $app = null;
+    public static $method = null;
 
-    public static function getEtcs($app = null)
+    public static function setApp($app)
+    {
+        self::$app = $app;
+    }
+
+    public static function setMethod($method)
+    {
+        self::$method = $method;
+    }
+
+    public static function getEtcs($app = null, $method = null, $auth = true)
     {
         is_null($app) && $app = Admincp::$APP_NAME;
-        $app  = self::$config['etc.app'] ?: $app;
-        $method  = self::$config['etc.method'] ?: 'manage';
-        //app/*/etc/admincp/test.manage.batch*.json
-        $pattern = sprintf("admincp/%s.%s.batch*", $app, $method);
-        //admincp/test.manage.batch*.json
-        $many1 = (array)Etc::many('*', $pattern, true);
-        $many2 = [];
-        $className = get_called_class();
-        $parent = get_parent_class($className);
-        if ($parent == 'NodeAdmincp') {
-            $pattern = sprintf("admincp/node.%s.batch*", $method);
-            //admincp/node.%s.batch*
-            $many2 = (array)Etc::many('*', $pattern, true);
-        }
-        $actions = array_merge($many1, $many2);
-        if ($actions) foreach ($actions as $key => $item) {
-            $name = $item['name'];
-            self::$config['etc.name'] && $name = str_replace("{name}", self::$config['etc.name'], $name);
-            $actions[$key]['name'] = str_replace("{name}", Admincp::$APP_DATA['title'], $name);
-            if (!AdmincpAccess::batch($key)) {
-                unset($actions[$key]);
+        is_null($method) && $method = Admincp::$APP_DO ?: 'index';
+        $app = self::$config['app'] ?: $app;
+        $method = self::$config['method'] ?: $method;
+        $actions = AdmincpBase::getEtcs('batch', $app, $method);
+        if ($actions) {
+            foreach ($actions as $key => $item) {
+                if ($item['show'] === false) {
+                    unset($actions[$key]);
+                    continue;
+                }
+                $name = $item['name'];
+                self::$config['name'] && $name = str_replace('{name}', self::$config['name'], $name);
+                $actions[$key]['name'] = str_replace('{name}', Admincp::$APP_DATA['title'], $name);
+                $actions[$key]['from'] = $method;
+                if ($auth && !AdmincpAuth::batch($key)) {
+                    unset($actions[$key]);
+                }
             }
+        } else {
+            // var_dump($patterns);
         }
         return $actions;
     }
+
     //批量操作其它UI
     public static function html()
     {
-        // var_dump('batchHtml');
-        // self::$config['data'] = true;
-        // $actions = Admincp::$APP_INSTANCE->do_batch();
         $actions = self::getEtcs();
         $app = Admincp::$APP_NAME;
-        if ($actions) foreach ($actions as $key => $item) {
-            if ($item['view']) {
-                $view = $item['view'];
-                ///app/article/views/batch.sss.html
-                $path = AdmincpView::display('batch.' . $view[0], $view[1] ?: $app);
-                if (is_file($path)) {
-                    include $path;
+        /**
+         * app/article/views/batch.html
+         * app/article/views/category/batch.html
+         * app/spider/views/project/batch.html
+         */
+        $parent = get_parent_class(Admincp::$APP_CLASS);
+        $path = AdmincpView::display('batch', null, false);
+        $path && is_file($path) && include $path;
+        if ($parent == 'NodeAdmincp') {
+            $app = substr($parent, 0, -7);
+            /**
+             * app/node/views/batch.html
+             */
+            $path = AdmincpView::display('batch', $app, false);
+            is_file($path) && include $path;
+        }
+        if ($actions) {
+            foreach ($actions as $key => $item) {
+                if ($item['view']) {
+                    $view = $item['view'];
+                    ///app/article/views/batch.sss.html
+                    $path = AdmincpView::display($app . '/batch.' . $view[0], $view[1] ?: $app, false);
+                    // var_dump($app,AdmincpView::$TEMPLATE );
+                    if ($path && is_file($path)) {
+                        include $path;
+                    }
                 }
             }
         }
     }
-    //批量操作菜单
-    public static function menu()
-    {
-        // self::$config['data'] = true;
-        // $actions = Admincp::$APP_INSTANCE->do_batch();
-        $actions = self::getEtcs();
-        $enable  = isset(self::$config['enable']) ? self::$config['enable'] : true;
-        include AdmincpView::display("widget/batch", 'admincp');
-    }
-    public static function run($default, $title = null, $field = 'id', $type = 'intval')
-    {
 
+    //生成批量操作菜单
+    public static function btns()
+    {
         $actions = self::getEtcs();
-        // if (self::$config['data']) {
-        //     return $actions;
-        // }
-        // var_dump($actions,iDebug::$DATA['batchEtc'],Admincp::$APP_NAME);
-        $app = Admincp::$APP_NAME;
-        $param = self::param($title, $field, $type);
-        $batch = $param[2];
-        $item = $actions[$batch];
-        if ($item['post']) {
-            foreach ($item['post'] as $key => $pkey) {
-                is_numeric($key) && $key = $pkey;
-                $post[$key] = Request::post($pkey);
-            }
-            array_push($param, $post);
+        $enable = isset(self::$config['enable']) ? self::$config['enable'] : true;
+        $class = 'btn btn-alt-primary';
+        include AdmincpView::display('widget/batch/btns', 'admincp');
+    }
+    public static $group = false;
+
+    public static function group($app = null, $method = null)
+    {
+        self::$group = true;
+        $actions = self::getEtcs($app, $method);
+        $enable = isset(self::$config['enable']) ? self::$config['enable'] : true;
+        $class = 'dropdown-item';
+        include AdmincpView::display('widget/batch/group', 'admincp');
+    }
+
+    public static function run($actions, $title = null)
+    {
+        $batch = Request::post('batch');
+        if (!AdmincpAuth::batch($batch)) {
+            return true;
         }
+
+        if ($from = Request::post('from')) {
+            self::set('method', $from);
+        }
+        $config = self::getEtcs();
+        $app = Admincp::$APP_NAME;
+        $ids = self::getIds($title);
+        $params = [];
+        if (strpos($batch, '=') !== false) {
+            parse_str($batch, $params);
+            foreach ((array) $params as $k => $v) {
+                $k = Security::safeStr($k);
+                $v == 'now' && $v = time();
+                $v = (int) $v;
+                $params[$k] = $v;
+            }
+        } else {
+            $params = Request::post('BatchData');
+            unset($params['ids'], $params['batch']);
+        }
+
+        $item = $config[$batch];
         $call = $item['call'] ?: $batch;
-        $callbale = $default[$call] ?: $call;
-        is_callable($callbale) or AdmincpBase::alert('[' . $callbale . ']不存在');
-        $result = iPHP::callback($callbale, $param, E_USER_ERROR);
+        $callbale = $actions[$call] ?: $call;
+        is_callable($callbale) or AdmincpBase::alert('批处理方法[' . $call . ']不存在');
+        $result = iPHP::callback($callbale, [$ids, $params, $batch, $app], E_USER_ERROR);
 
         $title = $item['title'] ?: $item['name'];
         empty($title) && $title = Admincp::$APP_DATA['title'];
@@ -104,20 +151,21 @@ class AdmincpBatch
             return $result ?: $title;
         }
     }
+
     public static function set($key, $value)
     {
         self::$config[$key] = $value;
     }
-    public static function param($title = null, $field = 'id', $type = 'intval')
+
+    public static function getIds($title = null)
     {
         $msg = '请选择要操作的' . ($title ?: '项目');
-        $idArray = (array) $_POST[$field];
-        $idArray or AdmincpBase::alert($msg);
-        $type && $idArray = array_map($type, $idArray);
-        $ids     = implode(',', $idArray);
-        $batch   = $_POST['batch'];
-        return array($idArray, $ids, $batch);
+        $ids = (array) $_POST['ids'];
+        $ids or AdmincpBase::alert($msg);
+        $ids = array_map('intval', $ids);
+        return $ids;
     }
+
     public static function showed($show, $data, $node = null)
     {
         $showed = (bool)(isset($show) ? $show : true);

@@ -11,10 +11,10 @@
 class PluginTextADHook
 {
     /**
-     * [插件:正文插入广告]
+     * 插件:正文插入广告
      * @param string $content [参数]
      */
-    public static function run($content, &$resource = null)
+    public static function field_hook($content, &$resource = null)
     {
         Plugin::init(__CLASS__);
         $pieces    = 1000;

@@ -10,65 +10,47 @@
  */
 class PropAdmincp extends AdmincpCommon
 {
+    use AdmincpCommonTrait;
     public static $app   = null;
     public static $field = null;
     public static $default = array();
-    public function __construct()
-    {
-        parent::__construct();
-        $this->id = (int) $_GET['id'];
-    }
 
-    public function do_update(){
-        parent::do_update();
+    public function updated(&$result)
+    {
         Prop::cache();
     }
-    public function do_addtest()
-    {
-        // $this->id = 1;
-        $this->id && $rs = PropModel::get($this->id);
-        if ($_GET['act'] == "copy") {
-            $this->id = 0;
-            $rs['val'] = '';
-        }
-        if (empty($rs)) {
-            $rs['status']  = 1;
-            $rs['app']  = Request::get('_app', '');
-            $rs['field'] = Request::get('field', '');
-        }
-        include self::view("test");
-    }
-    public function do_savetest()
-    {
-        $data = PropModel::where(['app' => $_POST['sapp'], 'field' => $_POST['field']])->select();
-        // echo DB::getQueryLog();
-        // self::success($data, '保存成功');
-    }
+
     public function do_add()
     {
         // $this->id = 1;
         $this->id && $rs = PropModel::get($this->id);
-        if ($_GET['act'] == "copy") {
+        if (Request::sget('act') == "copy") {
             $this->id = 0;
             $rs['val'] = '';
         }
         if (empty($rs)) {
             $rs['status']  = 1;
-            $rs['app']  = Request::get('_app', '');
+            $rs['appid']  = Request::get('appid', '');
             $rs['field'] = Request::get('field', '');
         }
-        include self::view("prop.add");
+        include self::view();
     }
-
-    public function save()
+    public function do_copy()
+    {
+        $data = PropModel::get($this->id);
+        unset($data['id']);
+        $data['name'] .= '副本';
+        $data['val'] = 0;
+        $data['sortnum']++;
+        $id = PropModel::create($data);
+        $url = APP_URL . '&do=edit&id=' . $id;
+        Utils::jumpto($url);
+    }
+    public function save(&$data = [])
     {
         $data = PropModel::postData();
-        $data['app'] = Request::post('sapp');
-        unset($data['sapp']);
-
         empty($data['field']) && self::alert('属性字段不能为空');
         empty($data['name']) && self::alert('属性名称不能为空');
-        // $app OR self::alert('所属应用不能为空');
 
         if ($data['id']) {
             if ($data['field'] == 'prop_id' || $data['field'] == 'pid') {
@@ -80,59 +62,62 @@ class PropAdmincp extends AdmincpCommon
             $nameArray = explode("\n", $data['name']);
             foreach ($nameArray as $nkey => $name) {
                 if (empty($name)) continue;
-
+                $prop = $data;
                 if (strpos($name, ':') !== false) {
-                    list($data['name'], $data['val']) = explode(':', trim($name));
-                    empty($data['val']) && $data['val'] = $nkey + 1;
+                    list($prop['name'], $prop['val']) = explode(':', trim($name));
+                    empty($prop['val']) && $prop['val'] = $nkey + 1;
                 } else {
-                    $data['name'] = trim($name);
-                    empty($data['val']) && $data['val'] = $data['name'];
+                    $prop['name'] = trim($name);
+                    $prop['val'] = $prop['name'];
                 }
 
-                $data['sortnum'] = $nkey;
-                $result[$nkey] = $data;
-                $result[$nkey]['id'] = Prop::create($data);
+                $prop['sortnum'] = $nkey;
+                $result[$nkey] = $prop;
+                $result[$nkey]['id'] = Prop::create($prop);
             }
-            $data = $result;
         }
         Prop::cache();
-        // self::success($data, '保存成功');
-    }
 
-    public function do_delete($id = null)
-    {
-        $id === null && $id = $this->id;
-        $id or self::alert('请选择要删除的属性');
-        Prop::delete($id);
-        Prop::cache();
-        // $dialog && self::success("属性删除完成");
     }
-    public function do_batch()
+    public function batching()
     {
-        $stype = AdmincpBatch::$config['stype'];
-        $actions = array(
-            'refresh' => function ($idArray, $ids, $batch) {
+        return array(
+            'title' => function ($ids, $data, $batch) {
+                $title = $data['title'];
+                PropModel::update(compact('title'), $ids);
                 Prop::cache();
             },
-            'status' => function ($idArray, $ids, $batch) {
-                PropModel::update(
-                    ['status' => Request::post('mstatus')],
-                    $idArray
-                );
-            },
-            'dels' => function ($idArray, $ids, $batch) {
-                Prop::delete($idArray);
+            'fields' => function ($ids, $data, $batch) {
+                $app = $data['app'];
+                $field = $data['field'];
+                PropModel::update(compact('app','field'), $ids);
                 Prop::cache();
-            },
-            'default' => function ($idArray, $ids, $batch, $data = null) {
-                $data === null && $data = Request::args($batch);
-                $data && PropModel::update($data, $idArray);
-            },
+            }
         );
-        return AdmincpBatch::run($actions, "属性");
+    }
+    public function deleting($ids = [])
+    {
+        if ($ids) foreach ($ids as $key => $id) {
+            Prop::delete($id);
+        }
+        Prop::cache();
+        return true;
+    }
+    /**
+     * 获取属性字段映射
+     *
+     * @auth no
+     * @return void
+     */
+    public function done_mapper()
+    {
+        $post = Request::spost();
+        $arr = Cache::get(sprintf("%s/%s/%s", Prop::PREFIX, $post['appname'], $post['field']));
+        $ret = is_array($arr) ? array_column($arr, 'name', 'val') : [];
+        return $ret;
     }
 
-    public function do_manage()
+    public function index()
     {
         $field = Request::get('field');
         $field && $where['field'] = $field;
@@ -141,20 +126,16 @@ class PropAdmincp extends AdmincpCommon
         $cid = Request::get('cid');
         $cid && $where['cid'] = $cid;
 
-        $orderby = self::setOrderBy();
-        $result = PropModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
-
-        include self::view("prop.manage");
+        return  self::tableData(['where' => $where], function ($rows) {
+            // $rows = array_map(function ($row) {
+            //     return $row;
+            // }, $rows);
+            return $rows;
+        });
     }
 
-    public function do_cache()
-    {
-        $this->autoCache();
-    }
     /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
+     * autoCache 在更新所有缓存时，将会自动执行
      */
     public static function autoCache()
     {
@@ -164,7 +145,7 @@ class PropAdmincp extends AdmincpCommon
     {
         $total = PropModel::count();
         $widget[] = array($total, '全部');
-        foreach (Prop::$statusMap as $status => $text) {
+        foreach (PropModel::$statusMap as $status => $text) {
             $count = PropModel::where('status', $status)->count();
             $widget[] = array($count, $text);
         }

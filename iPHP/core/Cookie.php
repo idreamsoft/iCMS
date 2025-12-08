@@ -1,4 +1,5 @@
 <?php
+
 // namespace iPHP\core;
 /**
  * iPHP - i PHP Framework
@@ -12,28 +13,44 @@
 
 class Cookie
 {
-    //设置COOKIE
-    public static function set($name, $value = "", $life = 0, $httponly = true)
+    public static function getParams($life)
     {
-        // $cookiedomain = iPHP_COOKIE_DOMAIN;
-        $cookiedomain = '';
-        $cookiepath = iPHP_COOKIE_PATH;
-        $value = rawurlencode($value);
-        $life = ($life ? $life : iPHP_COOKIE_TIME);
-        $name = iPHP_COOKIE_PRE . '_' . $name;
+        // $domain = iPHP_COOKIE_DOMAIN;
+        $domain = '';
+        $path = iPHP_COOKIE_PATH;
+        $lifetime = ($life ? $life : iPHP_COOKIE_TIME);
         $timestamp = time();
-        $life = $life > 0 ? $timestamp + $life : ($life < 0 ? $timestamp - 31536000 : 0);
+        $life = $life > 0 ? ($timestamp + $life) : ($life < 0 ? $timestamp - 31536000 : 0);
         $secure = $_SERVER['SERVER_PORT'] == 443 ? 1 : 0;
-        setcookie($name, $value, $life, $cookiepath, $cookiedomain, $secure, $httponly);
+        $httponly = true;
+        return [$life, $path, $domain, $secure, $httponly];
     }
+
+    //设置COOKIE
+    public static function set($name, $value = '', $life = 0, $httponly = true)
+    {
+        list($life, $path, $domain, $secure, $httponly) = self::getParams($life);
+        $value = rawurlencode($value);
+        $name = iPHP_COOKIE_PRE . '_' . $name;
+        setcookie($name, $value, $life, $path, $domain, $secure, $httponly);
+    }
+
     //取得COOKIE
     public static function get($name)
     {
         $name = iPHP_COOKIE_PRE . '_' . $name;
-        return rawurldecode($_COOKIE[$name]);
+        $value = isset($_COOKIE[$name]) ? $_COOKIE[$name] : '';
+        return rawurldecode($value);
     }
-    public static function destroy($name)
+
+    public static function del($name)
     {
-        self::set($name, '',-31536000);
-    } 
+        self::set($name, '', -31536000);
+    }
+    public static function clear()
+    {
+        foreach ($_COOKIE as $key => $value) {
+            self::del($key);
+        }
+    }
 }

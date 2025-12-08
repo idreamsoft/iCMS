@@ -1,0 +1,104 @@
+<div id="access-menu" class="tab-pane active">
+    <div class="form-group">
+        <div class="input-group">
+            <label class="input-group-text" for="checkAllMenu">全选</label>
+            <div class="input-group-text">
+                <input type="checkbox" class="form-check-input" i="cms:ui:checkAll" data-target="#access-menu" />
+            </div>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-text">允许登陆后台</span>
+            <span class="input-group-text">
+                <input type="checkbox" class="form-check-input" v-model="accessAll" name="access[app][]" value="#ADMINCP#" />
+            </span>
+        </div>
+    </div>
+    <div class="block-content tab-content p-0">
+        <div class="row flex flex-wrap gap-4">
+            <!-- 主菜单 -->
+            <div class="col-sm-4 col-md-3">
+                <div class="block-header bg-primary-dark p-3 rounded-t">
+                    <h3 class="block-title text-white text-lg font-bold">主菜单</h3>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white">
+                    <ul class="overflow-y-auto h-500 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                        <li v-for="menu in menus" @click="selectMenu(menu)" :class="{
+                                'text-primary font-semibold bg-primary-light text-white': m1 === menu.id,
+                                'cursor-pointer p-2 hover:bg-gray-100': true
+                            }" class="flex justify-between items-center border-b border-gray-200 last:border-none">
+                            <div class="form-check flex items-center">
+                                <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="menu.id" :value="menu.access">
+                                <b>{{ menu.caption }}</b>
+                            </div>
+                            <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                {{ menu.access }}
+                            </span>
+                            <span class="text-primary ml-auto cursor-pointer" v-if="is_empty(menu.children)" @click="selectMenu(menu)">
+                                <i class="fa fw fa-arrow-circle-right"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 子菜单 -->
+            <div class="col-sm-4 col-md-4">
+                <div class="block-header bg-primary-dark p-3 rounded-t">
+                    <h3 class="block-title text-white text-lg font-bold">子菜单</h3>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white" v-if="is_empty(children)">
+                    <ul class="overflow-y-auto h-500 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                        <li v-for="node in children" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center border-b border-gray-200 last:border-none">
+                            <div class="form-check flex items-center">
+                                <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="node.id" :value="node.access">
+                                <label class="form-check-label flex items-center">
+                                    {{ node.caption }}
+                                    <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                        {{ node.access }}
+                                    </span>
+                                </label>
+                            </div>
+                            <span class="text-primary ml-auto cursor-pointer" v-if="node.children && node.children.length" @click="selectMenu2(node)">
+                                <i class="fa fw fa-arrow-circle-right"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white" v-else>
+                    <div class="text-center text-gray-500 text-lg p-4">暂无子菜单</div>
+                </div>
+            </div>
+
+            <!-- 空白区域 -->
+            <div class="col-sm-4 col-md-4" v-if="is_empty(children2)">
+                <div class="block-header bg-primary-dark p-3 rounded-t">
+                    <h3 class="block-title text-white text-lg font-bold">下级菜单</h3>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white">
+                    <ul class="overflow-y-auto h-500 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                        <li v-for="node2 in children2" class="cursor-pointer p-2 hover:bg-gray-100 flex items-center border-b border-gray-200 last:border-none">
+                            <div class="form-check flex items-center">
+                                <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="node2.id" :value="node2.access">
+                                <label class="form-check-label flex items-center">
+                                    {{ node2.caption }}
+                                    <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                        {{ node2.access }}
+                                    </span>
+                                </label>
+                            </div>
+                            <span class="text-primary ml-auto cursor-pointer" v-if="node2.children && node2.children.length" @click="selectMenu2(node2)">
+                                <i class="fa fw fa-arrow-circle-right"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+
+</div>

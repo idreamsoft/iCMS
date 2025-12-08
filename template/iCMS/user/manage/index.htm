@@ -1,0 +1,75 @@
+<div class="block">
+    <div class="block-content p-0">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">账号：</span>
+                <span><!--{$ME.account}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">手机号：</span>
+                <span>
+                    <!--{$ME.phone}-->
+                    <a href="<!--{iCMS:route url='user/manage/phone'}-->" class="ms-2 text-decoration-none fs-sm">[更换手机号]</a>
+                </span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">邮箱：</span>
+                <span>
+                    <!--{$ME.email}-->
+                    <a href="<!--{iCMS:route url='user/manage/email'}-->" class="ms-2 text-decoration-none fs-sm">[更换邮箱]</a>
+                </span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">当前等级：</span>
+                <span>
+                    <!--{$ME.role.name}-->
+                    <a href="<!--{iCMS:route url='user/manage/vip'}-->" class="ms-2 text-decoration-none fs-sm">[升级]</a>
+                </span>
+            </li>
+
+            <!--{iCMS:UserOrder:get as="user_order" userid="$ME.id" type="2" value="$ME.role.id"}-->
+            <!--{if $user_order}-->
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">等级过期时间：</span>
+                <span>
+                    <!--{$user_order.expire_time|date:'Y-m-d H:i:s'}-->
+                    <a href="<!--{iCMS:route url='user/manage/vip'}-->" class="ms-2 text-decoration-none fs-sm">[升级]</a>
+                </span>
+            </li>
+            <!--{/if}-->
+
+            <!--{iCMS:config name="payment"}-->
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">可用 <!--{$config.names.money}-->：</span>
+                <span>
+                    <!--{$ME.money}-->
+                    <a href="<!--{iCMS:route url='user/manage/charge'}-->" class="ms-2 text-decoration-none fs-sm">[充值]</a>
+                </span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">可用 <!--{$config.names.credit}-->：</span>
+                <span>
+                    <!--{$ME.credit}-->
+                    <a href="<!--{iCMS:route url='user/manage/charge'}-->" class="ms-2 text-decoration-none fs-sm">[充值]</a>
+                </span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">可用 <!--{$config.names.scores}-->：</span>
+                <span>
+                    <!--{$ME.scores}-->
+                    <a href="<!--{iCMS:route url='user/manage/charge'}-->" class="ms-2 text-decoration-none fs-sm">[充值]</a>
+                </span>
+            </li>
+
+            <!-- 可选：VIP免费额度（注释打开即可） -->
+            <!--
+            <li class="list-group-item d-flex align-items-center">
+            <span class="text-muted">VIP 免费 <! --{$config.name}-- ></span>
+            <span>
+                <! --{$ME.free}--> <!--{$config.unit}-- >
+            </span>
+            </li>
+            -->
+        </ul>
+    </div>
+</div>

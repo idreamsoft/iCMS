@@ -12,21 +12,21 @@
 class MenuAdmincp extends AdmincpBase
 {
 
-    public function __construct()
+    public function do_nav()
     {
-        parent::__construct();
+        return ['html' => Menu::buildNav()];
     }
     /**
-     * 更新菜单缓存
+     * 更新缓存
      *
      * @return void
      */
-    public function do_cache()
+    public function done_cache()
     {
         $this->autoCache();
     }
     /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
+     * autoCache 在更新所有缓存时，将会自动执行
      */
     public static function autoCache()
     {

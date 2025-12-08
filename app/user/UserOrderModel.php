@@ -12,4 +12,9 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserOrderModel extends Model
 {
+	public static $typeMap = array(
+		'1' => '充值',
+		'2' => '会员',
+		'3' => '消费',
+	); 
 }

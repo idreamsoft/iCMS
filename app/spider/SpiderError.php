@@ -8,6 +8,9 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
+
+use SebastianBergmann\CodeCoverage\Report\PHP;
+
 defined('iPHP') or exit('What are you doing?');
 
 class SpiderError
@@ -37,18 +40,20 @@ class SpiderError
     {
         if (Spider::$isTest) {
             $msg = nl2br($msg);
-            exit('<h1>' . $msg . '</h1>');
+            echo '<h2>' . $msg . '</h2>';
+            return;
         }
         if (Spider::$isShell) {
             SpiderTools::prints('%s', [$msg], $ex===false?'y':'r');
-            $msg = 'spider error';
         }
+
         if($ex===false){
             return;
         }
         if($ex){
             throw new $ex($msg);
         }
-        AdmincpBase::alert($msg);
+
+        iPHP::alert($msg.PHP_EOL.PHP_EOL);
     }
 }

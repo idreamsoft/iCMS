@@ -1,0 +1,38 @@
+{
+    "comment": {
+        "empty": {
+            "id": "ID不能为空",
+            "iid": "内容ID不能为空",
+            "content": "请输入内容！",
+            "params": "参数不能为空",
+            "commentId": "评论ID不能为空"
+        },
+        "close": "评论已关闭！",
+        "success": "感谢您的评论！",
+        "examine": "您的评论已经提交，请等待管理审核通过后方可显示！",
+        "filter": "评论内容中包含被系统屏蔽的字符，请重新填写。",
+        "vote": {
+            "up": {
+                "success": "点赞成功"
+            },
+            "down": {
+                "success": "踩评论成功"
+            }
+        },
+        "reply": {
+            "title": "评论回复",
+            "close": "评论已禁止回复！",
+            "success": "感谢您的回复！",
+            "examine": "您的回复已经提交，请等待管理审核通过后方可显示！",
+            "filter": "回复内容中包含被系统屏蔽的字符，请重新填写。",
+            "vote": {
+                "reply_up": {
+                    "success": "点���成功"
+                },
+                "reply_down": {
+                    "success": "踩回复成功"
+                }
+            }
+        }
+    }
+}

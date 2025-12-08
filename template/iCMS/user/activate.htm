@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>激活账号 | <!--{$site.title}--></title>
+    <meta name="keywords" content="<!--{$site.keywords}-->" />
+    <meta name="description" content="<!--{$site.description}-->" />
+    <!--{iCMS:public:ui}-->
+</head>
+
+<body>
+    <div id="page-container">
+        <!-- Main Container -->
+        <!--{"1"|rand:"39"|as:"bgNum"}-->
+        <main id="main-container" style="background: url(<!--{$site.urls.assets}-->/img/bg/photo17.jpg) top center no-repeat; background-size: cover">
+            <!-- Page Content -->
+            <div class="hero-static d-flex align-items-center">
+                <div class="container">
+                    <!-- Sign In Section -->
+                    <div class="bg-black-50 rounded mt-5">
+                        <div class="content content-full">
+                            <div class="row justify-content-center">
+                                <div class="col-md-6 col-lg-7 d-flex align-items-center">
+                                    <div class="content content-full">
+                                        <div class="text-center text-white">
+                                            <h2 class="fw-light" data-toggle="appear" data-class="animated fadeInDown"><!--{$msg}--></h2>
+                                            <!--{if $status===1}-->
+                                            <h3 class="fw-light">
+                                                请前往 <a href="<!--{iCMS:route url='user/login'}-->" class="text-primary-light">登陆 >></a>
+                                            </h3>
+                                            <!--{/if}-->
+                                            <!--{if $status===-1}-->
+                                            <h4 class="fw-light">
+                                                <a href="<!--{iCMS:route url='UserPassport/resend_activate'}-->" i="cms:ui:ajax" data-param-code="<!--{$code}-->" class="text-primary-light">点击这里，重新发送验证邮件 >></a>
+                                            </h4>
+                                            <!--{/if}-->
+                                        </div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Sign In Section -->
+
+                    <!--{include file="iCMS://user/footer.htm"}-->
+                </div>
+            </div>
+            <!-- END Page Content -->
+        </main>
+        <!-- END Main Container -->
+    </div>
+    <!-- END Page Container -->
+
+</body>
+
+</html>

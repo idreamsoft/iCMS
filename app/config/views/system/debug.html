@@ -1,0 +1,93 @@
+<?php $title = "调试"; ?>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_php">程序调试</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][php]" id="debug_php" value="<?php echo $config['debug']['php']; ?>" />
+        <small class="form-text text-muted">程序错误提示!如果网站显示空白或者不完整,可开启此项,方便排除</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_php_trace">程序调试信息</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][php_trace]" id="debug_php_trace" value="<?php echo $config['debug']['php_trace']; ?>" />
+        <small class="form-text text-muted">显示程序调试信息</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_php_errorlog">保存错误信息</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][php_errorlog]" id="debug_php_errorlog" value="<?php echo $config['debug']['php_errorlog']; ?>" />
+        <small class="form-text text-muted">保存错误信息到文件,方便调试</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_js">脚本调试</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][js]" id="debug_js" value="<?php echo $config['debug']['js']; ?>" />
+        <small class="form-text text-muted">脚本调试,打开可防止后台JS缓存。默认关闭</small>
+    </div>
+</div>
+
+<!-- <div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_access_log">后台访问记录</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][access_log]" id="debug_access_log" value="<?php echo $config['debug']['access_log']; ?>" />
+        <small class="form-text text-muted">后台访问记录 默认为开启状态</small>
+    </div>
+</div> -->
+
+<hr />
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_tpl">模板调试</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][tpl]" id="debug_tpl" value="<?php echo $config['debug']['tpl']; ?>" />
+        <small class="form-text text-muted">模板错误提示!如果网站显示空白或者不完整,可开启此项,方便排除错误!模板调整时也可</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_tpl_trace">模板调试信息</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][tpl_trace]" id="debug_tpl_trace" value="<?php echo $config['debug']['tpl_trace']; ?>" />
+        <small class="form-text text-muted">模板所有数据调试信息</small>
+    </div>
+</div>
+<hr />
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_db">数据库提示</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][db]" id="debug_db" value="<?php echo $config['debug']['db']; ?>" />
+        <small class="form-text text-muted">
+            开启后将显示所有数据库错误信息
+        </small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_db_trace">SQL跟踪</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][db_trace]" id="debug_db_trace" value="<?php echo $config['debug']['db_trace']; ?>" />
+        <small class="form-text text-muted">开启后将显示所有SQL执行情况</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_db_explain">SQL解释</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][db_explain]" id="debug_db_explain" value="<?php echo $config['debug']['db_explain']; ?>" />
+        <small class="form-text text-muted">开启后将显示 SQL EXPLAIN 信息</small>
+    </div>
+</div>
+
+<hr />
+<h3 class="title">实验功能</h3>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="debug_db_optimize_in">数据优化</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[debug][db_optimize_in]" id="debug_db_optimize_in" value="<?php echo $config['debug']['db_optimize_in']; ?>" />
+        <small class="form-text text-muted">开启后,iCMS:article:list
+            相关性能将大大提升.如果文章数据量大,服务器负载很高可尝试开启</small>
+    </div>
+</div>

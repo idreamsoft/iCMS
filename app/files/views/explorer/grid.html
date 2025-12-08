@@ -1,0 +1,94 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+AdmincpView::head();
+?>
+<style>
+    .nav-tabs .nav-link {
+        margin-bottom: 0px;
+    }
+
+    .diricon .svg_icon {
+        height: 50px !important;
+        width: 50px !important;
+    }
+</style>
+<?php if (!AdmincpView::$IS_MODAL) { ?>
+<div class="content" id="{{APP_MAINID}}">
+    <?php } ?>
+    <div class="block <?php echo AdmincpView::$IS_MODAL ? '' : ''; ?>" id="files-explorer">
+        <?php include self::view("nav"); ?>
+        <div class="block-content">
+            <div class="row mb-3">
+                <?php if ($parent) { ?>
+                <div class="col-3 col-sm-2 text-center mb-3">
+                    <a href="<?php echo self::url(['dir' => $parent]); ?>">
+                        <div class="d-flex align-items-center justify-content-center" style="height:60px;overflow: hidden;">
+                            <i class="fa fa-2x fa-angle-double-up"></i>
+                        </div>
+                        <code>返回上级</code>
+                    </a>
+                </div>
+                <?php }  ?>
+                <?php
+                if ($dirList) foreach ($dirList as $idx => $item) {
+                    $id = "dir-" . $idx;
+                ?>
+                <div href="<?php echo $item['url']; ?>" i="cms:ui:dblclick" class="col-3 col-sm-2 text-center mb-3" for="<?php echo $id; ?>" title="双击打开">
+                    <div class="form-check form-block">
+                        <input data-type="dir" type="checkbox" class="form-check-input" id="<?php echo $id; ?>" value="<?php echo $file['path']; ?>">
+                        <label class="form-check-label" for="<?php echo $id; ?>">
+                            <div class="d-flex align-items-center justify-content-center diricon" style="height:60px;overflow: hidden;">
+                                <?php echo Files::icon('folder'); ?>
+                            </div>
+                            <span class="text-primary fw-normal">
+                                <?php echo $item['name']; ?>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+
+            <?php if ($fileList) { ?>
+            <div class="row g-sm">
+                <?php
+                    foreach ($fileList as $idx => $file) {
+                        $id = "file-" . $idx;
+                    ?>
+                <div class="col-3 col-sm-2 mb-2 text-nowrap">
+                    <div class="form-check form-block">
+                        <input data-type="file" type="checkbox" class="form-check-input" id="<?php echo $id; ?>" value="<?php echo $file['path']; ?>" url="<?php echo $file['url']; ?>">
+                        <label class="form-check-label" for="<?php echo $id; ?>">
+                            <div class="d-flex align-items-center justify-content-center rounded" style="height:90px;overflow: hidden;">
+                                <?php if (in_array(strtolower($file['ext']), FilesPic::$EXTS)) { ?>
+                                <img style="width:100%;" src="<?php echo $file['url']; ?>" class="rounded">
+                                <?php } else { ?>
+                                <?php echo Files::icon($file['name']); ?>
+                                <?php } ?>
+                            </div>
+                            <div class="text-start fw-normal overflow-hidden" style="font-size: 12px;" i="cms:ui:tip" title="<?php echo $file['name']; ?>">
+                                <?php echo $file['name']; ?>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+
+            <?php }  ?>
+        </div>
+    </div>
+    <?php if (!AdmincpView::$IS_MODAL) { ?>
+</div>
+<?php } ?>
+
+<?php AdmincpView::foot(); ?>

@@ -12,6 +12,9 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserFollowFunc extends AppsFuncCommon
 {
+    protected static $app = User::APP;
+    protected static $appid = User::APPID;
+
     public static function lists($vars = null)
     {
         $whereNot  = array();
@@ -22,16 +25,15 @@ class UserFollowFunc extends AppsFuncCommon
         } else {
             $where = [['userid', $vars['userid']]]; //follow
         }
-        self::init($vars, $model, $where, $whereNot);
-        self::setApp(User::APPID, User::APP);
+        self::inited($vars, $model, $where, $whereNot);
 
         self::orderby([], 'id');
         self::where();
-        return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+        return self::getResource(__METHOD__);
     }
-    public static function resource($vars, $idsArray = null)
+    public static function resource($idsArray = null)
     {
-        $vars['ids'] && $idsArray = $vars['ids'];
+        $vars = self::$vars;
 
         $resource = UserFollowModel::field('*')->where($idsArray)->orderBy('id', $idsArray)->select();
         if ($vars['data']) {
@@ -48,11 +50,11 @@ class UserFollowFunc extends AppsFuncCommon
 
         if ($resource) foreach ($resource as $key => $value) {
             if ($vars['fuid']) {
-                $value['avatar'] = User::route($value['userid'], 'avatar');
-                $value['url']    = User::route($value['userid'], 'url');
+                $value['avatar'] = User::route('avatar',$value['userid']);
+                $value['url']    = User::route('url',$value['userid']);
             } else {
-                $value['avatar'] = User::route($value['fuid'], 'avatar');
-                $value['url']    = User::route($value['fuid'], 'url');
+                $value['avatar'] = User::route('avatar',$value['userid']);
+                $value['url']    = User::route('url',$value['userid']);
                 $value['userid']    = $value['fuid'];
                 $value['name']   = $value['fname'];
             }

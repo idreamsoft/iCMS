@@ -14,32 +14,53 @@ class Favorite
     const APP = 'favorite';
     const APPID = iCMS_APP_FAVORITE;
 
-    public static function check($iid, $uid, $appid)
+    public static function default()
     {
-        $where = compact('uid', 'iid', 'appid');
-        $id  = FavoriteDataModel::field('id')->where($where)->value();
+        $data = [
+            'userid'  => User::$id,
+            'title'   => '默认收藏夹',
+            'mode'    => 0,
+            'status'  => 2,
+        ];
+        $id = FavoriteModel::field('id')->where($data)->value();
+        if (empty($id)) {
+            $data['nickname'] = User::$nickname;
+            $data['created'] = time();
+            $id = FavoriteModel::create($data, true);
+        }
+        return $id;
+    }
+
+    public static function check($iid, $userid, $appid)
+    {
+        $where = compact('userid', 'iid', 'appid');
+        $id = FavoriteDataModel::field('id')->where($where)->value();
         return $id ? true : false;
     }
-    public static function delete($id = 0, $uid = 0)
+
+    public static function delete($id = 0, $userid = 0)
     {
-        $uid && $where['uid'] = $uid;
+        $userid && $where['userid'] = $userid;
         FavoriteModel::where($where)->delete($id);
         $where['fid'] = $id;
         FavoriteDataModel::where($where)->delete();
         FavoriteFollowModel::where($where)->delete();
     }
-    public static function updateInc($field, $id, $uid = 0, $step = 1)
+
+    public static function updateInc($field, $id, $userid = 0, $step = 1)
     {
-        return self::updateCount($field, $id, $uid, $step, 'inc');
+        return self::updateCount($field, $id, $userid, $step, 'inc');
     }
-    public static function updateDec($field, $id, $uid = 0, $step = 1)
+
+    public static function updateDec($field, $id, $userid = 0, $step = 1)
     {
-        return self::updateCount($field, $id, $uid, $step, 'dec');
+        return self::updateCount($field, $id, $userid, $step, 'dec');
     }
-    public static function updateCount($field, $id, $uid = 0, $step = 1, $func = 'inc')
+
+    public static function updateCount($field, $id, $userid = 0, $step = 1, $func = 'inc')
     {
         $where = compact('id');
-        $uid && $where['uid'] = $uid;
+        $userid && $where['userid'] = $userid;
         return FavoriteModel::where($id)->$func($field, $step);
     }
 }

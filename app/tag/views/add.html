@@ -1,0 +1,242 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+    <div class="content" id="{{APP_MAINID}}">
+        <div class="block">
+            <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+                <li class="nav-item"><a href="#tag-add-base" class="nav-link active"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+                <li class="nav-item"><a href="#add-publish" class="nav-link"><i class="fa fa-fw fa-rocket"></i> 发布设置</a></li>
+                <li class="nav-item"><a href="#apps-former" class="nav-link"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+                <li class="nav-item"><a href="#apps-meta" class="nav-link"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+            </ul>
+            <div class="block-content">
+                <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                    <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                    <input name="rs[userid]" type="hidden" value="<?php echo $rs['userid']; ?>" />
+                    <div id="tags-add" class="tab-content">
+                        <div id="tag-add-base" class="tab-pane active">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="status">状 态</label>
+                                <div class="col-sm-8">
+                                    <input data-source='statusMap' data-field="status" class="form-control" i="cms:ui:selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">标签分类</label>
+                                <div class="col-sm-8">
+                                    <input name="rs[tcid]" id="tcid" class="form-control" i="cms:ui:node" data-node-access="<?php echo $rs?'ce':'ca'; ?>" data-node-appid="<?php echo Node::$APPID; ?>" placeholder="请选择标签分类..." value="<?php echo $rs['tcid']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">所属栏目</label>
+                                <div class="col-sm-8">
+                                    <input name="rs[cid]" id="cid" class="form-control" 
+                                    i="cms:ui:node" 
+                                    data-url="/node/selectpage"
+                                    data-node-access="<?php echo $rs?'ce':'ca'; ?>" placeholder="请选择所属栏目..." value="<?php echo $rs['cid']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">所属应用</label>
+                                <div class="col-sm-8">
+                                    <input name="rs[appid]" id="appid" class="form-control" 
+                                    i="cms:ui:selectpage" 
+                                    data-text="app"
+                                    data-source="/apps/selectpage" 
+                                    data-search="app,title"
+                                    data-multiple="true"
+                                    placeholder="请选择所属应用..." value="<?php echo $rs['appid']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">标签属性</label>
+                                <div class="col-sm-8">
+                                    <input name="rs[pid]" class="form-control" i="cms:ui:prop" data-source="./prop/pid" data-max="5" multiple="multiple" value="<?php echo $rs['pid']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">父标签ID</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[rootid]" class="form-control" i="cms:ui:selectpage" 
+                                    data-source="/tag/selectpage" 
+                                    data-search="tkey,name"
+                                    id="rootid" value="<?php echo $rs['rootid']; ?>" />
+                                    <small class="form-text text-muted">本标签所属的标签的ID,请自行填写ID</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">标签名称</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[name]" data-rule="required" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">唯一标识</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[tkey]" class="form-control" id="tkey" value="<?php echo $rs['tkey']; ?>" />
+                                    <small class="form-text text-muted">用于伪静态或者静态生成 唯一性<br />留空则系统按名称拼音生成</small>
+                                </div>
+                            </div>
+
+                            <hr />
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">SEO 标题</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[seotitle]" class="form-control" id="seotitle" value="<?php echo $rs['seotitle']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">副 标 题</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[subtitle]" class="form-control" id="subtitle" value="<?php echo $rs['subtitle']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">关 键 字</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[keywords]" class="form-control" id="keywords" value="<?php echo $rs['keywords']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">封面</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[pic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-browse="true" data-preview="true" id="pic" value="<?php echo $rs['pic']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">描述</label>
+                                <div class="col-sm-8">
+                                    <textarea name="rs[description]" id="description" class="form-control" style="height: 150px;width:600;"><?php echo $rs['description']; ?></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">相关标签</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[related]" class="form-control" id="related" value="<?php echo $rs['related']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                                </div>
+                            </div>
+                        </div>
+                        <div id="add-publish" class="tab-pane hide">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">字段</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[field]" class="form-control" id="field" value="<?php echo $rs['field']; ?>" />
+                                    <small class="form-text text-muted">一般不用修改</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="pubdate">发布时间</label>
+                                <div class="col-sm-8">
+                                    <input id="pubdate" class="form-control" i="cms:ui:datepicker" data-enable-time="true" value="<?php echo $rs['pubdate']?:'0'; ?>" name="rs[pubdate]" type="text" <?php echo $readonly; ?> />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="bpic">大图</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[bpic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="bpic" value="<?php echo $rs['bpic']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="bpic">中图</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[mpic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="mpic" value="<?php echo $rs['mpic']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="bpic">小图</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[spic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="spic" value="<?php echo $rs['spic']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">排序</label>
+                                <div class="col-sm-8">
+                                    <input id="sortnum" class="form-control" value="<?php echo $rs['sortnum'] ? $rs['sortnum'] : time(); ?>" name="rs[sortnum]" type="text" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">权重</label>
+                                <div class="col-sm-8">
+                                    <input id="weight" class="form-control" value="<?php echo $rs['weight'] ? $rs['weight'] : time(); ?>" name="rs[weight]" type="text" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">点击数</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">总点击数</span>
+                                        <input type="text" name="rs[hits]" class="form-control" id="hits" value="<?php echo $rs['hits'] ? $rs['hits'] : '0'; ?>" />
+                                        <span class="input-group-text">当天点击数</span>
+                                        <input type="text" name="rs[hits_today]" class="form-control" id="hits_today" value="<?php echo $rs['hits_today'] ? $rs['hits_today'] : '0'; ?>" />
+                                        <span class="input-group-text">昨天点击数</span>
+                                        <input type="text" name="rs[hits_yday]" class="form-control" id="hits_yday" value="<?php echo $rs['hits_yday'] ? $rs['hits_yday'] : '0'; ?>" />
+                                        <span class="input-group-text">周点击</span>
+                                        <input type="text" name="rs[hits_week]" class="form-control" id="hits_week" value="<?php echo $rs['hits_week'] ? $rs['hits_week'] : '0'; ?>" />
+                                        <span class="input-group-text">月点击</span>
+                                        <input type="text" name="rs[hits_month]" class="form-control" id="hits_month" value="<?php echo $rs['hits_month'] ? $rs['hits_month'] : '0'; ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="">其它数值</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">收藏数</span>
+                                        <input type="text" name="rs[favorite]" class="form-control" id="favorite" value="<?php echo $rs['favorite'] ? $rs['favorite'] : '0'; ?>" />
+                                        <span class="input-group-text">评论数</span>
+                                        <input type="text" name="rs[comment]" class="form-control" id="comment" value="<?php echo $rs['comment'] ? $rs['comment'] : '0'; ?>" />
+                                        <span class="input-group-text">点赞数</span>
+                                        <input type="text" name="rs[good]" class="form-control" id="good" value="<?php echo $rs['good'] ? $rs['good'] : '0'; ?>" />
+                                        <span class="input-group-text">点踩数</span>
+                                        <input type="text" name="rs[bad]" class="form-control" id="bad" value="<?php echo $rs['bad'] ? $rs['bad'] : '0'; ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="">模板</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="rs[tpl]" class="form-control" id="tpl" value="<?php echo $rs['tpl']; ?>" />
+                                        <button class="btn btn-sm btn-secondary" i="cms:ui:file:browse" data-dir="template" data-mode="file"><i class="fa fa-fw fa-list"></i>{{#Lang('Browse')}}</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="">自定链接</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[clink]" class="form-control" id="clink" value="<?php echo $rs['clink']; ?>" />
+                                    <small class="form-text text-muted">只能由英文字母、数字或_-组成(不支持中文),留空则自动以标题拼音填充</small>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="">外部链接</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[url]" class="form-control tip" title="注意:文章设置外部链接后编辑器里的内容是不会被保存的哦!" id="url" value="<?php echo $rs['url']; ?>" />
+                                    <small class="form-text text-muted">不填写请留空!</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="apps-former" class="tab-pane" role="tabpanel">
+                            <?php Former::admincp($rs,'tag')->render(); ?>
+                        </div>
+                        <div id="apps-meta" class="tab-pane" role="tabpanel">
+                            <?php AppsWidget::metadata($rs['id']); ?>
+                        </div>
+                    </div>
+                    <?php self::form()->submit(); ?>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php self::foot(); ?>

@@ -20,7 +20,7 @@
                         <th colspan="3"><i class=></i><?php echo $path; ?></th>
                     </tr>
                 </tbody>
-                <tbody class="font-size-sm">
+                <tbody class="fs-sm">
                     <tr class="thead-light">
                         <th style="width: 150px;">路由</th>
                         <th>静态链接</th>
@@ -33,9 +33,7 @@
                             <td>
                                 <div class="input-group input-group-sm">
                                     <input class="form-control" type="text" name="route[<?php echo $path; ?>][<?php echo $ridx; ?>][0]" value="<?php echo $rkey; ?>" />
-                                    <div class="input-group-append">
-                                        <button class="btn btn-sm btn-danger del_route" type="button"><i class="fa fa-fw fa-times"></i> </button>
-                                    </div>
+                                    <button class="btn btn-sm btn-danger del_route" type="button"><i class="fa fa-fw fa-times"></i> </button>
                                 </div>
                             </td>
                             <td><input class="form-control" type="text" name="route[<?php echo $path; ?>][<?php echo $ridx; ?>][1]" value="<?php echo $rval[0]; ?>" /></td>
@@ -56,7 +54,7 @@
     });
 </script>
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="config_iurl">内容网址</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="config_iurl">内容网址</label>
     <div class="col-sm-8">
         <!-- <select name="menu" class="form-control" data-placeholder="请选择网址类型...">
             <option value="0">单入口模式[index.php?app=xxx&id=123]</option>

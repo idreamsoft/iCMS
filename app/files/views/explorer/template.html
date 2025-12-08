@@ -1,0 +1,224 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+AdmincpView::head();
+?>
+<style>
+.nav-tabs .nav-link{margin-bottom:0px;}
+</style>
+
+<div class="block block-themed" id="files-explorer">
+    <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+        <li class="nav-item">
+            <a class="nav-link active" href="#">
+                <i class="fa fa-fw fa-file"></i>
+                模板管理
+            </a>
+        </li>
+        <li class="nav-item dropdown">
+            <a class="nav-btn dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
+                aria-expanded="false">快捷链接</a>
+            <div class="dropdown-menu">
+                <a class="dropdown-item btn-mkdir" href="###" data-sdir="<?php echo $dir?>">
+                    <i class="si si-plus text-success"></i>
+                    新建目录
+                </a>
+                <!-- <div class="dropdown-divider"></div>
+                <a class="dropdown-item " i="cms:ui:modal" href="{{APP_DOURL}}_upload?dir=<?php echo $pwd; ?>"
+                    title="上传文件" data-params='{"width":"60%","height":"500px"}'
+                    id="upload">
+                    <i class="fa fa-fw fa-upload"></i>
+                    上传文件
+                </a> -->
+            </div>
+        </li>
+        <li class="nav-item"><button class="btn btn-sm btn-link btn-refresh"><i class="fa fa-fw fa-refresh"></i> </button> </li>
+
+        <li class="nav-item">
+            <a style="border-radius: 36px;width: 360px;padding: 5px 10px;" href="<?php echo $URI . $parent; ?>" class="form-control" title="当前路径">
+                iCMS://template/<?php echo $pwd; ?>
+                <input type="hidden" id="pwd" value="<?php echo $pwd; ?>">
+            </a>
+        </li>
+        <!-- <li class="nav-item ms-auto">
+            <div class="block-options ps-3 pe-2">
+                <button type="button" class="btn-block-option text-secondary" data-toggle="block-option"
+                    data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+                <button type="button" class="btn-block-option text-secondary" data-toggle="block-option"
+                    data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+            </div>
+        </li> -->
+    </ul>
+    <div class="block-content p-0">
+        <form action="{{./batch}}" method="POST" i="cms:ui:form">
+            <table class="js-table-checkable table table-sm table-hover table-vcenter table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width: 30px" class="align-middle"></th>
+                        <th style="width: 320px">目录</th>
+                        <th class="text-end pe-2">操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td></td>
+                        <td colspan="2">
+                            <a href="<?php echo $URI . $parent; ?>">
+                                <i class="fa fa-fw fa-angle-double-up"></i>
+                                返回上级
+                            </a>
+                        </td>
+                    </tr>
+                    <?php  
+                        if ($dirList) foreach ($dirList as $idx => $item) {
+                            $id = "dir-".$idx;
+                    ?>
+                    <tr id="id<?php echo md5($item['path']); ?>">
+                        <td class="text-center">
+                            <div class="form-check">
+                                <input data-type="dir" type="checkbox" class="form-check-input"
+                                    id="<?php echo $id; ?>" 
+                                    value="<?php echo $item['path']; ?>" />
+                                <label class="form-check-label" for="<?php echo $id; ?>"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <label class="w-100" for="<?php echo $id; ?>">
+                                <a href="<?php echo $item['url']; ?>" class="dirname">
+                                    <i class="fa fa-fw fa-folder"></i> <?php echo $item['name']; ?>
+                                </a>
+                            </label>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <?php if (0) { ?>
+                                
+                                <a class="btn btn-sm btn-light mv_dir" title="重命名"><i class="fa fa-fw fa-i-cursor"></i></a>
+                                <a class="btn btn-sm btn-light " i="cms:ui:modal"
+                                    href="{{APP_DOURL}}_upload?dir=<?php echo $item['path']; ?>"
+                                    data-params='{"width":"98%","height":"580px"}' title="上传到此目录">
+                                    <i class="fa fa-fw fa-upload"></i>
+                                </a>
+                                <?php } ?>
+                                
+                                <a class="btn btn-sm btn-light" i="cms:ui:ajax"
+                                    href="{{APP_DOURL}}_rmdir?path=<?php echo $item['path']; ?>" title="删除目录"
+                                    data-action="delete">
+                                    <i class="fa fa-fw fa-trash"></i>
+                                </a>
+                                
+                            </div>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+            <?php if ($fileList) { ?>
+            <table class="js-table-checkable table table-sm table-hover table-vcenter table-striped mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th style="width:30px" class="text-center">
+                            <div class=" form-check">
+                                <input type="checkbox" class="form-check-input" i="cms:ui:checkAll" id="checkAll" data-target="#filesList" />
+                                <label class="form-check-label" for="checkAll"></label>
+                            </div>
+                        </th>
+                        <th>文件名</th>
+                        <th style="width: 60px">类型</th>
+                        <th style="width: 90px">大小</th>
+                        <th style="width: 150px">最后修改时间</th>
+                        <th class="text-end pe-2">操作</th>
+                    </tr>
+                </thead>
+                <tbody id="filesList">
+                    <?php if ($parent) { ?>
+                    <tr>
+                        <td></td>
+                        <td colspan="7">
+                            <a href="<?php echo $URI . $parent; ?>">
+                                <i class="fa fa-fw fa-angle-double-up"></i>
+                                返回上级
+                            </a>
+                        </td>
+                    </tr>
+                    <?php }  ?>
+                    <?php
+                        foreach ($fileList as $idx => $file) {
+                            // $icon  = Files::icon($file['name']);
+                            $id = "file-".$idx;
+                        ?>
+                    <tr id="<?php echo md5($file['path']); ?>">
+                        <td class="text-center">
+                            <div class="form-check">
+                                <input data-type="file" type="checkbox" class="form-check-input"
+                                    id="<?php echo $id; ?>" 
+                                    value="<?php echo $file['path']; ?>"
+                                    url="<?php echo $file['url']; ?>" />
+                                <label class="form-check-label" for="<?php echo $id; ?>"></label>
+                            </div>
+                        </td>
+                        <td>
+                            <label class="w-100" for="<?php echo $id; ?>">
+                            <?php if (in_array(strtolower($file['ext']), FilesPic::$EXTS)) { ?>
+                            <a href="###" class="tip-right" data-img="<?php echo $file['url']; ?>">
+                                <?php echo $icon; ?>
+                                <?php echo $file['name']; ?>
+                            </a>
+                            <?php } else { ?>
+                                <?php echo $icon; ?>
+                                <?php echo $file['name']; ?>
+                            <?php } ?>
+                            </label>
+                        </td>
+                        <td>
+                            <span class="badge bg-success">
+                                <?php echo $file['ext']; ?>
+                            </span>
+                        </td>
+                        <td>
+                            <?php echo $file['size']; ?>
+                        </td>
+                        <td>
+                            <?php echo $file['modified']; ?>
+                        </td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <?php if (0) { ?>
+                                <a class="btn btn-sm btn-light" title="编辑"><i
+                                        class="fa fa-fw fa-pencil-alt"></i></a>
+                                <a class="btn btn-sm btn-light" title="重命名"><i class="fa fa-fw fa-i-cursor"></i></a>
+                                <a class="btn btn-sm btn-light " i="cms:ui:modal" href="<?php echo $href; ?>"
+                                    title="上传并覆盖文件" title="上传"><i class="fa fa-fw fa-upload"></i></a>
+                                <?php } ?>
+                                <?php if ($href) { ?>
+                                <a class="btn btn-sm btn-light " i="cms:ui:modal" href="<?php echo $href; ?>" title="查看文件">
+                                    <i class="fa fa-fw fa-circle-info"></i>
+                                    查看
+                                </a>
+                                <?php } ?>
+                                <a class="btn btn-sm btn-light" i="cms:ui:ajax"
+                                    href="{{APP_DOURL}}_rmfile?path=<?php echo $file['path']; ?>" title="删除文件"
+                                    data-action="delete">
+                                    <i class="fa fa-fw fa-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    <?php }  ?>
+                </tbody>
+            </table>
+            <?php }  ?>
+        </form>
+    </div>
+</div>
+
+
+<?php AdmincpView::foot(); ?>

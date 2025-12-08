@@ -10,152 +10,252 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class CommentApp
+class CommentApp extends AppsBase
 {
-	public $methods = array('html','vote', 'like', 'widget', 'json', 'add', 'reply', 'form', 'list', 'redirect');
-	public $config  = null;
-	public function __construct()
-	{
-		$this->config = Config::get('comment');
-		$this->id     = (int) Request::get("id");
-	}
-	public function API_redirect()
-	{
-		$appid = (int) Request::get("appid");
-		$iid   = (int) Request::get("iid");
-		$url = Apps::get_url($appid, $iid);
-		Helper::redirect($url);
-	}
-	public function API_widget()
-	{
-		$name = Request::sget('name');
-		empty($name)&& iJson::error('iCMS:empty:widget');
-		$tpl = sprintf('iCMS://comment/widget.%s.htm',$name);
-		View::display($tpl);
-	}
-	public function API_html(){
-		$name = Request::spost('name');
-		empty($name)&& iJson::error('iCMS:empty:param');
-		$tpl = sprintf('iCMS://comment/%s.htm',$name);
-		$html = View::fetch($tpl);
-		iJson::success(compact('html'));
-	}
-	public function API_reply()
-	{
-		$name = Request::post('name', 'api.reply');
-		$tpl = sprintf('iCMS://comment/%s.htm',$name);
-		$html = View::fetch($tpl);
-		iJson::success(compact('html'));
-	}
-	//userid
-	//iid
-	//appid
-	public function API_list()
-	{
-		// $param = Request::param('param');
-		// $param && View::append('_REQUEST', $param,true);
-		$name = Request::spost('name', 'api.list');
-		$tpl = sprintf('iCMS://comment/%s.htm',$name);
-		$html = View::fetch($tpl);
-		iJson::success(compact('html'));
-	}
-	public function API_form()
-	{
-		View::display('iCMS://comment/api.form.htm');
-	}
+    public $config = null;
+    public static $LOGIN = ['vote', 'add'];
 
-	public function API_json()
-	{
-		$vars = array(
-			'appid' => iCMS_APP_ARTICLE,
-			'id' => (int) $_GET['id'],
-			'iid' => (int) $_GET['iid'],
-			'date_format' => 'Y-m-d H:i',
-		);
-		$_GET['by'] && $vars['by'] = Request::get('by');
-		$_GET['date_format'] && $vars['date_format'] = Request::get('date_format');
-		$vars['page'] = true;
-		// $array = comment_list($vars);
-		// Script::json($array);
-		View::assign('vars', $vars);
-		View::display('iCMS://comment/api.json.htm');
-	}
+    public function __construct()
+    {
+        $this->config = Config::get('comment');
+    }
 
-	public function ACTION_add()
-	{
-		$data = Request::post();
+    public function API_redirect()
+    {
+        $appid = (int) Request::get('appid');
+        $iid = (int) Request::get('iid');
+        $url = Apps::getUrl($appid, $iid);
+        Utils::jumpto($url);
+    }
 
-		if (!$this->config['enable']) {
-			iJson::error('comment:close');
-		}
+    public function API_widget()
+    {
+        $name = Request::sget('name');
+        empty($name) && iJson::error('empty:widget_name');
+        $tpl = sprintf('iCMS://comment/widget.%s.htm', $name);
+        View::display($tpl);
+    }
 
-		if ($this->config['captcha']) {
-			Captcha::check() or iJson::error('iCMS:captcha:error');
-		}
-		UserCP::status();
+    public function API_html()
+    {
+        $name = Request::spost('name');
+        empty($name) && iJson::error('errors:empty:param');
+        $tpl = sprintf('iCMS://comment/%s.htm', $name);
+        $html = View::fetch($tpl);
+        iJson::success(compact('html'));
+    }
 
-		$data = Request::post();
+    public function API_reply()
+    {
+        $name = Request::post('name', 'api.reply');
+        $tpl = sprintf('iCMS://comment/%s.htm', $name);
+        $html = View::fetch($tpl);
+        iJson::success(compact('html'));
+    }
 
-		$data['param'] or iJson::error('iCMS:empty:param');
-		$data['content'] or iJson::error('comment:empty:content');
+    //userid
+    //iid
+    //appid
+    public function API_list()
+    {
+        // $param = Request::param('param');
+        // $param && View::append('_REQUEST', $param,true);
+        $name = Request::spost('name', 'api.list');
+        $tpl = sprintf('iCMS://comment/%s.htm', $name);
+        $html = View::fetch($tpl);
+        iJson::success(compact('html'));
+    }
 
-		$flag = iPHP::callback('Filter::run', [&$data['content']], false);
-		$flag && iJson::error('comment:filter');
+    public function API_form()
+    {
+        View::display('iCMS://comment/api.form.htm');
+    }
 
-		$param = is_array($data['param']) ? $data['param'] : json_decode($data['param'], true);
-		is_array($param) && $data = array_merge($data, $param);
-		$data['iid'] or iJson::error('comment:empty:iid');
-		$data['target_title']   = $param['title'];
-		$data['target_userid']   = $param['userid'];
-		$data['target_username'] = $param['username'];
+    /**
+     * cms:comment:vote:down
+     * cms:comment:vote:up
+     *
+     * @return void
+     */
+    public function api_vote()
+    {
+        $params = Request::post('params');
+        $params or self::alert('iCMS:empty:params');
+        $event = Request::spost('event');
+        return $this->vote($params, $event);
+    }
 
-		$data['create_time'] = $_SERVER['REQUEST_TIME'];
-		$data['update_time'] = $_SERVER['REQUEST_TIME'];
-		$data['ip'] = Request::ip();
-		$data['userid'] = User::$id;
-		$data['username'] = User::$nickname;
-		$data['status'] = $this->config['examine'] ? '0' : '1';
-		$data['status'] = '1';
-		$data['id'] = CommentModel::create($data, true);
+    public function vote($params, $event)
+    {
+        $id = (int) $params['id'];
+        $appid = (int) $params['appid'];
+        $userid = (int) User::$id;
 
-		Apps::updateInc('comment', $data['iid'], $data['appid']);
-		User::updateInc('comment', $data['userid']);
+        $UserTimeline = UserTimeline::user_iid_events(
+            ['up', 'down'],
+            $appid,
+            $userid,
+            $id
+        );
+        //赞同时删除 反对 记录
+        $model = CommentModel::where($id);
+        $result = [
+            'is_up'  => false,
+            'is_down'=> false,
+        ] ;
+        if ($event == 'down') {
+            $result['is_down'] = true;
+            //反对时 赞同数-1并删除赞同记录
+            if ($utlId = $UserTimeline['up']) {
+                $model->where('up', '>', 0)->dec('up');
+            } elseif ($utlId = $UserTimeline['down']) {
+                //已有反对记录 反对数-1并删除反对记录  (取消反对操作)
+                $model->where('down', '>', 0)->dec('down');
+                $result['is_down'] = false;
+                // CommentModel::where($id)->inc('up');
+            }
+            $utlId && UserTimeline::delete($utlId);
+            if ($result['is_down']) {
+                CommentModel::where($id)->inc('down');
+                UserTimeline::add($appid, $id, $event, $userid);
+            }
+            $result['is_up'] = false;
+        } elseif ($event == 'up') {
+            $result['is_up'] = true;
+            //赞同时 反对数-1并删除记录
+            if ($utlId = $UserTimeline['down']) {
+                $model->where('down', '>', 0)->dec('down');
+            } elseif ($utlId = $UserTimeline['up']) {
+                //已有赞同记录 赞同数-1并删除赞同  (取消赞同操作)
+                $model->where('up', '>', 0)->dec('up');
+                $result['is_up'] = false;
+            }
+            $utlId && UserTimeline::delete($utlId);
+            if ($result['is_up']) {
+                CommentModel::where($id)->inc('up');
+                UserTimeline::add($appid, $id, $event, $userid);
+            }
+            $result['is_down'] = false;
+        }
+        $result += CommentModel::where($id)->field('up,down')->get();
+        $result['message'] = sprintf('comment:vote:%s:success', $event);
+        return $result;
+    }
 
-		iJson::success(
-			$data,
-			$this->config['examine'] ?
-				'comment:examine' :
-				'comment:success'
-		);
-	}
-	public static function value($value, $vars)
-	{
-		self::getUrls($value);
+    /**
+     * cms:comment:vlist
+     *
+     * @return array
+     */
+    public function api_vlist()
+    {
+        $params = Request::post('params') ?: [];
+        $vars = Request::post('vars') ?: [];
+        $vars = array_filter_keys($vars, 'iid,appid,userid,page,row,reply_row,reply_show,page_ajax,page_style,status', true);
+        $option = array_merge([
+            'iid'       => $params['iid'],
+            'appid'     => $params['appid'],
+            'page'      => true,
+            'page_ajax' => 'comment:page'
+        ], $vars);
+        $rows = CommentFunc::lists($option);
+        $page = [];
+        if ($PAGES = CommentFunc::$PAGES) {
+            $page = $PAGES->vars();
+        }
+        $pageData = CommentFunc::$pageData;
 
-		$value['content'] = nl2br($value['content']);
-		$value['user']    = User::info($value['userid'], $value['username'], $vars['facesize']);
-		AppsCommon::init($value, $vars)->param();
-		$value['param']['iid'] = (int) $value['iid'];
-		$value['param']['appid'] = iCMS_APP_COMMENT;
-		$value['param']['app'] = 'comment';
-		// var_dump($value['param']);
-		return $value;
-	}
-	public static function getUrls(&$value)
-	{
-		$value['url'] = self::route($value, 'id');
-		$value['content_url'] = self::route($value, 'appid,iid,cid', 'redirect');
-		return [
-			'url' => $value['url'],
-			'content_url' => $value['content_url']
-		];
-	}
-	public static function route($vars, $keys, $do = null)
-	{
-		$vars = array_filter_keys($vars, $keys);
-		$vars['app'] = 'comment';
-		$do && $vars['do'] = $do;
-		$url = Route::make($vars, 'route::api');
-		return $url;
-	}
+        $rows && $rows = array_map(function ($row) use ($vars) {
+            $row = array_filter_keys($row, 'id,user,content,create_time,update_time,params,up,is_up,down,is_down,reply_count', true);
+            $row['replyFrom'] = !$this->config['reply']['enable'];
+            $row['replyList'] = CommentReply::getList([
+                'comment_id'=> $row['id'],
+                'row'       => $vars['reply_row'] ?: 5
+            ]);
+            // $row['reply_count'] =  $row['replyList']['pageData']['total'];
+            $row['replyList']['show'] = isset($vars['reply_show']) ? (int)$vars['reply_show'] : false;
+            return $row;
+        }, $rows);
+        return ['config'=>$this->config, 'rows'=>$rows, 'pageData'=>$pageData, 'page'=>$page];
+    }
+
+    public function create($data)
+    {
+        $data['content'] or self::alert('comment:empty:content');
+
+        $flag = iPHP::callback('Filter::run', [&$data, 'content'], false);
+        $flag && self::alert('comment:filter');
+
+        $params = is_array($data['params']) ? $data['params'] : json_decode($data['params'], true);
+        is_array($params) && $data = array_merge($data, $params);
+        $data['iid'] or iPHP::alert('comment:empty:iid');
+        $data['target_title'] = $params['title'];
+        $data['target_userid'] = $params['userid'];
+        $data['target_username'] = $params['username'];
+
+        $data['create_time'] = $_SERVER['REQUEST_TIME'];
+        $data['update_time'] = $_SERVER['REQUEST_TIME'];
+        $data['ip'] = Request::ip();
+        $data['userid'] = User::$id;
+        $data['username'] = User::$nickname;
+        $data['status'] = $this->config['examine'] ? CommentModel::EXAMINE : '1';
+        $data['id'] = CommentModel::create($data, true);
+        Apps::updateInc('comment', $data['iid'], $data['appid']);
+        User::updateInc('comment', $data['userid']);
+    }
+
+    public function done_add()
+    {
+        $data = Request::post();
+
+        if (!$this->config['enable']) {
+            self::alert('comment:close');
+        }
+        if ($this->config['captcha']) {
+            Captcha::check($data['captcha'], 'comment');
+        }
+        $this->create($data);
+
+        return $this->config['examine'] ?
+        'comment:examine' :
+        'comment:success';
+    }
+
+    public static function value($value, $vars)
+    {
+        self::getUrls($value);
+
+        if (!$vars['isRaw']) {
+            $value['content'] = nl2br($value['content']);
+        }
+        empty($value['user']) && $value['user'] = User::info($value['userid'], $vars['username']);
+        AppsCommon::init($value, $vars)->params();
+        $value['is_up'] = false;
+        $value['is_down'] = false;
+        if ($vars['UserTimeline'] && isset($vars['UserTimeline'][$value['id']])) {
+            $value = array_merge($value, $vars['UserTimeline'][$value['id']]);
+        }
+        $value['params']['iid'] = (int) $value['iid'];
+        $value['params']['appid'] = iCMS_APP_COMMENT;
+        $value['params']['app'] = 'comment';
+        return $value;
+    }
+
+    public static function getUrls(&$value)
+    {
+        $value['url'] = self::route($value, 'id');
+        $value['content_url'] = self::route($value, 'appid,iid,cid', 'redirect');
+        return [
+            'url'         => $value['url'],
+            'content_url' => $value['content_url']
+        ];
+    }
+
+    public static function route($vars, $keys, $do = null)
+    {
+        $vars = array_filter_keys($vars, $keys);
+        $vars['app'] = 'comment';
+        $do && $vars['do'] = $do;
+        return Route::url('api', $vars);
+    }
 }

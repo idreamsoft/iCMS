@@ -1,0 +1,69 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="{{APP_DOURL}}" method="get" class="table-search">
+                <div class="row">
+                    <div class="col-md-6 col-lg-3 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="type">类型</label>
+                            <input type="text" data-source='typeMap' class="form-control" i="cms:ui:selectpicker" name="type" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="orderby">排序</label>
+                            <select data-source='./orderby' class="form-control" i="cms:ui:bs-selectpicker" name="orderby">
+                                <option value="">默认排序</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="pageSize">每页</label>
+                            <input class="form-control" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                            <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        </div>
+                    </div>
+                    <div class="col-sm-12 d-flex justify-content-end mt-2">
+                        <button class="btn btn-sm btn-alt-primary table-btn-search me-2" type="submit"><i
+                                class="fa fa-fw fa-search"></i> 搜 索</button>
+                        <button class="btn btn-sm btn-alt-secondary table-btn-reset" type="reset"><i
+                                class="fa fa-fw fa-repeat"></i> 重 置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block block-rounded">
+        <div class="block-content p-0">
+            <div id="toolbar" class="toolbar">
+                <div class="row">
+                    <div class="input-group input-group-sm" role="group">
+                        <a href="{{./add}}" id="add" class="btn btn-alt-primary">
+                            <i class="fa fa-fw fa-add"></i> {{#Lang('Add')}}
+                        </a>
+                        <a href="{{./edit}}" id="edit" class="btn btn-alt-primary table-btn-edit disabled" disabled>
+                            <i class="fa fa-fw fa-edit"></i> {{#Lang('Edit')}}
+                        </a>
+                        <a href="{{./delete}}" id="delete" class="btn btn-alt-primary table-btn-delete disabled" disabled>
+                            <i class="fa fa-fw fa-trash"></i> {{#Lang('Delete')}}
+                        </a>
+                        <?php AdmincpBatch::group(); ?>
+                    </div>
+                </div>
+            </div>
+            <table id="table" width="100%"></table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

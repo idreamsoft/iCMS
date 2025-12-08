@@ -1,0 +1,42 @@
+<div class="bg-white border-bottom">
+    <div class="content p-2">
+        <div class="row m-0">
+            <div class="d-none d-sm-block col-sm-4 border-end">
+                <div class="fw-bold text-gray-darker animated fadeIn">当前版本</div>
+                <div class="text-muted animated fadeIn text-uppercase">
+                    <small>
+                        <i class="si si-calendar"></i>
+                        git:<?php echo date("Y-m-d H:i", iCMS_GIT_TIME); ?>
+                    </small>
+                </div>
+                <div class="btn btn-sm btn-alt-secondary animated flipInX">
+                    <?php echo iPHP_APP; ?> <?php echo iCMS_VERSION; ?>
+                </div>
+            </div>
+            <div class="col-6 col-sm-4 border-end">
+                <div class="fw-bold text-gray-darker animated fadeIn">最新稳定版</div>
+                <div class="text-muted animated fadeIn">
+                    <small>
+                        <i class="si si-calendar"></i>
+                        <span id="iCMS_RELEASE_TIME">REL:<?php echo date("Ymd", iCMS_GIT_TIME); ?></span>
+                    </small>
+                </div>
+                <a i="iCMS_RELEASE" class="btn btn-sm btn-alt-primary animated flipInX" href="javascript:;">
+                    <i class="fa fa-fw fa-sync fa-spin"></i>
+                </a>
+            </div>
+            <div class="col-6 col-sm-4">
+                <div class="fw-bold text-gray-darker animated fadeIn">最新开发版 </div>
+                <div class="text-muted animated fadeIn text-uppercase">
+                    <small>
+                        <i class="si si-calendar"></i>
+                        <span id="iCMS_GIT">git:<?php echo date("Y-m-d H:i", iCMS_GIT_TIME); ?>
+                    </small>
+                </div>
+                <a i="cms:ui:modal" id="iCMS_GIT_COUNT" class="btn btn-sm btn-alt-warning animated flipInX" href="{{patch/git_log}}?git=true" data-params="{&quot;width&quot;:&quot;85%&quot;,&quot;height&quot;:&quot;600px&quot;}" title="开发版信息">
+                    <i class="fa fa-fw fa-sync fa-spin"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000px" height="400px" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid">
+  <defs>
+    <linearGradient id="simpleGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6c7b7f;stop-opacity:0.3" />
+      <stop offset="50%" style="stop-color:#6c7b7f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6c7b7f;stop-opacity:0.3" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Clean background -->
+  <rect width="100%" height="100%" fill="#F4F6F8" />
+  
+  <!-- Simple rotating circle -->
+  <circle cx="500" cy="200" r="30" stroke="url(#simpleGrad)" stroke-width="3" fill="none" 
+          stroke-dasharray="31.416 31.416" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" dur="5s" repeatCount="indefinite" 
+                      values="0 500 200;360 500 200"/>
+  </circle>
+  <circle cx="500" cy="200" r="20" stroke="url(#simpleGrad)" stroke-width="3" fill="none" 
+          stroke-dasharray="31.416 31.416" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" dur="1.5s" repeatCount="indefinite" 
+                      values="0 500 200;360 500 200"/>
+  </circle>
+  
+  <!-- Minimal text -->
+  <text x="500" y="255" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" 
+        font-size="18" font-weight="400" fill="#8b9dc3" opacity="0.8">
+    LOADING...
+    <animate attributeName="opacity" dur="2s" repeatCount="indefinite" 
+             values="0.5;0.8;0.5" keyTimes="0;0.5;1"/>
+  </text>
+  
+  <!-- Three simple dots -->
+  <g>
+    <circle cx="480" cy="270" r="5" fill="#8b9dc3">
+      <animate attributeName="opacity" dur="1.4s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0s"/>
+    </circle>
+    <circle cx="500" cy="270" r="4" fill="#8b9dc3">
+      <animate attributeName="opacity" dur="1.4s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0.35s"/>
+    </circle>
+    <circle cx="520" cy="270" r="3" fill="#8b9dc3">
+      <animate attributeName="opacity" dur="1.4s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0.7s"/>
+    </circle>
+    <circle cx="540" cy="270" r="2" fill="#8b9dc3">
+      <animate attributeName="opacity" dur="1.4s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="1.05s"/>
+    </circle>
+  </g>
+</svg>

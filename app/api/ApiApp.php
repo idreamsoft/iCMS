@@ -1,4 +1,5 @@
 <?php
+
 class ApiApp
 {
     public function API_iCMS()
@@ -6,8 +7,8 @@ class ApiApp
         $s = Request::get('s');
         $array = explode('/', ltrim($s, '/'));
         $func = [
-            sprintf("%sApiApp", ucfirst($array[0])),
-            sprintf("do_%s", $array[1]?:iPHP_APP)
+            sprintf('%sApiApp', ucfirst($array[0])),
+            sprintf('do_%s', $array[1] ?: iPHP_APP)
         ];
         try {
             return iPHP::invoke($func);
@@ -16,24 +17,35 @@ class ApiApp
             iJson::error($msg, -999);
         }
     }
-    public function API_wxMiniProgram()
+
+    //api.php?do=wxMiniProgram
+    public function done_wxMiniProgram()
     {
-        $s = Request::get('s');
-        $v = Request::get('v');
+        return $this->wxMiniProgram();
+    }
+
+    public function api_wxMiniProgram()
+    {
+        return $this->wxMiniProgram();
+    }
+
+    public function wxMiniProgram()
+    {
+        $s = Request::get('s'); //WeixinMini/config
+        $v = Request::get('v'); //v1.0.0
         $array = explode('/', ltrim($s, '/'));
-        $v = str_replace('.','',$v);
+        $vArr = explode('.', $v); //v1
         $func = [
-            ///sprintf("%sApp", ucfirst($array[0])),
-            sprintf("WeixinMiniApi%sApp", ucfirst($v)),
-            sprintf("do_%s", $array[1]?:iPHP_APP)
+            //WeixinMiniApiV1App
+            sprintf('WeixinMiniApi%sApp', ucfirst($vArr[0])),
+            sprintf('api_%s', $array[1] ?: iPHP_APP)
         ];
         try {
-            // View::$gateway = 'json';
-            // View::set_template_dir(iPHP_APP_DIR.'/weixin/template');
             return iPHP::invoke($func);
         } catch (\Exception $ex) {
             $msg = $ex->getMessage();
-            iJson::error($msg, -999);
+            $code = $ex->getMessage();
+            iJson::error($msg, $code);
         }
     }
 }

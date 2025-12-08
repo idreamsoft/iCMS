@@ -12,6 +12,13 @@ defined('iPHP') or exit('What are you doing?');
 
 class AppsStoreModel extends Model
 {
+
+    public static $typeMap = array(
+        '0' => '应用',
+        '1' => '模板',
+        '2' => '插件',
+        '3' => '表单'
+    );
     protected $casts = [
         'files'    => 'array',
     ];

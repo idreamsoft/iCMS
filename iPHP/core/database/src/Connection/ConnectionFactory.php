@@ -1,4 +1,5 @@
 <?php
+
 // namespace DataBase\Connection;
 
 // use DataBase\Arr;
@@ -35,17 +36,18 @@ class ConnectionFactory
     public function make(array $config, $name = null)
     {
         $config = $this->parseConfig($config, $name);
-
         if (isset($config['read'])) {
             return $this->createReadWriteConnection($config);
         }
 
         return $this->createSingleConnection($config);
     }
+
     public function getHost()
     {
         return $this->host;
     }
+
     /**
      * Parse and prepare the database configuration.
      *
@@ -152,7 +154,7 @@ class ConnectionFactory
      */
     protected function mergeReadWriteConfig(array $config, array $merge)
     {
-        return Arr::except(array_merge($config, $merge), array('read', 'write'));
+        return Arr::except(array_merge($config, $merge), ['read', 'write']);
     }
 
     /**
@@ -179,10 +181,9 @@ class ConnectionFactory
     protected function createPdoResolverWithHosts(array $config)
     {
         return function () use ($config) {
+            $e = null;
             foreach (Arr::shuffle($hosts = $this->parseHosts($config)) as $key => $host) {
                 $config['host'] = $host;
-
-                // var_dump($host);
 
                 try {
                     return $this->createConnector($config)->connect($config);
@@ -190,8 +191,9 @@ class ConnectionFactory
                     continue;
                 }
             }
-
-            throw $e;
+            if ($e) {
+                throw $e;
+            }
         };
     }
 
@@ -267,7 +269,7 @@ class ConnectionFactory
      *
      * @throws \InvalidArgumentException
      */
-    protected function createConnection($driver, $connection, $database, $prefix = '', array $config = array())
+    protected function createConnection($driver, $connection, $database, $prefix = '', array $config = [])
     {
         if ($resolver = Connection::getResolver($driver)) {
             return $resolver($connection, $database, $prefix, $config);

@@ -12,11 +12,16 @@ defined('iPHP') or exit('What are you doing?');
 
 class TagModel extends Model
 {
+    public static $statusMap = array(
+        '0' => '禁用',
+        '1' => '正常',
+        '2' => '回收站',
+    );
     protected $casts = [
-        'pid'     => 'array',
+        // 'pid'     => 'array',
     ];
     protected $events = [
         'changed' => ['TagEvent', 'changed'],
-        'deleted' => ['TagEvent', 'deleted'],
+        'delete' => ['TagEvent', 'delete'],
     ];
 }

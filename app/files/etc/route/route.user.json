@@ -1,7 +1,8 @@
 {
-    "FilesUser": "api.php?app=FilesUser",
-    "FilesUser/add": "api.php?app=FilesUser&do=add",
-    "FilesUser/multi": "api.php?app=FilesUser&do=multi",
-    "FilesUser/browse": "api.php?app=FilesUser&do=browse",
-    "FilesUser/preview": "api.php?app=FilesUser&do=preview"
+    "FilesUser": "app=FilesUser",
+    "FilesUser/avatar": "app=FilesUser&do=avatar",
+    "FilesUser/add": "app=FilesUser&do=add",
+    "FilesUser/multi": "app=FilesUser&do=multi",
+    "FilesUser/browse": "app=FilesUser&do=browse",
+    "FilesUser/preview": "app=FilesUser&do=preview"
 }

@@ -1,17 +1,31 @@
-<div class="block block-rounded hots">
+<div class="block block-rounded hots sticky-top">
     <div class="block-header block-header-default">
-        <h3 class="block-title">热门<!--{$APP.title}--></h3>
+        <h3 class="block-title">热门文档</h3>
     </div>
     <div class="block-content pt-2">
-        <ul>
-            <!--{foreach value="hot" from="$hotsList"}-->
-            <li>
-                [
-                <a href="<!--{$hot.node.url}-->"><!--{$hot.node.name}--></a>
-                ]
-                <a href="<!--{$hot.url}-->"><!--{$hot.title}--></a>
+        <ol class="m-0 p-0">
+            <!--{foreach key="i" value="hot" from="$hotsList"}-->
+            <li class="d-flex justify-content-between align-items-start mb-3 pb-3 border-bottom">
+                <div class="ms-2 me-auto">
+                    <div>
+                        <b class="text-dark text-xl">
+                            <!--{"$i+1"}-->.
+                        </b>
+                        <a href="<!--{$hot.url}-->" target="_blank" class="text-dark text-xl">
+                            <!--{$hot.title}-->
+                        </a>
+                    </div>
+                    <span class="text-muted text-sm">
+                        <!--{$hot.description|cut:50:'...'}-->
+                    </span>
+                </div>
+                <a class="ms-auto" href="<!--{$hot.node.url}-->" target="_blank">
+                    <span class="badge bg-primary rounded-pill fw-light">
+                        <!--{$hot.node.name}-->
+                    </span>
+                </a>
             </li>
             <!--{/foreach}-->
-        </ul>
+        </ol>
     </div>
 </div>

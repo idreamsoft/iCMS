@@ -1,0 +1,41 @@
+{
+    "{App}": "{name}",
+    "{app}": {
+        "title": "{name}",
+        "comment": {
+            "manage": "{name}评论管理"
+        },
+        "node": {
+            "add": "添加栏目",
+            "tree": "管理栏目",
+            "manage": "管理栏目",
+            "recount": "重建栏目{name}数",
+            "cache": "更新栏目缓存"
+        },
+        "usercp": {
+            "title": "我的{name}",
+            "manage": "我的{name}",
+            "publish": "发表{name}"
+        },
+        "user": {
+            "title": "用户{name}",
+            "manage": "{name}管理",
+            "inbox": "草稿箱",
+            "trash": "回收站",
+            "examine": "待审核",
+            "off": "未通过"
+        },
+        "manage": "{name}管理",
+        "add": "添加{name}",
+        "edit": "编辑{name}",
+        "delete": "删除{name}",
+        "inbox": "草稿箱",
+        "trash": "回收站",
+        "off": "未通过",
+        "config": "{name}配置"
+    },
+    "fields": {
+        "node_name": "栏目名",
+        "prop_name": "属性"
+    }
+}

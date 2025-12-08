@@ -10,14 +10,11 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class NodeWidgetAdmincp extends AdmincpBase
+class NodeWidgetAdmincp extends AdmincpCommon
 {
     public $ACCESC_TITLE = '{app.name}小工具';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+
     public static function do_stats()
     {
         $total = NodeModel::count();
@@ -44,7 +41,7 @@ class NodeWidgetAdmincp extends AdmincpBase
             '1' => '#30c78d',//显示
             '2' => '#272e38',//不调用
         );
-        foreach (Node::$statusMap as $status => $text) {
+        foreach (NodeModel::$statusMap as $status => $text) {
             $appcounts = $counts2[$status];
             $data = [];
             foreach ($appids as $i => $appid) {

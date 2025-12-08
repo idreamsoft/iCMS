@@ -1,0 +1,155 @@
+/**
+* iCMS 评论系统样式
+* 统一使用 cms-comment 前缀命名规范
+*/
+/* ========================================
+评论容器和基础样式
+======================================== */
+:root { 
+    --comment-content-font-size: 1rem;
+    --comment-timestamp-font-size: 0.8rem;
+    --comment-badge-font-size: 0.8rem;
+    --comment-btn-font-size: 0.8rem;
+    --comment-form-font-size: 0.9rem;
+    --comment-reply-font-size: 0.9rem;
+    --comment-floor-font-size: 0.7rem;
+    --comment-empty-icon-font-size: 3rem;
+}
+.cms-comment-wrapper { margin: 1rem 0; padding: 0; background: #fff; }
+.cms-comment-list { display: flex; flex-direction: column; gap: 1rem; }
+/* ========================================
+评论表单样式
+======================================== */
+.cms-comment-form { margin-bottom: 1.5rem; }
+.cms-comment-form-content { width: 100%; min-height: 100px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 6px; resize: vertical; font-family: inherit; font-size: var(--content-font-size); line-height: 1.5; transition: border-color 0.3s ease; }
+.cms-comment-form-content:focus { outline: none; border-color: #007bff; box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25); }
+.cms-comment-form-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 0.75rem; gap: 1rem; }
+.cms-comment-form-captcha { display: flex; align-items: center; gap: 0.5rem; }
+.cms-comment-form-captcha input { width: 120px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; font-size: var(--comment-form-font-size); }
+.cms-comment-form-submit { padding: 0.5rem 1.5rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer;  transition: background-color 0.3s ease; }
+.cms-comment-form-submit:hover { background: #0056b3; }
+/* ========================================
+评论项样式
+======================================== */
+.cms-comment-item { padding: 1rem 0; border-bottom: 1px solid #e9ecef; border-radius: 1px; background: #fff; margin-bottom: 1rem; }
+.cms-comment-author { display: flex; align-items: flex-start; margin-bottom: 0.75rem; gap: 0.75rem; }
+.cms-comment-author-avatar { flex-shrink: 0; }
+.cms-comment-author-avatar img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e9ecef; }
+.cms-comment-author-info { flex: 1; min-width: 0; }
+.cms-comment-author-info-head { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem; }
+.cms-comment-author-info-head a { font-weight: 600; color: #333; text-decoration: none; }
+.cms-comment-author-info-head a:hover { color: #007bff; }
+.cms-comment-author-info-detail { font-size: var(--comment-content-font-size); color: #6c757d; }
+.cms-comment-content { margin-left: 3.25rem; }
+.cms-comment-item-inner { margin-bottom: 0.75rem; }
+.cms-comment-item-inner p { margin: 0; line-height: 1.6; color: #333; word-wrap: break-word; }
+.cms-comment-item-actions { display: flex; align-items: center; gap: 1rem; font-size: var(--comment-content-font-size); color: #6c757d; }
+.cms-comment-item-actions a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+.cms-comment-item-actions a:hover { color: #007bff; }
+.cms-comment-vote-buttons { display: flex; align-items: center; gap: 0.25rem; }
+.cms-comment-vote-btn { padding: 0.25rem 0.5rem; border: 1px solid #dee2e6; border-radius: 4px; background: #fff; color: #6c757d; text-decoration: none; font-size: var(--comment-content-font-size); transition: all 0.3s ease; }
+.cms-comment-vote-btn:hover { background: #f8f9fa; color: #007bff !important; }
+.cms-comment-vote-btn.active, .cms-comment-vote-btn-active { background: #007bff; color: white !important; border-color: #007bff; }
+.cms-comment-action-buttons { display: flex; align-items: center; gap: 1rem; }
+.cms-comment-action-btn { color: #6c757d; text-decoration: none; font-size: var(--comment-btn-font-size); transition: color 0.3s ease; }
+.cms-comment-action-btn:hover { color: #007bff; }
+.cms-comment-action-btn-active { color: #dc3545; }
+.cms-comment-timestamp { margin-left: auto; font-size: var(--comment-timestamp-font-size); color: #adb5bd;margin-right: 0.5rem; }
+/* ========================================
+评论回复样式
+======================================== */
+.cms-comment-reply-list { margin-top: 1rem;  background: #f8f9fa; border-radius: 6px; border-left: 2px solid #dee2e6; }
+.cms-comment-reply-header { padding: 0.75rem 1rem; border-bottom: 1px solid #dee2e6; background: #fff; border-radius: 6px 6px 0 0; }
+.cms-comment-reply-header h3, .cms-comment-reply-title { margin: 0; font-size: var(--comment-content-font-size); font-weight: 600; color: #333; }
+.cms-comment-reply-wrapper { background: #fff; border-radius: 6px; }
+.cms-comment-reply-content { padding: 1rem; background: #fff; }
+.cms-comment-reply-item { display: flex; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid #f1f3f4; }
+.cms-comment-reply-item:last-child { border-bottom: none; }
+.cms-comment-reply-avatar { flex-shrink: 0; }
+.cms-comment-reply-avatar img, .cms-comment-reply-avatar-img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #e9ecef; }
+.cms-comment-reply-body { flex: 1; min-width: 0; }
+.cms-comment-reply-user { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem; font-size: var(--comment-reply-font-size); }
+.cms-comment-reply-user a { font-weight: 500; color: #333; text-decoration: none; }
+.cms-comment-reply-user a:hover { color: #007bff; }
+.cms-comment-reply-text { margin: 0 0.25rem; color: #6c757d; }
+/* .cms-comment-reply-text::before { content: "回复"; } */
+.cms-comment-reply-to { margin: 0 0.25rem; color: #6c757d; }
+/* .cms-comment-reply-to::before { content: "回复"; } */
+.cms-comment-reply-floor { background: #6c757d; color: white; padding: 0.1rem 0.3rem; border-radius: 3px; font-size: var(--comment-floor-font-size); margin-left: 0.5rem; }
+.cms-comment-reply-inner { margin-bottom: 0.5rem; }
+.cms-comment-reply-inner p { margin: 0; line-height: 1.5; color: #333; font-size: var(--comment-reply-font-size); }
+.cms-comment-reply-foot { display: flex; align-items: center; justify-content: space-between; font-size: var(--comment-content-font-size); color: #6c757d; }
+.cms-comment-reply-foot-btns { display: flex; align-items: center; gap: 1rem; }
+.cms-comment-reply-foot-btns a { color: inherit; text-decoration: none; transition: color 0.3s ease; }
+.cms-comment-reply-foot-btns a:hover { color: #007bff; }
+.cms-comment-reply-foot-btns a.active { color: #dc3545; }
+.cms-comment-reply-loadmore { display: block; text-align: center; padding: 0.75rem; color: #6c757d; text-decoration: none; border-radius: 4px; transition: all 0.3s ease; }
+.cms-comment-reply-loadmore:hover { background: #e9ecef; color: #007bff; }
+.cms-comment-reply-loadmore-btn { display: inline-block; padding: 0.5rem 1rem; color: #007bff; text-decoration: none; border: 1px solid #007bff; border-radius: 4px; transition: all 0.3s ease; }
+.cms-comment-reply-loadmore-btn:hover { background: #007bff; color: white; }
+.cms-comment-reply-form-container { margin-top: 1rem; }
+/* ========================================
+评论回复表单样式
+======================================== */
+.cms-comment-reply-form { display: flex; gap: 0.75rem; margin-top: 1rem; padding: 1rem; background: #f8f9fa; border-radius: 6px; }
+.cms-comment-reply-form-avatar { flex-shrink: 0; }
+.cms-comment-reply-form-avatar img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid #e9ecef; }
+.cms-comment-reply-form-body { flex: 1; min-width: 0; }
+.cms-comment-reply-form-wrapper { display: flex; gap: 0.75rem; align-items: flex-start; }
+.cms-comment-reply-form-content { flex: 1; min-width: 0; }
+.cms-comment-reply-form-control { border: 1px solid #dee2e6; border-radius: 6px; background: #fff; padding: 0.75rem; }
+.cms-comment-reply-form-input { width: 100%; border: none; outline: none; font-family: inherit; font-size: var(--comment-form-font-size); background: transparent; }
+.cms-comment-reply-form-input::placeholder { color: #adb5bd; }
+.cms-comment-reply-form-textarea { width: 100%; border: none; outline: none; font-family: inherit; font-size: var(--comment-form-font-size); background: transparent; resize: none; min-height: 40px; }
+.cms-comment-reply-form-textarea::placeholder { color: #adb5bd; }
+.cms-comment-reply-form-actions { display: flex; align-items: center; justify-content: space-between; margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid #e9ecef; }
+.cms-comment-reply-form-captcha { display: flex; align-items: center; gap: 0.5rem; }
+.cms-comment-reply-form-captcha input, .cms-comment-reply-form-captcha-input { width: 100px; padding: 0.375rem 0.5rem; border: 1px solid #dee2e6; border-radius: 4px; font-size: var(--comment-content-font-size); }
+.cms-comment-reply-form-captcha-group { display: flex; align-items: center; gap: 0.5rem; }
+.cms-comment-reply-form-captcha-img { border: 1px solid #dee2e6; border-radius: 4px; cursor: pointer; }
+.cms-comment-reply-form-submit-wrapper { display: flex; align-items: center; }
+.cms-comment-reply-form-submit { padding: 0.375rem 1rem; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: var(--comment-content-font-size); transition: background-color 0.3s ease; }
+.cms-comment-reply-form-submit:hover { background: #0056b3; }
+/* ========================================
+徽章样式
+======================================== */
+.cms-comment-badge { display: inline-block; padding: 0.2rem 0.4rem; font-size: var(--comment-badge-font-size); font-weight: 400; border-radius: 3px; margin-left: 0.25rem; }
+.cms-comment-badge-me { background: rgba(0, 123, 255, 0.1); color: #007bff; }
+.cms-comment-badge-lou { background: rgba(255, 152, 0, 0.1); color: #ff9800; }
+.cms-comment-badge-author { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+.cms-comment-badge-floor { background: #6c757d; color: white; margin-left: auto; }
+/* ========================================
+空状态样式
+======================================== */
+.cms-comment-empty { text-align: center; padding: 3rem 1rem; color: #6c757d; }
+.cms-comment-empty-icon { font-size: var(--comment-empty-icon-font-size); margin-bottom: 1rem; opacity: 0.5; }
+.cms-comment-empty-text { margin: 0; font-size: var(--comment-content-font-size); }
+/* ========================================
+分页样式
+======================================== */
+.cms-comment-pagination { margin-top: 2rem; text-align: center; }
+.cms-comment-pagination .pagination { justify-content: center; margin: 0; }
+/* ========================================
+响应式设计
+======================================== */
+@media (max-width:768px) {
+.cms-comment-wrapper { margin: 0.5rem 0; padding: 0.75rem; }
+.cms-comment-item { padding: 0.75rem; }
+.cms-comment-content { margin-left: 0; margin-top: 0.75rem; }
+.cms-comment-author { flex-direction: column; align-items: flex-start; gap: 0.5rem; }
+.cms-comment-item-actions { flex-wrap: wrap; gap: 0.5rem; }
+.cms-comment-reply-item { flex-direction: column; gap: 0.5rem; }
+.cms-comment-reply-form { flex-direction: column; gap: 0.5rem; }
+.cms-comment-form-actions { flex-direction: column; align-items: stretch; gap: 0.75rem; }
+}
+/* ========================================
+工具类
+======================================== */
+.cms-comment-hide { display: none; }
+.cms-comment-show { display: block; }
+.cms-comment-loading { opacity: 0.6; pointer-events: none; }
+.cms-comment-loading::after { content: ""; position: absolute; top: 50%; left: 50%; width: 20px; height: 20px; margin: -10px 0 0 -10px; border: 2px solid #f3f3f3; border-top: 2px solid #007bff; border-radius: 50%; animation: cms-comment-spin 1s linear infinite; }
+@keyframes cms-comment-spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}

@@ -1,0 +1,20 @@
+[
+    {
+        "id": "tools",
+        "children": [
+            {
+                "id": "editor",
+                "sort": "-998",
+                "caption": "编辑器配置",
+                "icon": "cog",
+                "children": [
+                    {
+                        "caption": "UE编辑器 AI配置",
+                        "href": "/editor/ueai",
+                        "icon": "cog"
+                    }
+                ]
+            }
+        ]
+    }
+]

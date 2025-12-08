@@ -1,0 +1,12 @@
+{
+    "prop": {
+        "name": "用户属性",
+        "icon": "flag",
+        "sort": 1
+    },
+    "status": {
+        "name": "用户状态",
+        "icon": "flag",
+        "sort": 1
+    }
+}

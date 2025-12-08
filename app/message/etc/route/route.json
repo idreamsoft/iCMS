@@ -1,0 +1,6 @@
+{
+    "message": "app=message",
+    "message/manage": "app=message&do=manage",
+    "message/userid/{userid}": "app=message&do=user&userid={id}",
+    "message/{id}": "app=message&id={id}"
+}

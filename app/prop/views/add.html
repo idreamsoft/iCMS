@@ -1,0 +1,122 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+    <div class="content" id="{{APP_MAINID}}">
+        <div class="block">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">
+                    <?php echo empty($this->id) ? '添加' : '修改'; ?>属性</h3>
+            </div>
+            <div class="block-content">
+                <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                    <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                    <div class="tab-content">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="status">属性状态</label>
+                            <div class="col-sm-8">
+                                <input data-source='statusMap' data-field="status" class="form-control" i="cms:ui:selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="cid">所属栏目</label>
+                            <div class="col-sm-8">
+                                <input name="rs[cid]" id="cid" class="form-control" i="cms:ui:node" data-node-access="<?php echo $rs?'ce':'ca'; ?>" placeholder="请选择所属栏目..." value="<?php echo $rs['cid']; ?>">
+                                <small class="form-text text-muted">本属性所属的栏目</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="rs-app">所属应用</label>
+                            <div class="col-sm-8">
+                                <input name="rs[appid]" 
+                                i="cms:ui:selectpage" 
+                                data-text="app"
+                                data-text-name="rs[app]" 
+                                data-source="/apps/selectpage" 
+                                data-search="app,title"
+                                id="rs-app" class="form-control"  placeholder="请选择所属应用..." value="<?php echo $rs['appid']; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="title">标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[title]" class="form-control" id="title" value="<?php echo $rs['title']; ?>" />
+                                <small class="form-text text-muted">分组时显示标题</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="info">属性说明</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[info]" class="form-control" id="info" value="<?php echo $rs['info']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="rs-field">属性字段</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[field]" class="form-control" 
+                                i00="cms:ui:selectpage" 
+                                data-linkage-appid="#rs-app"
+                                data-params-appid="<?php echo $rs['appid']; ?>"
+                                data-source="/appsHooks/field" id="rs-field" value="<?php echo $rs['field']; ?>" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <?php if ($this->id) { ?>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="name">属性名称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[name]" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                                <small class="form-text text-muted">可填写中文</small>
+                            </div>
+                            <?php } else { ?>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="name">属性数据</label>
+                            <div class="col-sm-8">
+                                <textarea name="rs[name]" id="name" class="form-control" style="height: 150px;"><?php echo $data; ?></textarea>
+                                <small class="form-text text-muted">可填写中文 <br />
+                                    <?php if (!$this->id) { ?>
+                                        批量添加格式:<br />
+                                        <span class="badge bg-danger">名称:值</span><br />
+                                        <span class="badge bg-danger">名称:</span>(属性值将按序号填充)<br />
+                                        <span class="badge bg-danger">名称</span>(属性值将用名称填充)<br />
+                                        每行一个
+                                    <?php } ?>
+                                </small>
+                            </div>
+                            <?php } ?>
+                        </div>
+                        <?php if ($this->id) { ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="val">属 性 值</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[val]" class="form-control" id="val" value="<?php echo $rs['val']; ?>" />
+                                <small class="form-text text-muted">id 属性值只能填写数字</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="sortnum">属性排序</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[sortnum]" class="form-control" id="sortnum" value="<?php echo $rs['sortnum']; ?>" />
+                            </div>
+                        </div>
+                        <?php } ?>
+                        <div class="alert alert-warning">
+                            <h4>注意事项</h4>
+                            添加属性时,请综合考虑下前台的调用还有数据的保存问题!<br /> 具体考虑使用数值或者直接使用名称类的值
+                        </div>
+                    </div>
+                    <?php self::form()->submit(); ?>
+                </form>
+            </div>
+        </div>
+    </div>
+    <?php self::foot(); ?>

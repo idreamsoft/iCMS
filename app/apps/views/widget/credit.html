@@ -1,21 +1,21 @@
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="money">金币</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="money"><?php echo $names['money']; ?></label>
     <div class="col-sm-8">
-        <input type="text" name="money" class="form-control" id="money" value="<?php echo $data['money']; ?>" />
+        <input type="text" name="<?php echo $money_name; ?>" class="form-control" id="money" value="<?php echo $data['money']; ?>" />
         <!-- <small class="form-text text-muted">设置后需要扣除相关积分才能访问该栏目及栏目下内容</small> -->
     </div>
 </div>
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="credit">积分</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="credit"><?php echo $names['credit']; ?></label>
     <div class="col-sm-8">
-        <input type="text" name="credit" class="form-control" id="credit" value="<?php echo $data['credit']; ?>" />
+        <input type="text" name="<?php echo $credit_name; ?>" class="form-control" id="credit" value="<?php echo $data['credit']; ?>" />
         <!-- <small class="form-text text-muted">设置后需要扣除相关积分才能访问该栏目及栏目下内容</small> -->
     </div>
 </div>
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="scores">点数</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="scores"><?php echo $names['scores']; ?></label>
     <div class="col-sm-8">
-        <input type="text" name="scores" class="form-control" id="scores" value="<?php echo $data['scores']; ?>" />
+        <input type="text" name="<?php echo $scores_name; ?>" class="form-control" id="scores" value="<?php echo $data['scores']; ?>" />
         <!-- <small class="form-text text-muted">设置后需要相关点数才能访问该栏目及栏目下内容</small> -->
     </div>
 </div>

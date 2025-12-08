@@ -13,166 +13,89 @@ defined('APP_URL') or define('APP_URL', 'admincp.php?app=forms');
 
 class FormsAdmincp extends AdmincpCommon
 {
+    use AdmincpCommonTrait;
+
     public function __construct($fid = null)
     {
         parent::__construct();
-        $this->id = (int) $_GET['id'];
-        $fid === null && $fid = Request::param('fid');
-        $this->fid = (int) $fid;
-        $this->fid && Forms::init($this->fid);
+        Node::$APPID = self::$APPID;
 
         AppsPackage::$LocalFormat = FormsPackage::$LocalFormat;
-        AppsPackage::$LocalDataFile  = FormsPackage::$LocalDataFile;
+        AppsPackage::$LocalDataFile = FormsPackage::$LocalDataFile;
         AppsPackage::$LocalTableFile = FormsPackage::$LocalTableFile;
     }
-    /**
-     * [添加表单内容]
-     * @return [type] [description]
-     */
-    public function do_submit()
-    {
-        if ($this->fid) {
-            $rs = Forms::data($this->id);
-            FormerApp::add(Forms::$DATA, $rs);
-        }
-        include self::view('forms.submit');
-    }
-    /**
-     * [保存表单数据]
-     * @return [type] [description]
-     */
-    public function do_save_data()
-    {
-        $data = FormerApp::save(Forms::$DATA, null, $update);
-        $pk = AppsTable::getPrimaryKey();
-        $id = $data[$pk];
-        AppsMeta::save(self::$appId, $id);
-        // Archive::save(self::$appId, $id,$data, Forms::$DATA);
-        iPHP::callback(array("Spider", "callback"), array($this, $id));
-
-        $REFERER_URL = $_POST['REFERER'];
-        if (empty($REFERER_URL) || strstr($REFERER_URL, '=form_save')) {
-            $REFERER_URL = APP_URL . '&do=data&fid=' . $this->fid;
-        }
-
-        return $data;
-    }
-    /**
-     * [表单数据查看]
-     * @param  string $stype [description]
-     * @return [type]        [description]
-     */
-    public function do_data($stype = 'normal')
-    {
-        if ($this->fid) {
-            Forms::$DATA['fields'] && $fields = Former::fields(Forms::$DATA['fields']);
-            $keywords = Request::get('keywords');
-            $sfield = Request::get('sfield');
-            $pattern = Request::get('pattern');
-
-            if ($keywords) {
-                $search = array();
-                if (empty($sfield)) {
-                    foreach ((array) $fields as $fi => $field) {
-                        $field['field'] == 'VARCHAR' && $search[] = $field['id'];
-                    }
-                    $search && $where["CONCAT(`" . implode('`,`', $search) . "`)"] = array('REGEXP', $keywords);
-                } else {
-                    empty($pattern) && $pattern = 'REGEXP';
-                    $where[$sfield] = array($pattern, $keywords);
-                }
-            } else {
-                $pattern && $where[$sfield] = array($pattern, $keywords);
-            }
-
-            $orderby = self::setOrderBy(array(
-                Forms::$primaryKey => strtoupper(Forms::$primaryKey),
-            ));
-            $orderby = self::setOrderBy();
-
-            $result = ContentModel::where($where)
-                ->orderBy($orderby)
-                ->paging();
-        }
-        AdmincpBatch::$config['sdo'] = 'data';
-        include self::view('forms.data');
-    }
-    /**
-     * [删除表单数据]
-     * @param  [type]  $id     [description]
-     * @param  boolean $dialog [description]
-     * @return [type]          [description]
-     */
-    public function do_delete_data($id = null)
-    {
-        $id === null && $id = $this->id;
-        $id or self::alert("请选择要删除的" . Forms::$DATA['name'] . "数据");
-        Forms::deleteData($id);
-        // $dialog && self::success(Forms::$DATA['name'] . "数据删除完成");
-    }
 
     /**
-     * [创建表单]
-     * @return [type] [description]
+     * 创建表单
+     * @return void
      */
     public function do_add()
     {
         $this->id && $rs = Forms::get($this->id);
         if (empty($rs)) {
-            $rs['type']   = "1";
-            $rs['username'] = Member::$nickname;
-            $rs['status'] = "1";
+            $rs['type'] = '1';
+            $rs['username'] = Admin::$nickname;
+            $rs['status'] = '1';
             $rs['fields'] = Etc::get('forms', 'default/field');
-            $base_fields  = $rs['fields'];
-            $rs['config']['enable'] = "1";
+            $base_fields = $rs['fields'];
+            $rs['config']['enable'] = '1';
         }
         $rs['node_id'] = $rs['node_id'] ?: (int) $_GET['node_id'];
 
         $formerArray = $rs['fields'];
         //兼容旧v7
-        AppsHelper::compatibleV7($formerArray);
+        // AppsHelper::compatibleV7($formerArray);
 
-        empty($rs['tpl']) && $rs['tpl'] = sprintf('%s/forms.htm', View::TPL_FLAG_1);
-        AppsTable::$baseFieldsKeys = array('id');
-        AppsMeta::get(self::$appId, $rs['id']);
-        include self::view("add");
+        empty($rs['tpl']) && $rs['tpl'] = View::TPL_FLAG_0.'forms.form.htm';
+        AppsTable::$baseFieldsKeys = ['id'];
+        include self::view();
     }
+
     /**
-     * [保存表单]
-     * @return [type] [description]
+     * 保存表单
+     * @return void
      */
-    public function save()
+    public function save(&$data = [])
     {
         $data = FormsModel::postData();
-        $data['app'] = Request::post('_app');
-        $create  = (int) Request::post('create') ? true : false;
-        $data['name'] or self::alert('表单名称不能为空');
+        $id = (int) $data['id'];
 
-        empty($data['app']) && $data['app'] = Pinyin::get($data['name']);
-        strpos($data['app'], '..') !== false && self::alert('非法表单标识');
+        $data['name'] or self::alert('表单名称不能为空');
         empty($data['title']) && $data['title'] = $data['name'];
+        empty($data['app']) && $data['app'] = Pinyin::get($data['name']);
+        $data['app'] != Security::safeStr($data['app']) && self::alert('非法表单标识');
+        $data['app'] = Security::safeStr($data['app']);
         preg_match("/[a-zA-Z0-9_\-]/", $data['app']) or self::alert('表单标识字段名只能由英文字母、数字或_-组成,不支持中文');
 
-        AppsHelper::transFields($data['fields'], function ($arr) {
+        $tableArray = [];
+        if ($tArr = $data['table']) {
+            if (is_array($tArr)) {
+                foreach ($tArr as $key => $value) {
+                    $name = AppsTable::shortname($value['name']);
+                    $tableArray[$name] = $value;
+                }
+            }
+        }
+        $fields = (array) Request::post('fields');
+        $fArray = AppsHelper::transFields($fields, function ($arr) {
             preg_match("/[a-zA-Z0-9_\-]/", $arr['name']) or self::alert('[' . $arr['label'] . '] 字段名只能由英文字母、数字或_-组成,不支持中文');
-            $arr['label'] or self::alert('发现自定义字段中空字段名称');
+            $arr['label'] or self::alert('自定义字段中存在空字段名称');
             // empty($arr['comment']) && $arr['comment'] = $arr['label'];
             // $arr['name'] or self::alert('发现自定义字段中有空字段名');
         });
+        AppsHelper::parseFields($fields, $masterFields, $dataFields);
 
-        AppsHelper::parseFields($data['fields'], $masterFields, $dataFields);
 
         FilesPic::values($data);
 
-        FormsModel::check(['app' => $data['app']], $data['id']) && self::alert('该表单已经存在');
+        FormsModel::check(['app' => $data['app']], $id) && self::alert('该表单已经存在');
 
         $tableName = Forms::getTableName($data['app']);
         $dataTableName = AppsTable::getDataTableName($tableName);
-        $tableArray = (array)Request::post('table');
-        $data['pubdate'] = strtotime($data['pubdate']);
-        $data['userid'] = Member::$user_id;
+        $data['userid'] = Admin::$user_id;
+        $data['fields'] = $fields;
 
-        if (empty($data['id'])) {
+        if (empty($id)) {
             $data['addtime'] = time();
             DB::hasTable($tableName) && self::alert('[' . $tableName . ']表已经存在');
             if ($dataFields) {
@@ -184,8 +107,10 @@ class FormsAdmincp extends AdmincpCommon
                 $masterFields, //获取字段数组
                 Forms::getMasterIndex() //索引
             );
-            array_push($tb, null, $data['name']);
-            $tableArray = array();
+            $tb['union'] = '';
+            $tb['label'] = $data['name'];
+
+            $tableArray = [];
             $tableArray[$data['app']] = $tb; //记录基本表名
 
             //有MEDIUMTEXT类型字段就创建xxx_cdata附加表
@@ -195,10 +120,10 @@ class FormsAdmincp extends AdmincpCommon
                 $dataFieldArray = array_merge($dataBaseFields, $dataFields);
                 $tableArray += AppsTable::createDataTable($dataFieldArray, $dataTableName, $unionKey);
             }
-            $data['table']  = $tableArray;
+            $data['table'] = $tableArray;
             $data['id'] = FormsModel::create($data);
         } else {
-            $row = FormsModel::get($data['id']);
+            $row = FormsModel::get($id);
             $_fields = $row['fields'];
             //兼容旧v7
             AppsHelper::compatibleV7($_fields);
@@ -224,6 +149,17 @@ class FormsAdmincp extends AdmincpCommon
                 $dataAlterArray = AppsTable::makeAlterSql($dataFields, $_dataFields, $_POST['origin']);
                 //表存在 执行alter
                 $dataAlterArray && AppsTable::alter($dataTableName, $dataAlterArray);
+
+                if (empty($tableArray[$dataTableName])) {
+                    $unionKey = AppsTable::getDataUnionKey($data['app']);
+                    $tableArray[$dataTableName] = [
+                        'name'    => AppsTable::fullname($dataTableName),
+                        'primary' => 'id',
+                        'union'   => $unionKey,
+                        'label'   => '附加表'
+                    ];
+                }
+
                 //表存在 但无表结构数据 则删除表
                 if (empty($dataFields)) {
                     AppsTable::drop($dataTableName);
@@ -239,86 +175,78 @@ class FormsAdmincp extends AdmincpCommon
                     $tableArray += AppsTable::createDataTable($dataFieldArray, $dataTableName, $unionKey);
                 }
             }
-            $data['table']  = $tableArray;
+            $tableArray && $data['table'] = $tableArray;
             FormsModel::update($data, $data['id']);
         }
-        AppsMeta::save(self::$appId, $data['id']);
-        // self::success('保存成功');
     }
 
-    public function do_update()
+    public function updated(&$result)
     {
-        parent::do_update();
         $this->autoCache();
     }
-    public function do_manage()
+
+    public function index()
     {
         $keywords = Request::get('keywords');
-        $keywords && $where['CONCAT(app,name,title,description)'] = array('REGEXP', $keywords);
-        $orderby = self::setOrderBy();
-        $result = FormsModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
-
-        AdmincpBatch::$config['sdo'] = 'manage';
-        include self::view("forms.manage");
+        $keywords && $where['CONCAT(app,name,title,description)'] = ['REGEXP', $keywords];
+        return  self::tableData(['where' => $where], function ($rows) {
+            $nodeArray = Node::many($rows, 'node_id');
+            return array_map(function ($row) use ($nodeArray) {
+                $node = (array)$nodeArray[$row['node_id']];
+                $iurl = Route::get(Forms::APP, [$row, $node]);
+                $row['url'] = $iurl->href;
+                return $row;
+            }, $rows);
+        });
     }
-    public function do_batch()
+
+    public function batching()
     {
-        $actions = array(
+        return [
             'data-dels' => function ($idArray, $ids, $batch) {
                 foreach ($idArray as $id) {
-                    $this->do_delete($id);
+                    $this->done_delete($id);
                 }
                 return true;
             },
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    $this->do_delete($id);
-                }
-                return true;
-            }
-        );
-        return AdmincpBatch::run($actions, "表单");
+        ];
     }
 
     /**
-     * [删除表单]
-     * @return [type] [description]
+     * 删除表单
      */
-    public function do_delete($id = null)
+    public function deleting($ids = [])
     {
-        $id === null && $id = $this->id;
-        $id or self::alert('请选择要删除的表单');
-        $forms = Forms::get($id);
-        Forms::delete($this->id);
-        // $dialog && self::success("表单已经删除");
+        if ($ids) {
+            foreach ($ids as $key => $id) {
+                Forms::delete($id);
+            }
+        }
+        return true;
     }
-    public function do_cache()
-    {
-        $this->autoCache();
-    }
+
     /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
+     * autoCache 在更新所有缓存时，将会自动执行
      */
     public static function autoCache()
     {
         @set_time_limit(0);
         $rs = FormsModel::select();
-        if ($rs) foreach ($rs as $a) {
-            $a = Apps::item($a);
-            $appid_array[$a['id']] = $a;
-            $app_array[$a['app']]  = $a;
-            Cache::set('forms/' . $a['id'], $a, 0);
+        if ($rs) {
+            foreach ($rs as $a) {
+                $a = Apps::item($a);
+                $appid_array[$a['id']] = $a;
+                $app_array[$a['app']] = $a;
+                Cache::set('forms/' . $a['id'], $a, 0);
+            }
         }
-        Cache::set('forms/idarray',  $appid_array, 0);
+        Cache::set('forms/idarray', $appid_array, 0);
         Cache::set('forms/array', $app_array, 0);
     }
 
-
     /**
-     * [本地安装表单]
-     * @return [type] [description]
+     * 本地安装表单
+     * @return void
      */
     public function do_install()
     {
@@ -329,7 +257,7 @@ class FormsAdmincp extends AdmincpCommon
                 AppsStore::$DATA['application'] = $match[1];
                 FormsPackage::install();
             } else {
-                self::error('What the fuck!');
+                Admincp::error('What the fuck!');
             }
         } catch (FalseEx $ex) {
             $msg = $ex->getMessage();
@@ -338,9 +266,10 @@ class FormsAdmincp extends AdmincpCommon
             throw $ex;
         }
     }
+
     /**
-     * [打包下载表单]
-     * @return [type] [description]
+     * 打包下载表单
+     * @return void
      */
     public function do_pack()
     {
@@ -359,21 +288,24 @@ class FormsAdmincp extends AdmincpCommon
         FilesClient::attachment($package);
 
         File::rm($package);
-        $data_file  && File::rm($data_file);
+        $data_file && File::rm($data_file);
         $table_file && File::rm($table_file);
-        File::exist($packTmpDir) && File::rmdir($packTmpDir);
+        File::isDir($packTmpDir) && File::rmdir($packTmpDir);
     }
-    public function select()
+
+    public static function select()
     {
         $rs = FormsModel::where('status', '1')->select();
         $option = '';
-        if ($rs) foreach ($rs as $key => $value) {
-            $option .= sprintf(
-                '<option value="%d">%s/%s</option>',
-                $value['id'],
-                $value['app'],
-                $value['name']
-            );
+        if ($rs) {
+            foreach ($rs as $key => $value) {
+                $option .= sprintf(
+                    '<option value="%d">%s/%s</option>',
+                    $value['id'],
+                    $value['app'],
+                    $value['name']
+                );
+            }
         }
         return $option;
     }

@@ -1,12 +1,12 @@
 [{
-    "id": "members",
-    "children": [{
-        "id": "user",
-        "children": [{
+    "id": "assist",
+    "children": [
+        {
+            "id": "message",
             "caption": "消息管理",
-            "href": "message",
-            "icon": "comment-dots",
-            "sort": "999"
-        }]
-    }]
+            "sort": "9999999",
+            "href": "/message/index",
+            "icon": "comment-dots"
+        }
+    ]
 }]

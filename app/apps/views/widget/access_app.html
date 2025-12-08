@@ -1,0 +1,166 @@
+<div id="access-app" class="tab-pane">
+    <div class="form-group">
+        <div class="input-group">
+            <label class="input-group-text" for="checkAllapps">全选</label>
+            <div class="input-group-text">
+                <input type="checkbox" class="form-check-input" :i="'cms:ui:checkAll'" data-target="#access-apps" />
+            </div>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-text">允许登陆后台</span>
+            <span class="input-group-text">
+                <input type="checkbox" class="form-check-input" v-model="accessAll" name="access[app][]" value="#ADMINCP#" />
+            </span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-text">无权限提示</span>
+            <span class="input-group-text">
+                <input type="checkbox" class="form-check-input" v-model="accessAll" name="access[app][]" value="#NOACCESSTIP#" />
+            </span>
+        </div>
+    </div>
+    <div class="block-content tab-content p-0">
+        <div class="row flex flex-wrap gap-4">
+            <!-- 所有应用 -->
+            <div class="col-sm-4 col-md-3">
+                <div class="block-header bg-primary-dark p-3 rounded-t">
+                    <h3 class="block-title text-white text-lg font-bold">所有应用</h3>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white">
+                    <ul class="overflow-y-auto h-500 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                        <li v-for="app in applications" @click="selectApp(app)" :class="{
+                                'text-primary font-semibold bg-primary-light text-white': s1 === app.id,
+                                'cursor-pointer p-2 hover:bg-gray-100': true
+                            }" class="flex justify-between items-center border-b border-gray-200 last:border-none">
+                            <b>{{ app.title }}</b>
+                            <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full">
+                                {{ app.name }}
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 实例 -->
+            <div v-if="classs.length > 0" class="col-sm-4">
+                <div class="block-header bg-primary-dark p-3 rounded-t">
+                    <h3 class="block-title text-white text-lg font-bold">实例</h3>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white">
+                    <ul class="overflow-y-auto h-500 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                        <li v-for="cla in classs" @click="selectCla(cla)" :class="{
+                                'text-primary font-semibold bg-primary-light text-white': s2 === cla.id,
+                                'cursor-pointer p-2 hover:bg-gray-100': true
+                            }" class="flex items-center border-b border-gray-200 last:border-none">
+                            <div class="form-check">
+                                <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="cla.id" :value="cla.id">
+                                <label class="form-check-label flex items-center">
+                                    {{ cla.title }}
+                                    <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                        {{ cla.name }}
+                                    </span>
+                                </label>
+                            </div>
+                            <span class="text-primary ml-auto cursor-pointer" v-if="cla.methods && cla.methods.length">
+                                <i class="fa fw fa-arrow-circle-right"></i>
+                            </span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 权限 -->
+            <div :class="classs.length > 0 ? 'col-sm-4' : 'col-md-6'">
+                <div class="block-header bg-primary-dark p-3 rounded-t flex justify-between items-center">
+                    <h3 class="block-title text-white text-lg font-bold">权限</h3>
+                    <div class="block-options">
+                        <div class="form-check">
+                            <input class="form-check-input mr-2" type="checkbox" id="all3" v-model="sall3" @click="toggleAll(permissions)">
+                            <label class="form-check-label text-white" for="all3">
+                                全选
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="block-content border border-gray-300 rounded-b bg-white">
+                    <ul class="overflow-y-auto h-500 scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100">
+                        <li v-for="perm in permissions" class="p-2 hover:bg-gray-100 border-b border-gray-200 last:border-none">
+                            <div class="form-check" @click="selectPerm(perm)">
+                                <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="perm.id" :value="perm.url">
+                                <label class="form-check-label flex items-center">
+                                    {{ perm.title }}
+                                    <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                        {{ perm.url }}
+                                    </span>
+                                    <span :class="'badge bg-info-' + perm.request + ' text-xs py-1 px-2 rounded-full ml-2'">
+                                        {{ perm.request }}
+                                    </span>
+                                </label>
+                            </div>
+
+                            <!-- 子权限 -->
+                            <ul v-if="perm.uriList.length > 0" class="ml-5">
+                                <li v-for="need in perm.uriList" :class="{
+                                        'text-primary font-semibold bg-primary-light text-white': s2 === need.id,
+                                        'cursor-pointer p-2 hover:bg-gray-100': true
+                                    }" class="flex items-center border-b border-gray-200 last:border-none">
+                                    <div class="form-check">
+                                        <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="need.id" :value="need.url">
+                                        <label class="form-check-label">
+                                            {{ need.title }}
+                                            <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                                {{ need.url }}
+                                            </span>
+                                        </label>
+                                    </div>
+                                </li>
+                            </ul>
+
+                            <!-- 批量权限 -->
+                            <ul v-if="perm.batch" class="ml-5">
+                                <li :class="{
+                                        'text-primary font-semibold bg-primary-light text-white': s2 === perm.batch.id,
+                                        'cursor-pointer p-2 hover:bg-gray-100': true
+                                    }" class="flex items-center border-b border-gray-200 last:border-none">
+                                    <div class="form-check">
+                                        <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="perm.batch.id" :value="perm.batch.url">
+                                        <label class="form-check-label">
+                                            {{ perm.batch.title }}
+                                            <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                                {{ perm.batch.url }}
+                                            </span>
+                                        </label>
+                                    </div>
+                                </li>
+
+                                <!-- 批量子权限 -->
+                                <ul v-if="perm.batchList.length > 0" class="ml-5">
+                                    <li v-for="batch in perm.batchList" :class="{
+                                            'text-primary font-semibold bg-primary-light text-white': s2 === batch.id,
+                                            'cursor-pointer p-2 hover:bg-gray-100': true
+                                        }" class="flex items-center border-b border-gray-200 last:border-none">
+                                        <div class="form-check">
+                                            <input class="form-check-input mr-2" type="checkbox" name="access[app][]" v-model="accessAll" :id="batch.id" :value="batch.url">
+                                            <label class="form-check-label">
+                                                {{ batch.title }}
+                                                <span class="badge bg-gray-600 text-white text-xs py-1 px-2 rounded-full ml-2">
+                                                    {{ batch.url }}
+                                                </span>
+                                            </label>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

@@ -10,18 +10,19 @@
  */
 class FilesPic
 {
-    public static $FIELDS = array('pic', 'bpic', 'mpic', 'spic');
+    public static $FIELDS = ['pic', 'bpic', 'mpic', 'spic'];
 
-    public static $PREG_IMG         = '@<img[^>]+src=(["\']?)(.*?)\\1[^>]*?>@is';
-    public static $EXTS          = array('jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg');
+    public static $PREG_IMG = '@<img[^>]+src=(["\']?)(.*?)\\1[^>]*?>@is';
+    public static $EXTS = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'bmp', 'svg'];
 
     public static function download($value, $key = 'pic')
     {
-        if (Request::isUrl($value)  && !isset($_POST[$key . '_http'])) {
-            $value  = FilesClient::remote($value);
+        if (Request::isUrl($value) && !isset($_POST[$key . '_http'])) {
+            $value = FilesClient::remote($value);
         }
         return $value;
     }
+
     public static function values(&$data)
     {
         foreach (self::$FIELDS as $key) {
@@ -31,37 +32,44 @@ class FilesPic
         }
         // $picdata && $data['picdata'] = self::data($data);
     }
-    public static function data($data)
+
+    public static function data(&$data, $field = null)
     {
-        $picdata = array();
+        $pics = [];
         foreach (self::$FIELDS as $key) {
             $path = $data[$key];
             if ($path) {
-                list($width, $height, $type, $attr) = @getimagesize(FilesClient::getRoot($path));
-                $picdata[$key] = array('w' => (int)$width, 'h' => (int)$height);
+                $image = FilesClient::getRoot($path);
+                file_exists($image) && $images = getimagesize($image);
+                list($width, $height, $type, $attr) = $images ?: [];
+                $pics[$key] = ['w' => (int)$width, 'h' => (int)$height];
             }
         }
-        return $picdata;
+        $field && $data[$field] = $pics;
+        return $pics;
     }
+
     public static function delete($appid, $id)
     {
         $where['appid'] = $appid;
         $where['index_id'] = $id;
         // ArchiveModel::delete($where);
     }
+
     public static function change($data, $appid, $event, $indexid)
     {
         foreach (self::$FIELDS as $key) {
             $path = $data[$key];
-            $path  && Files::change($key, $appid, [$path], $event, $indexid);
+            $path && Files::change($key, $appid, [$path], $event, $indexid);
         }
     }
+
     public static function decode($data)
     {
-        $array = array();
+        $array = [];
         if ($data) {
             //兼容6.0
-            if (substr($data,0,2)=='a:') {
+            if (substr($data, 0, 2) == 'a:') {
                 $array = unserialize($data);
             } else {
                 $array = json_decode($data, true);
@@ -69,52 +77,68 @@ class FilesPic
         }
         return $array;
     }
-    public static function getArray($src, $size = 0, $thumb = 0)
-    {
-        if (empty($src)) return array();
-        if (is_array($src)) return $src;
 
+    public static function getArray($src, $size = 0, $thumb = 0,$flag = false)
+    {
+        if (empty($src)) {
+            return [];
+        }
+        if (is_array($src)) {
+            return $src;
+        }
+        if (stripos($src, ',') !== false||$flag) {
+            $srcArray = explode(',', $src);
+            $result = [];
+            foreach ($srcArray as $key => $value) {
+                $result[$key] = self::getArray($value, $size, $thumb);
+            }
+            return $result;
+        }
         if (stripos($src, '://') !== false) {
-            return array(
-                'src' => $src,
-                'url' => $src,
-                'width' => 0,
+            return [
+                'src'    => $src,
+                'url'    => $src,
+                'width'  => 0,
                 'height' => 0,
-            );
+            ];
         }
 
-        $data = array(
+        $data = [
             'src' => $src,
             'url' => FilesClient::getUrl($src),
-        );
+        ];
         if ($size === true) {
             $path = FilesClient::getRoot($src);
-            if (is_file($path)) {
+            if (file_exists($path)) {
                 list($width, $height) = @getimagesize($path);
-                $data['width']  = $width;
+                $data['width'] = $width;
                 $data['height'] = $height;
             }
         }
         if (is_array($size)) {
-            $data['width']  = $size['w'];
+            $data['width'] = $size['w'];
             $data['height'] = $size['h'];
         }
         if (is_array($size) && is_array($thumb)) {
             $size = array_filter($size);
             $thumb = array_filter($thumb);
-            $size && $thumb && $scale = bitscale(array(
-                "tw" => (int) $thumb[0],
-                "th" => (int) $thumb[1],
-                "w"  => (int) $size['w'],
-                "h"  => (int) $size['h'],
-            ));
+            $size && $thumb && $scale = bitscale([
+                'tw' => (int) $thumb[0],
+                'th' => (int) $thumb[1],
+                'w'  => (int) $size['w'],
+                'h'  => (int) $size['h'],
+            ]);
             $scale && $data = array_merge($data, $scale);
         }
         return $data;
     }
-    public static function findImgUrl($content, &$imgArray = array())
+
+    public static function findImgUrl($content, &$imgArray = [])
     {
-        $content = str_replace("<img", "\n\n<img", $content);
+        if (empty($content)) {
+            return [];
+        }
+        $content = str_replace('<img', "\n\n<img", $content);
         $pattern = "/<img.*?src\s*=[\"|'|\s]*((http|https):\/\/.*?\.(" . implode('|', FilesPic::$EXTS) . "))[\"|'|\s]*.*?[^>]>/is";
         preg_match_all($pattern, $content, $imgArray);
         $pics = array_unique($imgArray[1]);
@@ -122,11 +146,11 @@ class FilesPic
         return $pics;
     }
 
-    public static function findImg($content, &$match = array())
+    public static function findImg($content, &$match = [])
     {
         if (stripos($content, '<img')) {
-            $match   = (array) $match;
-            $content = str_replace("<img", "\n\n<img", $content);
+            $match = (array) $match;
+            $content = str_replace('<img', "\n\n<img", $content);
             preg_match_all(self::$PREG_IMG, $content, $match);
             return array_unique($match[2]);
         } else {
@@ -139,45 +163,50 @@ class FilesPic
 
     public static function remote($content, $remote = false, $that = null)
     {
-        if (!$remote) return $content;
+        if (!$remote) {
+            return $content;
+        }
 
-        FilesClient::$force_ext = "jpg";
-        $array   = self::findImg($content, $match);
-        $fArray  = array();
-        $autopic = array();
+        FilesClient::$force_ext = 'jpg';
+        $array = self::findImg($content, $match);
+        $fArray = [];
+        $autopic = [];
         foreach ($array as $key => $value) {
             $value = trim($value);
-            if (stripos($value, iCMS_FS_HOST) === false) {
-                $filepath = FilesClient::remote($value);
-                $rootfilpath = FilesClient::getRoot($filepath);
-                list($owidth, $oheight, $otype) = @getimagesize($rootfilpath);
-                empty($otype) && $otype = FilesClient::checkImageBin($rootfilpath);
+            if (stripos($value, iCMS_FILE_HOST) === false) {
+                try {
+                    $filepath = FilesClient::remote($value);
+                    $rootfilpath = FilesClient::getRoot($filepath);
+                    file_exists($rootfilpath) && list($owidth, $oheight, $otype) = @getimagesize($rootfilpath);
+                    empty($otype) && $otype = FilesClient::checkImageBin($rootfilpath);
 
-                if ($filepath && !Request::isUrl($filepath) && $otype) {
-                    $value = FilesClient::getUrl($filepath);
-                } else {
-                    if (self::$DELETE_ERROR_PIC) {
-                        File::rm($rootfilpath);
-                        $array[$key]  = $match[0][$key];
-                        $value = '';
+                    if ($filepath && !Request::isUrl($filepath) && $otype) {
+                        $value = FilesClient::getUrl($filepath);
+                    } else {
+                        if (self::$DELETE_ERROR_PIC) {
+                            File::rm($rootfilpath);
+                            $array[$key] = $match[0][$key];
+                            $value = '';
+                        }
                     }
+                } catch (Exception $e) {
                 }
                 $fArray[$key] = $value;
             } else {
                 unset($array[$key]);
                 $rootfilpath = FilesClient::getPath($value, 'http2root');
-                list($owidth, $oheight, $otype) = @getimagesize($rootfilpath);
+                file_exists($rootfilpath) && list($owidth, $oheight, $otype) = @getimagesize($rootfilpath);
                 empty($otype) && $otype = FilesClient::checkImageBin($rootfilpath);
 
                 if (self::$DELETE_ERROR_PIC && empty($otype)) {
                     File::rm($rootfilpath);
-                    $array[$key]  = $match[0][$key];
+                    $array[$key] = $match[0][$key];
                     $fArray[$key] = '';
                 }
             }
-            $remote === "autopic" && $autopic[$key] = $value;
+            $remote === 'autopic' && $autopic[$key] = $value;
         }
-        if ($remote === "autopic") {
+        if ($remote === 'autopic') {
             return $autopic;
         }
         if ($array && $fArray) {
@@ -187,41 +216,45 @@ class FilesPic
         }
         return $content;
     }
+
     public static function thumb($sfp, $w = '', $h = '', $scale = true)
     {
         if (empty($sfp)) {
-            return iCMS_FS_URL . '1x1.gif';
+            return iCMS_FILE_URL . '1x1.gif';
         }
         if (strpos($sfp, '_') !== false) {
             if (preg_match('|.+\d+x\d+\.jpg$|is', $sfp)) {
                 return $sfp;
             }
         }
-        if (stripos($sfp, iCMS_FS_HOST) === false) {
+        if (stripos($sfp, iCMS_FILE_HOST) === false) {
             return $sfp;
         }
+        empty($h) && $h = $w;
         $size = $w . 'x' . $h;
 
         if (Config::get('thumb.size') === 'ALL') {
             return $sfp . '_' . $size . '.jpg';
         }
 
-        if (empty(Config::get('thumb.size'))) {
+        $sizes = (string)Config::get('thumb.size');
+
+        if (empty($sizes)) {
             return $sfp;
         }
 
-        $size_map = explode("\n", Config::get('thumb.size'));
+        $size_map = explode("\n", $sizes);
         $size_map = array_map('trim', $size_map);
         $size_map = array_flip($size_map);
+        
         if (!isset($size_map[$size])) {
             return $sfp;
         }
-
-        if (Config::get('FS.yun.enable')) {
-            if (Config::get('FS.yun.vendor.QiNiuYun.Bucket')) {
+        if (FilesClient::getConfig('yun')) {
+            if (FilesClient::getConfig('yun.vendor.QiNiuYun.Bucket')) {
                 return $sfp . '?imageView2/1/w/' . $w . '/h/' . $h;
             }
-            if (Config::get('FS.yun.vendor.TencentYun.Bucket')) {
+            if (FilesClient::getConfig('yun.vendor.TencentYun.Bucket')) {
                 return $sfp . '?imageView2/2/w/' . $w . '/h/' . $h;
             }
         }

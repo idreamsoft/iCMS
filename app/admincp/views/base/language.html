@@ -1,0 +1,30 @@
+<!-- languages Dropdown -->
+<div class="dropdown d-inline-block ms-2" id="languages">
+    <button type="button" class="btn btn-sm btn-alt-secondary" id="page-header-languages-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        <i class="fa fa-fw fa-language"></i>
+    </button>
+    <div class="dropdown-menu dropdown-menu-lg dropdown-menu-end p-0 border-0 fs-sm" aria-labelledby="page-header-languages-dropdown">
+        <div class="p-2 bg-body-light border-bottom text-center rounded-top">
+            <h5 class="dropdown-header text-uppercase">{{#Lang('common:select_language')}}</h5>
+        </div>
+        <ul class="nav-items mb-0">
+            <?php 
+            $package = Lang::package();
+            foreach ($package as $key => $value): ?>
+            <li>
+                <a class="text-dark d-flex py-2" href="<?=Admincp::url('admincp/setlang',['lg'=>$key])?>">
+                    <div class="flex-shrink-0 me-2 ms-3">
+                        <svg class="img-flag w-5 h-5">
+                            <use href="/assets/img/combined.svg#<?=str_replace('zh-cn','zh',$key)?>" />
+                        </svg>
+                    </div>
+                    <div class="flex-grow-1 pe-2">
+                        <div class="fw-semibold"><?=$value?></div>
+                    </div>
+                </a>
+            </li>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+</div>
+<!-- END languages Dropdown -->

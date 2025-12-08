@@ -1,0 +1,66 @@
+<script id="<?=$kv_id?>-data" type="application/json"><?=$kv_value?></script>
+<div i="cms:former:kv" data-name="<?=$kv_id?>-data" class="hide0">
+    <div class="block">
+        <button @click="addrow" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加一行</button>
+        <button @click="addcol" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加一列</button>
+        <div class="block-content p-0">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>序号</th>
+                        <th>
+                            键名
+                            <button @click="fillRandomKeys" class="btn btn-sm btn-outline-secondary" type="button" style="margin-left:6px;">
+                                 <i class="fa fa-fw fa-random"></i>
+                            </button>
+                        </th>
+                        <th>名称(拖拽可排序) </th>
+                        <th>值1</th>
+                        <th v-for="n in extraColumns" :key="n">
+                            值{{ n + 1 }}
+                            <span v-if="extraColumns > 0" 
+                                @click="removeColumn(n)" 
+                                class="text-danger" 
+                                style="margin-left: 5px; padding: 2px 6px;"
+                                type="button"
+                                title="删除此列">
+                            <i class="fa fa-times"></i>
+                            </span>
+                        </th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in items" :key="index" draggable="true" @dragstart="onDragStart(index, $event)" @dragover.prevent @drop="onDrop(index, $event)" @dragend="onDragEnd">
+                        <td>
+                            {{ index + 1 }}
+                        </td>
+                        <td>
+                            <input class="form-control" :name="'<?=$kv_name?>['+index+'][key]'" type="text" v-model="item.key" @input="handleKeyInput(item, $event)" />
+                        </td>
+                        <td>
+                            <input class="form-control" :name="'<?=$kv_name?>['+index+'][name]'" type="text" v-model="item.name" />
+                        </td>
+                        <td>
+                            <textarea class="form-control" :name="'<?=$kv_name?>['+index+'][value]'" style="height:85px;" v-model="item.value"></textarea>
+                        </td>
+                    
+                        <!-- 动态列 -->
+                        <td v-for="colIndex in extraColumns" :key="colIndex">
+                                <textarea class="form-control" 
+                                          :name="'<?=$kv_name?>['+index+'][value'+colIndex+']'" 
+                                          style="height:85px;" 
+                                          v-model="item['value' + colIndex]"></textarea>
+                        </td>
+                    
+                        <td>
+                            <span class="btn btn-sm btn-secondary-alt" type="button" @click="remove(index)">
+                                <i class="fa fa-fw fa-times"></i>
+                            </span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

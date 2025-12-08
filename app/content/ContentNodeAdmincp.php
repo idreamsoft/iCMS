@@ -9,14 +9,14 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 defined('iPHP') or exit('What are you doing?');
-
+/**
+ * {app.name}栏目
+ */
 class ContentNodeAdmincp extends NodeAdmincp
 {
-    public $ACCESC_TITLE = '{app.name}栏目';
-
     public function __construct()
     {
-        parent::__construct(Admincp::$APPID);
+        parent::__construct(Admincp::$APP_ID);
         $this->NODE_NAME = "栏目";
         $this->app       = Admincp::$APP_DATA['app'];
         $this->title     = Admincp::$APP_DATA['title'];
@@ -36,25 +36,25 @@ class ContentNodeAdmincp extends NodeAdmincp
                 "label" => '首页',
                 "template" => sprintf('%s/content.index.htm', View::TPL_FLAG_1),
                 "rule" => '/{CDIR}/',
-                "tips" => '{CID},{0xCID},{CDIR},{Hash@CID},{Hash@0xCID}'
+                "tips" => '{CID},{0xCID},{CDIR},{HASH@CID},{HASH@0xCID}'
             ),
             'list'    => array(
                 "label" => '列表',
                 "template" => sprintf('%s/content.list.htm', View::TPL_FLAG_1),
                 "rule" => '/{CDIR}/index_{P}{EXT}',
-                "tips" => '{CID},{0xCID},{CDIR},{Hash@CID},{Hash@0xCID}'
+                "tips" => '{CID},{0xCID},{CDIR},{HASH@CID},{HASH@0xCID}'
             ),
             $this->app => array(
                 "label" => $this->title,
                 "template" => sprintf('%s/content.htm', View::TPL_FLAG_1),
                 "rule" => '/{CDIR}/{YYYY}/{MM}{DD}/{ID}{EXT}',
-                "tips" => '{ID},{0xID},{LINK},{Hash@ID},{Hash@0xID}'
+                "tips" => '{ID},{0xID},{LINK},{HASH@ID},{HASH@0xID}'
             ),
             'tag' => array(
                 "label" => '标签',
                 "template" => sprintf('%s/tag.htm', View::TPL_FLAG_1),
                 "rule" => '/{CDIR}/t-{TKEY}{EXT}',
-                "tips" => '{ID},{0xID},{TKEY},{NAME},{ZH_CN},{Hash@ID},{Hash@0xID}'
+                "tips" => '{ID},{0xID},{TKEY},{NAME},{ZH_CN},{HASH@ID},{HASH@0xID}'
             ),
         ));
         /**

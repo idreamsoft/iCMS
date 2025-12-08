@@ -1,8 +1,11 @@
 <h3>
-    <!--{$site.title}-->网络服务协议</h3>
+  <!--{$site.title}-->网络服务协议
+</h3>
 <pre style="white-space: break-spaces;">
-<!--{if $USER_CONFIG.agreement }--> 
-<!--{$USER_CONFIG.agreement}-->
+<!--{iCMS:user:config}-->
+
+<!--{if $user_config.agreement }--> 
+<!--{$user_config.agreement}-->
 <!--{else}-->
 
 1. 接受条款
@@ -143,7 +146,7 @@
 </pre>
 <a name="#"></a>
 <h3>
-    网络信息侵权通知指引
+  网络信息侵权通知指引
 </h3>
 <pre style="white-space: break-spaces;">
 <!--{$site.title}-->作为信息服务提供商，通过网站、产品和服务等方式为用户提供第三方信息服务平台，用户可在平台上使用包括但不限于信息发布、信息分享、信息存储、信息交流、等方面的服务。

@@ -11,10 +11,10 @@
 class PluginQRcodeHook
 {
     /**
-     * [插件:生成二维码]
+     * 插件:生成二维码
      * @param [type] $content  [参数]
      */
-    public static function run($content, $output = false)
+    public static function field_hook($content, $output = false)
     {
         return PluginQRcode::make($content, $output);
     }

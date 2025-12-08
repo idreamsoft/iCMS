@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        访问出错_
+        <!--{$site.title}-->_
+        <!--{$site.seotitle}-->
+    </title>
+    <meta name="keywords" content="<!--{$site.keywords}-->" />
+    <meta name="description" content="<!--{$site.description}-->" />
+    <!--{iCMS:public:ui}-->
+</head>
+
+<body>
+    <div id="page-container">
+        <main id="main-container">
+            <!--{include file="./widget/top.htm"}-->
+            <!--{include file="./widget/hero.htm"}-->
+            <!--{include file="./widget/nav.htm"}-->
+
+            <!-- Page Content -->
+            <div class="container-fluid content content-boxed mb-1">
+                <div class="row justify-content-center">
+                    <div class="col-12">
+                        <div class="block block-rounded shadow-sm">
+                            <div class="block-content block-content-full">
+                                <div class="text-center py-5">
+                                    <!-- 错误图标 -->
+                                    <div class="mb-4">
+                                        <i class="fa fa-exclamation-triangle text-danger opacity-50" style="font-size: 4rem;"></i>
+                                    </div>
+
+                                    <!-- 错误标题 -->
+                                    <h1 class="display-5 fw-bold text-danger mb-3">访问出错</h1>
+
+                                    <!-- 错误信息 -->
+                                    <div class="alert alert-light border mb-4 w-75 m-auto">
+                                        <p class="mb-2"><!--{$error_msg}--></p>
+                                        <!--{if $error_code}-->
+                                        <p class="mb-0 text-muted">
+                                            <small>[错误代码: <!--{$error_code}-->]</small>
+                                        </p>
+                                        <!--{/if}-->
+                                    </div>
+
+                                    <!-- 操作提示 -->
+                                    <p class="text-muted mb-4">
+                                        请尝试以下操作以继续浏览：
+                                    </p>
+
+                                    <!-- 操作按钮 -->
+                                    <div class="d-grid gap-3 d-sm-flex justify-content-center">
+                                        <a class="btn btn-primary btn-lg px-4" href="<!--{$site.url}-->">
+                                            <i class="fa fa-home me-2"></i>
+                                            返回首页
+                                        </a>
+                                        <a class="btn btn-outline-secondary btn-lg px-4" href="javascript:history.back(-1);">
+                                            <i class="fa fa-arrow-left me-2"></i>
+                                            返回上一页
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Page Content -->
+            <!--{include file="./widget/footer.htm"}-->
+        </main>
+    </div>
+</body>
+
+</html>

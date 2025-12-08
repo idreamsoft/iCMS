@@ -11,12 +11,31 @@
 class PluginMarkdown
 {
     public static $flag = false;
+    public static $styles = [];
+    public static $classes = [];
+    public static $lazyload = true;
+
+    public static function html2md($content, $helper=null)
+    {
+        Plugin::init(__CLASS__);
+        Plugin::library('Html2md');
+        $converter = new Html2md();
+        $markdown = $converter->convert($content);
+        return $markdown;
+    }
+
     public static function parser($content, $htmldecode = false)
     {
-        if (self::$flag) return $content;
+        if (self::$flag) {
+            return $content;
+        }
 
         is_array($content) && $content = implode('', $content);
-        
+
+        if (empty($content)) {
+            return $content;
+        }
+
         $content = htmlspecialchars_decode($content);
 
         Plugin::init(__CLASS__);
@@ -24,13 +43,17 @@ class PluginMarkdown
         $Parsedown = new Parsedown();
         $Parsedown->setBreaksEnabled(true);
         $Parsedown->setSafeMode(true);
-        $content = str_replace(array(
+        $Parsedown->setLazyload(self::$lazyload);
+        self::$classes && $Parsedown->setClasses(self::$classes);
+        self::$styles && $Parsedown->setStyles(self::$styles);
+        $content = str_replace([
             '#--' . iPHP_APP . '.Markdown--#',
             '#--' . iPHP_APP . '.PageBreak--#',
-        ), array('', '@--' . iPHP_APP . '.PageBreak--@'), $content);
+        ], ['', '@--' . iPHP_APP . '.PageBreak--@'], $content);
         $content = $Parsedown->text($content);
         $content = str_replace('@--' . iPHP_APP . '.PageBreak--@', '#--' . iPHP_APP . '.PageBreak--#', $content);
         self::$flag = true;
+
         return $content;
     }
 }

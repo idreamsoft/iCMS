@@ -10,14 +10,11 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class UserWidgetAdmincp extends AdmincpBase
+class UserWidgetAdmincp extends AdmincpCommon
 {
     public $ACCESC_TITLE = '用户小工具';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
+
     public function do_aa()
     {
         include self::view("test");

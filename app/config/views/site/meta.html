@@ -1,0 +1,47 @@
+<div i="cms:apps:vMeta" class="hide">
+    <input type="hidden" name="formCallFunc[]" value="saveMetaDataKVs">
+    <input type="hidden" name="metadata_appid" value="<?php echo self::$APPID;?>">
+    <input type="hidden" name="metadata_id" value="<?php echo Config::$siteid;?>">
+    <div class="block">
+        <button @click="add" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加</button>
+        <button @click="save" class="btn btn-sm btn-alt-primary" type="button"><i class="fa fa-fw fa-save"></i> 保存</button>
+        <div class="block-content p-0">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>名称/字段</th>
+                        <th>内容</th>
+                        <th>模板标签</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in items">
+                        <td>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">名称</span>
+                                <input class="form-control" :name="'metadata['+index+'][name]'" type="text" v-model="item.name" />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">字段</span>
+                                <input class="form-control" :name="'metadata['+index+'][key]'" type="text" v-model="item.key" @input="handleKeyInput(item, $event)"/>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <textarea class="form-control" :name="'metadata['+index+'][value]'" type="text" style="height:85px;" v-model="item.value"></textarea>
+                                <button class="btn btn-secondary" type="button" @click="remove(index)">
+                                    <i class="fa fa-fw fa-times" @click.stop="remove(index)"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <p class="text-muted m-0">&lt;!--{$site.meta.{{item.key}}.name}--&gt;</p>
+                            <p class="text-muted m-0">&lt;!--{$site.meta.{{item.key}}.key}--&gt;</p>
+                            <p class="text-muted m-0">&lt;!--{$site.meta.{{item.key}}.value}--&gt;</p>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

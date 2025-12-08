@@ -10,104 +10,121 @@
  */
 class FormsFunc extends AppsFuncCommon
 {
-    public static function inited($vars, $func = 'list')
+    public static function boot($vars, $func = 'list')
     {
         if (isset($vars['formid']) || isset($vars['fid'])) {
             $formid = $vars['formid'];
             isset($vars['fid']) && $formid = $vars['fid'];
-            $form   = Forms::get($formid);
-        } else if (isset($vars['form'])) {
+            $form = Forms::get($formid);
+        } elseif (isset($vars['name'])) {
+            $form = Forms::get($vars['name'], 'app');
+        } elseif (isset($vars['app'])) {
+            $form = Forms::get($vars['app'], 'app');
+        } elseif (isset($vars['form'])) {
             is_array($vars['form']) && $form = $vars['form'];
         }
         if (empty($form) || empty($form['status'])) {
-            Script::warning('iCMS&#x3a;forms&#x3a;' . $func . ' 标签出错! 缺少参数"app"或"app"值为空.');
+            self::msg(['func_param', ['iCMS:forms:' . $func, '[formid,form,name]']]);
         }
-        return $form;
+        FormsApp::initialize($form, false);
+        $forms = FormsApp::values($form);
+        return $forms;
     }
-    public static function create($vars)
+
+    public static function get($vars)
     {
-        $form = self::inited($vars, 'create');
+        $form = self::boot($vars, 'create');
 
         if (empty($form['config']['enable'])) {
-            Script::warning('该表单设置不允许用户提交.');
+            self::msg('该表单设置不允许用户提交.');
             return false;
         }
 
-        // isset($vars['main']) && Former::$template['main'] = $vars['main'];
-        // isset($vars['label']) && Former::$template['label'] = $vars['label'];
-        // foreach ($vars as $key => $value) {
-        //     if (stripos($key, 'class_') !== false) {
-        //         $key = str_replace('class_', '', $key);
-        //         Former::$template['class'][$key] = $value;
-        //     }
-        // }
+        empty($vars['glue']) && $vars['glue'] = '';
 
-        isset($vars['prefix']) && Former::$prefix = $vars['prefix'] ?: 'iDATA';
-        Former::$APP = $form;
-        Former::$VALUES = array(
-            'userid'   => User::$id,
-            'username' => User::$account,
-            'nickname' => User::$nickname
-        );
-        Former::$GATEWAY = 0;
-        Former::$config['option'] = $vars['option'];
-        Former::create($form);
+        $vars['prefix'] && Former::$prefix = $vars['prefix'];
+        Former::usercp($form, [], $vars['option']);
 
-        $vendor = Vendor::run('Token');
-        list($token, $timestamp, $nonce) = $vendor->get();
-        empty($form['token']) && $form['token']  = $token;
-        empty($form['signature']) && $form['signature'] = auth_encode($form['id'] . '#' . $form['token'] . '#' . $timestamp . '#' . $nonce);
-        $vendor->prefix = 'form_' . $form['id'] . '_';
-        $vendor->signature($form['token'], $form['signature']);
-
-        $form['layout'] = implode($vars['glue'], Former::render(false));
+        $form['nonce'] = random(16);
+        $form['timestamp'] = time();
+        $form['sign'] = Forms::sign($form['id'], $form['nonce'], $form['timestamp']);
+        $form['id'] = encrypt($form['id']);
+        is_null($vars['layout']) && $vars['layout'] = true;
+        $vars['layout'] && $form['layout'] = implode($vars['glue'], Former::render(false));
         View::assign('form', $form);
-        $html = View::fetch('iCMS://forms/create.htm');
+
+        $form['head'] = View::fetch('iCMS://forms/head.htm');
+        $form['hidden'] = View::fetch('iCMS://forms/hidden.htm');
+        $form['html'] = View::fetch('iCMS://forms/create.htm');
+        return $form;
+    }
+
+    public static function encode($vars)
+    {
+        return encrypt($vars['value']);
+    }
+
+    public static function hidden($vars)
+    {
+        $vars['layout'] = false;
+        $form = self::get($vars);
+        echo $form ? $form['hidden'] : '';
+    }
+
+    public static function create($vars)
+    {
+        $form = self::get($vars);
+        if (empty($form)) {
+            self::msg('表单不存在或已被禁用.');
+            return false;
+        }
         if ($vars['assign']) {
-            View::assign($vars['assign'], $html);
+            View::assign($vars['assign'], $form['html']);
         } else {
-            echo $html;
+            echo $form['html'];
         }
     }
     public static $fields = null;
+
     public static function datas($vars)
     {
-        $form = self::inited($vars);
-        Forms::init($form);
+        $form = self::boot($vars);
+        FormsData::init($form);
 
         if ($form['fields']) {
             self::$fields = Former::fields($form['fields']);
-            View::assign("forms_fields",  self::$fields);
+            View::assign('forms_fields', self::$fields);
         }
 
-        $whereNot  = array();
-        $where     = array();
-        $resource  = array();
-        $model     = ContentModel::field('id');
+        $whereNot = [];
+        $where = [];
+        $resource = [];
+        $model = ContentModel::field('id');
         // $status    = isset($vars['status']) ? (int) $vars['status'] : 1;
         // $where     = [['status', $status]];
 
-        self::init($vars, $model, $where, $whereNot);
+        self::inited($vars, $model, $where, $whereNot);
         // self::setApp(Forms::APPID, Forms::APP);
 
         $sfield = $vars['sfield'];
         if ($keywords = $vars['keywords']) {
-            $search = array();
+            $search = [];
             if (empty($sfield)) {
                 foreach ((array) self::$fields as $fi => $field) {
                     $field['field'] == 'VARCHAR' && $search[] = $field['id'];
                 }
-                $search && $where["CONCAT(`" . implode('`,`', $search) . "`)"] = array('REGEXP', $keywords);
+                $search && $where['CONCAT(`' . implode('`,`', $search) . '`)'] = ['REGEXP', $keywords];
             } else {
                 empty($pattern) && $pattern = 'REGEXP';
-                $where[$sfield] = array($pattern, $keywords);
+                $where[$sfield] = [$pattern, $keywords];
             }
         } else {
-            $vars['pattern'] && $where[$sfield] = array($vars['pattern'], $keywords);
+            $vars['pattern'] && $where[$sfield] = [$vars['pattern'], $keywords];
         }
         self::where();
         self::orderby([]);
-        return self::getResource(__METHOD__, function ($vars, $idsArray = null) {
+        return self::getResource(__METHOD__, function ($idsArray = null) {
+            $vars = self::$vars;
             if ($idsArray) {
                 $resource = ContentModel::field('*')
                     ->where($idsArray)
@@ -115,7 +132,7 @@ class FormsFunc extends AppsFuncCommon
                     ->select();
                 if ($resource) {
                     if ($vars['data']) {
-                        $data = array();
+                        $data = [];
                         if (ContentDataModel::$unionKey) {
                             $where[ContentDataModel::$unionKey] = $idsArray;
                             $data = ContentDataModel::where($where)->select();
@@ -124,7 +141,7 @@ class FormsFunc extends AppsFuncCommon
                     }
                     foreach ($resource as $key => $value) {
                         foreach (self::$fields as $fi => $field) {
-                            $id = $value[Content::$primaryKey];
+                            $id = $value['id'];
                             if ($data[$id] && is_array($data[$id])) {
                                 $value = array_merge($value, $data[$id]);
                             }
@@ -137,34 +154,37 @@ class FormsFunc extends AppsFuncCommon
             return $resource;
         });
     }
+
     public static function lists($vars)
     {
-        $whereNot  = array();
-        $resource  = array();
-        $model     = FormsModel::field('id');
-        $status    = isset($vars['status']) ? (int) $vars['status'] : 1;
-        $where     = [['status', $status]];
+        $whereNot = [];
+        $resource = [];
+        $model = FormsModel::field('id');
+        $status = isset($vars['status']) ? (int) $vars['status'] : 1;
+        $where = [['status', $status]];
 
         isset($vars['type']) && $where[] = ['type', $vars['type']];
         isset($vars['pic']) && $where[] = ['pic', '<>', ''];
-        isset($vars['nopic'])   && $where[] = ['pic', ''];
-        isset($vars['startdate']) && $where[] = array('addtime', '>=', str2time($vars['startdate'] . (strpos($vars['startdate'], ' ') !== false ? '' : " 00:00:00")));
-        isset($vars['enddate'])   && $where[] = array('addtime', '<=', str2time($vars['enddate'] . (strpos($vars['enddate'], ' ') !== false ? '' : " 00:00:00")));
+        isset($vars['nopic']) && $where[] = ['pic', ''];
+        isset($vars['startdate']) && $where[] = ['addtime', '>=', str2time($vars['startdate'] . (strpos($vars['startdate'], ' ') !== false ? '' : ' 00:00:00'))];
+        isset($vars['enddate']) && $where[] = ['addtime', '<=', str2time($vars['enddate'] . (strpos($vars['enddate'], ' ') !== false ? '' : ' 00:00:00'))];
 
-        self::init($vars, $model, $where, $whereNot);
-        self::setApp(Forms::APPID, Forms::APP);
+        self::inited($vars, $model, $where, $whereNot);
         self::where();
         self::orderby([]);
-        return self::getResource(__METHOD__, function ($vars, $idsArray = null) {
+        return self::getResource(__METHOD__, function ($idsArray = null) {
+            $vars = self::$vars;
             if ($idsArray) {
                 $resource = FormsModel::field('*')
                     ->where($idsArray)
                     ->orderBy('id', $idsArray)
                     ->select();
-                if ($resource) foreach ($resource as $key => $value) {
-                    $value['pic'] && $value['pic']  = FilesClient::getUrl($value['pic']);
-                    $value['url'] = Route::routing('forms/{id}', [$value['id']]);
-                    $resource[$key] = $value;
+                if ($resource) {
+                    foreach ($resource as $key => $value) {
+                        $value['pic'] = FilesPic::getArray($value['pic']);
+                        // $value['url'] = Route::routing('forms/{id}', [$value['id']]);
+                        $resource[$key] = $value;
+                    }
                 }
             }
             return $resource;

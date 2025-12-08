@@ -1,0 +1,65 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block" role="tablist" id="config-head">
+            <?php if ($tabsArray) foreach ($tabsArray as $tab__key => $tab__val) {?>
+                <li class="nav-item"><a class="nav-link <?php echo $tab__val['active']; ?>" data-bs-toggle="tab" data-bs-target="#<?php echo $tab__val['id']; ?>"><?php echo $tab__val['title']; ?></a></li>
+            <?php } ?>
+            <?php if ($extends) foreach ($extends as $ext__key => $ext__val) { ?>
+                <li class="nav-item"><a class="nav-link <?php echo $ext__val['active']; ?>" data-bs-toggle="tab" data-bs-target="#config-<?php echo $ext__key; ?>"><?php echo $ext__val['title']; ?></a></li>
+            <?php } ?>
+            <li class="nav-item ms-auto">
+                <div class="block-options p-2">
+                    <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+                    <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                    <!-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
+                        <i class="si si-refresh"></i>
+                    </button> -->
+                    <!-- <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close">
+                        <i class="si si-close"></i>
+                    </button> -->
+                </div>
+            </li>
+        </ul>
+        <div class="block-content">
+            <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                <div class="tab-content">
+                    <?php if ($tabsArray) foreach ($tabsArray as $tab__key => $tab__val) { ?>
+                        <div id="<?php echo $tab__val['id']; ?>" class="tab-pane <?php echo $tab__val['active']; ?>" role="tabpanel">
+                            <?php include self::view($tab__val['view'], $tab__val['app']); ?>
+                        </div>
+                    <?php } ?>
+                    <?php if ($extends) foreach ($extends as $ext__key => $ext__val) { ?>
+                        <div id="config-<?php echo $ext__key; ?>" class="tab-pane <?php echo $ext__val['active']; ?>" role="tabpanel">
+                            <div class="block">
+                                <?php if ($ext__val['nav']) { ?>
+                                    <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt" data-toggle="tabs" role="tablist">
+                                        <?php $__tidx = 0;
+                                        foreach ($ext__val['tabs'] as $tab__key => $tab__val) { ?>
+                                            <li class="nav-item"><a class="nav-link <?php echo $__tidx ? '' : 'active'; ?>" data-bs-toggle="tab" data-bs-target="#ext-<?php echo $ext__key; ?>-<?php echo $tab__key; ?>"><i class="<?php echo $tab__val['icon']; ?>"></i><?php echo $tab__val['title']; ?></a></li>
+                                        <?php $__tidx++;
+                                        } ?>
+                                    </ul>
+                                <?php } ?>
+                                <div class="block-content">
+                                    <div class="tab-content pt-3">
+                                        <?php $__tidx = 0;
+                                        foreach ($ext__val['tabs'] as $tab__key => $tab__val) { ?>
+                                            <div id="ext-<?php echo $ext__key; ?>-<?php echo $tab__key; ?>" class="tab-pane <?php echo $__tidx ? '' : 'active'; ?>" role="tabpanel">
+                                                <?php include $tab__val['rootpath']; ?>
+                                            </div>
+                                        <?php $__tidx++;
+                                        } ?>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <?php } ?>
+                    <?php self::form()->submit(); ?>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<?php self::foot(); ?>

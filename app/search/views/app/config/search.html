@@ -1,0 +1,12 @@
+<?php 
+$title = "禁搜词设置"; 
+$header_enable = false;
+$config = Config::vget('search');
+?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="disable">禁搜词</label>
+    <div class="col-sm-8">
+        <textarea id="disable" name="config[disable]" class="form-control" style="height: 300px"><?php echo implode("\n", (array) $config['disable']); ?></textarea>
+        <small class="form-text text-muted">每行一个关键字</small>
+    </div>
+</div>

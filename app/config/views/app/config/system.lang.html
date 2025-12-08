@@ -1,0 +1,24 @@
+<?php 
+$title = Lang("admincp:lang:name"); 
+$packages = Lang::package();
+?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example"><?=Lang("admincp:lang:admincp")?></label>
+    <div class="col-sm-8">
+        <select name="config[language][admincp]" id="admincp_language" class="form-control" i="cms:ui:select" value="<?php echo $config['language']['admincp']; ?>">
+            <?php foreach ($packages as $key => $value): ?>
+            <option value="<?=$key?>"><?=$value?><?=sprintf('[Language=%s]',$key)?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example"><?=Lang("admincp:lang:site")?></label>
+    <div class="col-sm-8">
+        <select name="config[language][site]" id="admincp_language" class="form-control" i="cms:ui:select" value="<?php echo $config['language']['site']; ?>">
+            <?php foreach ($packages as $key => $value): ?>
+            <option value="<?=$key?>"><?=$value?><?=sprintf('[Language=%s]',$key)?></option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+</div>

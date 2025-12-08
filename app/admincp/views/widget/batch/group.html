@@ -1,0 +1,9 @@
+<?php if ($enable) { ?>
+    <a type="button" class="btn btn-dark disabled" disabled data-bs-toggle="dropdown"><i class="fa fa-fw fa-wrench"></i> {{#Lang('Batch')}}</a>
+    <a type="button" class="btn btn-dark dropdown-toggle disabled" disabled data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true">
+        <span class="sr-only">Toggle Dropdown</span>
+    </a>
+    <div class="dropdown-menu">
+        <?php include AdmincpView::display('widget/batch/btns', 'admincp');?>
+    </div>
+<?php } ?>

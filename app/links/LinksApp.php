@@ -1,13 +1,13 @@
 <?php
 class LinksApp
 {
-    public function do_iCMS()
+    public function do_index()
     {
         $this->target();
     }
-    public function API_iCMS()
+    public function api_index()
     {
-        $this->target();
+        $this->do_index();
     }
     public static function target()
     {

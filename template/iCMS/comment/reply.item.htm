@@ -1,46 +1,50 @@
-<div class="media mt-3">
-    <a class="mr-3" href="<!--{$comment_reply.user.url}-->">
-        <img class="img-avatar img-avatar32" src="<!--{$comment_reply.user.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
-    </a>
-    <div class="media-body">
-        <a class="font-w600" href="<!--{$comment_reply.user.url}-->">
-            <!--{$comment_reply.user.name}-->
+<div i="reply:item" class="cms-comment-reply-item">
+    <div class="cms-comment-reply-avatar">
+        <a href="<!--{$replyItem.user.url}-->" target="_blank" i="cms@h:user:ucard" data-userid="<!--{$replyItem.user.id}-->">
+            <img src="<!--{$replyItem.user.avatar}-->" />
         </a>
-        <!--{if $comment_reply.user.uid==$author.uid}-->
-        <mark class="font-size-sm font-w600 text-success ml-1">作者</mark>
-        <!--{elseif $comment_reply.user.uid==$comment_list.user.uid}-->
-        <mark class="font-size-sm font-w600 text-success ml-1">评论者</mark>
-        <!--{/if}-->
-        <span class="font-w600 mx-1">回复</span>
-        <a class="font-w600" href="<!--{$comment_reply.reply_user.url}-->">
-            <!--{$comment_reply.reply_user.name}-->
-        </a>
-        <!--{if $comment_reply.reply_user.uid==$author.uid}-->
-        <mark class="font-size-sm font-w600 text-success ml-1">作者</mark>
-        <!--{elseif $comment_reply.reply_user.uid==$comment_list.user.uid}-->
-        <mark class="font-size-sm font-w600 text-success ml-1">评论者</mark>
-        <!--{/if}-->
-        <p class="my-1">
-            <!--{$comment_reply.content}-->
-        </p>
-        <div class="font-size-sm" data-param="<!--{$comment_reply.param|json_param}-->">
-            <a class="text-muted mr-1" href="javascript:void(0)" i="event:comment:reply:up">
-                <i class="fa fa-thumbs-up"></i>
-                <span i="comment:reply:up:num"><!--{$comment_reply.up|default:'赞'}--></span>
+    </div>
+    <div class="cms-comment-reply-body">
+        <div class="cms-comment-reply-user">
+            <a href="<!--{$replyItem.user.url}-->" target="_blank" i="cms@h:user:ucard" data-userid="<!--{$replyItem.user.id}-->">
+                <!--{$replyItem.user.name}-->
             </a>
-            <a class="text-muted mr-1" href="javascript:void(0)" i="event:comment:reply">
-                <i class="fa fa-reply"></i>
-                回复
+            <!--{if $replyItem.user.id==$ME.id}-->
+            <span class="cms-comment-badge cms-comment-badge-me">我</span>
+            <!--{/if}-->
+            <!--{if $replyItem.user.id==$author.uid}-->
+            <span class="cms-comment-badge cms-comment-badge-author">作者</span>
+            <!--{/if}-->
+            <!--{if $replyItem.reply_user.id}-->
+            <span class="cms-comment-reply-text"></span>
+            <a href="<!--{$replyItem.reply_user.url}-->" target="_blank" i="cms@h:user:ucard" data-userid="<!--{$replyItem.reply_user.id}-->">
+                <!--{$replyItem.reply_user.name}-->
             </a>
-            <a class="text-muted mr-1" href="javascript:void(0)" i="event:user:report">
-                <i class="fa fa-flag"></i>
-                举报
-            </a>
-            <span class="text-muted">
-                <em>
-                    <!--{$comment_reply.update_time|format_date}-->
-                </em>
-            </span>
+            <!--{if $replyItem.reply_user.id==$ME.id}-->
+            <span class="cms-comment-badge cms-comment-badge-me">我</span>
+            <!--{/if}-->
+            <!--{if $replyItem.reply_user.id==$author.uid}-->
+            <span class="cms-comment-badge cms-comment-badge-author">作者</span>
+            <!--{/if}-->
+            <!--{/if}-->
+            <span class="cms-comment-badge cms-comment-badge-floor"><!--{$replyItem.lou}-->楼</span>
         </div>
+        <div class="cms-comment-reply-inner">
+            <p><!--{$replyItem.content}--></p>
+        </div>
+        <div class="cms-comment-reply-foot">
+            <em>
+                <!--{$replyItem.update_time|format_date}-->
+            </em>
+            <div class="cms-comment-reply-foot-btns">
+                <a i="cms:comment:reply:reply">
+                    <i class="fa fa-fw fa-comment"></i> 回复
+                </a>
+                <a i="cms:comment:reply:like" class="<!--{$replyItem.is_up?'active':''}-->">
+                    <i class="fa fa-fw fa-heart"></i> <!--{$replyItem.up}-->
+                </a>
+            </div>
+        </div>
+        <div i="reply2:form" class="my-2"></div>
     </div>
 </div>

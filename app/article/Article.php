@@ -13,24 +13,18 @@ class Article
     const APP = 'article';
     const APPID = iCMS_APP_ARTICLE;
 
-    public static $statusMap = array(
-        '0' => '草稿',
-        '1' => '正常',
-        '2' => '回收站',
-        '3' => '待审核',
-        '4' => '未通过'
-    );
+
     public static $stypeMap = array(
         'inbox'   => '0', //草稿
         'normal'  => '1', //正常
         'trash'   => '2', //回收站
         'examine' => '3', //待审核
         'off'     => '4', //未通过
+        'delete'  => '5', //删除
+        'lock'    => '6', //锁定
+        'hidden'  => '7', //隐藏
     );
-    public static $postypeMap = array(
-        '0' => '用户',
-        '1' => '管理',
-    );
+
 
     public static function check($value, $id = 0, $field = 'title')
     {
@@ -84,9 +78,9 @@ class Article
                 $chapterTitles = [$data['subtitle']];
                 $bodyArray = explode(iPHP_PAGEBREAK, $data['body']);
             }
-            $bodyCount = count($bodyArray);    
+            $bodyCount = count($bodyArray);
         }
-        return array($article, $data,compact('chapterIds','chapterTitles','bodyArray','bodyCount'));
+        return array($article, $data, compact('chapterIds', 'chapterTitles', 'bodyArray', 'bodyCount'));
     }
 
     public static function create($data)

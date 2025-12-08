@@ -4,7 +4,6 @@
         "id": "spider",
         "sort": "-994",
         "caption": "采集管理",
-        "href": "spider",
         "icon": "spider",
         "children": [{
                 "id": "spiderUrl",
@@ -12,12 +11,12 @@
                 "icon": "si si-grid",
                 "children": [{
                         "caption": "采集列表",
-                        "href": "spiderUrl&do=manage",
+                        "href": "/spiderUrl/index",
                         "icon": "list"
                     },
                     {
                         "caption": "未发内容",
-                        "href": "spiderUrl&do=inbox",
+                        "href": "/spiderUrl/index/inbox",
                         "icon": "inbox"
                     }
                 ]
@@ -28,12 +27,12 @@
                 "icon": "si si-grid",
                 "children": [{
                         "caption": "方案管理",
-                        "href": "spiderProject&do=manage",
+                        "href": "/spiderProject/index",
                         "icon": "list"
                     },
                     {
                         "caption": "添加方案",
-                        "href": "spiderProject&do=add",
+                        "href": "/spiderProject/add",
                         "icon": "edit"
                     }
                 ]
@@ -43,12 +42,12 @@
                 "icon": "si si-grid",
                 "children": [{
                         "caption": "采集规则",
-                        "href": "spiderRule&do=manage",
+                        "href": "/spiderRule/index",
                         "icon": "list"
                     },
                     {
                         "caption": "添加规则",
-                        "href": "spiderRule&do=add",
+                        "href": "/spiderRule/add",
                         "icon": "edit"
                     }
                 ]
@@ -58,19 +57,19 @@
                 "icon": "si si-grid",
                 "children": [{
                         "caption": "发布模块",
-                        "href": "spiderPost&do=manage",
+                        "href": "/spiderPost/index",
                         "icon": "list"
                     },
                     {
                         "caption": "添加发布",
-                        "href": "spiderPost&do=add",
+                        "href": "/spiderPost/add",
                         "icon": "edit"
                     }
                 ]
             },
             {
                 "caption": "错误信息",
-                "href": "spiderError&do=manage",
+                "href": "/spiderError/index",
                 "icon": "info-circle"
             }
         ]

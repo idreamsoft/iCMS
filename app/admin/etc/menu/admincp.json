@@ -1,0 +1,32 @@
+[
+    {
+        "id": "members",
+        "children": [
+            {
+                "id": "admin",
+                "caption": "管理员",
+                "icon": "users",
+                "children": [
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "会话配置",
+                        "href": "/admin/config",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "管理员列表",
+                        "href": "/admin/index",
+                        "icon": "users"
+                    },
+                    {
+                        "caption": "添加管理员",
+                        "href": "/admin/add",
+                        "icon": "user-plus"
+                    }
+                ]
+            }
+        ]
+    }
+]

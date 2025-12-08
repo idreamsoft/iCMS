@@ -1,0 +1,69 @@
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="rule">标签URL规则</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[rule]" class="form-control" id="rule" value="<?php echo $config['rule']; ?>" />
+            
+                <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-question-circle"></i> 帮助</button>
+                <ul class="dropdown-menu">
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{ID}" data-target="#rule"><span class="badge bg-danger">{ID}</span> 标签ID</a></li>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{TKEY}" data-target="#rule"><span class="badge bg-danger">{TKEY}</span> 标签标识</a></li>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{ZH_CN}" data-target="#rule"><span class="badge bg-danger">{ZH_CN}</span> 标签名(中文)</a></li>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{NAME}" data-target="#rule"><span class="badge bg-danger">{NAME}</span> 标签名</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{TCID}" data-target="#rule"><span class="badge bg-dark">{TCID}</span> 分类ID</a></li>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{TCDIR}" data-target="#rule"><span class="badge bg-dark">{TCDIR}</span> 分类目录</a></li>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{CDIR}" data-target="#rule"><span class="badge bg-dark">{CDIR}</span> 栏目目录</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{P}" data-target="#rule"><span class="badge bg-dark">{P}</span> 分页数</a></li>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{EXT}" data-target="#rule"><span class="badge bg-dark">{EXT}</span> 后缀</a></li>
+                    <div class="dropdown-divider"></div>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="{PHP}" data-target="#rule"><span class="badge bg-dark">{PHP}</span> 动态程序</a></li>
+                </ul>
+            
+        </div>
+        <div class="alert alert-warning mt-1">
+            伪静态模式时规则一定要包含
+            <span class="badge bg-danger">{ID}</span>或
+            <span class="badge bg-danger">{NAME}</span>或
+            <span class="badge bg-danger">{ZH_CN}</span>或
+            <span class="badge bg-danger">{TKEY}</span>
+            <hr />
+            此配置为标签的URL默认配置<br />
+            标签规则优先级
+            标签自定义链接 > 标签分类 > 标签所属栏目 > 标签系统设置
+        </div>
+
+    </div>
+</div>
+
+<!--
+
+  <label class="col-sm-2 col-form-label text-sm-end" for="dir">标签目录</label>
+  <div class="col-sm-8">
+  <input type="text" name="config[dir]" class="form-control" id="dir" value="<?php echo $config['dir']; ?>"/>
+
+<small class="form-text text-muted">存放标签静态页面目录，相对于app目录。可用../表示上级目录</small>
+ -->
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="tpl">标签模板</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[tpl]" class="form-control" id="tpl" value="<?php echo $config['tpl']; ?>" />
+            <button type="button" class="btn btn-alt-primary" i="cms:ui:file:browse"
+            data-target="#tpl"
+            data-mode="file"
+            >
+                <i class="fa fa-fw fa-search"></i>
+                选择
+            </button>
+        </div> 
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="tkey">TKEY分割符</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[tkey]" class="form-control" id="tkey" value="<?php echo $config['tkey']; ?>" />
+        <small class="form-text text-muted">留空，按紧凑型生成(pinyin)</small>
+    </div>
+</div>

@@ -1,0 +1,19 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a href="#access-menu" class="nav-link active"><b>菜单权限</b></a></li>
+            <li class="nav-item"><a href="#access-app" class="nav-link"><b>应用权限</b></a></li>
+        </ul>
+        <div class="block-content">
+            <form action="{{./save_access}}" method="POST" i="cms:ui:form">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <div class="tab-content">
+                    <?php include self::view("widget/access", "apps"); ?>
+                </div>
+                <?php self::form()->submit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

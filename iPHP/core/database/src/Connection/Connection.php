@@ -1,4 +1,5 @@
 <?php
+
 // namespace DataBase\Connection;
 
 // use DataBase\Arr;
@@ -45,7 +46,7 @@ class Connection
      *
      * @var array
      */
-    protected $config = array();
+    protected $config = [];
 
     /**
      * The reconnector instance for the connection.
@@ -83,8 +84,8 @@ class Connection
      *
      * @var array
      */
-    protected $queryLog = array();
-    protected $queryTrace = array();
+    protected $queryLog = '';
+    protected $queryTrace = [];
     public $loggingQueryLog = false;
     public $loggingQueryTrace = false;
     public $loggingQueryExplain = false;
@@ -94,9 +95,10 @@ class Connection
      *
      * @var array
      */
-    protected static $resolvers = array();
-    protected static $timeStart = 0;
+    protected static $resolvers = [];
+    protected $timeStart = 0;
     protected static $queryNum = 0;
+    protected static $queryTime = 0;
 
     protected $statement;
 
@@ -109,10 +111,8 @@ class Connection
      * @param  array  $config
      * @return void
      */
-    public function __construct($pdo, $database = '', $tablePrefix = '', array $config = array())
+    public function __construct($pdo, $database = '', $tablePrefix = '', array $config = [])
     {
-        static::timerStart();
-
         $this->pdo = $pdo;
 
         // First we will setup the default properties. We keep track of the DB
@@ -142,6 +142,7 @@ class Connection
         $statement->setFetchMode($this->fetchMode);
         return $statement;
     }
+
     /**
      * Bind values to their parameters in the given statement.
      *
@@ -165,17 +166,15 @@ class Connection
      *
      * @return void
      *
-     * @throws \LogicException
+     * @throws \Exception
      */
     public function reconnect()
     {
         if (is_callable($this->reconnector)) {
-            $this->doctrineConnection = null;
-
             return call_user_func($this->reconnector, $this);
         }
 
-        throw new LogicException('Lost connection and no reconnector available.');
+        throw new Exception('Lost connection and no reconnector available.');
     }
 
     /**
@@ -187,114 +186,99 @@ class Connection
     {
         $this->setPdo(null)->setReadPdo(null);
     }
+
     /**
      * @return Builder
      */
     public function table($table)
     {
-        try {
-            return new Builder($this, $table);
-        } catch (\Exception $ex) {
-            $this->throwError($ex);
-        }
+        return new Builder($this, $table);
     }
-    public function cursor($query, $params = array(), $callback = null, $fetchMode = null)
-    {
-        try {
-            $this->makeQueryLog($query, $params);
-            $option = array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL);
-            $stmt = $this->execute($query, $params, null, $option);
 
-            while ($row = $stmt->fetch($fetchMode, PDO::FETCH_ORI_NEXT)) {
-                $flag = call_user_func_array($callback, [$row, $stmt, $this]);
-                if ($flag === 'break') {
-                    return 'break';
-                }
+    public function cursor($query, $params = [], $callback = null, $fetchMode = PDO::FETCH_ASSOC)
+    {
+        $option = [PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL];
+        $stmt = $this->execute($query, $params, null, $option);
+
+        while ($row = $stmt->fetch($fetchMode, PDO::FETCH_ORI_NEXT)) {
+            $flag = call_user_func_array($callback, [$row, $stmt, $this]);
+            if ($flag === 'break') {
+                $this->makeQueryTrace($query, $params);
+                return 'break';
             }
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
         }
+        $this->makeQueryTrace($query, $params);
     }
-    public function row($query, $params = array(), $fetchMode = null)
+
+    public function row($query, $params = [], $fetchMode = PDO::FETCH_ASSOC)
     {
-        try {
-            $this->makeQueryLog($query, $params);
-            $stmt = $this->execute($query, $params);
-            $result = $stmt->fetch($fetchMode);
-            return $result?:[];
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $stmt = $this->execute($query, $params);
+        $result = $stmt->fetch($fetchMode);
+        $this->makeQueryTrace($query, $params);
+        return $result ?: [];
     }
-    public function select($query, $params = array())
+
+    public function select($query, $params = [])
     {
-        try {
-            $this->makeQueryLog($query, $params);
-            $stmt = $this->execute($query, $params);
-            return $stmt->fetchAll();
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $stmt = $this->execute($query, $params);
+        $result = $stmt->fetchAll();
+        $this->makeQueryTrace($query, $params);
+        return $result;
     }
-    public function insert($query, $params = array())
+
+    public function insert($query, $params = [])
     {
-        try {
-            $this->statement($query, $params);
-            return $this->getPdo()->lastInsertId();
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $this->statement($query, $params);
+        return $this->getPdo()->lastInsertId();
     }
-    public function update($query, $params = array())
+
+    public function update($query, $params = [])
     {
-        try {
-            $stmt = $this->statement($query, $params);
-            return $stmt->rowCount();
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $stmt = $this->statement($query, $params);
+        return $stmt->rowCount();
     }
-    public function delete($query, $params = array())
+
+    public function delete($query, $params = [])
     {
-        try {
-            $stmt = $this->statement($query, $params);
-            return $stmt->rowCount();
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $stmt = $this->statement($query, $params);
+        return $stmt->rowCount();
     }
+
     /**
      * 运行普通语句
      * 有些数据库语句不会有任何返回值
      */
-    public function query($query, $params = array())
+    public function query($query, $params = [])
     {
         return $this->statement($query, $params);
     }
-    public function statement($query, $params = array())
+
+    public function statement($query, $params = [])
     {
-        try {
-            $this->makeQueryLog($query, $params);
-            $pdo = $this->getPdo();
-            return $this->execute($query, $params, $pdo);
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $pdo = $this->getPdo();
+        $stmt = $this->execute($query, $params, $pdo);
+        $this->makeQueryTrace($query, $params);
+        return $stmt;
     }
-    public function execute($query, $params = array(), $pdo = null, $option = null)
+
+    public function execute($query, $params = [], $pdo = null, $option = null)
     {
+        $this->timerStart();
+        $this->makeQueryLog($query, $params);
         is_null($pdo) && $pdo = $this->getPdoForSelect();
-        is_null($option) && $option = array(PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY);
+        is_null($option) && $option = [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY];
         $this->statement = $pdo->prepare($query, $option);
         $this->prepared($this->statement);
         $this->statement->execute($params);
         static::$queryNum++;
         return $this->statement;
     }
+
     public function getStatement()
     {
         return $this->statement;
     }
+
     /**
      * Execute a Closure within a transaction.
      *
@@ -335,13 +319,15 @@ class Connection
             return $callbackResult;
         }
     }
+
     public function beginTransaction()
     {
-        if(!$this->transactions){
-        $this->transactions++;
-        return $this->getPdo()->beginTransaction();
-        }   
+        if (!$this->transactions) {
+            $this->transactions++;
+            return $this->getPdo()->beginTransaction();
+        }
     }
+
     public function rollBack()
     {
         if ($this->transactions) {
@@ -349,6 +335,7 @@ class Connection
             return $this->getPdo()->rollBack();
         }
     }
+
     public function commit()
     {
         if ($this->transactions) {
@@ -356,6 +343,7 @@ class Connection
             return $this->getPdo()->commit();
         }
     }
+
     public function raw($sql)
     {
         $obj = new stdClass();
@@ -376,104 +364,105 @@ class Connection
             return [];
         }
     }
+
     public function version($v = null)
     {
-        try {
-            $pdo = $this->getPdo();
-            $arr = array(
-                $pdo->getAttribute(PDO::ATTR_SERVER_VERSION), //服务器数据库版本
-                $pdo->getAttribute(PDO::ATTR_CLIENT_VERSION) //客户端数据库版本
-            );
-            return $v === null ? $arr : $arr[$v];
-        } catch (PDOException $ex) {
-            $this->throwError($ex);
-        }
+        $pdo = $this->getPdo();
+        $arr = [
+            $pdo->getAttribute(PDO::ATTR_SERVER_VERSION), //服务器数据库版本
+            $pdo->getAttribute(PDO::ATTR_CLIENT_VERSION) //客户端数据库版本
+        ];
+        return $v === null ? $arr : $arr[$v];
     }
+
     public function exec($sql)
     {
         $pdo = $this->getPdo();
-        try {
-            return $pdo->exec($sql);
-        } catch (PDOException $ex) {
-            $error = $pdo->errorInfo();
-            if ($error) {
-                $message = $ex->getMessage();
-                // $this->throwError($message, $error[1]);
-                throw new sException($message, $error[1]);
-            } else {
-                $this->throwError($ex);
-            }
-            // var_dump($message, $error[1]);
-            // throw new sException($message, $error[1]);
-        }
+        $this->makeQueryLog($sql);
+        return $pdo->exec($sql);
     }
+
     public function hasTable($table = null)
     {
         // $table === null && $table = $this->table;
         // $result = $this->connection->tables();
         $result = $this->tables();
-        $table  = $this->tablePrefix . iString::ltrim($table, $this->tablePrefix);
+        $table = $this->tablePrefix . iString::ltrim($table, $this->tablePrefix);
         return in_array($table, $result);
         // return array_column($result, $column, $index);
     }
+
     /**
      * @return Array
      */
     public function tables()
     {
     }
+
     public function addIdent($field)
     {
         if (is_array($field)) {
             $field = array_map([$this, 'addIdent'], $field);
         } else {
             $ident = $this->ident();
-            $field = trim($field, $ident);
-            $field = $ident . $field . $ident;
+            if ($ident && $field) {
+                $field = trim($field, $ident);
+                $field = $ident . $field . $ident;
+            }
         }
         return $field;
     }
+
+    /**
+     * @return String
+     */
     public function ident()
     {
+        return '';
     }
+
     /**
      * @return Array
      */
     public function fullFields($table)
     {
     }
+
     public function ddl($table, $flag = false)
     {
     }
+
     public function copy($source, $target)
     {
-        $prefix = $this->getTablePrefix();
-        $target  = $prefix . iString::ltrim($target, $prefix);
-        $source  = $prefix . iString::ltrim($source, $prefix);
-        $sql = sprintf("CREATE TABLE IF NOT EXISTS %s LIKE %s", $target, $source);
+        $target = $this->getTableName($target);
+        $source = $this->getTableName($source);
+        $sql = sprintf('CREATE TABLE IF NOT EXISTS %s LIKE %s', $target, $source);
         return $this->statement($sql);
     }
+
     public function rename($source, $target)
     {
-        $prefix = $this->getTablePrefix();
-        $target  = $prefix . iString::ltrim($target, $prefix);
-        $source  = $prefix . iString::ltrim($source, $prefix);
-        $sql = sprintf("RENAME TABLE %s TO %s", $source, $target);
+        $target = $this->getTableName($target);
+        $source = $this->getTableName($source);
+        $sql = sprintf('RENAME TABLE %s TO %s', $source, $target);
         return $this->statement($sql);
     }
+
     public function quote($string)
     {
         return $this->getPdo()->quote($string);
     }
+
     public function getTableName($name, $prefix = null)
-    {   
-        if (strpos($name, '.')!==false) {
+    {
+        if (strpos($name, '.') !== false) {
             return $name;
         }
         $tablePrefix = $this->getTablePrefix();
         is_null($prefix) && $prefix = $tablePrefix;
         return $tablePrefix . iString::ltrim($name, $prefix);
     }
+
     /**
      * Get the PDO connection to use for a select query.
      *
@@ -484,6 +473,7 @@ class Connection
     {
         return $useReadPdo ? $this->getReadPdo() : $this->getPdo();
     }
+
     /**
      * Get the current PDO connection.
      *
@@ -601,46 +591,63 @@ class Connection
     {
         return Arr::get($this->config, $option);
     }
+
     public function getCharset()
     {
         return $this->getConfig('charset');
     }
+
     public function getCharsetCollation()
     {
         return $this->getConfig('collation');
     }
+
     public function getEngine()
     {
         return $this->getConfig('engine') ?: 'INNODB';
     }
+
     /**
      * Get the PDO driver name.
      *
      * @return string
      */
-
     public function getDriverName()
     {
         return $this->getConfig('driver');
     }
+
     /**
      * Get the connection query log.
      *
-     * @return array
+     * @return string
+     */
+    public function getLastSql()
+    {
+        return $this->getQueryLog();
+    }
+    /**
+     * Get the connection query log.
+     *
+     * @return string
      */
     public function getQueryLog($flag = null)
     {
         $flag && var_dump($this->queryLog);
         return $this->queryLog;
     }
+
     public function getQueryTrace($key = null, $idx = null)
     {
         if ($key) {
-            if ($idx) return array_column($this->queryTrace, $idx, $key);
+            if ($idx) {
+                return array_column($this->queryTrace, $idx, $key);
+            }
             return array_column($this->queryTrace, $key);
         }
         return $this->queryTrace;
     }
+
     /**
      * Get the name of the connected database.
      *
@@ -673,6 +680,7 @@ class Connection
     {
         return $this->tablePrefix;
     }
+
     /**
      * Register a connection resolver.
      *
@@ -695,18 +703,22 @@ class Connection
     {
         return static::$resolvers[$driver] ?: null;
     }
-    public function makeQueryLog($query, $params, $flag = false)
+
+    public function makeQueryLog($query, $params = [], $flag = false)
     {
-        if (!is_string($query)) return;
+        if (!is_string($query)) {
+            return;
+        }
 
         if (stripos($query, 'EXPLAIN EXTENDED ') !== false) {
             return;
         }
 
         $data = $params;
-        $sql  = $query;
-        $sql  = preg_replace('/\?/', "%s", $sql);
-        $sql  = preg_replace('/:\w+/', "%s", $sql);
+        $sql = $query;
+        $sql = str_replace(['%d','%s'], ['%%d','%%s'], $sql);
+        $sql = preg_replace('/\?/', '%s', $sql);
+        $sql = preg_replace('/:\w+/', '%s', $sql);
 
         if ($data) {
             foreach ($data as $key => $value) {
@@ -721,82 +733,103 @@ class Connection
         }
         $this->queryLog = $sql;
 
-        if ($flag) return $sql;
-
-        if (!$this->loggingQueryLog) return;
-        if ($this->loggingQueryTrace) {
-            $this->makeQueryTrace($sql, $query, $params);
+        if ($flag) {
+            return $sql;
         }
     }
 
-    public function makeQueryTrace($sql, $query, $params)
+    public function makeQueryTrace($query, $params)
     {
+        $time = $this->timerStop();
+        static::$queryTime += $time;
+        if (!$this->loggingQueryLog) {
+            return;
+        }
+        if (!$this->loggingQueryTrace) {
+            return;
+        }
+        if (stripos($query, 'EXPLAIN EXTENDED ') !== false) {
+            return;
+        }
         $trace = '';
         $backtrace = debug_backtrace();
+        array_shift($backtrace);
         krsort($backtrace);
         // $backtrace = array_slice($backtrace,1,2);
+        $idx = 0;
         foreach ($backtrace as $i => $l) {
-            $trace .= "\n[$i] in function <b>{$l['class']}{$l['type']}{$l['function']}</b>";
-            $l['file'] = str_replace('\\', '/', $l['file']);
-            $l['file'] = Security::filterPath($l['file']);
-            $l['file'] && $trace .= " in <b>{$l['file']}</b>";
-            $l['line'] && $trace .= " on line <b>{$l['line']}</b>";
+            $trace .= "\n[$idx] function <b>{$l['class']}{$l['type']}{$l['function']}</b>";
+            if ($l['file']) {
+                $l['file'] = str_replace('\\', '/', $l['file']);
+                $l['file'] = Security::filterPath($l['file']);
+                $trace .= " in <b>{$l['file']}:{$l['line']}</b>";
+            }
+            $idx++;
         }
-        $queryTrace = array(
-            'query' => $sql,
-            'time' => static::timerStop(true),
+        $queryTrace = [
+            'query' => $this->queryLog,
+            'time'  => $time,
             'trace' => $trace
-        );
+        ];
+
         if ($this->loggingQueryExplain) {
             if (stripos($query, 'select ') !== false) {
                 $queryTrace['explain'] = (array)$this->row('EXPLAIN EXTENDED ' . $query, $params);
+
             }
         }
         $this->queryTrace[] = $queryTrace;
         unset($trace, $backtrace);
     }
+
+    public static function getQueryTime()
+    {
+        return static::$queryTime;
+    }
+
     public static function getQueryNum()
     {
         return static::$queryNum;
     }
+
     /**
      * Starts the timer, for debugging purposes
      */
-
-    public static function timerStart()
+    public function timerStart()
     {
-        $mtime = microtime();
-        $mtime = explode(' ', $mtime);
-        static::$timeStart = $mtime[1] + $mtime[0];
-        return true;
+        $this->timeStart = microtime(true);
     }
+
     /**
      * Stops the debugging timer
      * @return int total time spent on the query, in milliseconds
      */
-    public static function timerStop($restart = false)
+    public function timerStop()
     {
-        $mtime      = microtime();
-        $mtime      = explode(' ', $mtime);
-        $time_end   = $mtime[1] + $mtime[0];
-        $time_total = $time_end - static::$timeStart;
-        $restart && static::$timeStart = $time_end;
+        $time_end = microtime(true);
+        $time_total = $time_end - $this->timeStart;
+        // var_dump([$time_end, $this->timeStart, round($time_total, 5)]);
+        // $restart && static::$timeStart = $time_end;
         return round($time_total, 5);
     }
+
     public function throwError($ex, $code = 0)
     {
+        // throw $ex;
+        // $message = $ex->getMessage();
+        // $code = $ex->getCode();
+        // $queryLog = $this->getQueryLog();
 
-        $message = $ex->getMessage();
-        $code = $ex->getCode();
-
-        if ($this->loggingQueryLog) {
-            $message = $this->getQueryLog() . '<hr />' . $message;
-        }
-        // if(strstr($message, 'SQLSTATE[')) { 
-        //     preg_match('/SQLSTATE\[(\w+)\] \[(\w+)\] (.*)/', $message, $matches); 
-        //     $code = ($matches[1] == 'HT000' ? $matches[2] : $matches[1]); 
-        //     // $message = $matches[3]; 
-        // } 
-        throw new sException($message, $code);
+        // if ($this->loggingQueryLog) {
+        //     $queryLog && $message = $message . '<hr />' . $queryLog;
+        // }
+        // $codeMap = [
+        //     1045    => 'Database Access denied',
+        //     1049    => 'Database Nofound',
+        //     2002    => 'Database Host error',
+        //     '42S22' => $message . '<hr />' . $queryLog
+        // ];
+        // $codeMap[$code] && $message = $codeMap[$code];
+        // throw new sException($message, -100,$ex);
     }
 }

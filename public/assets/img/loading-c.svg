@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1000px" height="400px" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f093fb;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#f5576c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="grad3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="100%" height="100%" fill="#F4F6F8" />
+  
+  <!-- Outer rotating ring -->
+  <circle cx="500" cy="200" r="60" stroke="url(#grad1)" stroke-width="4" fill="none" 
+          stroke-dasharray="120 60" stroke-linecap="round" opacity="0.8">
+    <animateTransform attributeName="transform" type="rotate" dur="2s" repeatCount="indefinite" 
+                      values="0 500 200;360 500 200"/>
+  </circle>
+  
+  <!-- Middle rotating ring -->
+  <circle cx="500" cy="200" r="45" stroke="url(#grad2)" stroke-width="3" fill="none" 
+          stroke-dasharray="90 45" stroke-linecap="round" opacity="0.9">
+    <animateTransform attributeName="transform" type="rotate" dur="1.5s" repeatCount="indefinite" 
+                      values="360 500 200;0 500 200"/>
+  </circle>
+  
+  <!-- Inner rotating ring -->
+  <circle cx="500" cy="200" r="30" stroke="url(#grad3)" stroke-width="2" fill="none" 
+          stroke-dasharray="60 30" stroke-linecap="round">
+    <animateTransform attributeName="transform" type="rotate" dur="1s" repeatCount="indefinite" 
+                      values="0 500 200;360 500 200"/>
+  </circle>
+  
+  <!-- Central pulsing dot -->
+  <circle cx="500" cy="200" r="8" fill="url(#grad3)">
+    <animate attributeName="r" dur="1.5s" repeatCount="indefinite" 
+             values="8;12;8" keyTimes="0;0.5;1"/>
+    <animate attributeName="opacity" dur="1.5s" repeatCount="indefinite" 
+             values="1;0.6;1" keyTimes="0;0.5;1"/>
+  </circle>
+  
+  <!-- Floating particles -->
+  <g opacity="0.7">
+    <circle cx="450" cy="150" r="3" fill="#667eea">
+      <animateTransform attributeName="transform" type="translate" dur="3s" repeatCount="indefinite" 
+                        values="0,0;20,-10;0,0"/>
+      <animate attributeName="opacity" dur="3s" repeatCount="indefinite" 
+               values="0.3;1;0.3"/>
+    </circle>
+    <circle cx="550" cy="150" r="2" fill="#f5576c">
+      <animateTransform attributeName="transform" type="translate" dur="2.5s" repeatCount="indefinite" 
+                        values="0,0;-15,15;0,0"/>
+      <animate attributeName="opacity" dur="2.5s" repeatCount="indefinite" 
+               values="0.4;1;0.4"/>
+    </circle>
+    <circle cx="470" cy="250" r="2.5" fill="#00f2fe">
+      <animateTransform attributeName="transform" type="translate" dur="2.8s" repeatCount="indefinite" 
+                        values="0,0;25,5;0,0"/>
+      <animate attributeName="opacity" dur="2.8s" repeatCount="indefinite" 
+               values="0.5;1;0.5"/>
+    </circle>
+    <circle cx="530" cy="250" r="3" fill="#764ba2">
+      <animateTransform attributeName="transform" type="translate" dur="3.2s" repeatCount="indefinite" 
+                        values="0,0;-20,-8;0,0"/>
+      <animate attributeName="opacity" dur="3.2s" repeatCount="indefinite" 
+               values="0.3;1;0.3"/>
+    </circle>
+  </g>
+  
+  <!-- Loading text with glow effect -->
+  <text x="500" y="290" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" 
+        font-weight="300" fill="url(#grad3)" opacity="0.9">
+    LOADING
+    <animate attributeName="opacity" dur="2s" repeatCount="indefinite" 
+             values="0.5;1;0.5" keyTimes="0;0.5;1"/>
+  </text>
+  
+  <!-- Progress dots -->
+  <g>
+    <circle cx="460" cy="310" r="4" fill="#667eea">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0s"/>
+    </circle>
+    <circle cx="480" cy="310" r="4" fill="#f5576c">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0.2s"/>
+    </circle>
+    <circle cx="500" cy="310" r="4" fill="#00f2fe">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0.4s"/>
+    </circle>
+    <circle cx="520" cy="310" r="4" fill="#764ba2">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0.6s"/>
+    </circle>
+    <circle cx="540" cy="310" r="4" fill="#f093fb">
+      <animate attributeName="opacity" dur="1.2s" repeatCount="indefinite" 
+               values="0.3;1;0.3" begin="0.8s"/>
+    </circle>
+  </g>
+</svg>

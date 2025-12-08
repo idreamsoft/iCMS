@@ -1,0 +1,58 @@
+<div class="d-flex flex-column">
+    <div class="cms-card-head-wrap">
+        <div class="cms-card-head">
+            <img class="cms-card-head-avatar" src="<!--{$user.avatar}-->" alt="">
+            <div class="cms-card-head-inner">
+                <span class="UserLink">
+                    <a href="<!--{$user.url}-->" target="_blank">
+                        <!--{$user.nickname}-->
+                    </a>
+                </span>
+                <div class="slogan"><!--{$userdata.slogan}--></div>
+            </div>
+        </div>
+    </div>
+    <div class="cms-card-content">
+
+    </div>
+    <div class="cms-card-foot">
+        <div class="cms-card-num-wrap">
+            <a href="<!--{$user.urls.home}-->" target="_blank">
+                <div class="cms-card-num-item">
+                    <div class="cms-card-num-item-title">文章</div>
+                    <strong class="cms-card-num-item-num" title="<!--{$user.article}-->"><!--{$user.article|num10K}--></strong>
+                </div>
+            </a>
+            <a href="<!--{$user.urls.comment}-->" target="_blank">
+                <div class="cms-card-num-item">
+                    <div class="cms-card-num-item-title">评论</div>
+                    <strong class="cms-card-num-item-num" title="<!--{$user.comment}-->"><!--{$user.comment|num10K}--></strong>
+                </div>
+            </a>
+            <a href="<!--{$user.urls.fans}-->" target="_blank">
+                <div class="cms-card-num-item">
+                    <div class="cms-card-num-item-title">关注者</div>
+                    <strong class="cms-card-num-item-num" title="<!--{$user.fans}-->"><!--{$user.fans|num10K}--></strong>
+                </div>
+            </a>
+        </div>
+
+        <div class="cms-card-btns" data-userid="<!--{$user.id}-->">
+            <button type="button" class="btn btn-sm <!--{$user.is_following?'btn-primary':'btn-alt-primary'}--> px-3" 
+                i="cms:user:follow" 
+                data-follow="<!--{$user.is_following}-->"
+                data-follow0-class="btn-primary" 
+                data-follow0-text='<i class="fa fa-fw fa-circle-minus"></i> 取消关注' 
+                data-follow1-class="btn-alt-primary" 
+                data-follow1-text='<i class="fa fa-fw fa-circle-plus"></i> 关注'
+            >
+                 <!--{$user.is_following?'<i class="fa fa-fw fa-circle-minus"></i> 取消关注':'<i class="fa fa-fw fa-circle-plus"></i> 关注'}-->
+            </button>
+            <!--{if $user.allow_message}-->
+            <button type="button" class="btn btn-sm btn-alt-secondary px-3" i="cms:message:dialog">
+                <i class="fa fa-fw fa-comment-alt"></i> 私信
+            </button>
+            <!--{/if}-->
+        </div>
+    </div>
+</div>

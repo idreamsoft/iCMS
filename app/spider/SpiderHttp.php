@@ -17,42 +17,42 @@ class SpiderHttp
      *
      * @var array
      */
-    public static $safe_port   = array('80', '443');
+    public static $safe_port = ['80', '443'];
     /**
      * 是否检测采集url安全性
      *
      * @var boolean
      */
-    public static $safe_url    = false;
-    public static $proxy_array = array();
-    public static $callback    = array();
-    public static $debug       = true;
-    public static $handle      = null;
+    public static $safe_url = false;
+    public static $proxy_array = [];
+    public static $callback = [];
+    public static $debug = true;
+    public static $handle = null;
 
-    public static $CURL_PROXY             = false;
-    public static $CURL_INFO              = null;
-    public static $CURL_ERRNO             = 0;
-    public static $CURL_ERROR             = null;
-    public static $CURLOPT_ENCODING       = null;
-    public static $CURLOPT_REFERER        = null;
+    public static $CURL_PROXY = false;
+    public static $CURL_INFO = null;
+    public static $CURL_ERRNO = 0;
+    public static $CURL_ERROR = null;
+    public static $CURLOPT_ENCODING = null;
+    public static $CURLOPT_REFERER = null;
     /**
      * 数据传输的最大允许时间.
      * 接收数据时超时设置，如果60秒内数据未接收完，直接退出
      *
      * @var integer
      */
-    public static $CURLOPT_TIMEOUT        = 60;
+    public static $CURLOPT_TIMEOUT = 60;
     /**
      * 连接超时，这个数值如果设置太短可能导致数据请求不到就断开了
      *
      * @var integer
      */
     public static $CURLOPT_CONNECTTIMEOUT = 15;
-    public static $CURLOPT_USERAGENT      = null;
-    public static $CURLOPT_COOKIE         = null;
-    public static $CURLOPT_COOKIEFILE     = null;
-    public static $CURLOPT_COOKIEJAR      = null;
-    public static $CURLOPT_HTTPHEADER     = null;
+    public static $CURLOPT_USERAGENT = null;
+    public static $CURLOPT_COOKIE = null;
+    public static $CURLOPT_COOKIEFILE = null;
+    public static $CURLOPT_COOKIEJAR = null;
+    public static $CURLOPT_HTTPHEADER = null;
 
     public static function charsetTrans($html, $content_charset, $encode, $out = 'UTF-8')
     {
@@ -80,7 +80,7 @@ class SpiderHttp
          * 检测页面编码
          */
         preg_match('/<meta[^>]*?charset=(["\']?)([a-zA-z0-9\-\_]+)(\1)[^>]*?>/is', $html, $charset);
-        $meta_encode = str_replace(array('"', "'"), '', trim($charset[2]));
+        $meta_encode = str_replace(['"', "'"], '', $charset[2]?trim($charset[2]):'');
         if (empty($encode)) {
             $meta_encode && $encode = $meta_encode;
             if (Spider::$isTest) {
@@ -88,7 +88,7 @@ class SpiderHttp
             }
         }
         preg_match('/<meta[^>]*?http-equiv=(["\']?)content-language(\1)[^>]*?content=(["\']?)([a-zA-z0-9\-\_]+)(\3)[^>]*?>/is', $html, $language);
-        $lang_encode = str_replace(array('"', "'"), '', trim($language[4]));
+        isset($language[4]) && $lang_encode = str_replace(['"', "'"], '', trim($language[4]));
         if (empty($encode)) {
             $lang_encode && $encode = $lang_encode;
             if (Spider::$isTest) {
@@ -110,7 +110,7 @@ class SpiderHttp
         }
 
         if (function_exists('mb_detect_encoding') && empty($encode)) {
-            $detect_encode = mb_detect_encoding($html, array("ASCII", "UTF-8", "GB2312", "GBK", "BIG5"));
+            $detect_encode = mb_detect_encoding($html, ['ASCII', 'UTF-8', 'GB2312', 'GBK', 'BIG5']);
             $detect_encode && $encode = $detect_encode;
             if (Spider::$isTest) {
                 echo '<b>程序自动识别页面编码:</b>' . $detect_encode . '<br />';
@@ -139,33 +139,72 @@ class SpiderHttp
 
     public static function safe_url($url)
     {
-        $parsed = parse_url($url);
-        $validate_ip = true;
-
-        if ($parsed['port'] && is_array(self::$safe_port) && !in_array($parsed['port'], self::$safe_port)) {
+        if (empty($url)) {
+            return false;
+        }
+        if (!filter_var($url, FILTER_VALIDATE_URL)) {
             if (Spider::$isTest) {
-                echo "<b>请求错误:非正常端口,因安全问题只允许抓取80,443端口的链接,如有特殊需求请自行修改程序</b>" . PHP_EOL;
+                echo "<b>{$url} 请求错误: URL格式无效</b>" . PHP_EOL;
+            }
+            return false;
+        }
+        if (preg_match('/[<>"\'(){}]/', $url)) {
+            if (Spider::$isTest) {
+                echo "<b>{$url} 请求错误: URL中包含潜在危险字符</b>" . PHP_EOL;
+            }
+            return false;
+        }
+        
+        $parsed = parse_url($url);
+        if ($parsed === false || empty($parsed['scheme']) || empty($parsed['host'])) {
+            return false;
+        }
+
+        $scheme = $parsed['scheme'];
+        $host = $parsed['host'];
+        $port = $parsed['port'];
+        if (empty($port)) {
+            $scheme == 'https' && $port = 443;
+            $scheme == 'http' && $port = 80;
+        }
+
+        $validate_ip = true;
+        if ($port && is_array(self::$safe_port) && !in_array($port, self::$safe_port)) {
+            if (Spider::$isTest) {
+                echo '<b>请求错误:非正常端口,因安全问题只允许抓取80,443端口的链接,如有特殊需求请自行修改程序</b>' . PHP_EOL;
             }
             return false;
         } else {
-            preg_match('/^\d+$/', $parsed['host']) && $parsed['host'] = long2ip($parsed['host']);
-            $long = ip2long($parsed['host']);
+            preg_match('/^\d+$/', $host) && $host = long2ip($host);
+            $long = ip2long($host);
             if ($long === false) {
                 $ip = null;
                 if (self::$safe_url) {
                     @putenv('RES_OPTIONS=retrans:1 retry:1 timeout:1 attempts:1');
-                    $ip   = gethostbyname($parsed['host']);
+                    $ip = gethostbyname($host);
                     $long = ip2long($ip);
                     $long === false && $ip = null;
                     @putenv('RES_OPTIONS');
                 }
             } else {
-                $ip = $parsed['host'];
+                $ip = $host;
             }
             $ip && $validate_ip = filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE);
-        }
+            
+            if($host){
+                if (strpos($host, '::ffff:') !== false) {
+                    $validate_ip = false;
+                }
+                if (strpos($host, '127.0') !== false) {
+                    $validate_ip = false;
+                }
+                if (strpos($host, '::1') !== false||strpos($host, ':0:1') !== false) {
+                    $validate_ip = false;
+                }
+            }
 
-        if (!in_array($parsed['scheme'], array('http', 'https')) || !$validate_ip) {
+        }
+        if (!in_array($scheme, ['http', 'https']) || !$validate_ip) {
             if (Spider::$isTest) {
                 echo "<b>{$url} 请求错误:非正常URL格式,因安全问题只允许抓取 http:// 或 https:// 开头的链接或公有IP地址</b>" . PHP_EOL;
             }
@@ -177,7 +216,9 @@ class SpiderHttp
 
     public static function remote($url, $ref = null, $_count = 0)
     {
-        if (self::safe_url($url) === false) return false;
+        if (self::safe_url($url) === false) {
+            return false;
+        }
 
         if (Spider::$isShell && self::$debug) {
             SpiderTools::prints('%s 第[%s]次 => [w]%s[/w]', ['抓取链接', $_count + 1, $url], 's');
@@ -189,7 +230,7 @@ class SpiderHttp
             Spider::$referer = $parsed['scheme'] . '://' . $parsed['host'];
         }
 
-        $options = array(
+        $options = [
             CURLOPT_URL                  => $url,
             CURLOPT_REFERER              => self::$CURLOPT_REFERER ? self::$CURLOPT_REFERER : Spider::$referer,
             CURLOPT_USERAGENT            => self::$CURLOPT_USERAGENT ? self::$CURLOPT_USERAGENT : Spider::$useragent,
@@ -206,7 +247,7 @@ class SpiderHttp
             CURLOPT_SSL_VERIFYHOST       => false
             // CURLOPT_FOLLOWLOCATION => 1,// 使用自动跳转
             // CURLOPT_MAXREDIRS => 7,//查找次数，防止查找太深
-        );
+        ];
         Spider::$cookie && $options[CURLOPT_COOKIE] = Spider::$cookie;
 
         if (self::$CURLOPT_COOKIE) {
@@ -224,7 +265,7 @@ class SpiderHttp
         if (Spider::$CURL_PROXY || SpiderHttp::$CURL_PROXY) {
             $proxy = self::proxy_test($options);
             if (Spider::$isTest) {
-                echo "<b>使用代理:</b>";
+                echo '<b>使用代理:</b>';
                 echo $proxy;
                 echo '<hr />';
             }
@@ -237,21 +278,21 @@ class SpiderHttp
             $options[CURLOPT_IPRESOLVE] = CURL_IPRESOLVE_V4;
         }
         if (self::$callback['progress'] && is_callable(self::$callback['progress'])) {
-            $options[CURLOPT_NOPROGRESS] = FALSE;
-            $options[CURLOPT_PROGRESSFUNCTION] = array(__CLASS__, 'curl_progressfunction');
+            $options[CURLOPT_NOPROGRESS] = false;
+            $options[CURLOPT_PROGRESSFUNCTION] = [__CLASS__, 'curl_progressfunction'];
         }
         if (self::$callback['header'] && is_callable(self::$callback['header'])) {
             $options[CURLOPT_HEADERFUNCTION] = self::$callback['header'];
         }
         if (self::$callback['options'] && is_callable(self::$callback['options'])) {
-            call_user_func_array(self::$callback['options'], array(&$options, $ref, &$_count));
+            call_user_func_array(self::$callback['options'], [&$options, $ref, &$_count]);
         }
 
         self::$handle = curl_init();
         curl_setopt_array(self::$handle, $options);
         $responses = curl_exec(self::$handle);
-        $info  = self::$CURL_INFO   = curl_getinfo(self::$handle);
-        self::$CURL_ERRNO  = curl_errno(self::$handle);
+        $info = self::$CURL_INFO = curl_getinfo(self::$handle);
+        self::$CURL_ERRNO = curl_errno(self::$handle);
         self::$CURL_ERRNO && self::$CURL_ERROR = curl_error(self::$handle);
 
         if (Spider::$isTest) {
@@ -263,22 +304,24 @@ class SpiderHttp
                 exit();
             }
         }
-        if (in_array($info['http_code'], array(301, 302)) && $_count < 5) {
+        if (in_array($info['http_code'], [301, 302]) && $_count < 5) {
             $_count++;
             $newurl = $info['redirect_url'];
             if (empty($newurl)) {
                 curl_setopt(self::$handle, CURLOPT_HEADER, 1);
-                $header        = curl_exec(self::$handle);
+                $header = curl_exec(self::$handle);
                 preg_match('|Location: (.*)|i', $header, $matches);
-                $newurl     = ltrim($matches[1], '/');
-                if (empty($newurl)) return false;
+                $newurl = ltrim($matches[1], '/');
+                if (empty($newurl)) {
+                    return false;
+                }
 
                 if (!strstr($newurl, 'http://')) {
-                    $host    = $parsed['scheme'] . '://' . $parsed['host'];
+                    $host = $parsed['scheme'] . '://' . $parsed['host'];
                     $newurl = $host . '/' . $newurl;
                 }
             }
-            $newurl    = trim($newurl);
+            $newurl = trim($newurl);
             curl_close(self::$handle);
             if (Spider::$isShell && self::$debug) {
                 SpiderTools::prints('[http_code=%s]链接跳转至 => [w]%s[/w]', [$info['http_code'], $newurl], 's');
@@ -286,7 +329,7 @@ class SpiderHttp
             unset($responses, $info);
             return self::remote($newurl, $ref, $_count);
         }
-        if (in_array($info['http_code'], array(404, 500))) {
+        if (in_array($info['http_code'], [404, 500])) {
             curl_close(self::$handle);
             unset($responses, $info);
             return false;
@@ -320,9 +363,10 @@ class SpiderHttp
 
         return $responses;
     }
+
     public static function Cookie_get($url, $data = null, $flag = false)
     {
-        Http::$CURLOPT_TIMEOUT        = 60; //数据传输的最大允许时间
+        Http::$CURLOPT_TIMEOUT = 60; //数据传输的最大允许时间
         Http::$CURLOPT_CONNECTTIMEOUT = 10;  //连接超时时间
         $host = parse_url($url, PHP_URL_HOST);
         $path = iPHP_APP_CACHE . '/spider/cookie.' . $host . '.txt';
@@ -333,15 +377,17 @@ class SpiderHttp
         }
         $ret = Http::post($url, $data);
         $flag === true && self::$CURLOPT_COOKIEFILE = $path;
-        is_callable(self::$callback['get_cookie']) && call_user_func_array(self::$callback['get_cookie'], array($ret, $path));
-        return array($ret, $path);
+        is_callable(self::$callback['get_cookie']) && call_user_func_array(self::$callback['get_cookie'], [$ret, $path]);
+        return [$ret, $path];
     }
+
     public static function proxy_test($options = null)
     {
         Http::$CURL_PROXY = self::$CURL_PROXY ?: Spider::$CURL_PROXY;
         // Http::$CURL_PROXY_ARRAY = self::$proxy_array?:Spider::$proxy_array;
         return Http::testProxy($options);
     }
+
     public static function curl_progressCallback($a)
     {
         static $previousProgress = 0;
@@ -359,16 +405,17 @@ class SpiderHttp
             }
         }
     }
+
     public static function curl_progressfunction($resource, $download_total = 0, $downloaded_size = 0, $upload_total = 0, $uploaded_size = 0)
     {
         if (version_compare(PHP_VERSION, '5.5.0') < 0) {
-            $download_total  = $resource;
+            $download_total = $resource;
             $downloaded_size = $download_total;
-            $upload_total    = $downloaded_size;
-            $uploaded_size   = $upload_total;
-            $resource        = null;
+            $upload_total = $downloaded_size;
+            $uploaded_size = $upload_total;
+            $resource = null;
         }
-        $args = array($resource, $download_total, $downloaded_size, $upload_total, $uploaded_size);
-        call_user_func_array(self::$callback['progress'], array($args));
+        $args = [$resource, $download_total, $downloaded_size, $upload_total, $uploaded_size];
+        call_user_func_array(self::$callback['progress'], [$args]);
     }
 }

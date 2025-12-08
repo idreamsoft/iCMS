@@ -1,0 +1,42 @@
+<div class="block block-rounded block-themed" i="cms:apps:vTable">
+    <textarea id="vTable" class="hide">
+        <?php echo is_array($rs['table']) ? json_encode(array_values($rs['table'])) : '[]'; ?>
+    </textarea>
+    <div class="block-header bg-primary-dark">
+        <div class="block-title">数据表</div>
+        <div class="block-options">
+            <button type="button" @click="add" class="btn btn-sm btn-alt-primary" v-show="vtype==3||vtype==4">
+                <i class="fa fa-fw fa-plus-square"></i> 添加
+            </button>
+        </div>
+    </div>
+    <div class="block-content p-0">
+        <table class="table table-bordered bordered">
+            <thead>
+                <tr>
+                    <th>表名</th>
+                    <th>主键</th>
+                    <th>关联</th>
+                    <th>名称</th>
+                    <th v-show="vtype==3||vtype==4">
+
+                    </th>
+                </tr>
+            </thead>
+            <tbody id="table_list">
+                <tr v-for="(item, index) in tables">
+                    <td><input type="text" :name="'rs[table]['+index+'][name]'" class="form-control" v-model="item.name" /></td>
+                    <td><input type="text" :name="'rs[table]['+index+'][primary]'" class="form-control" v-model="item.primary" /></td>
+                    <td><input type="text" :name="'rs[table]['+index+'][union]'" class="form-control" v-model="item.union" /></td>
+                    <td><input type="text" :name="'rs[table]['+index+'][label]'" class="form-control" v-model="item.label" /></td>
+                    <td v-show="vtype==3||vtype==4">
+                        <button class="btn btn-sm btn-danger" @click="remove(index)" type="button">
+                            <i class="fa fa-fw fa-trash-alt" @click.stop="remove(index)"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<small class="form-text text-muted">非二次开发,请勿修改表名</small>

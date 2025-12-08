@@ -10,36 +10,33 @@
  */
 class FilesUserApp extends UserContentApp
 {
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
     public function API_add()
     {
-        View::display("iCMS://user/file/add.htm");
+        View::display('iCMS://user/file/add.htm');
     }
+
     public function API_browse()
     {
-        View::display("iCMS://user/file/browse.htm");
+        View::display('iCMS://user/file/browse.htm');
     }
 
     public function API_preview()
     {
         Request::get('pic') && $src = FilesClient::getUrl(Request::get('pic'));
-        View::assign('src',$src);
-        View::display("iCMS://user/file/preview.htm");
+        View::assign('src', $src);
+        View::display('iCMS://user/file/preview.htm');
     }
-    public function ACTION_avatar()
+
+    public function api_avatar()
     {
-        $app = new UserAdmincp;
-        $result = $app->ACTION_uploadAvatar(User::$id);
-        iJson::$jsonp = 'uploadAvatar';
-        iJson::success();
+        UserUtils::avatar(User::$id);
+        return ['avatar'=>User::route('avatar')];
+        // return ['avatar'=>User::route('avatar'), 'url'=>'reload'];
     }
+
     public function ACTION_upload()
     {
-        $app = new FilesAdmincp;
-        $app->ACTION_upload();
+        $app = new FilesAdmincp();
+        $app->done_upload();
     }
 }

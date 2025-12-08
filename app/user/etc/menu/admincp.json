@@ -1,31 +1,53 @@
-[{
-    "id": "members",
-    "children": [{
-        "id": "user",
-        "caption": "会员",
-        "icon": "users",
-        "children": [{
-                "caption": "会员设置",
-                "href": "user&do=config",
-                "icon": "cog"
-            },
+[
+    {
+        "id": "members",
+        "children": [
             {
-                "caption": "-"
-            },
-            {
-                "caption": "会员管理",
-                "href": "user",
-                "icon": "users"
-            },
-            {
-                "caption": "添加会员",
-                "href": "user&do=add",
-                "icon": "user-plus"
-            },            {
-                "caption": "消费记录",
-                "href": "user&do=order",
-                "icon": "list"
+                "id": "users",
+                "caption": "用户",
+                "icon": "users",
+                "children": [
+                    {
+                        "caption": "用户设置",
+                        "href": "/user/config",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "用户管理",
+                        "href": "/user/index",
+                        "icon": "users"
+                    },
+                    {
+                        "caption": "添加用户",
+                        "href": "/user/add",
+                        "icon": "user-plus"
+                    }
+                ]
             }
         ]
-    }]
-}]
+    },
+    {
+        "id": "tools",
+        "children": [
+            {
+                "id": "cache",
+                "children": [
+                    {
+                        "caption": "更新用户菜单",
+                        "title": "更新用户中心菜单缓存",
+                        "href": "/user/ucpCache",
+                        "icon": "sync",
+                        "data-bs-placement":"right",
+                        "attr": {
+                            "test":"aaa"
+                        },
+                        "ui": "cms:ui:ajax,tooltip"
+                    }
+                ]
+            }
+        ]
+    }
+]

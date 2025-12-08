@@ -14,79 +14,164 @@ class AppsStoreAdmincp extends AdmincpBase
 {
     public function __construct()
     {
-        $this->id = (int) Request::get('id');
-        Menu::setData('getNav.APP', Admincp::$APP_NAME);
-    }
-    public function do_app(){
-        $this->do_index('app');
-    }
-    public function do_plugin(){
-        $this->do_index('plugin');
-    }
-    public function do_template(){
-        $this->do_index('template');
-    }
-    public function do_index($stype=null)
-    {
-        $stype = $stype?:Request::sget('stype');
-        $uri = sprintf('%s&stype=%s', APP_URL, $stype?:'app');
-        Menu::setData('nav.active', $uri);
-        $this->displaying($stype);
+        parent::__construct();
+        $developer = Developer::getConfig();
+        $url = Admincp::url('/developer/login', '?forward=' . urlencode($_SERVER['REQUEST_URL']));
+        if (empty($developer)) {
+            Utils::jumpto($url);
+        }
     }
 
-    public function displaying($name = null, $title = null)
+    /**
+     * autoCache 在更新所有缓存时，将会自动执行
+     */
+    public static function autoCache()
     {
-        // $storeArray = AppsStore::get_array(array('type' => $type));
-        // $dataArray  = AppsStore::remote_all($app);
-        AdmincpView::set('breadcrumb', false);
-        $html = self::getHtml($name);
-        $storeList = AppsStoreModel::withoutField('files')->select();
-        $storeList = array_column($storeList, null, 'sid');
-        $id = Request::get('id');
-        $storeData = [];
-        if ($id) {
-            $storeData = AppsStoreModel::withoutField('files')->get(['sid' => $id]);
-            if ($storeData) {
-                $storeData['addTimeText'] = get_date($storeData['addtime'], 'Y-m-d H:i:s');
-                $storeData['upTimeText']  = get_date($storeData['uptime'], 'Y-m-d H:i:s');
-                $storeData['gitTimeText'] = get_date($storeData['git_time'], 'Y-m-d H:i:s');
+        $pattern = AppsStore::getPkg('*');
+        $list = glob($pattern);
+        if ($list) {
+            foreach ($list as $key => $file) {
+                File::rm($file);
             }
         }
-        include self::view("store", "apps");
     }
-    public static function getHtml($url = 'home')
-    {
-        $id   =  Request::get('id');
-        $id   && $url = sprintf('store/%d',  $id);
-        $cid  =  Request::get('cid');
-        $cid  && $url = sprintf('list/%d',   $cid);
-        $list =  Request::get('list');
-        $list && $url = sprintf('list/%s',  Request::get('do'));
 
-        $param  = array(
-            'pageSize' => Request::get('pageSize'),
-            'orderBy'  => Request::get('orderBy'),
-            'page'     => Request::get('page'),
-            'keywords' => Request::get('keywords'),
-            'tid'      => Request::get('tid'),
-        );
-        $html = DeveloperStore::get($url, $param);
-        return $html;
-    }
     /**
-     * [卸载应用/模板/插件]
-     * @return [type] [description]
+     * 获取本地安装列表
+     *
+     * @return void
      */
-    public function do_update()
+    public function done_lists()
     {
-        $sid = Request::post('id');
-        $url = Request::post('url');
-        $orderkey = Request::post('orderkey');
-        $force = Request::post('force'); //强制安装
-        // $force = 1;
-        $store = Cache::get('store/' . $sid);
-        $name = File::name($url);
-        empty($store) && self::alert($store['name'] . '信息已经过期，请重新获取');
+        $list = AppsStoreModel::field('id,sid,git_time')->select();
+        $list = array_column($list, null, 'sid');
+        return $list;
+    }
+
+    /**
+     * 获取本地安装信息
+     *
+     * @return void
+     */
+    public function done_sget()
+    {
+        $sid = Request::post('sid');
+        $store = AppsStoreModel::where('sid', $sid)->get();
+        if ($store) {
+            $store['addtime_text'] = date('Y-m-d H:i:s', $store['addtime']);
+            $store['git_time_text'] = date('Y-m-d H:i:s', $store['git_time']);
+        }
+        return $store;
+    }
+
+    public function done_proxy()
+    {
+        // $sdo = Request::sget('sdo');
+        // echo call_user_func(['DeveloperStoreProxy', $sdo]);
+    }
+
+    /**
+     * 获取远程静态资源
+     *
+     * @return string
+     */
+    public function do_assets()
+    {
+        if ($js = Request::sget('js')) {
+            header(sprintf('Content-Type: %s; charset=UTF-8', FilesMime::get('js')));
+            $html = DeveloperStoreProxy::get('getjs', ['path'=>$js]);
+        }
+        if ($css = Request::sget('css')) {
+            header(sprintf('Content-Type: %s; charset=UTF-8', FilesMime::get('css')));
+            $html = DeveloperStoreProxy::get('getcss', ['path'=>$css]);
+        }
+        exit($html);
+    }
+
+    // public function do_buy()
+    // {
+    //     $id = Request::sget('id');
+    //     $store = DeveloperStoreProxy::buy($id);
+    //     var_dump($store);
+    // }
+    /**
+     * 应用页面
+     *
+     */
+    public function do_app()
+    {
+        return $this->index('app');
+    }
+
+    /**
+     * 插件页面
+     *
+     */
+    public function do_plugin()
+    {
+        return $this->index('plugin');
+    }
+
+    /**
+     * 模板页面
+     *
+     */
+    public function do_template()
+    {
+        return $this->index('template');
+    }
+
+    /**
+     * 详情页面
+     *
+     */
+    public function do_detail()
+    {
+        $id = Request::sget('id');
+        $html = DeveloperStoreProxy::get('store', ['id'=>$id]);
+        self::setJsPath('appsStore/assets/js/detail');
+        include self::view('store');
+    }
+
+    public function index($name = null, $title = null)
+    {
+        if (Request::isAjax()) {
+            return DeveloperStoreProxy::ajax($name);
+        }
+        $html = DeveloperStoreProxy::index($name);
+        self::setJsPath('appsStore/assets/js/list');
+        include self::view('list');
+    }
+
+    /**
+     * 更新应用/模板/插件
+     */
+    public function done_update()
+    {
+        $sid = Request::post('sid');
+        $force = Request::post('force'); //强制更新
+        $store = AppsStoreModel::where('sid', $sid)->get();
+        $args = [
+            'package'=> Request::post('package')
+        ];
+        if ($store) {
+            $args += [
+                'update'  => 1,
+                'git_sha' => $store['git_sha'],
+                'order'   => $store['authkey'],
+            ];
+        }
+        $param = $this->makeParam('update', $sid, $args);
+        $name = File::name($param['package']);
+        $pkgPath = AppsStore::getPkg($name);
+
+        if (!File::exist($pkgPath) || (filemtime($pkgPath) - time() > 3600)) {
+            self::alert('更新出错0');
+        }
+
+        $arr = DeveloperStoreProxy::post('update', $param, true);
+        $store = $arr['data']['store'];
+        empty($store) && self::alert('更新出错1');
 
         if ($store && $name) {
             AppsStore::getPkg($name);
@@ -94,29 +179,44 @@ class AppsStoreAdmincp extends AdmincpBase
             AppsStore::$IS_FORCE = $force;
             AppsStore::$IS_UPDATE = 1;
 
-            DB::beginTransaction();
             try {
                 AppsStore::$DATA = $store;
-                AppsStore::install($sid, $orderkey);
+                AppsStore::install($sid, $param['order']);
                 DB::commit();
-                return ['message' => AppsStore::$MESSAGES];
+
+                AppsStore::$appId && $url = Admincp::url('apps/edit', ['id'=>AppsStore::$appId]);
+                AppsStore::$MESSAGES = Security::filterPath(AppsStore::$MESSAGES);
+                return [
+                    'data' => [
+                        'log'  => AppsStore::$MESSAGES,
+                        'store'=> $store
+                    ],
+                    'message' => '安装完成',
+                    'url'     => $url
+                ];
             } catch (\Exception $ex) {
                 DB::rollBack();
-                $msg = "出现错误中止更新\n";
-                $msg .= $ex->getMessage() . "\n";
-                return $msg;
+                $message = '出现错误中止更新<br />' . $ex->getMessage();
+                // $msg .= "以下是安装过程信息<pre class='alert alert-info'>\n";
+                // if (AppsStore::$MESSAGES) {
+                //     $msg .= implode("\n", AppsStore::$MESSAGES);
+                // }
+                // $msg .= "</pre>";
                 // self::alert($msg);
+                return [false, $message];
+                // iJson::error($message);
             }
         }
+        return false;
     }
+
     /**
-     * [卸载应用/模板/插件]
-     * @return [type] [description]
+     * 卸载应用/模板/插件
      */
-    public function do_uninstall()
+    public function done_uninstall()
     {
         $id = Request::post('id');
-        $id or self::alert("请选择要删除的项目");
+        $id or self::alert('请选择要删除的项目');
         $data = AppsStoreModel::get($id);
         switch ($data['type']) {
             case '0':
@@ -125,50 +225,59 @@ class AppsStoreAdmincp extends AdmincpBase
                 $admincp->do_uninstall($appid);
                 break;
             case '1': //template
-                $path = iPHP_TPL_DIR . '/' . $data['app'];
-                if (File::checkDir($path)) {
+                $path = iPHP_TEMPLATE_DIR . '/' . $data['app'];
+                if ($data['app'] && File::checkDir($path)) {
                     File::rmdir($path);
                 }
                 break;
             default:
-                if ($data['files']) foreach ($data['files'] as $key => $value) {
-                    $path = iPHP_PATH . $value;
-                    if (File::check($path)) {
-                        if (is_dir($path)) {
-                            File::rmdir($path);
-                        } elseif (is_file($path)) {
-                            File::rm($path);
+                if ($data['files']) {
+                    foreach ($data['files'] as $key => $value) {
+                        $path = iPHP_APP_PATH . $value;
+                        if ($value && File::check($path)) {
+                            if (is_dir($path)) {
+                                File::rmdir($path);
+                            } elseif (is_file($path)) {
+                                File::rm($path);
+                            }
                         }
                     }
                 }
         }
         AppsStoreModel::delete($id);
-        $param = $this->makeParam($id);
-        DeveloperStore::post('delete', $param);
-        // self::success('卸载完成');
+        $param = $this->makeParam('delete', $id);
+        DeveloperStoreProxy::post('delete', $param);
     }
-    /**
-     * [安装应用/模板/插件]
-     * @return [type] [description]
-     */
-    public function do_install()
-    {
-        $sid = Request::post('id');
-        $url = Request::post('url');
-        $orderkey = Request::post('orderkey');
-        $force = Request::post('force'); //强制安装
-        $force = 1;
-        $store = Cache::get('store/' . $sid);
-        $name = File::name($url);
-        empty($store) && self::alert($store['name'] . '信息已经过期，请重新获取');
 
-        $backup = '_backup_' . get_date(0, "YmdHi");
+    /**
+     * 安装应用/模板/插件
+     */
+    public function done_install()
+    {
+        $sid = Request::post('sid');
+        $force = Request::post('force'); //强制安装
+        $param = $this->makeParam('install', $sid, [
+            'package'=> Request::post('package')
+        ]);
+        $name = File::name($param['package']);
+        $pkgPath = AppsStore::getPkg($name);
+
+        if (!File::exist($pkgPath) || (filemtime($pkgPath) - time() > 3600)) {
+            self::alert('安装出错0');
+        }
+
+        $arr = DeveloperStoreProxy::post('install', $param, true);
+        $store = $arr['data']['store'];
+        empty($store) && self::alert('安装出错1');
+
+        $force = 1;
+        $backup = '_backup_' . get_date(0, 'YmdHi');
         $apps = Apps::get($store['application']);
         if ($apps) {
             if ($force) {
                 AppsModel::update(
-                    array('app' => $store['application'] . $backup),
-                    array('app' => $store['application'])
+                    ['app' => $store['application'] . $backup],
+                    ['app' => $store['application']]
                 );
             } else {
                 $msg = sprintf('%s[%s] 应用已存在', $store['name'], $store['application']);
@@ -192,7 +301,7 @@ class AppsStoreAdmincp extends AdmincpBase
             $path = iPHP_APP_DIR . '/' . strtolower($store['application']);
         }
         if ($store['type'] == '1') { //template
-            $path = iPHP_TPL_DIR . '/' . $store['application'];
+            $path = iPHP_TEMPLATE_DIR . '/' . $store['application'];
         }
 
         if (File::checkDir($path)) {
@@ -214,98 +323,152 @@ class AppsStoreAdmincp extends AdmincpBase
             // AppsStore::$test = 1;
             AppsStore::$IS_FORCE = $force;
 
-            DB::beginTransaction();
+            // DB::beginTransaction();
             try {
                 AppsStore::$DATA = $store;
-                AppsStore::install($sid, $orderkey);
-                DB::commit();
+                AppsStore::install($sid, $param['order']);
 
-                AppsStore::$appId && $url = ADMINCP_URL . "=apps&do=edit&id=" . AppsStore::$appId;
+                // AppsStore::$appId && $url = Admincp::url('apps/edit', ['id'=>AppsStore::$appId]);
+                $url = Admincp::url('apps/index');
                 AppsStore::$MESSAGES = Security::filterPath(AppsStore::$MESSAGES);
-                return ['message' => AppsStore::$MESSAGES, 'url' => $url];
+                return [
+                    'data' => [
+                        'log'  => AppsStore::$MESSAGES,
+                        'store'=> $store
+                    ],
+                    'message' => '安装完成',
+                    'url'     => $url
+                ];
             } catch (\Exception $ex) {
                 DB::rollBack();
-                $message = "出现错误中止安装<br />" . $ex->getMessage();
+                $message = '出现错误中止安装<br />' . $ex->getMessage();
                 // $msg .= "以下是安装过程信息<pre class='alert alert-info'>\n";
                 // if (AppsStore::$MESSAGES) {
                 //     $msg .= implode("\n", AppsStore::$MESSAGES);
                 // }
                 // $msg .= "</pre>";
                 // self::alert($msg);
-                // return ['message' => $message];
-                iJson::error($message);
+                return [false, $message];
+                // iJson::error($message);
             }
         }
-    }
-    /**
-     * [do_getPayQrcode description]
-     *
-     * @return  [json]  {orderkey,qrcode}
-     */
-    public function do_getPayQrcode()
-    {
-        $id = (int)Request::post('id');
-        $param = $this->makeParam($id);
-        echo DeveloperStore::post('getPayQrcode', $param);
-    }
-    /**
-     * [do_payNotify description]
-     *
-     * @return  [json]  {hash: "ad532779298bde94016612e8ceeea578",orderkey: "d655a72963cee346ff92a46f79c478c3",time: 1604292900,transaction_id: "2020110222001466145718928179"}
-     */
-    public function do_payNotify()
-    {
-        $id = (int)Request::post('id');
-        $param = $this->makeParam($id);
-        echo DeveloperStore::post('payNotify', $param);
+        return false;
     }
 
-    public function do_get()
+    /**
+     * 创建订单
+     *
+     */
+    public function done_create()
     {
-        $id = (int)Request::post('id');
-        $param = $this->makeParam($id);
-        $json = DeveloperStore::post('get', $param);
-        $array = json_decode($json, true);
-        $array['data'] && Cache::set('store/' . $id, $array['data'], 86400);
-        echo $json;
+        $sid = (int)Request::post('sid');
+        $store = AppsStoreModel::where('sid', $sid)->get();
+        $store && self::alert('已经安装过了');
+        $param = $this->makeParam('create', $sid);
+        echo DeveloperStoreProxy::post('create', $param);
     }
-    public function do_download()
+
+    /**
+     * 获取订单
+     *
+     */
+    public function done_order()
     {
-        $id      = (int)Request::post('id');
-        $param   = $this->makeParam($id);
-        $name    = File::name($param['url']);
+        $sid = (int)Request::post('sid');
+        $store = AppsStoreModel::where('sid', $sid)->get();
+        if ($store) {
+            $args = [
+                'update'  => 1,
+                'git_sha' => $store['git_sha'],
+                'order'   => $store['authkey']
+            ];
+        }
+        $param = $this->makeParam('order', $sid, $args);
+        echo DeveloperStoreProxy::post('order', $param);
+    }
+
+    /**
+     * 支付通知
+     *
+     */
+    public function done_payNotify()
+    {
+        $sid = (int)Request::post('sid');
+        $param = $this->makeParam('payNotify', $sid);
+        echo DeveloperStoreProxy::post('payNotify', $param);
+    }
+
+    /**
+     * 获取应用信息
+     *
+     * @return void
+     */
+    public function done_store()
+    {
+        $sid = (int)Request::post('sid');
+        $param = $this->makeParam('store', $sid);
+        echo DeveloperStoreProxy::post('store', $param);
+    }
+
+    public function done_download()
+    {
+        $sid = (int)Request::post('sid');
+        $store = AppsStoreModel::where('sid', $sid)->get();
+        $args = [
+            'package'=> Request::post('package')
+        ];
+        if ($store) {
+            $args += [
+                'update'  => 1,
+                'git_sha' => $store['git_sha'],
+                'order'   => $store['authkey'],
+            ];
+        }
+        $param = $this->makeParam('download', $sid, $args);
+        $name = File::name($param['package']);
         $pkgPath = AppsStore::getPkg($name);
 
         if (File::exist($pkgPath) && (filemtime($pkgPath) - time() < 3600)) {
-            return $param;
+            return true;
         }
 
-        $response = DeveloperStore::post($param['url'], $param);
+        $response = DeveloperStoreProxy::post('download', $param);
+
         if ($response) {
-            if ($response[0] == '{') {
+            if (strpos($response, '<html') !== false) {
+                self::alert($response);
+            } elseif ($response[0] == '{') {
                 exit($response);
-            } else {
+            } elseif (substr($response, 0, 2) == 'PK') {
                 $dir = dirname($pkgPath);
                 File::mkdir($dir);
                 File::put($pkgPath, $response); //下载包
-                return $param;
+                // return $param;
+                return true;
             }
         }
     }
 
-    public function makeParam($id, $args = null)
+    public function done_comment()
     {
-        $post  = Request::post();
-        unset($post['id'], $post['key'], $post['host'], $post['time']);
-        $time  = time();
-        $host  = $_SERVER['HTTP_HOST'];
-        $key   = md5(iPHP_KEY . $id . $host . $time);
-        $param = compact('id', 'key', 'host', 'time');
-        $post && $param += $post;
+        $sid = (int)Request::post('sid');
+        $param = $this->makeParam('comment', $sid);
+        $param['content'] = Request::post('content');
+        echo DeveloperStoreProxy::post('comment', $param);
+    }
+
+    public function makeParam($proxy, $id, $args = [])
+    {
+        $time = time();
+        $host = $_SERVER['HTTP_HOST'];
+        $key = md5(iPHP_KEY . $id . $host . $time);
+        $param = compact('id', 'key', 'host', 'time', 'proxy');
         ksort($param);
         $param['sign'] = md5(http_build_query($param));
-        // $param['query'] = http_build_query($param);
-        // print_R($param);
+        if ($order = Request::post('order')) {
+            $param['order'] = $order;
+        }
+        $args && $param += $args;
         return $param;
     }
     // public static function check_update() {

@@ -1,0 +1,51 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html 
+*/ 
+defined('iPHP') or exit('What are you doing?'); 
+self::head(); 
+?>
+    <iframe src="" id="pp" style="border:none; width:100%; height:500px;"></iframe>
+    <textarea rows="8" style="width:100%;" id="json"><?php echo $json?></textarea>
+    <textarea rows="3" style="width:100%;" id="url"></textarea>
+    <pre id="msgs"></pre>
+    <style>
+        #pp {
+            min-height: 90vh;
+        }
+    </style>
+    <script>
+        var frame = null;
+
+        function onMSG(e) {
+            console.log(e.origin, e);
+            if (e.origin.indexOf("pixps.com") == -1) return;
+            var nst;
+            if (typeof e.data == "string") nst = e.data;
+            else nst = "ArrayBuffer[" + e.data.byteLength + "]";
+            document.getElementById("msgs").textContent += nst + "\n";
+        };
+
+        function updatePlayground(e) {
+            var json = document.getElementById("json").value;
+            json = JSON.stringify(JSON.parse(json))||[];
+            var url = "//pixps.com";
+            var end = "#" + encodeURI(json);
+            document.getElementById("url").value = url + end;
+            frame.src = url + "?rnd=" + Math.floor(Math.random() * 0xffffffff) + end;
+            //frame.contentWindow.location.reload(true);
+            //wnd.postMessage(script, "*");
+        }
+        document.body.onload = function(e) {
+            frame = document.getElementById("pp");
+            window.addEventListener("message", onMSG);
+            updatePlayground();
+        }
+    </script>
+    <?php self::foot(); ?>

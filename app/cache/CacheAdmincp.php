@@ -8,62 +8,99 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class CacheAdmincp extends AdmincpCommon
+class CacheAdmincp extends AdmincpBase
 {
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
     /**
-     * [执行所有自动更新接口]
+     * 执行所有自动更新接口
      *
-     * @param   [type]   $pat  [$pat description]
-     * @param   Admincp        [ description]
-     *
-     * @return  [type]         [return description]
+     * @param string   $pat  查找规则
+     * @return array
      */
-    public static function auto($pat = "*Admincp")
+    public static function auto($pat = '*Admincp')
     {
-        //test/testAdmincp::do_autoCache
         //test/testAdmincp::do_autoCache
         //test/testAdmincp::autoCacheAaBb
         //test/testAdmincp::makeCache
         $result = AppsHooks::run($pat, function ($class, $method) {
             return (stripos($method, 'autoCache') !== false ||
-                $method == "makeCache");
+                $method == 'makeCache');
         });
         return $result;
     }
 
     /**
-     * [更新所有缓存]
-     * @return [type] [description]
+     * autoCache 在更新所有缓存时，将会自动执行
      */
-    public function do_all()
+    public static function autoCache()
     {
-        $result = self::auto('*Admincp');
-        // self::success('更新完成');
+        Cache::clean('page_total/*');
     }
 
     /**
-     * [更新模板缓存]
-     * @return [type] [description]
+     * 更新所有缓存
+     * @return void
      */
-    public function do_tpl()
+    public function do_all()
     {
-        $this->autoCacheTpl();
+        $this->done_all();
+        self::success('缓存更新成功');
+        return true;
     }
-    public function autoCacheTpl()
+
+    public function done_all()
+    {
+        set_time_limit(0);
+        self::auto('*Admincp');
+    }
+
+    /**
+     * 更新模板缓存
+     * @return void
+     */
+    public function done_clearTpl()
+    {
+        self::autoCacheTpl();
+    }
+
+    public static function autoCacheTpl()
     {
         View::clearTpl();
     }
 
-    public  function do_clearAll()
+    public function do_index()
     {
-        if (Request::isPost()) {
-            return CacheHelper::clearAllFileCache();
+        $children = Menu::$DATA['tools']['children']['cache']['children'];
+        include self::view();
+    }
+
+    /**
+     * 清除语言包缓存
+     *
+     * @return void
+     */
+    public function done_clearlang()
+    {
+        Lang::all(true);
+    }
+
+    /**
+     * 清除所有文件类型缓存
+     *
+     * @return void
+     */
+    public function done_clearAll()
+    {
+        return CacheHelper::clearAllFileCache();
+    }
+
+    public static function saveCall_config_cache($data = [], $config = [])
+    {
+        if ($data && $data['engine'] != 'file') {
+            iPHP::callback(
+                ['CacheHelper', 'test'],
+                [$data]
+            );
         }
-        include self::view("clearall", "cache");
+        return $data;
     }
 }

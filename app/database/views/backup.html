@@ -1,0 +1,39 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <?php echo Menu::navTabs(Admincp::$APP_NAME); ?>
+        </ul>
+        <div class="block-content block-content-full">
+            <div id="toolbar" class="toolbar">
+                <div class="row">
+                    <div class="input-group input-group-sm" role="group">
+                        <?php AdmincpBatch::btns(); ?>
+                    </div>
+                </div>
+            </div>
+            <table id="table" width="100%"></table>
+        </div>
+    </div>
+</div>
+<div batch="backup">
+    <div class="input-group">
+        <div class="input-group-text">分卷备份</div>
+        <input name="volume" type="text" value="2048" class="form-control" />
+        <div class="input-group-text">KB</div>
+    </div>
+    <small class="form-text text-muted">每个分卷文件长度</small>
+</div>
+<?php self::foot(); ?>

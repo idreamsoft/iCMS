@@ -16,12 +16,7 @@ class Message
     const APP = 'MESSAGE';
     const APPID = iCMS_APP_MESSAGE;
 
-	public static $typeMap = array(
-		'0' => '系统信息',
-		'1' => '私信',
-		'2' => '提醒',
-		'3' => '留言',
-	);
+
 	//1 私信
 	public static function send($a = array(
 		"send_uid"    => 0, "send_name"   => NULL,

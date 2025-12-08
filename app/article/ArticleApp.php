@@ -8,33 +8,27 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class ArticleApp extends AppsApp
+//ArticleApp >> AppsAppTrait >> AppsBase
+class ArticleApp extends AppsBase
 {
-    public function __construct()
-    {
-        parent::__construct('article');
-    }
+    use AppsAppTrait;
+
     public function display($value, $field = 'id', $tpl = true)
     {
-        try {
-            $vars = ['tag'  => true, 'user' => true];
-            $article = $this->getData($value, $field);
-            self::values($article, $vars, $tpl);
-            self::body($article);
-            self::getCustomData($article, $vars);
-            self::hooked($article);
-            return self::render($article, $tpl);
-        } catch (\FalseEx $fex) {
-            return false;
-        }
+        $vars = ['tag'  => true, 'user' => true];
+        $article = $this->getData($value, $field, $tpl);
+        self::values($article, $vars, $tpl);
+        self::body($article);
+        self::getCustomData($article, $vars);
+        return self::render($article, $tpl);
     }
 
-    public static function values(&$article, $vars = array(), $tpl = false)
+    public static function values(&$article, $vars = [], $tpl = false)
     {
         self::initialize($article, $tpl);
 
-        $article['statusText']  = Article::$statusMap[$article['status']];
-        $article['postypeText'] = Article::$postypeMap[$article['postype']];
+        $article['statusText'] = ArticleModel::$statusMap[$article['status']];
+        $article['postypeText'] = ArticleModel::$postypeMap[$article['postype']];
 
         $vars['tag'] && TagApp::getArray($article, $article['node']['name'], 'tags');
 
@@ -45,10 +39,11 @@ class ArticleApp extends AppsApp
             ->comment()
             ->pic()
             ->hits()
-            ->param();
+            ->params();
 
         return $article;
     }
+
     public static function body(&$article)
     {
         $dataModel = ArticleDataModel::sharding($article['id']);
@@ -62,26 +57,27 @@ class ArticleApp extends AppsApp
             $article['body'] = $data['body'];
         } else {
             $data = $dataModel->where('article_id', $article['id'])->get();
-            $body = explode(iPHP_PAGEBREAK, $data['body']);
+            $body = $data['body'] ? explode(iPHP_PAGEBREAK, $data['body']) : [];
             $count = count($body);
             $article['body'] = $body[$pn];
             unset($body);
         }
-        if ($article['markdown']) {
+        if ($article['markdown'] && self::$config['markdown_parser']!==0) {
             $markdown = PluginMarkdown::parser($article['body']);
             $markdown && $article['body'] = $markdown;
         }
-        $article['pics'] = FilesPic::findImgUrl($data['body'], $picArray);
+        $article['body_pics'] = FilesPic::findImgUrl($data['body'], $picArray);
         $article['subtitle'] = $data['subtitle'];
         $total = $count + intval(self::$config['pageno_incr']);
         Paging::content($article, self::$pageNum, $total, $count, $chapterData);
         self::bodyPicsPage($article, $picArray, self::$pageNum, $total);
     }
+
     //保留静态方法 articleFunc 中调用
     public static function data($idArray = [], $fields = null)
     {
         foreach ($idArray as $key => $article_id) {
-            $sql = ArticleDataModel::get_sql($article_id);
+            $sql = ArticleDataModel::sql($article_id);
             $sql && $sqlArray[] = $sql;
         }
         $unionAll = implode(' UNION ALL ', $sqlArray);
@@ -90,5 +86,39 @@ class ArticleApp extends AppsApp
             $data[$value['article_id']][] = $value;
         }
         return $data;
+    }
+
+    public static function bodyPicsPage(&$data, $picArray, $page, $total)
+    {
+        if (empty($picArray[0])) {
+            return;
+        }
+        $imgArray = array_unique($picArray[0]);
+
+        is_array($data['page']['next']) && $nextUrl = $data['page']['next']['url'];
+        foreach ($imgArray as $key => $img) {
+            if (!self::$config['img_title']) {
+                $img = preg_replace('@title\s*=\s*(["\']?).*?\\1\s*@is', '', $img);
+                $img = preg_replace('@alt\s*=\s*(["\']?).*?\\1\s*@is', '', $img);
+                $img = str_replace('<img', '<img title="' . addslashes($data['title']) . '" alt="' . addslashes($data['title']) . '"', $img);
+            }
+            if (self::$config['pic_center']) {
+                $imgReplace[$key] = '<p class="pic_center">' . $img . '</p>';
+            } else {
+                $imgReplace[$key] = $img;
+            }
+            if (self::$config['pic_next'] && $total > 1) {
+                $clicknext = '<a href="' . $nextUrl . '"><b>' . Lang::get('msg:click_next') . ' (' . $page . '/' . $total . ')</b></a>';
+                $clickimg = '<a href="' . $nextUrl . '" title="' . $data['title'] . '" class="img">' . $img . '</a>';
+                if (self::$config['pic_center']) {
+                    $imgReplace[$key] = '<p class="click2next">' . $clicknext . '</p>';
+                    $imgReplace[$key] .= '<p class="pic_center">' . $clickimg . '</p>';
+                } else {
+                    $imgReplace[$key] = '<p>' . $clicknext . '</p>';
+                    $imgReplace[$key] .= '<p>' . $clickimg . '</p>';
+                }
+            }
+        }
+        $data['body'] = str_replace($imgArray, $imgReplace, $data['body']);
     }
 }

@@ -1,0 +1,40 @@
+<?php $title   = '扫码登陆'; ?>
+<?php $header_enable = !true; ?>
+<?php $content_class = 'p-0'; ?>
+<?php $qrcode = $config['qrcode']?:[]; ?>
+<ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item"><a class="nav-link active" href="#tab-qrcode"><i class="fa fa-fw fa-cubes"></i> 微信扫码登陆</a></li>
+</ul>
+<div class="tab-content pt-2">
+    <div id="tab-qrcode" role="tabpanel" class="tab-pane active">
+        <div class="alert alert-info mt-1">
+            <i class="fa fa-fw fa-info-circle"></i> 申请地址: https://mp.weixin.qq.com <br />
+            需要配置公众号的 “网页授权域名”<br />
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-sm-end" for="open_qr_enable">开启</label>
+            <div class="col-sm-8">
+                <input type="checkbox" i="cms:ui:switch" name="config[qrcode][enable]" id="open_qr_enable" value="<?php echo $qrcode['enable'] ;?>"/>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-sm-end" for="example">公众号APPID:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[qrcode][appid]" class="form-control" id="qr_appid" value="<?php echo $qrcode['appid']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-sm-end" for="example">公众号AppSecret:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[qrcode][appkey]" class="form-control" id="qr_appkey" value="<?php echo $qrcode['appkey']; ?>" />
+            </div>
+        </div>
+        <div class="form-group row">
+            <label class="col-sm-2 col-form-label text-sm-end" for="example">中转链接:</label>
+            <div class="col-sm-8">
+                <input type="text" name="config[qrcode][revolve]" class="form-control" id="qr_revolve" value="<?php echo $qrcode['revolve']; ?>" />
+                <small class="form-text text-muted">公众号网页授权域名不够用时，可使用这个中转程序</small>
+            </div>
+        </div>
+    </div>
+</div>

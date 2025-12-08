@@ -12,57 +12,46 @@ class PluginEmail
 {
     public static $debug = null;
 
-    public static function model()
-    {
-        return DB::table('plugin_verify');
-    }
     public static function config()
     {
-        return Config::get('plugin.email');
+        return Config::get('mail');
     }
-    public static function send($config)
+
+    public static function send($config,$code=false)
     {
-        $default = Config::get('mail');
-        $default['title'] = Config::get('site.name');
-        $config = $default + $config;
-        $config['subject'] = str_replace(
-            ['{title}','{code}'],
-            [$config['title'],$config['code']],
-            $config['subject']
-        );
-        $config['body'] = str_replace(
-            ['{title}', '{replyto}'],
-            [$config['title'], $config['replyto']],
-            $config['body']
-        );
-        $result = Vendor::run('SendMail', array($config));
-    }
-    public static function check($account, $code)
-    {
-        if (!preg_match("/^[\w\-\.]+@[\w\-]+(\.\w+)+$/i", $account)) {
-            throw new sException('plugin:email:error');
-        }
+        if ($default = self::config()) {
+            $default['title'] = Config::get('site.name');
+            $config = array_merge($default, $config);
+            if(empty($config['address'])){
+                throw new sException('plugin:mail:address:empty');
+            }
+            $expire = '';
+            if($config['address'][0] && $code ===true){
+                $verify = PluginVerify::generate($config['address'][0],$default['expire']);
+                $config['code'] = $verify['code'];
+                $expire = ($verify['expire']/60).Lang::get('Minute');
+            }else{
+                $code && $config['code'] = $code;
+            }
 
-        if (!is_numeric($code) || strlen($code) != 6) {
-            throw new sException('plugin:email:empty');
+            $config['subject'] = str_replace(
+                ['{title}', '{code}'],
+                [$config['title'], $config['code']],
+                $config['subject']
+            );
+            $config['body'] = str_replace(
+                ['{title}', '{replyto}', '{code}','{expire}'],
+                [$config['title'], $config['replyto'], $config['code'],$expire],
+                $config['body']
+            );
+            $result = Vendor::run('SendMail', [$config]);
+            if($verify){
+                return PluginVerify::result($result,$verify);
+            }else{
+                return $result;
+            }
+        } else {
+            throw new sException('plugin:mail:config:miss');
         }
-
-        $status = 1;
-        $time = time();
-        $smsCodeModel = self::model();
-        $model = $smsCodeModel->where(compact('account', 'code', 'status'));
-        $row = $model->get();
-
-        if (empty($row)) {
-            throw new sException('plugin:email:error');
-        }
-        if ($row['expire_time'] < $time) {
-            throw new sException('plugin:email:expire');
-        }
-
-        return $model->update([
-            'status' => 2,
-            'verify_time' => $time
-        ]);
     }
 }

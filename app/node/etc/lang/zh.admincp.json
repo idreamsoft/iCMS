@@ -1,0 +1,216 @@
+{
+    "admincp": {
+        "node": {
+            "title": "节点",
+            "manage": "节点管理",
+            "boot": "根 %s",
+            "tree": "%s 树",
+            "list": "%s 列表",
+            "top": "顶级",
+            "parent": "上级 %s",
+            "add": "添加节点",
+            "edit": "编辑节点",
+            "delete": "删除节点",
+            "copy": "复制节点",
+            "cache": "更新节点缓存",
+            "recount": "更新统计",
+            "batch": {
+                "move": "移动",
+                "merge": "合并",
+                "dir": "更改目录",
+                "mkdir": "重建目录",
+                "recount": "更新统计",
+                "status": "更改状态",
+                "mode": "更改模式",
+                "rule": "更改规则",
+                "template": "更改模板",
+                "delete": "删除"
+            },
+            "widget": {
+                "title": "节点小工具"
+            },
+            "access": {
+                "manage": "管理",
+                "add": "添加子节点",
+                "edit": "编辑",
+                "delete": "删除",
+                "content_manage": "内容管理",
+                "content_add": "内容添加",
+                "content_edit": "内容编辑",
+                "content_delete": "内容删除"
+            },
+            "route": {
+                "rule": "规则",
+                "select": "选择",
+                "rule_tip": "伪静态模式时规则必需有",
+                "rule_tip2": "其中之一,否则将无法解析",
+                "template": "模板",
+                "browse": "浏览",
+                "index": {
+                    "label": "首页",
+                    "info": "[NODE@NAME]的首页模板(可制作用于频道封面、单页等)"
+                },
+                "list": {
+                    "label": "列表",
+                    "info": "当[NODE@NAME]有分页且当前页号大于1时使用该模板"
+                },
+                "tag": {
+                    "label": "标签"
+                }
+            },
+            "rule": {
+                "submenu": {
+                    "node": "节点",
+                    "id": "ID",
+                    "datetime": "时间",
+                    "tag": "标签",
+                    "other": "其他"
+                },
+                "node": {
+                    "dir": "目录",
+                    "cid": "CID",
+                    "cid_zero": "CID补零（8位）",
+                    "cid_hash": "CID Hash",
+                    "cid_zero_hash": "0xCID Hash"
+                },
+                "id": {
+                    "id": "ID",
+                    "id_zero": "ID补零（8位）",
+                    "id_zero_first3": "ID补零（前3位）",
+                    "id_zero_middle2": "ID补零（中间2位）",
+                    "id_hash": "ID Hash",
+                    "id_zero_hash": "0xID Hash"
+                },
+                "datetime": {
+                    "year4": "4位数年份2012",
+                    "year2": "2位数年份12",
+                    "month2": "月份 01-12月份",
+                    "month1": "月份 1-12月份",
+                    "day2": "日期 01-31",
+                    "day1": "日期1-31",
+                    "timestamp": "发布时间戳"
+                },
+                "tag": {
+                    "key": "标签标识",
+                    "zh_name": "标签名(中文)",
+                    "name": "标签名",
+                    "cid": "分类ID",
+                    "dir": "分类目录"
+                },
+                "other": {
+                    "link": "自定义链接",
+                    "title": "标题"
+                },
+                "md5": "ID MD5(16位)",
+                "page": "分页数",
+                "ext": "后缀",
+                "php": "动态程序"
+            },
+            "vattrs": {
+                "title": "分类属性",
+                "name": "项目名",
+                "key": "键名",
+                "value": "值"
+            },
+            "views": {
+                "add": {
+                    "base_info": "基本信息",
+                    "mode_setting": "模式设置",
+                    "route_template": "路由&模版",
+
+                    "custom": "自定义",
+                    "dynamic_props": "动态属性",
+                    "content_props": "内容属性",
+   
+                    "external_link_tip": "外部链接设置后所有项目无效,此%s仅为一个链接.不设置请留空",
+                    "name_tip": "可批量添加%s,每行一个",
+                    "password_tip": "设置后需要输入正确口令才能访问该栏目及栏目下内容",
+                    "domain_tip": "例 https://test.icmsdev.com",
+                    "config": "配置",
+                    "thumbnail": {
+                        "title": "缩略图",
+                        "large": "大图",
+                        "medium": "中图",
+                        "small": "小图"
+                    },
+                    "user": {
+                        "title": "用户组",
+                        "allow": "允许访问",
+                        "forbid": "限制访问",
+                        "publish": "支持投稿",
+                        "examine": "审核投稿",
+                        "select_tip": "请选择用户组(可多选)...",
+                        "allow_tip": "设置允许访问的用户组",
+                        "forbid_tip": "设置限制访问的用户组",
+                        "publish_tip": "设置支持投稿的用户组",
+                        "examine_tip": "设置需要审核投稿的用户组"
+                    }
+                },
+
+                "access": {
+                    "title": "栏目权限设置",
+                    "all": "全选",
+                    "add_root": "允许添加顶级栏目",
+                    "all_perm": "所有栏目权限",
+                    "item": "项目",
+                    "node_perm": "栏目权限",
+                    "content_perm": "内容权限",
+                    "all_nodes": "所有栏目",
+                    "node_name": "节点名",
+                    "app": "应用"
+                },
+                "batch": {
+                    "access_mode": "访问模式",
+                    "dir": "目录",
+                    "pattern": {
+                        "prepend": "前追加",
+                        "append": "后追加",
+                        "replace": "替换"
+                    },
+                    "merge": "请选择目标节点",
+                    "app": "请选择所属应用",
+                    "mode": {
+                        "dynamic": "动态",
+                        "static": "静态"
+                    }
+                },
+                "quick_links": {
+                    "title": "快捷链接",
+                    "add_root": "添加顶级节点",
+                    "update_cache": "更新缓存",
+                    "update_count": "更新记录数",
+                    "rewrite_rule": "伪静态规则"
+                },
+                "tree": {
+                    "count": "统计数",
+                    "hidden": "隐藏节点",
+                    "external_link": "外部链接",
+                    "bind_domain": "绑定域名:%s",
+                    "creator": "创建者",
+                    "visit": "访问",
+                    "add_sub": "添加子节点"
+                }
+            },
+
+            "accredit": {
+                "browse": "浏览",
+                "add": "添加",
+                "edit": "编辑",
+                "delete": "删除",
+                "cache": "更新缓存"
+            }
+        }
+    },
+    "msg": {
+        "empty_name": "节点名称不能为空",
+        "self_as_parent": "不能以自身做为上级节点",
+        "need_rule_key": "伪静态模式%s规则必需含有%s其中之一,否则将无法解析",
+        "delete_sub_first": "请先删除本节点下的子节点!",
+        "no_permission": "无权进行此项操作",
+        "cache_complete": "缓存更新完成",
+        "gen_temp_cache": "生成临时缓存",
+        "gen_cache": "生成缓存",
+        "clean_temp_cache": "清理临时缓存",
+        "gen_common_cache": "生成通用缓存"
+    }
+}

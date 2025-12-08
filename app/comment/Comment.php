@@ -14,17 +14,11 @@ class Comment
     const APP = 'comment';
     const APPID = iCMS_APP_COMMENT;
 
-    public static $statusMap = array(
-        '0' => '草稿',
-        '1' => '正常',
-        '2' => '回收站',
-        '3' => '待审核',
-        '4' => '未通过'
-    );
 
     public function __construct()
     {
     }
+
     public static function remove($id = 0, $userid = null)
     {
         $data = CommentModel::get($id);

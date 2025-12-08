@@ -1,7 +1,8 @@
 <div class="alert alert-info">
     您的专属推广链接：
-    <!--{iCMS:route url='api' query="aff=$ME.uid"}-->
+    <!--{iCMS:route url='$site.url' query[aff]="$ME.id"}-->
 </div>
+
 <table class="table table-vcenter">
     <thead>
         <tr>
@@ -15,7 +16,7 @@
     <tbody>
         <tr>
             <th class="text-center" scope="row">1</th>
-            <td class="font-w600 font-size-sm">
+            <td class="fw-semibold fs-sm">
                 <a href="be_pages_generic_profile.html">Adam McCoy</a>
             </td>
             <td class="d-none d-sm-table-cell">
@@ -38,7 +39,7 @@
             推广链接可以是任意页面后加
             <span class="badge badge-warning">
                 ?aff=
-                <!--{$ME.uid}-->
+                <!--{$ME.id}-->
             </span>
             即可；
         </li>

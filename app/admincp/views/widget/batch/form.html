@@ -1,0 +1,71 @@
+<!-- iCMS batch -->
+<div class="iCMS-batch00">
+    <form id="batch-form">
+        <div batch="move">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="bnid">栏目</label>
+                <input name="BatchData[nid]" type="text" class="form-control" i="cms:ui:node" value="">
+            </div>
+        </div>
+        <div batch="prop">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="pid">属性</label>
+                <input name="BatchData[pid]" class="form-control" i="cms:ui:prop" data-source="./prop/pid" multiple="multiple" value="">
+            </div>
+        </div>
+        <div batch="weight">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="weight">权重</label>
+                <input name="BatchData[weight]" type="text" class="form-control" />
+            </div>
+        </div>
+        <div batch="keyword">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="keyword">关键字</label>
+                <input name="BatchData[keyword]" type="text" class="form-control" />
+            </div>
+            <div class="input-group input-group-sm mt-1">
+                <div class="input-group-text">
+                    <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_kw_1" value="prepend" />
+                    <label class="form-check-label" for="pattern_kw_1">前追加</label>
+                </div>
+                <div class="input-group-text">
+                    <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_kw_2" value="append" />
+                    <label class="form-check-label" for="pattern_kw_2">后追加</label>
+                </div>
+                <div class="input-group-text">
+                    <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_kw_3" value="replace" checked />
+                    <label class="form-check-label" for="pattern_kw_3">替换</label>
+                </div>
+            </div>
+        </div>
+        <div batch="tag">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="btag">标签</label>
+                <input type="text" class="form-control" name="BatchData[tag]" id="btag" />
+            </div>
+            <div class="input-group input-group-sm mt-1">
+                <div class="input-group-text">
+                    <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_tag_1" value="prepend" />
+                    <label class="form-check-label" for="pattern_tag_1">前追加</label>
+                </div>
+                <div class="input-group-text">
+                    <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_tag_2" value="append" />
+                    <label class="form-check-label" for="pattern_tag_2">后追加</label>
+                </div>
+                <div class="input-group-text">
+                    <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_tag_3" value="replace" checked />
+                    <label class="form-check-label" for="pattern_tag_3">替换</label>
+                </div>
+            </div>
+        </div>
+        <div batch="status">
+            <div class="input-group input-group-sm">
+                <label class="input-group-text" for="bstatus">状态</label>
+                <input name="BatchData[status]" data-source='statusMap' data-field="status" class="form-control" i="cms:ui:selectpicker" value="">
+            </div>
+        </div>
+        <?php AdmincpBatch::html(); ?>
+    </form>
+</div>
+<!-- END iCMS batch -->

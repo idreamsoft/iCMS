@@ -15,13 +15,24 @@ class Config
     const APP = 'config';
     const APPID = iCMS_APP_CONFIG;
 
-    const VAPPID = "999999";
-    public static $aId = 0;
+    const VAPPID = '999999'; //虚拟应用 不缓存在iCMS/config.php
+    public static $appid = 0;
     public static $siteid = 1;
-    public static $setting = array();
-    public static $data  = array();
+    public static $siteMap = [];
+
+    public static function setSiteId($id)
+    {
+        self::$siteid = $id;
+        if (iPHP_MULTI_SITE && iPHP_APP_SITE != iPHP_APP) {
+            $table = 'config_' . str_replace('.', '_', iPHP_APP_SITE);
+            // var_dump($table);
+            ConfigModel::setTable($table);
+        }
+    }
+
     /**
      * 从缓存中获取配置
+     * @return mixed
      */
     public static function get($key = null, $key2 = null)
     {
@@ -40,8 +51,16 @@ class Config
             }
         }
         // (is_string($key2) && is_array($config)) && $config = $config[$key2];
-        return $config;
+
+        // is_array($config) && array_walk_recursive($config, function (&$v, $k) {
+        //     if(is_numeric($v)){
+        //         $v = (int)$v;
+        //     }
+        // });
+        $type = gettype($config);
+        return $config ?: ($type == 'string'?'':[]);
     }
+
     public static function table()
     {
         $table = 'config';
@@ -51,181 +70,186 @@ class Config
         }
         return $table;
     }
+
     /**
-     * [cache 更新配置]
-     * @return [type] [description]
+     * 更新配置缓存
+     *
+     * @return void
      */
     public static function cache()
     {
         if ($config = self::data()) {
+            $config['route']['routing'] = Apps::getRouting();
+            $config['route']['appRule'] = Apps::getAppRules();
+            $config['route']['urlRule'] = Apps::getUrlRules();
+            $config['route']['tag'] = $config['tag']; //标签配置;
+            $config['route']['callback'] = [
+                'domain' => ['nodeApp', 'domain'], //绑定域名回调
+                'device' => ['Adapter', 'urls'], //设备网址
+            ];
+            $config['template']['device'] = $config['device'];
+            unset($config['device']);
             $config['apps'] = Apps::getIds();
-            $config['iurl'] = Apps::getUrlRules();
-            $config['routing'] = Apps::getRoute();
-            $config['meta'] = array();
-            $data = AppsMeta::data(iCMS_APP_CONFIG, 1);
-            is_array($data) && $config['meta'] = $data['meta'];
+            $config['hooks']['run'] = AppsHooks::getRun();
+            $config['hooks']['app'] = AppsHooks::getHooks('app_');
+            $config['hooks']['admincp'] = AppsHooks::getHooks('admincp_');
+            $config['hooks']['rewrite'] = AppsHooks::getHooks('rewrite_');
+            // $config['hooks']['fields'] = AppsHooks::getHooks('field_run');
+            $config['site']['meta'] = (array)AppsMeta::get(iCMS_APP_CONFIG, 1);
             self::put($config);
         }
     }
-    // public static function head($title = null, $action = "config")
-    // {
-    //     return include AdmincpView::display("config.head", "config");
-    // }
-    // public static function foot()
-    // {
-    //     return include AdmincpView::display("config.foot", "config");
-    // }
+
     /**
-     * [app 其它应用配置接口]
-     * @param  integer $appid [应用ID]
-     * @param  [sting] $name   [应用名]
+     * 应用配置保存
+     *
+     * @param Integer|Array $appid [应用ID 或 数组]
+     * @param String|Array $name [应用名 或 数组]
+     * @param Array $data [数据]
+     * @return void
+     * Config::save([配置数组])
+     * Config::save('appid',[配置数组])
+     * Config::save('appid','name',[配置数组])
      */
-    public static  function app($appid = 0, $name = null, $ret = false, $suffix = "config")
+    public static function save($appid = 0, $name = null, $data = [])
     {
+        //Config::save([配置数组])
+        if (is_array($appid)) {
+            $data = $appid;
+            $appid = AdmincpBase::$APPID;
+            $name = null;
+        }
+        //Config::save('appid',[配置数组])
+        if (is_array($name)) {
+            $data = $name;
+            $name = null;
+        }
+
         $name === null && $name = Admincp::$APP_NAME;
-        if (empty($appid) && self::$setting['appid']) {
-            $appid = self::$setting['appid'];
-        }
-        empty($appid) && Admincp::exception("配置程序出错缺少APPID!");
-        $config = self::data($appid, $name);
-
-        if ($ret) {
-            return $config;
-        }
-
-        if ($appid == Config::VAPPID && $GLOBALS['CONFIG_APPID']) {
-            $appid = $GLOBALS['CONFIG_APPID'];
-        }
-
-        $apps = Apps::getData($appid);
-
-        $title         = self::$setting['title'] ?: $apps['title'] . '系统';
-        $subTitle      = self::$setting['subTitle'] ?: $name;
-        $action        = self::$setting['action'] ?: 'config';
-        $icon          = self::$setting['icon'];
-        $header_enable = self::$setting['header_enable'];
-        $header_class  = self::$setting['header_class'];
-        $content_class = self::$setting['content_class'];
-        $file          = self::$setting['file'] ?: $apps['app'] . '.config';
-
-        ob_start();
-        include AdmincpView::display($name . '.' . $suffix, $apps['app']); //test.config.html,test
-        $content = AdmincpView::html();
-        
-        $extends       = Config::scan($file, $apps['app']); //test.config.asd.html
-        $tabs          = array();
-        if ($extends) {
-            $extends = current($extends);
-            $tabs = $extends['tabs'];
-        }
-        // var_dump($extends);
-        include AdmincpView::display("app.config", "config");
-    }
-    /**
-     * [save 其它应用配置保存]
-     * @param  integer $appid [应用ID]
-     * @param  [sting] $app   [应用名]
-     */
-    public static function save($appid = 0, $name = null)
-    {
-        $name === null   && $name = Admincp::$APP_NAME;
-        if (empty($appid) && self::$aId) {
-            $appid = self::$aId;
-        }
-        empty($appid) && iPHP::alert("配置程序出错缺少APPID!");
-        self::set(self::$data, $name, $appid, false);
+        // if (empty($appid) && self::$aId) {
+        //     $appid = self::$aId;
+        // }
+        empty($appid) && iPHP::alert('配置程序出错缺少APPID!');
+        self::set($data, $name, $appid);
         self::cache();
         return true;
     }
+
     /**
-     * [data 获取配置]
-     * @param  integer $appid [应用ID]
-     * @param  [type]  $name   [description]
-     * @return [type]       [description]
+     * 获取配置
+     * @param  Integer $appid [应用ID]
+     * @param  String  $name   [应用名]
+     * @return Array
      */
-    public static function data($appid = NULL, $name = NULL)
+    public static function data($appid = null, $name = null)
     {
-        $appid && self::$aId = $appid;
-        if ($name === NULL) {
+        $appid && self::$appid = $appid;
+        if ($name === null) {
             $where['siteid'] = self::$siteid;
-            $where['appid'] = array('<', self::VAPPID);
-            $appid === NULL or $where['appid'] = $appid;
+            $where['appid'] = ['<', self::VAPPID];
+            $appid === null or $where['appid'] = $appid;
             $result = ConfigModel::where($where)->select();
             foreach ((array) $result as $c) {
                 $config[$c['name']] = $c['value'];
             }
-            self::$data = $config;
-            return $config;
         } else {
-            $value = ConfigModel::field('value')
-                ->where(array(
+            $config = ConfigModel::field('value')
+                ->where([
                     'siteid' => self::$siteid,
-                    'appid' => $appid,
-                    'name' => $name,
-                ))->value();
-            self::$data = $value;
-            return $value;
+                    'appid'  => $appid,
+                    'name'   => $name,
+                ])->value();
         }
+        return $config;
     }
 
-    public static function vapp($name, $ret = false)
-    {
-        return self::app(self::VAPPID, $name, $ret);
-    }
+    /**
+     * 获取虚拟应用配置
+     *
+     * @param String $name
+     * @return Array|String
+     */
     public static function vget($name)
     {
         return self::data(self::VAPPID, $name);
     }
-    public static function vset($data, $name)
+
+    /**
+     * 设置虚拟应用配置
+     *
+     * @param String $name
+     * @param Array $data
+     * @return void
+     */
+    public static function vset($name, $data)
     {
         return self::set($data, $name, self::VAPPID);
     }
-    public static function vsave($name)
+
+    /**
+     * 保存虚拟应用配置
+     *
+     * @param String $name
+     * @param Array $data
+     * @return void
+     */
+    public static function vsave($name, $data = [])
     {
-        return self::save(self::VAPPID, $name);
+        return self::save(self::VAPPID, $name, $data);
     }
 
     /**
-     * [set 更新配置]
-     * @param [type]  $v     [description]
-     * @param [type]  $n     [description]
-     * @param [type]  $appid   [description]
-     * @param boolean $cache [description]
+     * 保存配置
+     *
+     * @param String|Integer|Array $value
+     * @param String $name
+     * @param Integer $appid
+     * @return void
      */
-    public static function set($value, $name, $appid, $cache = false)
+    public static function set($value, $name, $appid = 0)
     {
-        $cache && Cache::set('config/' . $name, $value, 0);
         $siteid = self::$siteid;
-        $where = array(
+        $where = [
             'siteid' => $siteid,
             'appid'  => $appid,
             'name'   => $name,
-        );
-        $has    = ConfigModel::field('name')->where($where)->value();
-        $fields = array('siteid', 'appid', 'name', 'value');
-        $data   = compact($fields);
+        ];
+        is_array($value) && array_walk_recursive($value, function (&$v, $k) {
+            if ($v === 'true') {
+                $v = true;
+            } elseif ($v === 'false') {
+                $v = false;
+            } elseif (is_numeric($v) && (ctype_digit((string)$v))) {
+                $v = (int)$v;
+            }
+        });
+        $has = ConfigModel::field('name')->where($where)->value();
+        $fields = ['siteid', 'appid', 'name', 'value'];
+        $data = compact($fields);
         if ($has) {
             ConfigModel::update($data, $where);
         } else {
             ConfigModel::create($data);
         }
     }
+
     public static function delete($appid, $name)
     {
         if ($name && $appid) {
-            $where = array(
+            $where = [
                 'siteid' => self::$siteid,
                 'appid'  => $appid,
                 'name'   => $name,
-            );
+            ];
             ConfigModel::delete($where);
         }
     }
+
     /**
-     * [write 配置写入文件]
-     * @param  [type] $config [description]
-     * @param  [type] $name [文件名]
-     * @return [type]         [description]
+     * write 配置写入文件
+     * @param  Array $config 配置
+     * @param  String $name [文件名]
+     * @return void
      */
     public static function put($config = null, $name = null, $dir = null)
     {
@@ -235,15 +259,16 @@ class Config
         $output .= ';';
         $path = iPHP_APP_CONFIG;
         if ($name) {
-            $dir  = $dir ?: iPHP_APP_CONFDIR;
+            $dir = $dir ?: iPHP_APP_CONFDIR;
             $path = $dir . '/' . $name . '.php';
         }
         File::put($path, $output);
     }
+
     /**
-     * [update 单个配置更新]
+     * update 单个配置更新
      * @param  [type] $k [description]
-     * @return [type]    [description]
+     * @return void
      */
     public static function update($k, $appid = 0)
     {
@@ -251,62 +276,19 @@ class Config
         self::cache();
     }
 
-    public static function scan($fn = 'config.*', $dir = '*', $flag = true)
+    public static function template()
     {
-        $array = array();
-        // test/views/config.aa.bb.html
-        // test/views/config.aa.html
-        $pattern = iAPP::path($dir) . "views/{$fn}.*.html";
-        $files = (array) glob($pattern);
-// var_dump($pattern,$files);
-
-        iDebug::$DATA['config.scan'][$dir] = $pattern;
-        iDebug::$DATA['config.scan']['glob'] = $files;
-
-        foreach ($files as $key => $path) {
-            // test/views/config.aa.bb.html
-            $file = str_replace(iPHP_APP_DIR . '/', '', $path);
-            //test
-            $app = strstr($file, '/', true);
-
-            //[config.aa.bb]
-            //[config.bb]
-            $sub = File::name($file);
-            //[config,aa,bb]
-            //[config,bb]
-            $info = explode('.', $sub);
-            $nkey = $info[1];
-            $title = $name = $info[2];
-            if ($file) {
-                if ($flag) {
-                    $apps = Apps::getData($app);
-                    $array[$app]['title'] = $apps['title'] ?: strtoupper($nkey);
-                }
-                $nav = true;
-                $subTitle = '';
-                $icon = '';
-                $header_enable = true;
-                $header_class = 'block-header-default';
-                $$content_class = '';
-                //加载模板 获取里面的变量
-                ob_start();
-                include $path;
-                ob_end_clean();
-
-                $title == $name or $subTitle = $name;
-
-                $block = compact('header_enable', 'header_class', 'content_class');
-                $tabs  = compact('path', 'sub', 'name', 'title', 'subTitle', 'icon', 'block');
-                isset($block) && $tabs['block'] = $block;
-
-                if ($flag) {
-                    $array[$app]['nav'] = $nav;
-                    $array[$app]['tabs'][$name] = $tabs;
-                } else {
-                    $array[] = $tabs;
-                }
-            }
+        $template = self::get('template');
+        $device = self::get('template.device');
+        unset($template['device']);
+        if ($device) {
+            $template = array_merge($template, $device);
+            // $device = array_column($device,null,'name');
         }
-        return $array;
+        $template = array_map(function ($item) {
+            $item['index'] = str_replace(View::TPL_FLAG_1, $item['tpl'], $item['index']);
+            return $item;
+        }, $template);
+        return $template;
     }
 }

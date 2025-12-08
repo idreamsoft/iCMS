@@ -1,1 +1,12 @@
-[]
+[{
+    "id": "article-manage",
+    "sort": -99999999,
+    "title": "文章管理",
+    "url": "/article/index",
+    "icon": "fa fa-2x fa-edit",
+    "icon:text-color": "",
+    "item:bg-color": "primary",
+    "col:class": "col-6 col-sm-2 col-md-4 col-lg-2",
+    "a:class": "",
+    "a:target": ""
+}]

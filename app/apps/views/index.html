@@ -1,0 +1,60 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+    <div class="content" id="{{APP_MAINID}}">
+
+        <div class="block block-rounded block-mode-hidden000">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">搜索</h3>
+                <div class="block-options">
+                    <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                </div>
+            </div>
+            <div class="block-content block-content-full">
+                <form action="{{APP_DOURL}}" method="get" class="table-search">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="apptype">类型</label>
+                                <select data-source='appTypeMap' class="form-control" i="cms:ui:bs-selectpicker" name="apptype">
+                                    <option value="">所有类型</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <?php AdmincpForm::tableSearchDefault(); ?>
+                </form>
+            </div>
+        </div>
+        <div class="block">
+            <div class="block-content p-0">
+                <div id="toolbar" class="toolbar row">
+                    <div class="input-group input-group-sm" role="group">
+                        <a href="{{./add}}" id="add" class="btn btn-alt-primary">
+                            <i class="fa fa-fw fa-add"></i> {{#Lang('Add')}}
+                        </a>
+                        <a href="{{./edit}}" id="edit" class="btn btn-alt-primary table-btn-edit disabled" disabled>
+                            <i class="fa fa-fw fa-edit"></i> {{#Lang('Edit')}}
+                        </a>
+                        <?php AdmincpBatch::group(); ?>                        
+                    </div>
+                </div>
+
+                <table id="table" width="100%" data-operate-edit="{{./edit}}" data-operate-asd="{{asd}}" data-operate-delete="{{./delete}}">
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+    <?php self::foot(); ?>

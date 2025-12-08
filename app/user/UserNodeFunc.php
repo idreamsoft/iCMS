@@ -12,6 +12,9 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserNodeFunc extends AppsFuncCommon
 {
+    protected static $app = User::APP;
+    protected static $appid = User::APPID;
+
     public static function lists($vars = null)
     {
         $whereNot  = array();
@@ -22,29 +25,26 @@ class UserNodeFunc extends AppsFuncCommon
 
         $where[] = ['userid', $vars['userid']];
         $where[] = ['appid', $vars['appid']];
-
-        $common = new  AppsFuncCommon;
-        self::init($vars, $model, $where, $whereNot);
-        self::setApp(User::APPID, User::APP);
-
+        
+        self::inited($vars, $model, $where, $whereNot);
         self::keywords();
         self::orderby([
             'id'    => 'id',
             'hot'   => 'count',
         ], 'id');
         self::where();
-        return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+        return self::getResource(__METHOD__);
     }
-    public static function resource($vars, $idsArray = null)
+    public static function resource($idsArray = null)
     {
-        $vars['ids'] && $idsArray = $vars['ids'];
+        $vars = self::$vars;
 
         $resource = UserNodeModel::field('*')->where($idsArray)->orderBy('id', $idsArray)->select();
         if ($resource) foreach ($resource as $key => &$value) {
             if ($value['appid'] == iCMS_APP_ARTICLE) {
-                $route = '{uid}/{cid}';
+                $route = '{userid}/{cid}';
             } else if ($value['appid'] == iCMS_APP_FAVORITE) {
-                $route = '{uid}/fav/{cid}';
+                $route = '{userid}/fav/{cid}';
             }
             $value['url'] = Route::routing($route, [$value['userid'], $value['id']]);
         }

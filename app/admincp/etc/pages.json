@@ -1,0 +1,20 @@
+{
+
+    "side.overlay": null,
+    "side.scroll": true,
+    "sidebar": true,
+    "sidebar.right": false,
+    "sidebar.mini": false,
+    "sidebar.dark": true,
+    "page.overlay": true,
+    "page.header": true,
+    "page.header.fixed": false,
+    "page.header.dark": false,
+    "page.common": true,
+    "remember.theme": false,
+    "modal.dialog": true,
+    "page.footer": true,
+    "main.content": null,
+    "breadcrumb": true,
+    "page.classes": null
+}

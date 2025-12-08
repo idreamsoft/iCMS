@@ -1,0 +1,14 @@
+{
+    "status=4": {
+        "name": "未通过",
+        "icon": "ban",
+        "sort": 1,
+        "call": "reply_examine"
+    },
+    "status=1": {
+        "name": "通过审核",
+        "icon": "check",
+        "sort": 2,
+        "call": "reply_examine"
+    }
+}

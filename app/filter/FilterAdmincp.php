@@ -8,36 +8,31 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class FilterAdmincp extends AdmincpCommon
+class FilterAdmincp extends AdmincpBase
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
+    /**
+     * 配置{title}
+     *
+     * @return void
+     */
     public function do_config()
     {
-        if (Request::isPost()) {
-            return $this->save_config();
-        }
-        $GLOBALS['CONFIG_APPID'] = self::$appId;
-        Config::vapp('filter');
+        return ConfigView::display(self::$APPID);
     }
-
-    public function save_config()
+    public function done_config()
     {
-        Config::$data = Request::post('config');
-        Config::$data['filter']  = array_unique(explode("\n", Config::$data['filter']));
-        Config::$data['disable'] = array_unique(explode("\n", Config::$data['disable']));
-        Config::vsave('filter');
+        $data = Request::post('config');
+        $data['filter']  = array_unique(explode("\n", trim($data['filter'])));
+        $data['disable'] = array_unique(explode("\n", trim($data['disable'])));
+        Config::vsave('filter',$data);
         $this->autoCache();
-        // self::success('保存成功');
     }
     /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
+     * autoCache 在更新所有缓存时，将会自动执行
      */
-    public static function autoCache($config = null)
+    public static function autoCache()
     {
-        $config === null && $config  = Config::vget('filter');
+        $config  = Config::vget('filter');
         Cache::set('filter/array', $config['filter'], 0);
         Cache::set('filter/disable', $config['disable'], 0);
     }

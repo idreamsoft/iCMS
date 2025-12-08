@@ -14,18 +14,24 @@ defined('iPHP') or exit('What are you doing?');
 // }
 class SpiderPost
 {
-    public static $callback = array();
+    public static $callback = [];
+
     public static function get($id)
     {
         $key = 'spider:post:' . $id;
-        $data = $GLOBALS[$key];
-        if (!isset($GLOBALS[$key])) {
+        $data = Cache::temp($key, function () use ($id) {
             $data = SpiderPostModel::get($id);
-            $GLOBALS[$key] = $data;
-        }
+            return $data;
+        });
         $data['post'] && self::data($data);
         return $data;
     }
+
+    /**
+     * field=value
+     * aaa[kk]=vvv 设置数组
+     * @name 设置主键
+     */
     public static function data(&$arr)
     {
         $postArray = explode("\n", $arr['post']);
@@ -35,7 +41,7 @@ class SpiderPost
                 $arr['primary'] = substr(trim($pstr), 1);
                 continue;
             }
-            list($pkey, $pval) = explode("=", $pstr);
+            list($pkey, $pval) = explode('=', $pstr);
             if (strpos($pkey, '[') !== false && strpos($pkey, ']') !== false) {
                 preg_match('/(.+)\[(.+)\]/', $pkey, $match);
                 $_POST[$match[1]][$match[2]] = trim($pval);
@@ -45,115 +51,132 @@ class SpiderPost
         }
         return $arr;
     }
+
     public static function option($id = 0, &$output = null)
     {
         $rs = SpiderPostModel::select();
         $opt = '';
-        $output = array();
-        if (is_array($rs)) foreach ($rs as $post) {
-            $output[$post['id']] = $post['name'];
-            $selected = ($id == $post['id'] ? "selected" : '');
-            $opt .= sprintf(
-                '<option value="%s" %s>%s:%s[id:="%s"]</option>',
-                $post['id'],
-                $selected,
-                $post['name'],
-                $post['app'],
-                $post['id']
-            );
+        $output = [];
+        if (is_array($rs)) {
+            foreach ($rs as $post) {
+                $output[$post['id']] = $post['name'];
+                $selected = ($id == $post['id'] ? 'selected' : '');
+                $opt .= sprintf(
+                    '<option value="%s" %s>%s:%s[id:="%s"]</option>',
+                    $post['id'],
+                    $selected,
+                    $post['name'],
+                    $post['app'],
+                    $post['id']
+                );
+            }
         }
         return $opt;
     }
+
     public static function commit($urlId = 0, $spo = null)
     {
         is_numeric($spo) && $spo = self::get($spo);
         Spider::$callback['result'] = [];
         if (Spider::$isShell) {
-            SpiderTools::prints('使用%s[poid=%s]发布规则,发布到[%s]应用', [$spo['name'], $spo['id'], $spo['app']], 's');
+            SpiderTools::prints('使用规则[%s, poid=%s],内容将发布至[%s]应用', [$spo['name'], $spo['id'], $spo['app']], 's');
         }
-        $method = $spo['fun'];
-        if (Request::isUrl($method)) {
-            self::remotePost($method, $urlId);
+        if (Request::isUrl($spo['fun'])) {
+            return self::remotePost($urlId, $spo);
         } else {
-            self::callPost($method, $urlId, $spo);
+            return self::callPost($urlId, $spo);
         }
     }
 
-    public static function getClassName($method, $app)
+    public static function getClassName($method)
     {
-        $agrs = SpiderPost::$callback['agrs'];
-
-        if (strpos($method, '::') === false) {
-            $className = sprintf("%sAdmincp", ucfirst($app));
-        } else {
+        $agrs = (array)SpiderPost::$callback['agrs'];
+        //aaaAdmincp::done_add
+        $params = [];
+        if (strpos($method, '::') !== false) {
+            //aaaAdmincp::done_add(aa,bbb)
             list($className, $method) = explode('::', $method);
             if (strpos($method, '(') !== false) {
-                list($method, $agrs) = explode('(', $method);
-                $agrs = explode(',', trim($agrs, ')'));
-                foreach ($agrs as $key => &$value) {
+                list($method, $params) = explode('(', $method);
+                $params = explode(',', trim($params, ')'));
+                foreach ($params as $key => &$value) {
                     $v = strtolower($value);
-                    $v == "null" && $value = null;
-                    $v == "true" && $value = true;
-                    $v == "false" && $value = false;
+                    $v == 'null' && $value = null;
+                    $v == 'true' && $value = true;
+                    $v == 'false' && $value = false;
                 }
             }
         }
-        return [$className, $method, $agrs];
-    }
-    public static function callPost($method, $urlId, $spo)
-    {
-        list($className, $method, $agrs) = self::getClassName($method, $spo['app']);
+        $agrs = array_merge($agrs, $params);
         $prefix = null;
-        if(strpos($method,'_')!==false){
+        if (strpos($method, '_') !== false) {
             list($prefix, $do) = explode('_', $method);
-            $prefix = sprintf("%s_",rtrim($prefix));
+            $prefix = sprintf('%s_', rtrim($prefix));
         }
+        return [$className, $method, $do, $prefix, $agrs];
+    }
 
-        $className = Admincp::init($spo['app'], $do, $prefix);
-        $admincp = new $className;
+
+    public static function callPost($urlId, $spo)
+    {
+        list($className, $method, $do, $prefix, $agrs) = self::getClassName($spo['fun']);
+        $spo['app'] && $className = Admincp::init($spo['app'], $do, $prefix);
+        $admincp = iPHP::getInstance($className);
 
         if ($urlId === false) {
             //子采集发布不回调
         } else {
             Spider::setCallback($urlId, null, $admincp);
         }
-        $rc = new ReflectionClass($className);
-        if (!$rc->hasMethod($method)) {
-            throw new FalseEx(sprintf("发布规则设置出错，%s::%s 方法不存在", $className, $method), 0);
-        }
+
         if (Spider::$isShell) {
-            SpiderTools::prints('发布执行 %s::%s ', [$className, $method], 's');
+            SpiderTools::prints('调用方法[%s::%s]完成发布操作', [$className, $method], 's');
         }
-        $func = array($admincp, $method);
         try {
-            call_user_func_array($func, (array) $agrs);
-        } catch (\AdmincpException $ex) {
+            self::setPost($admincp::$MODEL);
+            call_user_func_array([$admincp, $method], [&$agrs]);
+            return $admincp;
+        } catch (\Exception $ex) {
             $msg = $ex->getMessage();
             throw new FalseEx($msg);
         }
     }
-    public static function remotePost($url, $urlId)
+    public static function setPost($MODEL)
     {
+        $postData = $MODEL::postData();
+        $rs = $_POST['rs']?:[];
+        $pd = array_intersect_key($_POST, $postData);
+        $rs = array_merge($rs, $pd);
+        $_POST = array_diff_key($_POST, $rs);
+        $_POST['rs'] = $rs;
+        // var_dump($_POST);
+        // exit;
+    }
+    public static function remotePost($urlId, $spo)
+    {
+        $url = $spo['fun'];
+
         if (Spider::$isShell) {
             SpiderTools::prints('执行远程发布 %s ', [$url], 's');
         }
         $json = self::postUrl($url, $_POST);
-        $result = json_decode($json, true);
-        if($result){
-            if ($id = $result['id']) {
+        $result = json_decode($json);
+        if ($result) {
+            if ($id = $result->id) {
                 if ($urlId === false) {
                     //子采集发布不回调
                 } else {
                     Spider::setCallback($urlId, $id);
                 }
-            }else{
+                return $result;
+            } else {
                 throw new FalseEx('远程发布失败');
             }
-        }else{
+        } else {
             throw new sException('远程发布失败:返回格式错误(非json格)');
         }
-
     }
+
     public static function postUrl($url, $data)
     {
         if (!Request::isUrl($url, true)) {
@@ -163,7 +186,7 @@ class SpiderPost
             return false;
         }
         is_array($data) && $data = http_build_query($data);
-        $options = array(
+        $options = [
             CURLOPT_URL                  => $url,
             CURLOPT_REFERER              => $_SERVER['HTTP_REFERER'],
             CURLOPT_USERAGENT            => $_SERVER['HTTP_USER_AGENT'],
@@ -185,7 +208,7 @@ class SpiderPost
             // CURLOPT_DNS_CACHE_TIMEOUT    => 86400,
             CURLOPT_SSL_VERIFYPEER       => false,
             CURLOPT_SSL_VERIFYHOST       => false
-        );
+        ];
 
         $ch = curl_init();
         curl_setopt_array($ch, $options);

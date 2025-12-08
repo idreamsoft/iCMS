@@ -1,0 +1,113 @@
+<!--{iCMS:user:config}-->
+<ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt align-items-center" role="tablist">
+    <!--{foreach key='active' value='mode' from="$user_config.login.mode"}-->
+    <!--{if $mode!='qrcode' || $_GET.bind!='qr'}-->
+    <li class="nav-item">
+        <a class="nav-link <!--{$active?'':'active'}-->" data-bs-toggle="tab" data-bs-target="#<!--{$mode}-->-signin"><!--{$user_config.login.modeText[$mode]}--></a>
+    </li>
+    <!--{/if}-->
+    <!--{/foreach}-->
+</ul>
+<div class="pt-3 tab-content">
+    <!--{foreach key='active' value='mode' from="$user_config.login.mode"}-->
+    <div id="<!--{$mode}-->-signin" class="tab-pane <!--{$active?'':'active'}-->">
+        <!--{if $mode=='phone'}-->
+        <form i="cms:user:login:phone" class="js-phone-signin" action="<!--{iCMS:route url='user'}-->" method="POST">
+            <input type="hidden" name="action" value="login" />
+            <input type="hidden" name="gateway" value="phone" />
+            <input type="hidden" name="oauth" value="<!--{$oauth}-->" />
+            <input type="hidden" name="forward" value="<!--{$forward}-->" />
+            <div class="form-group">
+                <input type="text" class="form-control form-control-lg form-control-alt" name="phone" placeholder="手机号" />
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" data-name="phone_login" maxlength="4" class="form-control form-control-lg form-control-alt" name="captcha" placeholder="图形验证码" />
+                    <!--{iCMS:public:captcha name="phone_login" class="rounded-right"}-->
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="input-group">
+                    <input maxlength="6" type="text" class="form-control form-control-lg form-control-alt" name="smscode" placeholder="输入6位短信验证码" />
+                    <button i="cms:public:smscode" type="button" class="btn btn-alt-primary">获取短信验证码</button>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-lg btn-primary">
+                    注册/登录<!--{$social.openid?',并绑定':''}-->
+                </button>
+            </div>
+            <p class="fs-sm fw-light text-muted my-3">
+                未注册手机验证后自动注册并登录，注册即代表同意
+                《<a href="<!--{iCMS:route url='public/terms'}-->" target="_blank"><!--{$site.name}-->网站服务条款</a>》、
+                《<a href="<!--{iCMS:route url='public/privacy'}-->" target="_blank"><!--{$site.name}-->隐私保护指引</a>》
+            </p>
+        </form>
+        <!--{/if}-->
+        <!--{if $mode=='account'}-->
+        <form i="cms:user:login:account" class="js-account-signin" action="<!--{iCMS:route url='user'}-->" method="POST">
+            <input type="hidden" name="action" value="login" />
+            <input type="hidden" name="gateway" value="account" />
+            <input type="hidden" name="oauth" value="<!--{$oauth}-->" />
+            <input type="hidden" name="forward" value="<!--{$forward}-->" />
+
+            <div class="form-group">
+                <input type="text" class="form-control form-control-lg form-control-alt" id="account" name="account" placeholder="手机号、邮箱、用户名" />
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control form-control-lg form-control-alt" id="password" name="password" placeholder="密码" />
+            </div>
+            <!--{if $user_config.login.captcha }-->
+            <div class="form-group">
+                <div class="input-group">
+                    <input type="text" data-name="account_login" maxlength="4" class="form-control form-control-lg form-control-alt" id="captcha2" name="captcha" placeholder="图形验证码" />
+                    <!--{iCMS:public:captcha name="account_login" class="rounded-right"}-->
+                </div>
+            </div>
+            <!--{/if}-->
+            <div class="form-group mb-3">
+                <div class="d-flex align-items-center justify-content-between">
+                    <a class="fs-sm fw-semibold" href="<!--{iCMS:route url='user/reminder'}-->">忘记密码？</a>
+                    <div class="text-end">
+                        <a href="<!--{iCMS:route url='user/register'}-->" class="fs-sm fw-semibold">现在注册 >></a>
+                    </div>
+                </div>
+            </div>
+            <div class="d-grid gap-2">
+                <button type="submit" class="btn btn-lg btn-primary">
+                    <!--{$social.openid?'登录并绑定':'登 录'}-->
+                </button>
+            </div>
+            <p class="fs-sm fw-light text-muted my-3">
+                登录即代表同意
+                《<a href="<!--{iCMS:route url='public/terms'}-->" target="_blank"><!--{$site.name}-->网站服务条款</a>》、
+                《<a href="<!--{iCMS:route url='public/privacy'}-->" target="_blank"><!--{$site.name}-->隐私保护指引</a>》
+            </p>
+        </form>
+        <!--{/if}-->
+        <!--{if $mode=='qrcode' && $_GET.bind!='qr'}-->
+        <div class="weixin-qrcode">
+            <div class="text-center" i="cms:user:login:qrcode">
+                <h3>请使用微信扫码</h3>
+                <img class="img-thumbnail qrcode" src="/assets/img/loading2.gif" data-src="<!--{iCMS:route url='user/login/qrcode'}-->" alt="">
+            </div>
+        </div>
+        <!--{/if}-->
+    </div>
+    <!--{/foreach}-->
+</div>
+<!--{if !$_GET.bind}-->
+<div class="d-flex flex-column align-items-center justify-content-between">
+    <div class="w-100">
+        <span class="text-secondary fs-sm">社交帐号登录：</span>
+    </div>
+    <div class="w-100">
+        <!--{iCMS:user:social loop="true"}-->
+        <a href="<!--{$user_social.url}-->" class="btn btn-sm btn-light me-2 mb-2">
+            <!--{include file="$user_social.svg"}-->
+            <!--{$user_social.name}-->
+        </a>
+        <!--{/iCMS}-->
+    </div>
+</div>
+<!--{/if}-->

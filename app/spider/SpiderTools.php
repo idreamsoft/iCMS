@@ -12,8 +12,9 @@ defined('iPHP') or exit('What are you doing?');
 
 class SpiderTools
 {
-    public static $listArray   = array();
-    public static $callback    = array();
+    public static $listArray = [];
+    public static $callback = [];
+
     /**
      * 在数据项里调用之前采集的数据[DATA@name][DATA@name.key]
      * [DATA@list:name]调用列表其它数据
@@ -21,17 +22,17 @@ class SpiderTools
     public static function getDATA($responses, $content)
     {
         preg_match_all('#\[DATA@(.*?)\]#is', $content, $data_match);
-        $_data_replace = array();
+        $_data_replace = [];
         if (strpos($content, 'DATA@list:') !== false) {
             $listData = self::listData($responses['reurl']);
         }
         foreach ((array)$data_match[1] as $_key => $_name) {
             $_nameKeys = explode('.', $_name);
             if (strpos($_name, 'list:') !== false) {
-                $_name    = str_replace('list:', '', $_name);
+                $_name = str_replace('list:', '', $_name);
                 $_content = $listData[$_name];
             } else {
-                $_content  = $responses[$_nameKeys[0]];
+                $_content = $responses[$_nameKeys[0]];
             }
             if (count($_nameKeys) > 1) {
                 foreach ((array)$_nameKeys as $kk => $nk) {
@@ -50,11 +51,39 @@ class SpiderTools
         unset($data_match, $_data_replace, $_content);
         return $content;
     }
+    public static function listData($url, $data = null)
+    {
+        if (spider::$callback['tools:listData'] === false) {
+            return false;
+        }
+        $url = self::URN($url);
+        if (spider::$callback['tools:listData'] && is_callable(spider::$callback['tools:listData'])) {
+            return call_user_func_array(spider::$callback['tools:listData'], array($url, $data));
+        }
+        if ($data === null) {
+            $json = SpiderUrlDataModel::where('url', $url)->value("data");
+            return json_decode($json, true);
+            // $json = iDB::value("SELECT `data` FROM `#iCMS@__spider_url_data` where `url`='$url'");
+            // return json_decode($json,true);
+        } else {
+            SpiderUrlDataModel::create(
+                array(
+                    'url'  => $url,
+                    'data' => $data
+                )
+            );
+        }
+    }
+    public static function URN($url) {
+        $scheme = parse_url($url, PHP_URL_SCHEME);
+        $scheme && $url  = str_replace($scheme.'://', '', $url);
+        return $url;
+    }
     public static function domAttr($DOM, $selectors, $fun = 'text')
     {
         //DOM::a@href
         $selectors = str_replace('DOM::', '', $selectors);
-        list($selector, $attr) = explode("@", $selectors);
+        list($selector, $attr) = explode('@', $selectors);
 
         if ($attr) {
             if ($attr == 'text') {
@@ -65,35 +94,38 @@ class SpiderTools
             return $DOM[$selector]->$fun();
         }
     }
+
     public static function pregTag($rule)
     {
-        $rule = trim($rule);
+        $rule = $rule?trim($rule):'';
         if (empty($rule)) {
             return false;
         }
-        $rule = str_replace("%>", "%>\n", $rule);
-        preg_match_all("/<%(.+)%>/i", $rule, $matches);
-        $pregArray = array_unique($matches[0]);
-        $pregflip = array_flip($pregArray);
+        $rule = str_replace('%>', "%>\n", $rule);
+        preg_match_all('/<%(.+)%>/i', $rule, $matches);
+        $pregArr = array_unique($matches[0]);
+        $pregflip = array_flip($pregArr);
+        $searchArr = [];
         foreach ((array)$pregflip as $kpreg => $vkey) {
-            $pregA[$vkey] = "@@@@iCMS_PREG_" . rand(1, 1000) . '_' . $vkey . '@@@@';
+            $searchArr[$vkey] = '@@' . random(8) . '_' . $vkey . '@@';
         }
-        $rule = str_replace($pregArray, $pregA, $rule);
+        $rule = str_replace($pregArr, $searchArr, $rule);
         $rule = preg_quote($rule, '~');
-        $rule = str_replace($pregA, $pregArray, $rule);
-        $rule = str_replace("%>\n", "%>", $rule);
+        $rule = str_replace($searchArr, $pregArr, $rule);
+        $rule = str_replace("%>\n", '%>', $rule);
         $rule = preg_replace('~<%(\w{3,20})%>~i', '(?<\\1>.*?)', $rule);
-        $rule = str_replace(array('<%', '%>'), '', $rule);
-        unset($pregArray, $pregflip, $matches);
+        $rule = str_replace(['<%', '%>'], '', $rule);
+        unset($searchArr, $pregArr, $pregflip, $matches);
         gc_collect_cycles();
         //var_dump(htmlspecialchars($rule));
         return $rule;
     }
+
     public static function dataClean($rules, $content)
     {
         Vendor::run('phpQuery');
         $ruleArray = explode("\n", $rules);
-        $NEED = $NOT = array();
+        $NEED = $NOT = [];
         foreach ($ruleArray as $key => $rule) {
             $rule = trim($rule);
             $rule = str_replace('<BR>', "\n", $rule);
@@ -101,57 +133,57 @@ class SpiderTools
             if (strpos($rule, 'BEFOR::') !== false) {
                 $befor = str_replace('BEFOR::', '', $rule);
                 $content = $befor . $content;
-            } else if (strpos($rule, 'AFTER::') !== false) {
+            } elseif (strpos($rule, 'AFTER::') !== false) {
                 $after = str_replace('AFTER::', '', $rule);
                 $content = $content . $after;
-            } else if (strpos($rule, 'IF::') !== false) {
+            } elseif (strpos($rule, 'IF::') !== false) {
                 list($expr, $tf) = explode('?', $rule);
                 $find = str_replace('IF::', '', $expr);
                 empty($tf) && $tf = '1:0';
                 list($t, $f) = explode(':', $tf);
                 $t = str_replace('<%SELF%>', $content, $t);
                 $content = strpos($content, $find) === false ? $f : $t;
-            } else if (strpos($rule, 'CUT::') !== false) {
+            } elseif (strpos($rule, 'CUT::') !== false) {
                 $len = str_replace('CUT::', '', $rule);
                 $content = iString::cut($content, $len);
-            } else if (strpos($rule, 'SPLIT::') !== false) {
+            } elseif (strpos($rule, 'SPLIT::') !== false) {
                 $delimiter = str_replace('SPLIT::', '', $rule);
                 $content = explode($delimiter, $content);
-            } else if (strpos($rule, '<%SELF%>') !== false) {
+            } elseif (strpos($rule, '<%SELF%>') !== false) {
                 $content = str_replace('<%SELF%>', $content, $rule);
-            } else if (strpos($rule, '<%nbsp%>') !== false) {
-                $content  = str_replace(array('&nbsp;', '&#12288;'), '', $content);
+            } elseif (strpos($rule, '<%nbsp%>') !== false) {
+                $content = str_replace(['&nbsp;', '&#12288;'], '', $content);
                 $_content = htmlentities($content);
-                $content  = str_replace(array('&nbsp;', '&#12288;', '&amp;nbsp;', '&amp;#12288;'), '', $_content);
-                $content  = html_entity_decode($content);
+                $content = str_replace(['&nbsp;', '&#12288;', '&amp;nbsp;', '&amp;#12288;'], '', $_content);
+                $content = html_entity_decode($content);
                 unset($_content);
-            } else if (strpos($rule, 'HTML::') !== false) {
+            } elseif (strpos($rule, 'HTML::') !== false) {
                 $tag = str_replace('HTML::', '', $rule);
                 if ($tag == 'ALL') {
                     $content = preg_replace('/<[\/\!]*?[^<>]*?>/is', '', $content);
                 } else {
-                    $rep = "\\1";
+                    $rep = '\\1';
                     if (strpos($tag, '*') !== false) {
                         $rep = '';
                         $tag = str_replace('*', '', $tag);
                     }
                     $content = preg_replace("/<{$tag}[^>].*?>(.*?)<\/{$tag}>/si", $rep, $content);
-                    $content = preg_replace("@<{$tag}[^>]*>@is", "", $content);
+                    $content = preg_replace("@<{$tag}[^>]*>@is", '', $content);
                 }
-            } else if (strpos($rule, 'LEN::') !== false) {
-                $len        = str_replace('LEN::', '', $rule);
-                $len_content = preg_replace(array('/<[\/\!]*?[^<>]*?>/is', '/\s*/is'), '', $content);
+            } elseif (strpos($rule, 'LEN::') !== false) {
+                $len = str_replace('LEN::', '', $rule);
+                $len_content = preg_replace(['/<[\/\!]*?[^<>]*?>/is', '/\s*/is'], '', $content);
                 if (iString::strlen($len_content) < $len) {
                     return null;
                 }
-            } else if (strpos($rule, 'IMG::') !== false) {
+            } elseif (strpos($rule, 'IMG::') !== false) {
                 $img_count = str_replace('IMG::', '', $rule);
                 preg_match_all("/<img.*?src\s*=[\"|'](.*?)[\"|']/is", $content, $match);
-                $img_array  = array_unique($match[1]);
+                $img_array = array_unique($match[1]);
                 if (count($img_array) < $img_count) {
                     return null;
                 }
-            } else if (strpos($rule, 'DOM::') !== false) {
+            } elseif (strpos($rule, 'DOM::') !== false) {
                 $rule = str_replace('DOM::', '', $rule);
                 $dflag = false;
                 if ($rule[0] == ':') {
@@ -162,10 +194,10 @@ class SpiderTools
                 //DOM::div.class::attr::ooxx
                 //DOM::div.class[fun][attr]
                 //DOM::div.title[attr][data-title]
-                list($pq_dom, $pq_fun, $pq_attr) = explode("::", $rule);
+                list($pq_dom, $pq_fun, $pq_attr) = explode('::', $rule);
                 if (strpos($rule, '][') !== false) {
-                    list($pq_dom, $pq_fun, $pq_attr) = explode("[", $rule);
-                    $pq_fun  = rtrim($pq_fun, ']');
+                    list($pq_dom, $pq_fun, $pq_attr) = explode('[', $rule);
+                    $pq_fun = rtrim($pq_fun, ']');
                     $pq_attr = rtrim($pq_attr, ']');
                 }
                 $pq_array = phpQuery::pq($pq_dom);
@@ -185,12 +217,12 @@ class SpiderTools
                 if ($dflag) {
                     $_content[$key] = implode('', (array)$pq_pattern);
                 } else {
-                    $content = str_replace($pq_pattern, '', $content);
+                    $pq_pattern && $content = str_replace($pq_pattern, '', $content);
                 }
                 unset($doc, $pq_array);
-            } else if (strpos($rule, '==') !== false) {
-                list($_pattern, $_replacement) = explode("==", $rule);
-                $_pattern     = trim($_pattern);
+            } elseif (strpos($rule, '==') !== false) {
+                list($_pattern, $_replacement) = explode('==', $rule);
+                $_pattern = trim($_pattern);
                 $_replacement = trim($_replacement);
                 $_replacement = str_replace('\n', "\n", $_replacement);
                 if (strpos($_pattern, '~SELF~') !== false) {
@@ -208,10 +240,10 @@ class SpiderTools
                 $replacement[$key] = $_replacement;
                 $pattern[$key] = '|' . self::pregTag($_pattern) . '|is';
                 $content = preg_replace($pattern, $replacement, $content);
-            } else if (strpos($rule, 'KEY::') !== false) {
+            } elseif (strpos($rule, 'KEY::') !== false) {
                 $rule = str_replace('KEY::', '', $rule);
                 $content = $content[$rule];
-            } else if (strpos($rule, 'FUNC::') !== false) {
+            } elseif (strpos($rule, 'FUNC::') !== false) {
                 preg_match('/FUNC::(\w+)\(/is', $rule, $func_match);
                 $func = $func_match[1];
                 preg_match_all('/[\"|\'](.*?)[\"|\']/is', $rule, $param_match);
@@ -222,9 +254,9 @@ class SpiderTools
                     }
                 }
                 $content = call_user_func_array($func, $param);
-            } else if (strpos($rule, 'NEED::') !== false) {
+            } elseif (strpos($rule, 'NEED::') !== false) {
                 $NEED[$key] = self::data_check('NEED::', $rule, $content);
-            } else if (strpos($rule, 'NOT::') !== false) {
+            } elseif (strpos($rule, 'NOT::') !== false) {
                 $NOT[$key] = self::data_check('NOT::', $rule, $content);
             } else {
                 $content = preg_replace('|' . self::pregTag($rule) . '|is', '', $content);
@@ -248,6 +280,7 @@ class SpiderTools
         unset($NOT, $NEED);
         return $content;
     }
+
     public static function data_check_result($variable, $prefix)
     {
         foreach ((array)$variable as $key => $value) {
@@ -257,13 +290,14 @@ class SpiderTools
         }
         return null;
     }
+
     public static function data_check($prefix, $rule, $content)
     {
         $check = str_replace($prefix, '', $rule);
-        $bool  = array(
+        $bool = [
             'NOT::'  => false,
             'NEED::' => true
-        );
+        ];
         if (strpos($check, ',') === false) {
             if (strpos($content, $check) === false) {
                 $checkflag = false;
@@ -290,8 +324,8 @@ class SpiderTools
     {
         if (strpos($code, 'DOM::') !== false) {
             Vendor::run('phpQuery');
-            $doc     = phpQuery::newDocumentHTML($content, 'UTF-8');
-            $pq_dom  = str_replace('DOM::', '', $code);
+            $doc = phpQuery::newDocumentHTML($content, 'UTF-8');
+            $pq_dom = str_replace('DOM::', '', $code);
             $matches = (bool)(string)phpQuery::pq($pq_dom);
             phpQuery::unloadDocuments($doc->getDocumentID());
             unset($doc, $content);
@@ -307,6 +341,7 @@ class SpiderTools
         }
         return $matches;
     }
+
     public static function check_content_code($content, $type = null)
     {
         if (Spider::$content_right_code && $type == 'right') {
@@ -323,9 +358,10 @@ class SpiderTools
         }
         return true;
     }
+
     public static function mkurls($url, $format, $begin, $num, $step, $zeroize, $reverse)
     {
-        $urls = array();
+        $urls = [];
         $start = (int)$begin;
         if ($format == 0) {
             $num = $num - 1;
@@ -333,13 +369,13 @@ class SpiderTools
                 $num = 1;
             }
             $end = $start + $num * $step;
-        } else if ($format == 1) {
+        } elseif ($format == 1) {
             // $end = $start*pow($step,$num-1);
             $end = $start + $num * $step;
-        } else if ($format == 2) {
+        } elseif ($format == 2) {
             $start = ord($begin);
-            $end   = ord($num);
-            $step  = 1;
+            $end = ord($num);
+            $step = 1;
         }
         $zeroize = ($zeroize == 'true' ? true : false);
         $reverse = ($reverse == 'true' ? true : false);
@@ -353,7 +389,7 @@ class SpiderTools
                 if ($zeroize) {
                     $len = strlen($end);
                     //$len==1 && $len=2;
-                    $id  = sprintf("%0{$len}d", $i);
+                    $id = sprintf("%0{$len}d", $i);
                 }
                 $urls[] = str_replace('<*>', $id, $url);
                 // if($format==1){
@@ -371,7 +407,7 @@ class SpiderTools
                 if ($zeroize) {
                     $len = strlen($end);
                     //$len==1 && $len=2;
-                    $id  = sprintf("%0{$len}d", $i);
+                    $id = sprintf("%0{$len}d", $i);
                 }
                 $urls[] = str_replace('<*>', $id, $url);
                 // if($format==1){
@@ -394,15 +430,16 @@ class SpiderTools
             $where = ['url' => $content];
             $all = SpiderUrlListModel::field('id,url')->where($where)->select();
             if ($all) {
-                $urls   = array_column($all, 'url', 'id');
+                $urls = array_column($all, 'url', 'id');
                 $content = array_diff($content, $urls);
                 if (Spider::$isShell) {
-                    print self::datetime() . "\033[36mSpiderTools::check_urls\033[0m => 已采[" . count($urls) . "]条,还剩[" . count($content) . "]条" . PHP_EOL;
+                    print Utils::datetime() . "\033[36mSpiderTools::check_urls\033[0m => 已采[" . count($urls) . ']条,还剩[' . count($content) . ']条' . PHP_EOL;
                 }
             }
         }
         return $content;
     }
+
     public static function collect_urls($content)
     {
         if (is_array($content)) {
@@ -410,11 +447,11 @@ class SpiderTools
             $content = array_unique($content);
         }
 
-        $pid   = Spider::$pid;
-        $rid   = Spider::$rid;
+        $pid = Spider::$pid;
+        $rid = Spider::$rid;
         $source = 'spider_url_collect';
-        $table = sprintf("%s_%d", $source, $rid);
-        $path  = iPHP_APP_CACHE . '/spider/' . $table . '.txt';
+        $table = sprintf('%s_%d', $source, $rid);
+        $path = iPHP_APP_CACHE . '/spider/' . $table . '.txt';
         if ($rid) {
             if (!file_exists($path)) {
                 if (!DB::hasTable($table)) {
@@ -437,13 +474,13 @@ class SpiderTools
                 if (is_array($content)) {
                     foreach ($content as $url) {
                         $model->create(
-                            array('url' => $url, 'pid' => $pid),
+                            ['url' => $url, 'pid' => $pid],
                             true
                         );
                     }
                 } else {
                     $model->create(
-                        array('url' => $content, 'pid' => $pid),
+                        ['url' => $content, 'pid' => $pid],
                         true
                     );
                 }
@@ -451,6 +488,7 @@ class SpiderTools
         }
         return $content;
     }
+
     public static function url_complement($baseUrl, $href)
     {
         $href = trim($href);
@@ -458,7 +496,7 @@ class SpiderTools
             return $href;
         } else {
             if (substr($href, 0, 1) == '/') {
-                $base_uri  = parse_url($baseUrl);
+                $base_uri = parse_url($baseUrl);
                 if ($href[1] == '/') {
                     $base_host = $base_uri['scheme'] . ':/';
                 } else {
@@ -466,7 +504,6 @@ class SpiderTools
                 }
                 return $base_host . '/' . ltrim($href, '/');
             } else {
-
                 if (substr($baseUrl, -1) != '/') {
                     $info = pathinfo($baseUrl);
                     $info['extension'] && $baseUrl = $info['dirname'];
@@ -476,12 +513,13 @@ class SpiderTools
             }
         }
     }
+
     public static function img_url_complement($content, $baseurl)
     {
         preg_match_all("/<img.*?src\s*=[\"|'](.*?)[\"|']/is", $content, $img_match);
         if ($img_match[1]) {
             $_img_array = array_unique($img_match[1]);
-            $_img_urls  = array();
+            $_img_urls = [];
             foreach ((array)$_img_array as $_img_key => $_img_src) {
                 $_img_urls[$_img_key] = SpiderTools::url_complement($baseurl, $_img_src);
             }
@@ -490,11 +528,12 @@ class SpiderTools
         unset($img_match, $_img_array, $_img_urls, $_img_src);
         return $content;
     }
-    public static function checkpage(&$newbody, $bodyA, $_count = 1, $nbody = "", $i = 0, $k = 0)
+
+    public static function checkpage(&$newbody, $bodyA, $_count = 1, $nbody = '', $i = 0, $k = 0)
     {
         $ac = count($bodyA);
         $nbody .= $bodyA[$i];
-        $pics    = FilesPic::findImgUrl($nbody);
+        $pics = FilesPic::findImgUrl($nbody);
         $_pcount = count($pics);
         //  print_r($_pcount);
         //  echo "\n";
@@ -504,7 +543,7 @@ class SpiderTools
         if ($_pcount >= $_count) {
             $newbody[$k] = $nbody;
             $k++;
-            $nbody = "";
+            $nbody = '';
         }
         $ni = $i + 1;
         if ($ni <= $ac) {
@@ -513,16 +552,17 @@ class SpiderTools
             $newbody[$k] = $nbody;
         }
     }
+
     public static function mergePage($content)
     {
         $_content = $content;
-        $pics     = FilesPic::findImgUrl($_content);
-        $_pcount  = count($pics);
+        $pics = FilesPic::findImgUrl($_content);
+        $_pcount = count($pics);
         if ($_pcount < 4) {
-            $content = str_replace(iPHP_PAGEBREAK, "", $content);
+            $content = str_replace(iPHP_PAGEBREAK, '', $content);
         } else {
             $contentA = explode(iPHP_PAGEBREAK, $_content);
-            $newcontent = array();
+            $newcontent = [];
             self::checkpage($newcontent, $contentA, 4);
             if (is_array($newcontent)) {
                 $content = array_filter($newcontent);
@@ -537,23 +577,25 @@ class SpiderTools
         unset($_content);
         return $content;
     }
+
     public static function textlen($string)
     {
-        return function_exists('mb_strlen') ? mb_strlen($string, "UTF-8") : strlen($string);
+        return function_exists('mb_strlen') ? mb_strlen($string, 'UTF-8') : strlen($string);
     }
+
     public static function autoBreakPage($content, $pageBit = '15000', $pageBreak = iPHP_PAGEBREAK)
     {
-        $text      = str_replace('</p><p>', "</p>\n<p>", $content);
+        $text = str_replace('</p><p>', "</p>\n<p>", $content);
         $textArray = explode("\n", $text);
-        $pageNum   = 0;
-        $resource  = array();
-        $textLen   = strlen($text);
-        $resLen    = 0;
-        $pLen    = 0;
+        $pageNum = 0;
+        $resource = [];
+        $textLen = strlen($text);
+        $resLen = 0;
+        $pLen = 0;
         foreach ($textArray as $key => $p) {
             $pageLen = strlen($resource[$pageNum]);
-            $pLen   += strlen($p);
-            $slen    = $pLen > 0 ? $textLen - $pLen : 0;
+            $pLen += strlen($p);
+            $slen = $pLen > 0 ? $textLen - $pLen : 0;
             // echo $key.' '.$pageLen.' '.$textLen.' '.$pLen.' '.$slen.PHP_EOL;
             if ($pageLen > $pageBit && $slen > $pageBit) {
                 $pageNum++;
@@ -570,7 +612,6 @@ class SpiderTools
         return implode($pageBreak, (array)$resource);
     }
 
-
     public static function prints($format, $array, $opt = 'w')
     {
         if (Spider::$isShell || iPHP_SHELL) {
@@ -582,17 +623,49 @@ class SpiderTools
                 'p' => "%s\033[%s35m %s \033[0m", //紫色字
                 's' => "%s\033[%s36m %s \033[0m", //天蓝字
                 'w' => "%s\033[%s37m %s \033[0m", //白色字
+                // 亮色系列
+                'lr' => "%s\033[%s91m %s \033[0m", // 亮红色字
+                'lg' => "%s\033[%s92m %s \033[0m", // 亮绿色字
+                'ly' => "%s\033[%s93m %s \033[0m", // 亮黄色字
+                'lb' => "%s\033[%s94m %s \033[0m", // 亮蓝色字
+                'lp' => "%s\033[%s95m %s \033[0m", // 亮紫色字
+                'lc' => "%s\033[%s96m %s \033[0m", // 亮青色字
+                'lw' => "%s\033[%s97m %s \033[0m", // 亮白色字
+
+                // 背景色
+                'br' => "%s\033[%s41m %s \033[0m", // 红色背景
+                'bg' => "%s\033[%s42m %s \033[0m", // 绿色背景
+                'by' => "%s\033[%s43m %s \033[0m", // 黄色背景
+                'bb' => "%s\033[%s44m %s \033[0m", // 蓝色背景
+                'bp' => "%s\033[%s45m %s \033[0m", // 紫色背景
+                'bc' => "%s\033[%s46m %s \033[0m", // 青色背景
+                'bw' => "%s\033[%s47m %s \033[0m", // 白色背景
+                'bk' => "%s\033[%s40m %s \033[0m", // 黑色背景
+                // 亮背景色
+                'lbr' => "%s\033[%s101m %s \033[0m", // 亮红色背景
+                'lbg' => "%s\033[%s102m %s \033[0m", // 亮绿色背景
+                'lby' => "%s\033[%s103m %s \033[0m", // 亮黄色背景
+                'lbb' => "%s\033[%s104m %s \033[0m", // 亮蓝色背景
+                'lbp' => "%s\033[%s105m %s \033[0m", // 亮紫色背景
+                'lbc' => "%s\033[%s106m %s \033[0m", // 亮青色背景
+                'lbw' => "%s\033[%s107m %s \033[0m", // 亮白色背景
+
+                // 样式组合
+                'bold'      => "%s\033[%s1m %s \033[0m", // 加粗
+                'underline' => "%s\033[%s4m %s \033[0m", // 下划线
+                'blink'     => "%s\033[%s5m %s \033[0m", // 闪烁
+                'reverse'   => "%s\033[%s7m %s \033[0m", // 反显（前景色与背景色互换）
             ];
             //字背景颜色范围:40 - 49
             $bgcMap = [
-                'd' => 40, //黑  dark
-                'dr' => 41, //深红 
-                'g' => 42, //绿 
-                'y' => 43, //黄色 
-                'b' => 44, //蓝色 
-                'p' => 45, //紫色 
-                'dg' => 46, //深绿 
-                'w' => 47, //白色
+                'd'  => 40, //黑  dark
+                'dr' => 41, //深红
+                'g'  => 42, //绿
+                'y'  => 43, //黄色
+                'b'  => 44, //蓝色
+                'p'  => 45, //紫色
+                'dg' => 46, //深绿
+                'w'  => 47, //白色
             ];
 
             //\33[0m 关闭所有属性
@@ -602,7 +675,6 @@ class SpiderTools
             //\33[7m 反显
             //\33[8m 消隐
             // 字背景颜色范围:40 - 49
-
 
             list($color, $bgc, $prop) = explode(':', $opt);
 
@@ -618,22 +690,14 @@ class SpiderTools
             }
             $prop && $format1 = sprintf("\33[%sm", $prop);
             $bgc && $format2 = sprintf(
-                "%s;",
+                '%s;',
                 is_numeric($bgc) ? $bgc : $bgcMap[$bgc]
             );
             $format = sprintf($map[$color], $format1, $format2, $format) . $_format;
         }
         is_array($array) or $array = [$array];
         array_unshift($array, $format);
-        print self::datetime() . call_user_func_array('sprintf', $array) . PHP_EOL;
-    }
-    public static function datetime()
-    {
-        $mtimestamp   = sprintf("%.3f", microtime(true)); // 带毫秒的时间戳
-        $timestamp    = floor($mtimestamp); // 时间戳
-        $milliseconds = round(($mtimestamp - $timestamp) * 1000); // 毫秒
-        $milliseconds = sprintf("%-'03s", $milliseconds);
-        return date("Y-m-d H:i:s", $timestamp) . '.' . $milliseconds . ' ';
+        print Utils::datetime().call_user_func_array('sprintf', $array) . PHP_EOL;
     }
 
     public static function str_cut($str, $start, $end)
@@ -645,15 +709,17 @@ class SpiderTools
 
     public static function utf8_num_decode($entity)
     {
-        $convmap = array(0x0, 0x10000, 0, 0xfffff);
+        $convmap = [0x0, 0x10000, 0, 0xfffff];
         return mb_decode_numericentity($entity, $convmap, 'UTF-8');
     }
+
     public static function utf8_entity_decode($entity)
     {
-        $entity  = '&#' . hexdec($entity) . ';';
-        $convmap = array(0x0, 0x10000, 0, 0xfffff);
+        $entity = '&#' . hexdec($entity) . ';';
+        $convmap = [0x0, 0x10000, 0, 0xfffff];
         return mb_decode_numericentity($entity, $convmap, 'UTF-8');
     }
+
     public static function array_filter_key($array, $filter, $level)
     {
         $_filter = $filter[$level];
@@ -670,14 +736,15 @@ class SpiderTools
             }
         }
     }
+
     public static function real_empty($text)
     {
         is_array($text) && $text = implode('', $text);
         $text = strip_tags($text, '<img>');
         $text = preg_replace('/[\s|\r\n]*/', '', $text);
-        $text = str_replace(array('&nbsp;', '&#12288;'), '', $text);
-        $text = htmlentities($text, ENT_QUOTES | ENT_IGNORE, "UTF-8");
-        $text = str_replace(array('&nbsp;', '&#12288;', '&amp;nbsp;', '&amp;#12288;'), '', $text);
+        $text = str_replace(['&nbsp;', '&#12288;'], '', $text);
+        $text = htmlentities($text, ENT_QUOTES | ENT_IGNORE, 'UTF-8');
+        $text = str_replace(['&nbsp;', '&#12288;', '&amp;nbsp;', '&amp;#12288;'], '', $text);
         $text = trim($text);
         return $text;
     }

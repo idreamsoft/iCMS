@@ -1,0 +1,101 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <?php echo $this->id ? "编辑" : "添加"; ?>管理员
+        </div>
+        <div class="block-content">
+            <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                <input name="rs[type]" type="hidden" value="0" />
+                <div id="admins-add" class="tab-content">
+                    <div id="admins-info" class="tab-pane active">
+                        <?php if (Admin::isSuperRole()) { ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">角色</label>
+                            <div class="col-sm-8">
+                                <input data-source='/role/selectpage/admin' value="<?php echo $rs['role_id']; ?>" name="rs[role_id]" id="role_id" class="form-control" i="cms:ui:selectpicker" placeholder="请选择管理组" />
+                            </div>
+                        </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="status">状态</label>
+                            <div class="col-sm-8">
+                                <input data-source='statusMap' class="form-control" i="cms:ui:selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end"> 账号</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[account]" class="form-control" id="account" value="<?php echo $rs['account'] ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end"> 密码</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rs[password]" class="form-control" id="password" value="" />
+                                    <a href="###" class="btn btn-dark" i="cms:ui:random" data-len="16" data-target="#password">生成</a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">昵称</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[nickname]" class="form-control" id="nickname" value="<?php echo $rs['nickname'] ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">用户ID</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[user_id]" class="form-control" id="user_id" value="<?php echo $rs['user_id'] ?>" />
+                                <small class="form-text text-muted">关联用户组用户ID，一般添加时，会同时创建一个同名用户</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">姓名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[realname]" class="form-control" id="realname" value="<?php echo $rs['realname'] ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">性别</label>
+                            <div class="col-sm-8">
+                                <select id="info_gender" name="rs[info][gender]" class="form-control" i="cms:ui:selectpicker" value="<?php echo $rs['info']['gender']; ?>">
+                                    <option value="2">保密</option>
+                                    <option value="1">男</option>
+                                    <option value="0">女</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">微信</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[info][weixin]" id="info_weixin" class="form-control" value="<?php echo $rs['info']['weixin']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">生日</label>
+                            <div class="col-sm-8">
+                                <input type="text" id="info_birthday" name="rs[info][birthday]" class="form-control" i="cms:ui:datepicker" value="<?php echo $rs['info']['birthday']; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">来自</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[info][from]" class="form-control" value="<?php echo $rs['info']['from']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end">签名</label>
+                            <div class="col-sm-8">
+                                <textarea name="rs[info][sign]" cols="45" rows="5" class="form-control"><?php echo $rs['info']['sign']; ?></textarea>
+                            </div>
+                        </div>
+                    </div>
+                    <?php self::form()->submit(); ?>
+            </form>
+            </div>
+        </div>
+    </div>
+    <?php self::foot(); ?>

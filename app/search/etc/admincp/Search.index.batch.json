@@ -1,0 +1,8 @@
+{
+    "prop": {
+        "name": "设置属性",
+        "icon": "puzzle-piece",
+        "sort": 12,
+        "call": "prop"
+    }
+}

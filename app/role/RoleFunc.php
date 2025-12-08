@@ -21,18 +21,17 @@ class RoleFunc extends AppsFuncCommon
 
         isset($vars['type']) && $where[]    = ['type', $vars['type']];
 
-        self::init($vars, $model, $where, $whereNot);
-        self::setApp(Role::APPID, Role::APP);
+        self::inited($vars, $model, $where, $whereNot);
         self::orderby([
             'new' => 'id',
             'sort'  => 'sortnum'
         ]);
         self::where();
-        return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+        return self::getResource(__METHOD__);
     }
-    public static function resource($vars, $idsArray = null)
+    public static function resource($idsArray = null)
     {
-        $vars['ids'] && $idsArray = $vars['ids'];
+        $vars = self::$vars;
         $resource = RoleModel::field('*')->where($idsArray)->orderBy('id', $idsArray)->select();
         return $resource;
     }

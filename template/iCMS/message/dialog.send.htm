@@ -1,0 +1,21 @@
+<!--{iCMS:user:data id="$_POST.params.userid"}-->
+<form i="cms:message:send" class="message-send" action="<!--{iCMS:route url='message'}-->" method="POST">
+    <input type="hidden" name="action" value="send" />
+    <input type="hidden" name="userid" value="<!--{$user_data.id|encrypt}-->">
+    <input type="hidden" name="username" value="<!--{$user_data.nickname}-->">
+    <div class="message-send-content form-horizontal">
+        <div class="form-group d-flex">
+            <label for="title" class="form-label flex-1">发给：</label>
+            <label class="fw-semibold flex-1"><!--{$user_data.nickname}--></label>
+            <a class="flex-1 ms-auto" href="<!--{iCMS:route url='user/manage/message'}-->" target="_blank">私信记录»</a>
+        </div>
+        <div class="form-group">
+            <label for="content" class="form-label">内容</label>
+            <textarea name="content" id="content" class="form-control" placeholder="请填写私信内容。" style="height: 66px;"></textarea>
+        </div>
+    </div>
+    <div class="d-flex justify-content-between mt-2">
+        <button type="button" class="btn btn-light" name="cancel">取消</button>
+        <button type="submit" class="btn btn-primary">发送</button>
+    </div>
+</form>

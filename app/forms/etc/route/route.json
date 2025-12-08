@@ -1,5 +1,5 @@
 {
-    "forms": "api.php?app=forms",
-    "forms/save": "api.php?app=forms&do=save",
-    "forms/{id}": "api.php?app=forms&id={id}"
+    "forms": "app=forms",
+    "forms/save": "app=forms&do=save",
+    "forms/result/{id}": "app=forms&do=result&id={id}"
 }

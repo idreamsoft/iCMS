@@ -1,0 +1,361 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="#article-base"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+            <li class="nav-item"><a class="nav-link" href="#article-publish"><i class="fa fa-fw fa-rocket"></i> 发布设置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-former"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-meta"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-extend"><i class="fa fa-fw fa-cog"></i> 扩展</a></li>
+        </ul>
+        <div class="block-content">
+            <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form" data-success="cms:article:add:success">
+                <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                <input name="rs[userid]" type="hidden" value="<?php echo $rs['userid']; ?>" />
+                <input name="rs[ucid]" type="hidden" value="<?php echo $rs['ucid']; ?>" />
+                <input name="rs[postype]" type="hidden" value="<?php echo $rs['postype']; ?>" />
+                <input name="rs[chapter]" type="hidden" value="<?php echo $rs['chapter']; ?>" />
+                <input name="REFERER" type="hidden" value="<?php echo iPHP_REFERER; ?>" />
+                <div id="article-add" class="tab-content">
+                    <div id="article-base" class="tab-pane active">
+                        <div class="row">
+                            <div class="col-sm-9 border-end">
+                                <div class="form-floating mb-3">
+                                    <input type="text" name="rs[title]" class="form-control form-control-lg fw-bold fs-4" id="title" value="<?php echo $rs['title']; ?>" data-rule="required" />
+                                    <label for="title">标题</label>
+                                </div>
+                                <?=NodeWidget::attrs($rs['nodeAttrs'],'rs[nodeAttrs]','#cid');?>
+                                <div i="cms:article:vEditor">
+                                    <div class="form-group row">
+                                        <div class="col-12">
+                                            <div class="input-group">
+                                                <button class="btn btn-primary" type="submit" data-loading-text="提交中，请稍候..."><i class="fa fa-fw fa-check"></i> 提交</button>
+                                                <div class="input-group-text">内容</div>
+                                                <select class="editor-page form-control" @change="handleEditorChange" v-model="editorCurrentIdx">
+                                                    <option v-for="(item, index) in editorItems" :key="index" :value="index">第 {{index+1}} / {{editorItems.length}} {{isChapter ?'章 '+editorItems[index].chapterTitle:'页'}}</option>
+                                                </select>
+                                                <button type="button" @click="addEditor" class="btn btn-primary tip-top js-editor-add" title="新增一页"><i class="fa fa-fw fa-plus"></i></button>
+                                                <button type="button" @click="deleteEditor" class="btn btn-danger tip-top js-editor-del" title="删除当前页"><i class="fa fa-fw fa-times-circle"></i></button>
+                                                <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="dropdownMenuLink">快捷操作</button>
+                                                <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                                    <a class="dropdown-item js-editor-insPB" href="###"><i class="fa fa-fw fa-ellipsis-h"></i> 插入分页符</a>
+                                                    <a class="dropdown-item js-editor-delPB" href="###"><i class="fa fa-fw fa-ban"></i> 删除分页符</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <?php if ($rs['markdown']) { ?>
+                                                    <a class="dropdown-item" href="<?php echo self::url('ui_editor=ueditor'); ?>" title="请先保存数据"><i class="fa fa-fw fa-pencil-alt"></i> 切换到ueditor编辑器</a>
+                                                    <?php } else { ?>
+                                                    <a class="dropdown-item js-editor-merge" href="###"><i class="fa fa-fw fa-align-justify"></i> 合并编辑</a>
+                                                    <a class="dropdown-item js-editor-cleanup" href="###"><i class="fa fa-fw fa-magic"></i> 自动排版</a>
+                                                    <div class="dropdown-divider"></div>
+                                                    <a class="dropdown-item" href="<?php echo self::url('ui_editor=markdown'); ?>" title="请先保存数据"><i class="fa fa-fw fa-pencil-alt"></i> 切换到markdown编辑器</a>
+                                                    <?php } ?>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <div class="form-control">
+                                            <div class="form-check form-check-inline">
+                                                <input v-model="isChapter" type="checkbox" class="form-check-input" id="isChapter" name="isChapter" value="1">
+                                                <label class="form-check-label" for="isChapter">章节模式</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" id="remote" name="remote" value="1" :i="'cms:ui:checked'" data-checked="<?=self::$CONFIG['remote']?>">
+                                                <label class="form-check-label" for="remote">下载远程图片</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" id="autopic" name="autopic" value="1" :i="'cms:ui:checked'" data-checked="<?=self::$CONFIG['autopic']?>">
+                                                <label class="form-check-label" for="autopic">提取缩略图</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" id="autoformat" name="autoformat" value="1" :i="'cms:ui:checked'" data-checked="<?=self::$CONFIG['autoformat']?>">
+                                                <label class="form-check-label" for="autoformat">自动排版</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" id="dellink" name="dellink" value="1">
+                                                <label class="form-check-label" for="dellink">清除链接</label>
+                                            </div>
+                                            <?php if (Config::get('watermark.enable')) { ?>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" id="noWatermark" name="noWatermark" value="1">
+                                                <label class="form-check-label" for="noWatermark">不添加水印</label>
+                                            </div>
+                                            <?php } ?>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input disabled" id="isMarkdown" name="rs[markdown]" value="1" :i="'cms:ui:checked'" data-checked="<?php echo $rs['markdown']; ?>">
+                                                <label class="form-check-label" for="isMarkdown">markdown格式</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div v-show="!isChapter" class="form-group subtitle-box">
+                                        <div class="input-group">
+                                            <div class="input-group-text" for="subtitle">副标题</div>
+                                            <input type="text" name="subtitle" class="form-control" id="subtitle" v-model="subtitle" />
+                                        </div>
+                                        <input name="dataId" type="hidden" :value="editorItems[0].chapterId" />
+                                    </div>
+                                    <div class="editor-group">
+                                        <template v-for="(item, index) in editorItems">
+                                            <div :key="index" :id="'editor-wrap-'+index" v-if="item.display" v-show="item.show" class="editor-wrap">
+                                                <div v-show="isChapter" class="form-group chapter-title">
+                                                    <div class="input-group">
+                                                        <div class="input-group-text" for="subtitle">章节标题</div>
+                                                        <input name="chapterTitle[]" type="text" :id="'chapter-title-'+index" class="form-control" v-model="item.chapterTitle" />
+                                                    </div>
+                                                    <input name="dataId[]" :id="'dataId-'+index" type="hidden" v-model="item.chapterId" />
+                                                </div>
+                                                <div class="form-group">
+                                                    <textarea type="text/plain" :id="'editor-body-'+index" name="body[]" :i="'cms:ui:editor'" data-widget="<?php echo self::$CONFIG['editor'];?>" class="cms-editor">{{item.body}}</textarea>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                    <div class="form-group row">
+                                        <div class="input-group col-12 col-xl-9 col-lg-10 col-md-10">
+                                            <div class="input-group-text">内容</div>
+                                            <select class="editor-page form-control" @change="handleEditorChange" v-model="editorCurrentIdx">
+                                                <option v-for="(item, index) in editorItems" :key="index" :value="index">第 {{index+1}} / {{editorItems.length}} {{isChapter ?'章 '+editorItems[index].chapterTitle:'页'}}</option>
+                                            </select>
+                                            <button type="button" @click="addEditor" class="btn btn-primary tip-top js-editor-add" title="新增一页"><i class="fa fa-fw fa-plus"></i></button>
+                                            <button type="button" @click="deleteEditor" class="btn btn-danger tip-top js-editor-del" title="删除当前页"><i class="fa fa-fw fa-times-circle"></i></button>
+                                            <button type="button" class="btn btn-dark dropdown-toggle" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="true" id="dropdownMenuLink2">快捷操作</button>
+                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuLink2">
+                                                <a class="dropdown-item js-editor-insPB" href="###"><i class="fa fa-fw fa-ellipsis-h"></i> 插入分页符</a>
+                                                <a class="dropdown-item js-editor-delPB" href="###"><i class="fa fa-fw fa-ban"></i> 删除分页符</a>
+                                                <div class="dropdown-divider"></div>
+                                                <?php if ($rs['markdown']) { ?>
+                                                <a class="dropdown-item" href="<?php echo self::url('ui_editor=ueditor'); ?>" title="请先保存数据"><i class="fa fa-fw fa-pencil-alt"></i> 切换到ueditor编辑器</a>
+                                                <?php } else { ?>
+                                                <a class="dropdown-item js-editor-merge" href="###"><i class="fa fa-fw fa-align-justify"></i> 合并编辑</a>
+                                                <a class="dropdown-item js-editor-cleanup" href="###"><i class="fa fa-fw fa-magic"></i> 自动排版</a>
+                                                <div class="dropdown-divider"></div>
+                                                <a class="dropdown-item" href="<?php echo self::url('ui_editor=markdown'); ?>" title="请先保存数据"><i class="fa fa-fw fa-pencil-alt"></i> 切换到markdown编辑器</a>
+                                                <?php } ?>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-sm-3">
+                                <div class="form-group">
+                                    <label class="form-label" for="status">状 态</label>
+                                    <div class="col-sm-12">
+                                        <input data-source='statusMap' data-field="status" class="form-control" i="cms:ui:selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="cid">栏 目</label>
+                                    <div class="col-sm-12">
+                                        <input name="rs[cid]" id="cid" data-rule="required" class="form-control" i="cms:ui:node" data-node-access="<?php echo $rs?'ce':'ca'; ?>" placeholder="请选择所属栏目..." value="<?php echo $rs['cid']; ?>">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group row">
+                                    <label class="form-label" for="scid">副栏目</label>
+                                    <div class="col-sm-12">
+                                        <input name="rs[scid]" id="scid" class="form-control" i="cms:ui:node" data-node-access="<?php echo $rs?'ce':'ca'; ?>" data-max="5" multiple="multiple" placeholder="请选择副栏目(可多选)..." value="<?php echo $rs['scid']; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="form-label" for="pid">属 性</label>
+                                    <div class="col-sm-12">
+                                        <input name="rs[pid]" class="form-control" i="cms:ui:prop" data-max="5" data-source="./prop/pid" multiple="multiple" value="<?php echo $rs['pid']; ?>">
+                                    </div>
+                                </div>
+
+                                <div class="form-group row">
+                                    <label class="form-label" for="stitle">短标题</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" name="rs[stitle]" class="form-control" id="stitle" value="<?php echo $rs['stitle']; ?>" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-label" for="pic">封面</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" name="rs[pic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-browse="true" data-preview="true" value="<?php echo $rs['pic']; ?>" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-label" for="source">出处</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" name="rs[source]" class="form-control" id="source" value="<?php echo $rs['source']; ?>" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-label" for="author">作者</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" name="rs[author]" class="form-control" id="author" value="<?php echo $rs['author']; ?>" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-label" for="keywords">关键词</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" name="rs[keywords]" class="form-control" id="keywords" value="<?php echo $rs['keywords']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-label" for="tags">标签</label>
+                                    <div class="col-sm-12">
+                                        <div class="input-group">
+                                            <input type="text" name="rs[tags]" class="form-control" id="tags" value="<?php echo $rs['tags']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                                            <button class="btn btn-dark" id="tag_extrac" data-target="#tags" data-url="{{tag/api_extract}}" class="btn" type="button" title="智能提取标签"><i class="fa fa-fw fa-magic"></i></button>
+                                        </div>
+                                        <small class="form-text text-muted">多个标签用,分隔</small>
+                                    </div>
+                                </div>
+                                <div class="form-group row">
+                                    <label class="form-label" for="description">摘 要</label>
+                                    <div class="col-sm-12">
+                                        <textarea name="rs[description]" id="description" class="form-control" style="height: 150px;"><?php echo $rs['description']; ?></textarea>
+                                    </div>
+                                </div>
+                                <?php if (isset($Node['rule']) && $Node['rule']['article'] && strstr($Node['rule']['article'], '{LINK}') !== false){?>
+                                <div class="form-group row">
+                                    <label class="form-label" for="clink">自定链接</label>
+                                    <div class="col-sm-12">
+                                        <input type="text" name="rs[clink]" class="form-control" id="clink" value="<?php echo $rs['clink']; ?>" />
+                                        <small class="form-text text-muted">以[]方式填写优先级最高,如:[about.html],否则将以文章规则是否设置{LINK}为准</small>
+                                    </div>
+                                </div>
+                                <?php }?>
+                            </div>
+                        </div>
+
+
+                    </div>
+                    <div id="article-publish" class="tab-pane">
+                        <div class="form-group row" access="r:1">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="editor">编辑</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rs[userid]" class="form-control" i="cms:ui:selectpage" data-source="/admin/selectpage" data-show="nickname" data-text="nickname" data-text-name="rs[editor]" id="userid" value="<?php echo $rs['userid']; ?>" />
+                                    <a class="btn btn-dark" i="cms:ui:modal" href="{{admin/profile}}" data-params='{"width":"60%","height":"600px"}' title="更改名称"><i class="fa fa-fw fa-pencil-alt"></i></a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="pubdate">发布时间</label>
+                            <div class="col-sm-8">
+                                <input id="pubdate" class="form-control" i="cms:ui:datepicker" data-enable-time="true" value="<?php echo $rs['pubdate']?:'0'; ?>" name="rs[pubdate]" type="text" <?php echo $readonly; ?> />
+                            </div>
+                        </div>
+                        <?php AppsWidget::credit($rs);?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="bpic">大图</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[bpic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="bpic" value="<?php echo $rs['bpic']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="bpic">中图</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[mpic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="mpic" value="<?php echo $rs['mpic']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="bpic">小图</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[spic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="spic" value="<?php echo $rs['spic']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="sortnum">排序</label>
+                            <div class="col-sm-8">
+                                <input id="sortnum" class="form-control" value="<?php echo $rs['sortnum']; ?>" name="rs[sortnum]" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="weight">权重</label>
+                            <div class="col-sm-8">
+                                <input id="weight" class="form-control" value="<?php echo $rs['weight']; ?>" name="rs[weight]" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="hits">点击数</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-text">总数</span>
+                                    <input type="text" name="rs[hits]" class="form-control" id="hits" value="<?php echo $rs['hits'] ? $rs['hits'] : '0'; ?>" />
+                                    <span class="input-group-text">当天</span>
+                                    <input type="text" name="rs[hits_today]" class="form-control" id="hits_today" value="<?php echo $rs['hits_today'] ? $rs['hits_today'] : '0'; ?>" />
+                                    <span class="input-group-text">昨天</span>
+                                    <input type="text" name="rs[hits_yday]" class="form-control" id="hits_yday" value="<?php echo $rs['hits_yday'] ? $rs['hits_yday'] : '0'; ?>" />
+                                    <span class="input-group-text">周点击</span>
+                                    <input type="text" name="rs[hits_week]" class="form-control" id="hits_week" value="<?php echo $rs['hits_week'] ? $rs['hits_week'] : '0'; ?>" />
+                                    <span class="input-group-text">月点击</span>
+                                    <input type="text" name="rs[hits_month]" class="form-control" id="hits_month" value="<?php echo $rs['hits_month'] ? $rs['hits_month'] : '0'; ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">其它数值</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <span class="input-group-text">收藏数</span>
+                                    <input type="text" name="rs[favorite]" class="form-control" id="favorite" value="<?php echo $rs['favorite'] ? $rs['favorite'] : '0'; ?>" />
+                                    <span class="input-group-text">评论数</span>
+                                    <input type="text" name="rs[comment]" class="form-control" id="comment" value="<?php echo $rs['comment'] ? $rs['comment'] : '0'; ?>" />
+                                    <span class="input-group-text">点赞数</span>
+                                    <input type="text" name="rs[good]" class="form-control" id="good" value="<?php echo $rs['good'] ? $rs['good'] : '0'; ?>" />
+                                    <span class="input-group-text">点踩数</span>
+                                    <input type="text" name="rs[bad]" class="form-control" id="bad" value="<?php echo $rs['bad'] ? $rs['bad'] : '0'; ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="tpl">模板</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rs[tpl]" class="form-control" id="tpl" value="<?php echo $rs['tpl']; ?>" />
+                                    <button class="btn btn-sm btn-secondary" i="cms:ui:file:browse" data-dir="template" data-mode="file"><i class="fa fa-fw fa-list"></i>{{#Lang('Browse')}}</button>
+                                </div>
+                            </div>
+                        </div>
+                        <?php if (isset($Node['rule']) && $Node['rule']['article'] && strstr($Node['rule']['article'], '{LINK}') === false){?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="clink">自定链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[clink]" class="form-control" id="clink" value="<?php echo $rs['clink']; ?>" />
+                                <small class="form-text text-muted">以[]方式填写优先级最高,如:[about.html],否则将以文章规则是否设置{LINK}为准</small>
+                            </div>
+                        </div>
+                        <?php }?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="url">外部链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[url]" class="form-control " id="url" value="<?php echo $rs['url']; ?>" />
+                                <small class="form-text text-muted">不填写请留空!</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="apps-former" class="tab-pane" role="tabpanel">
+                        <?php Former::admincp($rs)->render(); ?>
+                    </div>
+                    <div id="apps-meta" class="tab-pane" role="tabpanel">
+                        <?php AppsWidget::metadata($this->id); ?>
+                    </div>
+                    <div id="apps-extend" class="tab-pane" role="tabpanel">
+                        <?php AppsWidget::extend($rs); ?>
+                    </div>
+                </div>
+                <?php self::form()->submit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

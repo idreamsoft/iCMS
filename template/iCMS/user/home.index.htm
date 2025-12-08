@@ -2,10 +2,10 @@
 <html>
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
-        <title><!--{$user.nickname}-->的 <!--{$site.title}-->_ <!--{$site.seotitle}--></title>
+        <title><!--{$USER.nickname}-->的 <!--{$site.title}-->_ <!--{$site.seotitle}--></title>
         <meta name="keywords" content="<!--{$site.keywords}-->" />
-        <meta name="description" content="<!--{$user.nickname}-->的<!--{$site.title}-->" />
-        <meta name="mobile-agent" content="format=html5;url=<!--{$user.urls.home}-->" />
+        <meta name="description" content="<!--{$USER.nickname}-->的<!--{$site.title}-->" />
+        <meta name="mobile-agent" content="format=html5;url=<!--{$USER.urls.home}-->" />
         <!--{iCMS:public:ui}-->
     </head>
 
@@ -15,17 +15,17 @@
                 <!--{include file="iCMS://user/top.htm"}-->
                 <!-- Hero -->
                 <!--{"1"|rand:"39"|as:"bgNum"}-->
-                <div class="bg-image" style="background-image: url('<!--{$site.urls.assets}-->/img/bg/photo<!--{$bgNum}-->.jpg')">
+                <div class="bg-image" style="background-image: url('<!--{$site.urls.assets}-->/img/bg/photo17.jpg')">
                     <div class="bg-black-50">
                         <div class="content content-full text-center">
                             <div class="my-3">
-                                <img class="img-avatar img-avatar-thumb" src="<!--{$user.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
+                                <img class="img-avatar img-avatar-thumb" src="<!--{$USER.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
                             </div>
                             <h1 class="h2 text-white mb-0">
-                                <!--{$user.nickname}-->
+                                <!--{$USER.nickname}-->
                             </h1>
                             <span class="text-white-75">
-                                <!--{$user.data.slogan|default:'这家伙太懒了,什么都没有留下!'}-->
+                                <!--{$USER.data.slogan|default:'这家伙太懒了,什么都没有留下!'}-->
                             </span>
                         </div>
                     </div>
@@ -37,25 +37,25 @@
                     <div class="content content-boxed">
                         <div class="row items-push text-center">
                             <div class="col-6 col-md-3">
-                                <div class="font-size-sm font-w600 text-muted text-uppercase">文章</div>
-                                <a class="link-fx font-size-h3" href="javascript:void(0)">
-                                    <!--{$user.article|num10K}-->
+                                <div class="fs-sm fw-semibold text-muted text-uppercase">文章</div>
+                                <a class="link-fx fs-3" href="javascript:void(0)">
+                                    <!--{$USER.article|num10K}-->
                                 </a>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="font-size-sm font-w600 text-muted text-uppercase">评论</div>
-                                <a class="link-fx font-size-h3" href="javascript:void(0)">
-                                    <!--{$user.comment|num10K}-->
+                                <div class="fs-sm fw-semibold text-muted text-uppercase">评论</div>
+                                <a class="link-fx fs-3" href="javascript:void(0)">
+                                    <!--{$USER.comment|num10K}-->
                                 </a>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="font-size-sm font-w600 text-muted text-uppercase">粉丝</div>
-                                <a class="link-fx font-size-h3" href="javascript:void(0)">
-                                    <!--{$user.fans|num10K}-->
+                                <div class="fs-sm fw-semibold text-muted text-uppercase">粉丝</div>
+                                <a class="link-fx fs-3" href="javascript:void(0)">
+                                    <!--{$USER.fans|num10K}-->
                                 </a>
                             </div>
                             <div class="col-6 col-md-3">
-                                <div class="font-size-sm font-w600 text-muted text-uppercase mb-2">739 Ratings</div>
+                                <div class="fs-sm fw-semibold text-muted text-uppercase mb-2">739 Ratings</div>
                                 <span class="text-warning">
                                     <i class="fa fa-star"></i>
                                     <i class="fa fa-star"></i>
@@ -63,7 +63,7 @@
                                     <i class="fa fa-star"></i>
                                     <i class="fa fa-star-half"></i>
                                 </span>
-                                <span class="font-size-sm text-muted">(4.9)</span>
+                                <span class="fs-sm text-muted">(4.9)</span>
                             </div>
                         </div>
                     </div>
@@ -76,7 +76,7 @@
                         <div class="col-lg-8 bg-white py-2">
                             <!-- Updates -->
                             <ul class="timeline timeline-alt py-0">
-                                <!--{iCMS:article:list loop="true" page="true" row="10" userid="$user.id"}-->
+                                <!--{iCMS:article:list loop="true" page="true" row="10" userid="$USER.id"}-->
                                 <li class="timeline-event">
                                     <div class="timeline-event-icon bg-default">
                                         <!--{$article_list.pubdate|date:'m/d'}-->
@@ -89,7 +89,7 @@
                                                 </a>
                                             </h3>
                                             <div class="block-options">
-                                                <div class="timeline-event-time block-options-item font-size-sm">
+                                                <div class="timeline-event-time block-options-item fs-sm">
                                                     <!--{$article_list.pubdate|date:'Y-m-d H:i'}-->
                                                 </div>
                                             </div>
@@ -108,19 +108,19 @@
                                             </p>
                                             <!--{/if}-->
                                             <div class="row mb-3 align-items-center">
-                                                <div class="col-sm-10 text-left" data-param="<!--{$article_list.param|json_param}-->">
-                                                    <a class="btn btn-sm btn-alt-primary font-size-sm" href="javascript:void(0)" i="event:vote:good">
+                                                <div class="col-sm-10 text-left" data-params="<!--{$article_list.params|json}-->">
+                                                    <a class="btn btn-sm btn-alt-primary fs-sm" href="javascript:void(0)" i="event:vote:good">
                                                         <i class="fa fa-thumbs-up"></i>
                                                         点赞 (
                                                         <span i="vote:good:num"><!--{$article_list.good}--></span>
                                                         )
                                                     </a>
-                                                    <a class="btn btn-link font-size-sm" href="javascript:void(0)" i="event:comment:load">
+                                                    <a class="btn btn-link fs-sm" href="javascript:void(0)" i="event:comment:load">
                                                         <i class="fa fa-comment"></i>
-                                                        <!--{$article_list.comment}-->
+                                                        <!--{$article_list.comment.count}-->
                                                         条评论
                                                     </a>
-                                                    <a class="btn btn-link font-size-sm" href="javascript:void(0)" i="event:favorite:add">
+                                                    <a class="btn btn-link fs-sm" href="javascript:void(0)" i="event:favorite:add">
                                                         <i class="fa fa-heart"></i>
                                                         收藏
                                                     </a>
@@ -162,7 +162,7 @@
                                     </div>
                                 </div>
                                 <div class="block-content">
-                                    <!--{iCMS:user:node loop="true" userid="$user.uid" appid="$iCMS.APPID.ARTICLE"}-->
+                                    <!--{iCMS:user:node loop="true" userid="$USER.uid" appid="$iCMS.APPID.ARTICLE"}-->
                                     <div class="media d-flex align-items-center push">
                                         <div class="mr-3">
                                             <a class="item item-rounded <!--{cycle values='bg-info,bg-success,bg-warning,bg-default'}-->" href="<!--{$user_node.url}-->">
@@ -173,13 +173,13 @@
                                         </div>
                                         <div class="media-body">
                                             <a class="text-black" href="<!--{$user_node.url}-->">
-                                                <div class="font-w600">
+                                                <div class="fw-semibold">
                                                     <!--{$user_node.name}-->
                                                     (
                                                     <!--{$user_node.count}-->
                                                     )
                                                 </div>
-                                                <div class="font-size-sm">
+                                                <div class="fs-sm">
                                                     <!--{$user_node.description}-->
                                                 </div>
                                             </a>
@@ -205,10 +205,10 @@
                                     </div>
                                 </div>
                                 <div class="block-content">
-                                    <!--{iCMS:comment:list loop="true" userid="$user.uid"}-->
-                                    <div class="font-size-sm push">
+                                    <!--{iCMS:comment:list loop="true" userid="$USER.uid"}-->
+                                    <div class="fs-sm push">
                                         <div>
-                                            <a class="font-w600" href="<!--{$comment_list.content_url}-->">
+                                            <a class="fw-semibold" href="<!--{$comment_list.content_url}-->">
                                                 <!--{$comment_list.target_title}-->
                                             </a>
                                             <span class="text-muted">
@@ -247,8 +247,8 @@
                                     </div>
                                 </div>
                                 <div class="block-content">
-                                    <ul class="nav-items font-size-sm">
-                                        <!--{iCMS:user:follow loop="true" data="true" row="30" fuid=$user.uid}-->
+                                    <ul class="nav-items fs-sm">
+                                        <!--{iCMS:user:follow loop="true" data="true" row="30" fuid=$USER.uid}-->
                                         <li data-param="<!--{$user_follow.uid}-->">
                                             <a i="event:user:ucard:<!--{$user_follow.uid}-->" class="media py-2" href="<!--{$user_follow.url}-->">
                                                 <div class="mr-3 ml-2 overlay-container overlay-bottom">
@@ -256,10 +256,10 @@
                                                     <span class="overlay-item item item-tiny item-circle border border-2x border-white bg-success"></span>
                                                 </div>
                                                 <div class="media-body">
-                                                    <div class="font-w600">
+                                                    <div class="fw-semibold">
                                                         <!--{$user_follow.name}-->
                                                     </div>
-                                                    <div class="font-w400 text-muted">
+                                                    <div class="fw-light text-muted">
                                                         <!--{$user_follow.data.slogan|default:'这家伙太懒了,什么都没有留下!'}-->
                                                     </div>
                                                 </div>
@@ -280,7 +280,7 @@
                                     <h3 class="block-title">
                                         <i class="fa fa-share-alt text-muted mr-1"></i>
                                         统计
-                                        <img class="d-none" title="统计代码" src="<!--{$user.hits.script}-->" />
+                                        <img class="d-none" title="统计代码" src="<!--{$USER.hits.script}-->" />
                                     </h3>
                                     <div class="block-options">
                                         <button type="button" class="btn-block-option" data-toggle="block-option" data-action="state_toggle" data-action-mode="demo">
@@ -289,35 +289,35 @@
                                     </div>
                                 </div>
                                 <div class="block-content block-content-full">
-                                    <ul class="nav-items font-size-sm">
+                                    <ul class="nav-items fs-sm">
                                         <li>
                                             <span class="text-muted">
                                                 今日访问：
-                                                <!--{$user.hits.today}-->
+                                                <!--{$USER.hits.today}-->
                                             </span>
                                         </li>
                                         <li>
                                             <span class="text-muted">
                                                 昨日访问：
-                                                <!--{$user.hits.yday}-->
+                                                <!--{$USER.hits.yday}-->
                                             </span>
                                         </li>
                                         <li>
                                             <span class="text-muted">
                                                 本周访问：
-                                                <!--{$user.hits.week}-->
+                                                <!--{$USER.hits.week}-->
                                             </span>
                                         </li>
                                         <li>
                                             <span class="text-muted">
                                                 本月访问：
-                                                <!--{$user.hits.month}-->
+                                                <!--{$USER.hits.month}-->
                                             </span>
                                         </li>
                                         <li>
                                             <span class="text-muted">
                                                 所有访问：
-                                                <!--{$user.hits.count}-->
+                                                <!--{$USER.hits.count}-->
                                             </span>
                                         </li>
                                     </ul>

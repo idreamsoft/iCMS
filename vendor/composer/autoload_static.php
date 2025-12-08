@@ -15,6 +15,10 @@ class ComposerStaticInit41da19f46a2a3d44b41d65dce3f3ec8b
         array (
             'PHPMailer\\PHPMailer\\' => 20,
         ),
+        'O' => 
+        array (
+            'OSS\\' => 4,
+        ),
         'H' => 
         array (
             'Hashids\\' => 8,
@@ -25,6 +29,10 @@ class ComposerStaticInit41da19f46a2a3d44b41d65dce3f3ec8b
         'PHPMailer\\PHPMailer\\' => 
         array (
             0 => __DIR__ . '/..' . '/phpmailer/phpmailer/src',
+        ),
+        'OSS\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/aliyuncs/oss-sdk-php/src/OSS',
         ),
         'Hashids\\' => 
         array (
@@ -43,6 +51,7 @@ class ComposerStaticInit41da19f46a2a3d44b41d65dce3f3ec8b
     );
 
     public static $classMap = array (
+        'Composer\\InstalledVersions' => __DIR__ . '/..' . '/composer/InstalledVersions.php',
         'PclZip' => __DIR__ . '/..' . '/pclzip/pclzip/pclzip.lib.php',
     );
 

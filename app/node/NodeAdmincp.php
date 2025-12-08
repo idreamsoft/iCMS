@@ -12,124 +12,124 @@ defined('iPHP') or exit('What are you doing?');
 
 class NodeAdmincp extends AdmincpCommon
 {
-    public $callback         = array();
-    protected $NODE_URL      = APP_URL;
-    protected $NODE_NAME     = "节点";
-    protected $NODE_MODEL    = null;
-    protected $CONTENT_MODEL = null;
-    protected $ROUTE = [];
-    /**
-     *  URL规则选项
-     */
-    protected $RULE = array(
-        'tag' => array(
-            array('----'),
-            array('{TKEY}', '标签标识'),
-            array('{ZH_CN}', '标签名(中文)'),
-            array('{NAME}', '标签名'),
-            array('----'),
-            array('{TCID}', '分类ID', false),
-            array('{TCDIR}', '分类目录', false),
-        ),
-    );
+    use AdmincpCommonTrait;
 
+    public $NODE_NAME = '节点';
+    public $NODE_MODEL = null;
+    public $CONTENT_MODEL = null;
+    public $ROUTE = [];
+    public $RULE = []; //URL规则选项
 
-    protected $app         = 'content';
-    protected $title       = '内容';
-    protected $primary     = 'id';
-    protected $app_id      = null;
+    public $app = 'content';
+    public $title = '内容';
+    public $primary = 'cid';
+    public static $orderBy = [
+        'id'      => 'ID',
+        'sortnum' => '排序值',
+        'dir'     => '目录值',
+        'count'   => '记录数'
+    ];
+    public $VIEW_ADD = 'add';
+    public $VIEW_INDEX = 'index';
+    public $VIEW_DIR = 'node';
+    public $active_nav = 'tree';
 
-    protected $VIEW_ADD    = 'node.add';
-    protected $VIEW_MANAGE = 'node.manage';
-    protected $VIEW_DIR    = 'node';
-
-    public function __construct($appid = null)
+    public function __construct($appid = 0)
     {
         self::$MODEL = 'NodeModel';
-        
-        parent::__construct(iCMS_APP_NODE);
-        $this->id = (int) Request::get('id');
-        $this->app_id = $appid;
-        $_GET['appid']  && $this->app_id = (int) $_GET['appid'];
-        Node::$APPID = $this->app_id;
-        $this->ROUTE = Etc::get('node', 'node.route');
+        self::$CLASS = 'Node';
+        parent::__construct($appid);
+        Node::$APPID = $appid;
+        if ($_appid = (int) Request::sget('appid')) {
+            Node::$APPID = $_appid;
+        };
+        Lang::load('node');
+        $this->ROUTE = Etc::get('node', 'route/node');
+        $this->RULE = Etc::many('*', 'admincp/node.rule', 'recursive', false);
+        if (Node::$APPID) {
+            $appids = array_flip(iCMS::$config['apps']);
+            $name = $appids[Node::$APPID];
+            $this->loadRoute($name);
+        }
+    }
 
-    }
-    public function setViewDir($dir)
-    {
-        $this->VIEW_DIR = $dir;
-    }
     public function loadRoute($app = null)
     {
         is_null($app) && $app = $this->app;
-        if ($route = Etc::many($app, 'node.route*',true,false)) {
+        if (is_numeric($app)) {
+            $a = Apps::getDataLite($app);
+            $app = $a['app'];
+        }
+        if ($route = Etc::many($app, 'route/node*', true, false)) {
             $this->ROUTE = array_merge($this->ROUTE, $route);
+            $this->ROUTE = array_filter($this->ROUTE);
             sortKey($this->ROUTE, 'sort');
         }
     }
+
     public function setRoute($route)
     {
         $this->ROUTE = array_merge($this->ROUTE, $route);
-        // file_put_contents(iPHP_APP_DIR.'/'.$this->app.'/etc/node.route.json',cnjson_encode($this->ROUTE ));
     }
+
     /**
-     * [添加{title}分类]
+     * 添加{title}分类
      * @param  array $default [description]
-     * @return [type]          [description]
+     * @return void
      */
-    public function do_add($default = null)
+    public function do_add($rs = [])
     {
         if ($this->id) {
-            NodeAccess::check($this->id, 'e', 'page');
-            $rs        = NodeModel::get($this->id);
-            $rootid    = $rs['rootid'];
+            AdmincpAuth::node($this->id, 'e');
+            $rs = NodeModel::get($this->id);
+            $rootid = $rs['rootid'];
         } else {
             $rootid = (int) Request::get('rootid');
         }
-        $rootid && $rootNode = Node::get($rootid);
 
         if (empty($rs)) {
-            $rs = array(
+            $rs = [
                 'pid'       => '0',
                 'status'    => '1',
-                'config' => array(
+                'config'    => [
                     'ucshow'  => '1',
                     'send'    => '1',
                     'examine' => '1',
-                ),
+                ],
                 'sortnum'   => '0',
                 'mode'      => '0',
                 'htmlext'   => Config::get('route.ext'),
-            );
+            ];
             if ($rootid) {
                 $rootRs = NodeModel::get($rootid);
-                $rs['htmlext']  = $rootRs['htmlext'];
+                $rs['htmlext'] = $rootRs['htmlext'];
             }
-            if ($default) {
-                $rs = array_merge($rs, (array) $default);
-            }
+            $this->adding($rs);
         }
-        $extends1 = Config::scan('node.config', 'node', false);
-        $extends2 = Config::scan('node.config', $this->app, false);
-        self::$EXTENDS  = array_merge(self::$EXTENDS, $extends1, $extends2);
+
+        if (Admincp::$APP != 'node') {
+            $extends1 = AdmincpView::getExtends('add', 'node', false);
+            $extends2 = AdmincpView::getExtends('app/node/add*', $this->app, false);
+            self::$EXTENDS = array_merge(self::$EXTENDS, $extends1, $extends2);
+        }
 
         // AdmincpBase::$DEBUG['EXTENDS'] = self::$EXTENDS;
 
-        self::added($this, __METHOD__, $rs);
+        // self::added($this, __METHOD__, $rs);
+        self::setJsPath('node/assets/js/add');
         include self::view($this->VIEW_ADD, $this->VIEW_DIR);
     }
+
     /**
-     * [保存节点]
+     * 保存节点
      *
-     * @return  [type]  [return description]
      */
-    public function save()
+    public function save(&$data = [])
     {
         $data = NodeModel::postData();
-        $data['id'] && NodeAccess::check($data['id'], 'e', 'alert');
-        NodeAccess::check($data['rootid'], 'a', 'alert');
+        $attribute = Request::post('attribute');
 
-        $this->app_id !== null && $data['appid'] = $this->app_id;
+        Node::$APPID && $data['appid'] = Node::$APPID;
 
         if ($data['id'] && $data['id'] == $data['rootid']) {
             self::alert('不能以自身做为上级' . $this->NODE_NAME);
@@ -137,13 +137,13 @@ class NodeAdmincp extends AdmincpCommon
 
         empty($data['name']) && self::alert($this->NODE_NAME . '名称不能为空');
 
-        if ($data['mode'] == "2") {
+        if ($data['mode'] == '2') {
             foreach ($data['rule'] as $key => $value) {
                 $CR = $this->ROUTE[$key];
                 $CRKW = explode(',', $CR['tips']);
                 $cr_check = true;
                 foreach ($CRKW as $i => $crk) {
-                    $crk = str_replace(array('{', '}'), '', $crk);
+                    $crk = str_replace(['{', '}'], '', $crk);
                     if (strpos($value, $crk) !== false) {
                         $cr_check = false;
                     }
@@ -154,268 +154,369 @@ class NodeAdmincp extends AdmincpCommon
             }
         }
 
-        //内容元属性
-        if ($data['config']) {
-            $meta = array();
-            if (is_array($data['config']['meta'])) foreach ($data['config']['meta'] as $mk => $meta) {
-                if ($meta['name']) {
-                    $meta['key'] or $meta['key'] = strtolower(Pinyin::get($meta['name']));
-                    if (!preg_match("/[a-zA-Z0-9_\-]/", $meta['key'])) {
-                        self::alert('只能由英文字母、数字或_-组成(不支持中文),留空则自动以名称拼音填充');
-                    }
-                    $meta['key'] = trim($meta['key']);
-                    $data['config']['meta'][$mk] = $meta;
-                }
-            }
+        if ($attribute) {
+            empty($data['config']) && $data['config'] = [];
+            $data['config']['attribute'] = $attribute;
         }
+
         $id = $data['id'];
         if (empty($id)) {
-            NodeAccess::check($data['rootid'], 'a');
+            AdmincpAuth::node($data['rootid'], 'a');
+
             $nameArray = explode("\n", $data['name']);
-            $_count    = count($nameArray);
+            $nameArray = array_filter($nameArray, function ($name) {
+                return trim($name) !== '';
+            });
+            $dir = trim($data['dir']);
+            $count = count($nameArray);
             foreach ($nameArray as $nkey => $name) {
-                $name    = trim($name);
-                if (empty($name)) {
-                    continue;
-                }
-                if ($_count == "1") {
-                    if (empty($data['dir']) && empty($data['url'])) {
-                        $data['dir'] = strtolower(Pinyin::get($name));
-                    }
+                $name = trim($name);
+                if ($dir && $count > 1) {
+                    $data['dir'] = $dir . '-' . ($nkey + 1);
                 } else {
-                    empty($data['url']) && $data['dir'] = strtolower(Pinyin::get($name));
+                    empty($data['url']) && empty($dir) && $data['dir'] = strtolower(Pinyin::get($name));
                 }
-                $data['mode'] == "2" && $data['dir'] = $this->checkDir($data['dir'], $this->app_id, $data['url']);
+                $data['mode'] == '2' && $data['dir'] = $this->checkDir($data['dir'], Node::$APPID, $data['url']);
                 $data['name'] = $name;
                 $data['addtime'] = time();
+                $data['userid'] = Admin::$id;
+                $data['creator'] = Admin::$nickname;
                 $data['count'] = 0;
                 $data['comment'] = 0;
                 $data['id'] = NodeModel::create($data, true);
-                NodeModel::update(array('sortnum' => $data['id']), $data['id']);
+                NodeModel::update(['sortnum' => $data['id']], $data['id']);
             }
         } else {
+            AdmincpAuth::node($data['id'], 'e');
             if (empty($data['dir']) && empty($data['url'])) {
                 $data['dir'] = strtolower(Pinyin::get($data['name']));
             }
-            NodeAccess::check($data['id'], 'e');
-            $data['mode'] == "2" && $data['dir'] = $this->checkDir($data['dir'], $this->app_id, $data['url'], $data['id']);
+            $data['mode'] == '2' && $data['dir'] = $this->checkDir($data['dir'], Node::$APPID, $data['url'], $data['id']);
             NodeModel::update($data, $data['id']);
         }
-        self::saved($this, __METHOD__, $data);
+        // self::saved($this, __METHOD__, $data);
         $this->cache_item($id);
-        return APP_URL;
+        return Admincp::url('index', true);
+        // return Admincp::url('edit/id/'.$data['id'], true);
     }
 
-    public function do_update()
+    /**
+     * 获取节点下拉数据
+     *
+     * @auth no
+     * @return void
+     */
+    public function done_selectpage()
     {
-        $names = (array)Request::post('name');
-        if ($names) foreach ($names as $id => $name) {
-            NodeModel::update(array(
-                'name' => $name,
-                'sortnum' => (int) $_POST['sortnum'][$id]
-            ), $id);
-        }
-        // self::success('更新完成');
+        return parent::done_selectpage();
     }
-    public function do_batch()
-    {
-        AdmincpBatch::$config['etc.app'] = 'node';
-        AdmincpBatch::$config['etc.name'] = $this->NODE_NAME;
 
-        $actions = array(
-            'merge' => function ($idArray, $ids, $batch) {
-                $tonid = (int) $_POST['tonid'];
-                foreach ($idArray as $k => $id) {
-                    if ($tonid != $id) {
-                        $this->merge($tonid, $id);
-                        $this->do_delete($id, false);
+    public function selectpage()
+    {
+        return [
+            'list' => function (&$list, $param) {
+                if ($param['root']) {
+                    if (AdmincpAuth::node(0, 'a')) {
+                        $name = '顶级' . $param['name'] ?: '节点';
+                        $head = iJson::listItem('0', $name, '======' . $name . '======');
+                        array_unshift($list, $head);
                     }
                 }
-                $this->update_app_count($tonid);
-                // $this->cache(true,$this->app_id);
             },
-            'dir' => function ($idArray, $ids, $batch) {
-                $bdir = Request::post('bdir');
-                $pat = $_POST['pattern'];
-                $dir = $bdir;
-                if ($pat == 'addtobefore') {
-                    $dir = array('raw' => 'CONCAT(?,dir)', $bdir);
+            'result' => function ($param, $where, $whereOr, $orderby, &$response) {
+                $pageSize = $param['pageSize'] ? (int)$param['pageSize'] : 10;
+                $offset = ($param['pageNumber'] - 1) * $pageSize;
+                isset($param['appid']) && Node::$APPID = $param['appid'];
+                $total = Node::total(Node::$APPID);
+                if ($total > NodeCache::BURST) {
+                    $param['appid'] && $where['appid'] = $param['appid'];
+                    $model = NodeModel::where($where);
+                    $result = $model->paging($pageSize);
+                    $response['pageNumber'] = Paging::$index;
+                    $response['totalRow'] = Paging::$count;
+                    $response['totalPage'] = Paging::$total;
+                    $response['sql'] = DB::getQueryLog();
+                    return $result;
                 }
-                if ($pat == 'addtoafter') {
-                    $dir = array('raw' => 'CONCAT(dir,?)', $bdir);
-                }
-                NodeModel::update(compact('dir'), $idArray);
-            },
-            'mkdir' => function ($idArray, $ids, $batch) {
-                $names = Request::post('name');
-                foreach ($idArray as $k => $id) {
-                    $name = $names[$id];
-                    $dir  = Pinyin::get($name);
-                    $this->checkDir($dir, $this->app_id, null, $id);
-                    NodeModel::update(array('dir' => $dir), $id);
-                }
-                return true;
-            },
-            'recount' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $k => $id) {
-                    $this->update_app_count($id);
-                }
-                return true;
-            },
-            'update' => function ($idArray, $ids, $batch) {
-                $names = Request::post('name');
-                $dirs = Request::post('dir');
-                $sortnums = Request::post('sortnum');
-                foreach ($idArray as $k => $id) {
-                    NodeModel::update(array(
-                        'name'    => $names[$id],
-                        'dir'     => $dirs[$id],
-                        'sortnum' => intval($sortnums[$id]),
-                    ), $id);
-                }
-            },
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    NodeAccess::check($id, 'd', 'alert');
-                    $this->do_delete($id, false);
-                }
-                // self::success('删除完成');
-            },
-            'default' => function ($idArray, $ids, $batch, $data = null) {
-                $data && NodeModel::update($data, $idArray);
-                return true;
-            },
-        );
-        // $this->cache(true,$this->app_id);
-        return AdmincpBatch::run($actions, $this->NODE_NAME);
+
+                Node::$callback['func'] = function ($node, $level, $child, $where) use ($param) {
+                    $id = $node['id'];
+                    $isSearch = true;
+                    if ($searchValue = $param['searchValue']) {
+                        $isSearch = false;
+                        $search = explode(',', $searchValue);
+                        $value = $node[$param['searchKey']] . $id;
+                        foreach ($search as $sk => $sv) {
+                            if (stripos($value, $sv) !== false) {
+                                $isSearch = true;
+                                break;
+                            }
+                        }
+                    }
+                    if ($param['access'] && AdmincpAuth::node($id, $param['access'])) {
+                        if ($node['status'] && $isSearch) {
+                            $tag = ($level == '1' ? '' : '├ ');
+                            $text = str_repeat('│ ', $level - 1) . $tag . $node['name'] . "[id:{$id}][appid:" . $node['appid'] . ']' . ($node['outurl'] ? '[∞]' : '');
+                            $option = iJson::listItem($id, $node['name'], $text);
+                        }
+                    }
+                    return  $option ? [$option] : [];
+                };
+                Node::$callback['mode'] = 1; //一维数组
+                return Node::callfunc();
+            }
+        ];
     }
-    /**
-     * [更新排序]
-     * @return [type] [description]
-     */
-    public function do_update_sort()
+
+    public function batching()
     {
-        foreach ((array) $_POST['sortnum'] as $sortnum => $id) {
-            NodeModel::update(array('sortnum' => $sortnum), $id);
+        AdmincpBatch::set('app', 'node');
+        AdmincpBatch::set('name', $this->NODE_NAME);
+
+        return [
+            'move' => function ($ids, $data) {
+                $rootid = (int) $data['nid'];
+                foreach ($ids as $k => $id) {
+                    if ($rootid == $id) {
+                        unset($ids[$k]);
+                    }
+                }
+                NodeModel::update(compact('rootid'), $ids);
+                $this->update_app_count($rootid);
+            },
+            'merge' => function ($ids, $data) {
+                $toid = (int) $data['toid'];
+                foreach ($ids as $k => $id) {
+                    if ($toid != $id) {
+                        $this->merge($toid, $id);
+                        $this->done_delete($id, false);
+                    }
+                }
+                $this->update_app_count($toid);
+                // $this->cache(true,Node::$APPID);
+            },
+            'dir' => function ($ids, $data) {
+                $pat = $data['pattern'];
+                $dir = $data['dir'];
+                if ($pat == 'prepend') {
+                    $dir = ['raw' => 'CONCAT(?,dir)', $dir];
+                }
+                if ($pat == 'append') {
+                    $dir = ['raw' => 'CONCAT(dir,?)', $dir];
+                }
+                NodeModel::update(compact('dir'), $ids);
+            },
+            'mkdir' => function ($ids, $data) {
+                $all = NodeModel::field('id,name')->where($ids)->select();
+                foreach ($all as $k => $node) {
+                    $name = $node['name'];
+                    $dir = Pinyin::get($name);
+                    $this->checkDir($dir, Node::$APPID, null, $node['id']);
+                    NodeModel::update(['dir' => $dir], $node['id']);
+                }
+                return true;
+            },
+            'recount' => function ($ids, $data) {
+                $this->update_app_count($ids);
+                return true;
+            },
+            'rule' => function ($ids, $data) {
+                $rule = Request::post('rule');
+                NodeModel::update(compact('rule'), $ids);
+            },
+            'template' => function ($ids, $data) {
+                $template = Request::post('template');
+                NodeModel::update(compact('template'), $ids);
+            }
+        ];
+    }
+
+    /**
+     * 更新排序
+     */
+    public function done_update_sort()
+    {
+        $sortnum = Request::post('sortnum');
+        if ($sortnum) {
+            foreach ($sortnum as $sortnum => $id) {
+                NodeModel::update(['sortnum' => $sortnum], $id);
+            }
         }
     }
-    public function do_manage()
-    {
-        $this->tabs = Cookie::get(Admincp::$APP_NAME . '_tabs') ?: 'tree';
-        $_GET['tabs'] && $this->tabs = $_GET['tabs'];
-        $this->app_id && $apps = Apps::get($this->app_id);
-        Admincp::$APP_NAME == 'node' && Menu::$DATA['breadcrumb']['title'] = $apps['name'];
-        Menu::setData('nav.active', APP_URL);
-        $this->tabs == "list" ? $this->manage_list() : $this->manage_tree();
-    }
+
     /**
-     * [树模式]
-     * @return [type] [description]
+     * 更新
      */
-    public function manage_tree()
+    public function done_update_tree()
     {
-        $this->tabs = 'tree';
-        //node.manage_tree.html
-        include self::view($this->VIEW_MANAGE . '_tree', $this->VIEW_DIR);
-    }
-    /**
-     * [列表模式]
-     * @return [type] [description]
-     */
-    public function manage_list()
-    {
-        $this->tabs = 'list';
-        if ($this->app_id) {
-            $where['appid'] = $this->app_id;
-            // $apps = Apps::get($this->app_id);
+        $names = (array)Request::post('name');
+        $dirs = (array)Request::post('dir');
+        $sortnum = Request::post('sortnum');
+        if ($names) {
+            foreach ($names as $id => $name) {
+                NodeModel::update([
+                    'name'    => $name,
+                    'dir'     => $dirs[$id],
+                    'sortnum' => (int) $sortnum[$id]
+                ], $id);
+            }
         }
-        $nids = NodeAccess::check('IDS', 'm');
-        is_bool($nids) or $access = array('id' => $nids);
+    }
+    // public function done_mapper()
+    // {
+    //     $arr = NodeModel::select();
+    //     $ret = array_column($arr, 'name', 'id');
+    //     return $ret;
+    // }
+
+    public function do_index()
+    {
+        $this->do_tree();
+    }
+
+    /**
+     * 树模式
+     */
+    public function do_tree()
+    {
+        $total = Node::total(Node::$APPID);
+        if ($total > NodeCache::BURST) {
+            $this->active_nav = 'list';
+            return $this->do_list();
+        }
+        $this->active_nav = 'tree';
+        self::setJsPath('node/assets/js/tree');
+        include self::view($this->VIEW_INDEX . '_tree', $this->VIEW_DIR);
+    }
+
+    /**
+     * 列表模式
+     */
+    public function do_list()
+    {
+        $this->active_nav = 'list';
+        if (Node::$APPID) {
+            $where['appid'] = Node::$APPID;
+            // $apps = Apps::get(Node::$APPID);
+        }
+        $nids = AdmincpAuth::node('IDS', 'm');
+        is_bool($nids) or $access = ['id' => $nids];
 
         $keywords = Request::get('keywords');
         $st = Request::sget('st');
 
         if ($keywords && $st) {
-            if (in_array($st, array('name', 'dir', 'id'))) {
-                $where[$st] = array('REGEXP', $keywords);
-            } elseif ($st == "appid") {
+            if (in_array($st, ['name', 'dir', 'id'])) {
+                $where[$st] = ['REGEXP', $keywords];
+            } elseif ($st == 'appid') {
                 $where['appid'] = $keywords;
-            } elseif ($st == "tkd") {
-                $where['CONCAT(name,title,keywords,description)'] = array('REGEXP', $keywords);
+            } elseif ($st == 'tkd') {
+                $where['CONCAT(name,title,keywords,description)'] = ['REGEXP', $keywords];
             }
         }
         $rootid = Request::get('rootid');
         is_numeric($rootid) && $where['rootid'] = $rootid;
         $status = Request::get('status');
         is_numeric($status) && $where['status'] = $status;
+        $sub = Request::get('sub');
+        isset($sub) && $where['rootid'] = ['<>', 0];
 
-        $orderby = $this->getOrderBy();
-        $result = NodeModel::where($access)->where($where)
-            ->orderBy($orderby)
-            ->paging();
+        if (Request::isAjax()) {
+            return self::tableData([
+                'where' => $where,
+                'with'  => $access
+            ], function ($rows) {
+                $rootidArray = array_column($rows, 'rootid');
+                $rootidArray && $root_data = (array) Node::get($rootidArray);
 
-        include self::view($this->VIEW_MANAGE . '_list', $this->VIEW_DIR);
-    }
-    public function do_copy()
-    {
-        $data = NodeModel::get($this->id);
-        $data['name'] .= '副本';
-        $data['dir'] .= 'fuben';
-        unset($data['id']);
-        $id = NodeModel::create($data);
-        // self::success('克隆完成');
-    }
-    public function do_delete($id = null)
-    {
-        $id === null && $id = (int) $_GET['id'];
-        NodeAccess::check($id, 'd');
-        $msg    = '请选择要删除的' . $this->NODE_NAME . '!';
+                $rows = array_map(function ($item) use ($root_data) {
+                    $root = $root_data[$item['rootid']];
+                    $item['rootid_text'] = $root ? $root['name'] : '顶级' . $this->NODE_NAME;
+                    NodeItem::url($item);
+                    return $item;
+                }, $rows);
 
-        if (Node::hasChild($id)) {
-            $msg = '请先删除本' . $this->NODE_NAME . '下的子' . $this->NODE_NAME . '!';
-        } else {
-            NodeModel::delete($id);
-            NodeCache::deleteId($id);
-            $msg = '删除成功!';
+                return $rows;
+            });
         }
-        $this->do_cache(false);
+        self::setContext([
+            'tablist' => 'params',
+            'params'  => [
+                'status' => $status,
+            ]
+        ]);
+        self::setJsPath('node/assets/js/list');
+        include self::view($this->VIEW_INDEX . '_list', $this->VIEW_DIR);
+    }
+
+    protected function __lang()
+    {
+        return Lang::load('node', false);
+    }
+
+    // public function do_copy()
+    // {
+    //     $data = NodeModel::get($this->id);
+    //     $data['name'] .= '副本';
+    //     $data['dir'] .= 'fuben';
+    //     unset($data['id']);
+    //     $id = NodeModel::create($data);
+    //     // self::success('克隆完成');
+    // }
+    public function deleting($ids = [])
+    {
+        if ($ids) {
+            $msg = '';
+            foreach ($ids as $key => $id) {
+                AdmincpAuth::node($id, 'd');
+
+                if (Node::hasChild($id)) {
+                    $msg .= '请先删除本' . $this->NODE_NAME . '下的子' . $this->NODE_NAME . '!';
+                } else {
+                    NodeModel::delete($id);
+                    NodeCache::deleteId($id);
+                }
+            }
+        }
+        $this->done_cache(false);
+        return $msg;
         // $dialog && self::success($msg);
     }
-    public function do_ajaxtree()
-    {
-        $root = (int) $_GET["root"];
 
-        Node::$ACCESS = 'm';
-        Node::$callback['func']  = array($this, 'tree');
-        Node::$callback['recursive'] = false;
-        Node::$callback['result'] = array();
-        return Node::callfunc($root);
-        // return self::success($result);
-    }
-    public function tree($node, $level, $child)
+    public function done_tree()
     {
-        $expanded = $_GET['expanded'] ? true : false;
-        $a = array('id' => $node['id'], 'data' => $this->treeData($node));
+        $root = (int)Request::post('root');
+        Node::$callback['func'] = [$this, 'tree'];
+        Node::$callback['recursive'] = false;
+        Node::$callback['mode'] = 2; //多维数组 有层级
+        return ['data'=>Node::callfunc($root)];
+    }
+
+    public function tree($node, $level, $child, $where)
+    {
+        $expanded = Request::get('expanded') ? true : false;
+        $a = ['id' => $node['id'], 'data' => $this->treeData($node)];
         if ($child) {
             if ($expanded) {
                 $a['hasChildren'] = false;
-                $a['expanded']    = true;
-                $a['children']    = Node::callfunc($node['id'], null, $level + 1);
+                $a['expanded'] = false;
+                $a['children'] = Node::callfunc($node['id'], $where, $level + 1);
             } else {
                 $a['hasChildren'] = true;
             }
         }
-        if (NodeAccess::check($a['id'], Node::$ACCESS)) {
+        if (AdmincpAuth::node($a['id'], 'm')) {
             return $a;
         } else {
             if ($a['children']) {
                 $a['data'] = null;
                 return $a;
             } else {
-                return array();
+                return [];
             }
         }
     }
+
     public function treeData($C)
     {
         unset(
@@ -429,30 +530,49 @@ class NodeAdmincp extends AdmincpCommon
             $C['title'],
             $C['subname'],
             $C['iurl'],
-            $C['dir'],
             $C['htmlext'],
             $C['config'],
             $C['comment']
         );
-        is_array($C['pid']) && $C['pids'] = implode(',',$C['pid']);
+        is_array($C['pid']) && $C['pids'] = implode(',', $C['pid']);
         return $C;
     }
+
+    public function done_attrs()
+    {
+        $ids = Request::post('ids');
+        $result = NodeModel::field('id,config')->where($ids)->select();
+        $attrs = [];
+        foreach ((array) $result as $key => $value) {
+            $config = isset($value['config']) ? $value['config'] : [];
+            if (isset($config['attribute'])) {
+                $attribute = $config['attribute'] ?: [];
+                if ($values = $attribute['value']) {
+                    $attribute['value'] = explode("\n", trim($values));
+                }
+                $attrs[] = $attribute;
+            }
+        }
+        return $attrs;
+    }
+
     /**
      * 更新{title}统计
      *
      * @return void
      */
-    public function do_recount()
+    public function done_recount()
     {
-        $result = NodeModel::where('appid', $this->app_id)->select();
+        Node::$APPID && $where['appid'] = Node::$APPID;
+        $result = NodeModel::where($where)->select();
         foreach ((array) $result as $key => $value) {
             $this->update_app_count($value['id']);
         }
         // $dialog && self::success('更新完成');
     }
+
     /**
-     * [获取内容元属性设置]
-     * @return [type] [description]
+     * 获取内容元属性设置
      */
     public static function do_appMeta($ret = false, $id = null)
     {
@@ -465,96 +585,120 @@ class NodeAdmincp extends AdmincpCommon
             // return self::success($meta);
         }
     }
+
     /**
-     * 更新{title}缓存
+     * autoCache 在更新所有缓存时，将会自动执行
+     */
+    public static function autoCache()
+    {
+        @set_time_limit(0);
+        Node::config();
+        $total = Node::total(Node::$APPID);
+        if ($total > NodeCache::BURST) {
+            return [
+                'data' => [
+                    'pageSize'     => NodeCache::BURST,
+                    'pageTotal'    => ceil($total / NodeCache::BURST),
+                    'totalCount'   => $total
+                ],
+                'url'  => Admincp::url('cache_burst', true),
+                'state'=> 'worker.js'
+            ];
+        } else {
+            NodeCache::make(Node::$APPID);
+        }
+    }
+
+    /**
+     * 分批更新缓存
      *
+     * @access false
      * @return void
      */
-    public function do_cache()
-    {
-        $this->autoCache();
-    }
-    /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
-     */
-    public function autoCache()
+    public function done_cache_burst()
     {
         @set_time_limit(0);
-        self::config();
-        $total = Node::total($this->app_id);
-        if ($total > 500) {
-            $_GET['total']  = $total;
-            $_GET['_appid'] = $this->app_id;
-            $this->do_cache_burst();
+        $page = (int)Request::post('page', 1);
+        $pageTotal = (int)Request::post('pageTotal', 0);
+        $totalCount = (int)Request::post('totalCount', 0);
+        $pageSize = (int)Request::post('pageSize', NodeCache::BURST);
+        $worker = (int)Request::post('worker', 0);
+
+        if ($pageTotal > 0 && $page > $pageTotal) {
+            return [true, '更新完成'];
         } else {
-            NodeCache::make($this->app_id);
+            $finish_count = $page * $pageSize;
+            NodeCache::make(Node::$APPID, $pageSize);
+            return [[
+                'page'         => $page,
+                'pageSize'     => NodeCache::BURST,
+                'pageTotal'    => Paging::$total,
+                'totalCount'   => Paging::$count
+            ], sprintf(
+                $this->NODE_NAME . '缓存更新完成:%s,当前页:%s,总页数:%s,总记录数:%s',
+                $finish_count,
+                $page,
+                Paging::$total,
+                Paging::$count
+            )];
         }
+        // DB::query('SET interactive_timeout=24*3600');
+
+        // $num = 100;
+        // $appid = (int) $_GET['_appid'];
+        // $page = (int) $_GET['page'];
+        // $total = (int) $_GET['total'];
+        // $flag = $_GET['flag'];
+        // $offset = $page * $num;
+
+        // empty($flag) && $flag = 'tmp';
+
+        // $config = [];
+        // if ($flag === 'stop') {
+        //     //结束
+        //     $config['stop'] = [
+        //         'msg'  => '<div class="alert alert-info">' . $this->NODE_NAME . '缓存更新完成</div>',
+        //         'time' => '5',
+        //     ];
+        // } else {
+        //     $callback = [
+        //         ['NodeCache', 'burst'],
+        //         [$appid, $offset, $num, $flag]
+        //     ];
+        //     $map = [
+        //         'tmp'    => ['gold', '生成' . $this->NODE_NAME . '临时缓存'],
+        //         'gold'   => ['delete', '生成' . $this->NODE_NAME . '缓存'],
+        //         'delete' => ['common', '清理' . $this->NODE_NAME . '临时缓存'],
+        //         'common' => ['stop', '生成通用缓存'],
+        //     ];
+
+        //     $next = $map[$flag][0];
+        //     //下一步
+        //     $config['step'] = [
+        //         'title'    => '<div class="alert">正在' . $map[$flag][1] . '</div>',
+        //         'callback' => $callback,
+        //         'url'      => 'do=cache_burst&_appid=' . $appid . '&flag=' . $flag . '&CSRF_TOKEN=' . Security::$CSRF_TOKEN,
+        //         'msg'      => [$this->NODE_NAME, '个']
+        //     ];
+        //     //下一批
+        //     $config['next'] = [
+        //         'url'  => 'do=cache_burst&_appid=' . $appid . '&flag=' . $next . '&total=' . $total . '&CSRF_TOKEN=' . Security::$CSRF_TOKEN,
+        //         'msg'  => '<hr /><div class="alert alert-info">准备进行' . $map[$next][1] . '</div>',
+        //         'time' => '3',
+        //     ];
+        //     if ($flag === 'common') {
+        //         $total = $num = 1;
+        //         $config['step']['msg'] = ['操作', '个'];
+        //         $config['next']['msg'] = '';
+        //     }
+        // }
+        // Script::loop($total, $num, $config);
     }
-    /**
-     * [分批更新缓存 #NO:ACCESS#]
-     * @param  [type] $total [description]
-     * @return [type]        [description]
-     */
-    public function do_cache_burst()
-    {
-        @set_time_limit(0);
-        DB::query("SET interactive_timeout=24*3600");
 
-        $num      = 100;
-        $appid    = (int) $_GET['_appid'];
-        $page     = (int) $_GET['page'];
-        $total    = (int) $_GET['total'];
-        $flag     = $_GET['flag'];
-        $offset   = $page * $num;
-
-        empty($flag) && $flag = 'tmp';
-
-        $config = array();
-        if ($flag === 'stop') {
-            //结束
-            $config['stop'] = array(
-                'msg'  => '<div class="alert alert-info">' . $this->NODE_NAME . '缓存更新完成</div>',
-                'time' => '5',
-            );
-        } else {
-            $callback = array(
-                array('NodeCache', 'burst'),
-                array($appid, $offset, $num, $flag)
-            );
-            $map = array(
-                'tmp'    => array('gold', '生成' . $this->NODE_NAME . '临时缓存'),
-                'gold'   => array('delete', '生成' . $this->NODE_NAME . '缓存'),
-                'delete' => array('common', '清理' . $this->NODE_NAME . '临时缓存'),
-                'common' => array('stop', '生成通用缓存'),
-            );
-
-            $next = $map[$flag][0];
-            //下一步
-            $config['step'] = array(
-                'title'    => '<div class="alert">正在' . $map[$flag][1] . '</div>',
-                'callback' => $callback,
-                'url'      => 'do=cache_burst&_appid=' . $appid . '&flag=' . $flag . '&CSRF_TOKEN=' . Security::$CSRF_TOKEN,
-                'msg'      => array($this->NODE_NAME, '个')
-            );
-            //下一批
-            $config['next'] = array(
-                'url'  => 'do=cache_burst&_appid=' . $appid . '&flag=' . $next . '&total=' . $total . '&CSRF_TOKEN=' . Security::$CSRF_TOKEN,
-                'msg'  => '<hr /><div class="alert alert-info">准备进行' . $map[$next][1] . '</div>',
-                'time' => '3',
-            );
-            if ($flag === 'common') {
-                $total = $num = 1;
-                $config['step']['msg'] = array('操作', '个');
-                $config['next']['msg'] = '';
-            }
-        }
-        Script::loop($total, $num, $config);
-    }
     public function cache_item($id)
     {
         $data = NodeModel::get($id);
         NodeCache::setData($data);
-
         NodeCache::setId($data);
         NodeCache::delData($data['id']);
     }
@@ -562,8 +706,8 @@ class NodeAdmincp extends AdmincpCommon
     public function checkDir($dir, $appid, $url, $id = 0)
     {
         if (empty($url)) {
-            $where = array('dir' => $dir);
-            $id && $where['id'] = array('!=', $id);
+            $where = ['dir' => $dir];
+            $id && $where['id'] = ['!=', $id];
             $hasDir = NodeModel::where($where)->count();
             if ($hasDir) {
                 $count = NodeModel::where('dir', 'like', "{$dir}-%")->count();
@@ -573,63 +717,61 @@ class NodeAdmincp extends AdmincpCommon
         return $dir;
     }
 
-
-    public function getOrderBy()
-    {
-        return self::setOrderBy(array(
-            'id'     => "CID",
-            'sortnum' => "排序值",
-            'dir'     => "目录值",
-            'count'   => "记录数",
-        ));
-    }
     public function merge($tonid, $id)
     {
         $this->CONTENT_MODEL->update(
-            array($this->primary => $tonid),
-            array($this->primary => $id)
+            [$this->primary => $tonid],
+            [$this->primary => $id]
         );
         Tag::move($id, $tonid);
-        DB::table("prop")->update(
-            array('cid' => $tonid),
-            array('cid' => $id)
+        DB::table('prop')->update(
+            ['cid' => $tonid],
+            ['cid' => $id]
         );
     }
 
     public function update_app_count($id)
     {
-        $cc = $this->CONTENT_MODEL->where(array($this->primary => $id))
-            ->count();
-        NodeModel::update(array('count' => $cc), $id);
+        $node = NodeModel::get($id);
+        if (empty($node)) {
+            return false;
+        }
+        try {
+            $appid = $node['appid'];
+            if ($appid) {
+                $a = Apps::getDataLite($appid);
+                $app = $a['app'];
+            }
+            $model = ContentModel::setTable($app);
+            if($model){
+                $cc = $model->where([$this->primary => $id])->count();
+                NodeModel::update(['count' => $cc], $id);
+            }
+        } catch (Exception $e) {
+            return false;
+        }
     }
+
     public static function widget_count($where = null)
     {
         $total = NodeModel::where($where)->count();
-        $widget[] = array($total, '全部');
-        foreach (Node::$statusMap as $status => $text) {
+        $widget[] = [$total, '全部'];
+        foreach (NodeModel::$statusMap as $status => $text) {
             $count = NodeModel::where('status', $status)->where($where)->count();
-            $widget[] = array($count, $text);
+            $widget[] = [$count, $text];
         }
         return $widget;
     }
 
-    public static function config($domain = null)
+    public function route_rule($s = null)
     {
-        if (empty($domain)) {
-            $result = NodeModel::field('id,domain')
-                ->where(array(
-                    'domain' => array('<>', ''),
-                    'status' => '1'
-                ))->select();
-            foreach ((array) $result as $C) {
-                $domain[$C['domain']] = $C['id'];
-            }
-        }
+        is_null($s) && $s = ['rule' => true, 'rule_name' => 'rule'];
+        include AdmincpBase::view('route/base', $this->VIEW_DIR);
+    }
 
-        Config::set(array(
-            'domain' => $domain
-        ), 'node', self::$appId, false);
-
-        Config::cache();
+    public function route_template($s = null)
+    {
+        is_null($s) && $s = ['tpl' => true, 'tpl_name' => 'template'];
+        include AdmincpBase::view('route/base', $this->VIEW_DIR);
     }
 }

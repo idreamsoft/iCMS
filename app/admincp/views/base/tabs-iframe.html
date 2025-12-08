@@ -1,0 +1,50 @@
+<?php
+defined('iPHP') or exit('What are you doing?');
+self::head([['breadcrumb'], null]);
+$md5Hash = md5($src);
+$tabId = $md5Hash.'-tab';
+$tabPaneId = $md5Hash.'-pane';
+$iframeId = $md5Hash.'-iframe';
+?>
+<style>
+
+</style>
+<div id="main-tabs">
+    <ul class="nav nav-tabs nav-tabs-block" id="main-tabs-nav" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link <?=$historyUrl?:'active';?>" id="<?=$tabId;?>" data-bs-toggle="tab" data-bs-target="#<?=$tabPaneId;?>" role="tab" aria-controls="<?=$tabPaneId;?>" aria-selected="true">
+                <span class="tab-title">
+                    <i class="si si-speedometer fa-fw"></i> 管理首页
+                </span>
+                <span class="tab-close" title="关闭标签页">
+                    <i class="fa fa-fw fa-times"></i>
+                </span>
+            </button>
+        </li>
+        <?php if($historyUrl){?>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="<?=$historyTabId;?>" data-bs-toggle="tab" data-bs-target="#<?=$historyTabPaneId;?>" role="tab" aria-controls="<?=$historyTabPaneId;?>" aria-selected="true">
+                <span class="tab-title">
+                    <?=$title;?>
+                </span>
+                <span class="tab-close" title="关闭标签页">
+                    <i class="fa fa-fw fa-times"></i>
+                </span>
+            </button>
+        </li>
+        <?php }?>
+    </ul>
+    <div class="tab-content" id="main-tabs-content">
+        <div class="tab-pane <?=$historyUrl?:'active';?>" id="<?=$tabPaneId;?>" role="tabpanel" aria-labelledby="<?=$tabId;?>" tabindex="0">
+            <iframe id="<?=$iframeId;?>" name="<?=$iframeId;?>" src="<?=$src;?>" frameborder="0" class="mainIframe"></iframe>
+            <!-- <div id="<?=$iframeId;?>" name="<?=$iframeId;?>" frameborder="0" class="mainIframe"></div> -->
+        </div>
+        <?php if($historyUrl){?>
+        <div class="tab-pane active" id="<?=$historyTabPaneId;?>" role="tabpanel" aria-labelledby="<?=$historyTabId;?>" tabindex="0">
+            <iframe id="<?=$historyIframeId;?>" name="<?=$historyIframeId;?>" src="<?=$historyUrl;?>" frameborder="0" class="mainIframe"></iframe>
+            <!-- <div id="<?=$historyIframeId;?>" name="<?=$historyIframeId;?>" frameborder="0" class="mainIframe"></div> -->
+        </div>
+        <?php }?>
+    </div>
+</div>
+<?php self::foot(['page.footer',false]); ?>

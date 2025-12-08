@@ -1,17 +1,51 @@
-[{
-    "id": "members",
-    "children": [{
-            "caption": "-"
-        },
-        {
-            "caption": "角色列表",
-            "href": "role",
-            "icon": "users"
-        },
-        {
-            "caption": "添加角色",
-            "href": "role&do=add",
-            "icon": "user-plus"
-        }
-    ]
-}]
+[
+    {
+        "id": "members",
+        "children": [
+            {
+                "id": "users",
+                "children": [
+                    {
+                        "id": "role",
+                        "caption": "会员等级",
+                        "icon": "users",
+                        "children": [
+                            {
+                                "caption": "等级列表",
+                                "href": "/role/index/type/0",
+                                "icon": "users"
+                            },
+                            {
+                                "caption": "添加等级",
+                                "href": "/role/add/type/0",
+                                "icon": "user-plus"
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                "id": "admin",
+                "children": [
+                    {
+                        "id": "role",
+                        "caption": "管理组",
+                        "icon": "users",
+                        "children": [
+                            {
+                                "caption": "管理组列表",
+                                "href": "/role/index/type/1",
+                                "icon": "users"
+                            },
+                            {
+                                "caption": "添加管理组",
+                                "href": "/role/add/type/1",
+                                "icon": "user-plus"
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    }
+]

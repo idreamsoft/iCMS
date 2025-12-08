@@ -1,0 +1,106 @@
+<div id="access-node" class="tab-pane active">
+    <input name="akey" type="hidden" value="node" />
+    <div class="form-group">
+        <div class="input-group">
+            <label class="input-group-text" for="checkAllNode">全选</label>
+            <div class="input-group-text">
+                <input type="checkbox" class="form-check-input" id="checkAllNode" i="cms:ui:checkAll" data-target="#access-node" />
+            </div>
+            <button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-text">允许添加顶级栏目</span>
+            <span class="input-group-text"><input type="checkbox" name="access[node][]" value="0:a" /></span>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="input-group">
+            <span class="input-group-text">所有栏目权限</span>
+            <span class="input-group-text"><input type="checkbox" name="access[node][]" value="all" /></span>
+
+        </div>
+        <table class="table table-hover table-sm mt-1">
+            <thead class="bg-light text-black">
+                <tr>
+                    <th>项目</th>
+                    <th rowspan="1" colspan="4">栏目权限</th>
+                    <th>#</th>
+                    <th rowspan="1" colspan="4">内容权限</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>所有栏目</td>
+                    <?php foreach (AdmincpAuth::$nodeTypeMap as $type => $text) { ?>
+                    <td><input type="checkbox" name="access[node][]" value="all:<?php echo $type; ?>" />
+                        <?php echo $text; ?>
+                    </td>
+                    <?php } ?>
+                    <td>-</td>
+                    <?php foreach (AdmincpAuth::$appTypeMap as $type => $text) { ?>
+                    <td><input type="checkbox" name="access[node][]" value="all:<?php echo $type; ?>" />
+                        <?php echo $text; ?>
+                    </td>
+                    <?php } ?>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <table class="table table-hover table-sm">
+        <thead class="bg-light text-black">
+            <tr>
+                <th>节点名</th>
+                <th>#</th>
+                <th rowspan="1" colspan="4">节点权限</th>
+                <th>#</th>
+                <th>应用</th>
+                <th rowspan="1" colspan="4">内容权限</th>
+            </tr>
+        </thead>
+        <tbody id="node-list">
+            <tr>
+                <td></td>
+                <td></td>
+                <?php foreach (AdmincpAuth::$nodeTypeMap as $type => $text) { ?>
+                <td><input type="checkbox" i="cms:node:access:select" data-type="e" data-value=":<?php echo $type; ?>" title="全选<?php echo $text; ?>"></td>
+                <?php } ?>
+                <td>-</td>
+                <td></td>
+                <?php foreach (AdmincpAuth::$appTypeMap as $type => $text) { ?>
+                <td><input type="checkbox" i="cms:node:access:select" data-type="e" data-value=":<?php echo $type; ?>" title="全选<?php echo $text; ?>"></td>
+                <?php } ?>
+            </tr>
+            <?php
+            $GLOBALS['appArray'] = Cache::get('app/idarray');
+            function node_access($C, $level, $child)
+            {
+                $ltag = ($level == '1' ? "" : "├ ");
+                $name = $C['rootid'] ? $C['name'] : '<b>' . $C['name'] . '</b>';
+                $app  = $GLOBALS['appArray'][$C['appid']];
+                if (!$C['rootid'] && $child) {
+                    $checkbox = '<input type="checkbox" i="cms:node:access:select" data-type="r" data-value=\'' . json_encode(array_values($child)) . '\'>';
+                }
+                echo '
+                    <tr id="id' . $C['id'] . '">
+                    <td>' . str_repeat("│　", $level - 1) . $ltag . $name . ' [id:' . $C['id'] . ']</td>
+                    <td style="text-align: right;">' . $checkbox . ' <input type="checkbox" i="cms:node:access:select" data-type="s" data-value="' . $C['id'] . ':"></td>
+                ';
+                foreach (AdmincpAuth::$nodeTypeMap as $type => $text) {
+                    echo '<td><input type="checkbox" name="access[node][]" value="' . $C['id'] . ':' . $type . '" /> ' . $text . '</td>';
+                }
+                echo '<td>-</td>';
+                echo '<td>' . $app['name'] . ' [appid:' . $C['appid'] . ']</td>';
+                foreach (AdmincpAuth::$appTypeMap as $type => $text) {
+                    $text = str_replace('内容', '',$text);
+                    echo '<td><input type="checkbox" name="access[node][]" value="' . $C['id'] . ':' . $type . '" /> ' . $text . '</td>';
+                }
+                echo '</tr>';
+            };
+            Node::$callback['func'] = 'node_access';
+            Node::callfunc();
+            ?>
+        </tbody>
+    </table>
+</div>

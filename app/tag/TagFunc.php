@@ -8,7 +8,7 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class TagFunc  extends AppsFuncCommon implements AppsFuncBase
+class TagFunc extends AppsFuncCommon implements AppsFuncInterface
 {
 
     public static function value($vars)
@@ -26,8 +26,9 @@ class TagFunc  extends AppsFuncCommon implements AppsFuncBase
         isset($vars['rootid']) && $where[]    = ['rootid', $vars['rootid']];
         isset($vars['rootid!']) && $whereNot[] = ['rootid', '<>', $vars['rootid!']];
         isset($vars['field']) && $where[]    = ['field', $vars['field']];
-        self::init($vars, $model, $where, $whereNot);
-        self::setApp(Tag::APPID, Tag::APP);
+        isset($vars['tkey']) && $where[]    = ['tkey', $vars['tkey']];
+        isset($vars['appid']) && $where[]    = ['appid', 'FIND_IN_SET', $vars['appid']];
+        self::inited($vars, $model, $where, $whereNot);
 
         self::nodes('tcid');
         self::nodes('cid');
@@ -39,11 +40,11 @@ class TagFunc  extends AppsFuncCommon implements AppsFuncBase
             'sort'  => 'sortnum'
         ]);
         self::where();
-        return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+        return self::getResource(__METHOD__);
     }
-    public static function resource($vars, $idsArray = null)
+    public static function resource($idsArray = null)
     {
-        $vars['ids'] && $idsArray = $vars['ids'];
+        $vars = self::$vars;
         $resource = TagModel::field('*')->where($idsArray)->orderBy('id', $idsArray)->select();
         $resource = self::many($vars, $resource);
         return $resource;
@@ -60,22 +61,24 @@ class TagFunc  extends AppsFuncCommon implements AppsFuncBase
             if ($array) {
                 return TagApp::display($array[0], $array[1], false);
             } else {
-                Script::warning('iCMS&#x3a;tag&#x3a;array 标签出错! 缺少参数"id"或"name".');
+                self::msg(['func_param', ['iCMS:tag:array', 'id or name']]);
             }
         }
         if ($resource) {
-            if ($vars['meta']) {
-                $idArray = array_column($resource, 'id');
-                $idArray && $meta_data = (array)AppsMeta::data('tag', $idArray);
-                unset($idArray);
+            $idArray = array_column($resource, 'id');
+            if ($vars['meta'] && $idArray) {
+                $metaData = [];
+                AppsMeta::data('tag', $idArray,$metaData);
             }
             foreach ($resource as $key => $value) {
                 try {
-                    if ($vars['meta'] && $meta_data) {
-                        $value += (array)$meta_data[$value['id']];
+                    if ($vars['meta'] && $metaData) {
+                        $value += $metaData[$value['id']];
                     }
                     $resource[$key] = TagApp::values($value, $vars);
                 } catch (\FalseEx $fex) {
+                    $value = [];
+                    unset($resource[$key]);
                     continue;
                 }
             }

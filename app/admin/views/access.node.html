@@ -1,0 +1,16 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <div class="block-header block-header-default">栏目权限设置</div>
+        <div class="block-content">
+            <form action="{{./_access}}" method="POST" i="cms:ui:form">
+                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+                <div class="tab-content">
+                    <?php include self::view("widget/access", "node"); ?>
+                </div>
+                <?php self::form()->submit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

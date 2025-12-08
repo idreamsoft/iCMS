@@ -10,6 +10,9 @@
  */
 class Editor
 {
+    public static function create($name,$index,$data){
+        echo $name,$index;
+    }
     public static function ueditor($id, $config = array(), $gateway = true)
     {
         $gateway = $gateway ? 'admincp' : 'usercp';
@@ -33,5 +36,31 @@ class Editor
     public static function getID($id,$prefix)
     {
         return sprintf("%s_%s",$prefix,md5($id));
+    }
+    /**
+     * 加载 编辑器初始化JS
+     *
+     * @param string $name
+     * @return array
+     */
+    public static function loadjs($name = 'boot')
+    {
+        $paths = [];
+        // $many = Etc::many('editor', 'editor/*');
+        // Etc::mergeRecursive($many, $editor, false);
+
+        /* /app/editor/assets/[*]/boot.js*/
+        /* /app/editor/assets/ueditor/boot.js */
+        /* /app/editor/assets/vditor/boot.js */
+        $fn = sprintf('*/%s', $name);
+        $jsArray = AdmincpBase::jsScan($fn, "editor");
+        if ($jsArray) foreach ($jsArray as $key => $value) {
+            preg_match('@assets/(.+)/' . $name . '@', $value['jspath'], $match);
+            $edName = $match[1];
+            $path = rtrim($value['jspath'], '.js');
+            $paths[$edName.'Boot'] = $path;
+        }
+
+        return compact('paths');
     }
 }

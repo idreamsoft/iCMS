@@ -1,0 +1,23 @@
+<?php $AppTitle = "系统"; ?>
+<?php $title = "侧边栏"; ?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">侧边栏</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[admincp][sidebar][enable]" id="admincp_sidebar_enable" value="<?php echo $config['admincp']['sidebar']['enable'] ;?>" />
+        <small class="form-text text-muted">是否开启侧边栏</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">侧边栏</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" data-on-text="最小化" data-off-text="展开" name="config[admincp][sidebar][mini]" id="admincp_sidebar" value="<?php echo $config['admincp']['sidebar']['mini'] ;?>" />
+        <small class="form-text text-muted">启用后可选择默认展开状态或者最小化</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">侧边栏</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" data-on-text="右侧" data-off-text="左侧" name="config[admincp][sidebar][right]" id="admincp_sidebar_right" value="<?php echo $config['admincp']['sidebar']['right'] ;?>" />
+        <small class="form-text text-muted">侧边栏位置，默认在左侧</small>
+    </div>
+</div>

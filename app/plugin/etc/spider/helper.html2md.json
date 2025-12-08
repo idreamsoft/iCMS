@@ -1,0 +1,8 @@
+{
+    "常用处理": {
+        "PluginMarkdown::html2md": {
+            "name": "html转markdown",
+            "title": "html转markdown"
+        }
+    }
+}

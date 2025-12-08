@@ -7,18 +7,18 @@
         "icon": "sitemap",
         "children": [{
                 "caption": "更新缓存",
-                "href": "node&do=cache",
+                "href": "/node/cache",
                 "icon": "sync",
-                "target": "iPHP_FRAME"
+                "ui": "cms:ui:ajax"
             },
             {
                 "caption": "节点管理",
-                "href": "node",
+                "href": "/node/tree",
                 "icon": "sitemap"
             },
             {
                 "caption": "添加节点",
-                "href": "node&do=add",
+                "href": "/node/add",
                 "icon": "edit"
             }
         ]

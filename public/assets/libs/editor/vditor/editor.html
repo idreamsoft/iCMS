@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vditor</title>
+    <link rel="stylesheet" href="/assets/libs/editor/vditor/dist/index.css" />
+    <script src="/assets/libs/jquery-2.2.4.min.js"></script>
+    <script src="/assets/libs/editor/vditor/dist/index.min.js"></script>
+    <style>
+        body {
+            margin: 0px;
+        }
+
+        #editor {
+            min-height: 450px;
+        }
+    </style>
+
+</head>
+
+<body>
+    <script type="text/plain" id="editor"></script>
+    <script>
+        function adjustIframeHeight() {
+            var contentHeight = document.getElementById('editor').offsetHeight;
+            // 通过 postMessage 将内容高度发送给父页面
+            window.parent.postMessage({ height: contentHeight }, '*');
+        }
+
+        let options = $.extend({}, window.parent.VditorConfig);
+        let $el = window.parent.$('#' + window.name + '_ta');
+        options.value = $el.text();
+        options.$el = $el;
+        // top.console.log(options);
+        window.parent.VditorEditor[window.name] = new Vditor('editor', options);
+        setInterval(adjustIframeHeight, 500);
+    </script>
+</body>
+
+</html>

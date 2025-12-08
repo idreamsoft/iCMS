@@ -1,0 +1,32 @@
+<div class="block block-rounded border-0 shadow-sm">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">
+            <i class="fa fa-fw fa-sitemap"></i>
+            数据统计
+        </h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close"><i class="si si-close"></i></button>
+        </div>
+    </div>
+    <div class="block-content p-1" i="cms:admincp:stats">
+        <div class="d-flex flex-wrap text-center d-none">
+            <div :class="['flex-fill', {'border-end': index < blocks.length - 1}]" v-if="block.enbled" v-for="(block, index) in blocks">
+                <div class="py-2">
+                    <div class="item item-circle bg-body-light mx-auto">
+                        <i :class="{[block.icon]: true, 'fa-2x text-primary': true}"></i>
+                    </div>
+                    <dl class="mb-0">
+                        <dt class="h3 fw-extrabold mt-3 mb-0">
+                            {{block.count}} 
+                        </dt>
+                        <dd class="fs-sm fw-medium text-muted mb-0">
+                            {{block.title}}
+                        </dd>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

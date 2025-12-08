@@ -12,5 +12,10 @@ defined('iPHP') or exit('What are you doing?');
 
 class MessageModel extends Model
 {
-
+	public static $typeMap = array(
+		'0' => '系统信息',
+		'1' => '私信',
+		'2' => '提醒',
+		'3' => '留言',
+	);
 }

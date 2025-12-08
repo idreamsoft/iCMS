@@ -30,10 +30,9 @@ class FilesCloud
             return self::vendor($vendor);
         }
         foreach ((array) self::$config['vendor'] as $vendor => $conf) {
-            if($v = self::vendor($vendor)){
+            if ($v = self::vendor($vendor)) {
                 $map[$vendor] = $v;
             }
-
         }
         return $map;
     }
@@ -50,85 +49,78 @@ class FilesCloud
                     require_once $path;
                 }
             }
-
             return new $class($conf);
         } else {
             return false;
         }
     }
     /**
-     * [上传文件]
-     * @param  [type] $fileRootPath  [文件绝对路径]
+     * 上传文件
+     * @param  [type] $rootPath  [文件绝对路径]
      * @param  [type] $ext [description]
-     * @return [type]      [description]
+     * @return void
      */
-    public static function upload($fileRootPath, $ext)
+    public static function upload($rootPath, $ext = null)
     {
         if (!self::$config['enable']) return false;
 
-        $res = self::upload_file($fileRootPath);
+        self::upload_file($rootPath);
         //不保留本地功能
         if (self::$config['local']) {
             //删除delete hook阻止云端删除动作
             $cb = Hooks::get('File.delete');
             Hooks::set('File.delete', null);
-            File::rm($fileRootPath);
+            File::rm($rootPath);
             Hooks::set('File.delete', $cb);
         }
-        return $res;
+        return true;
     }
     /**
-     * [上传文件]
-     * @param  [type] $fileRootPath   [文件绝对路径]
-     * @return [type]        [description]
+     * 上传文件
+     * @param  [type] $rootPath   [文件绝对路径]
+     * @return void
      */
-    public static function upload_file($fileRootPath)
+    public static function upload_file($rootPath)
     {
-        $filePath = self::getPath($fileRootPath);
+        $path = self::getPath($rootPath);
         foreach ((array) self::$config['vendor'] as $vendor => $conf) {
             $client = self::vendor($vendor);
             if ($client) {
-                $res = $client->_upload_file($fileRootPath, $filePath);
-                $res = json_decode($res, true);
-                if ($res['error']) {
-                    self::$error[$vendor] = array(
-                        'action' => 'upload',
-                        'code'   => 0,
-                        'state'  => 'Error',
-                        'msg'    => $res['msg']
-                    );
+                try {
+                    $client->upload($rootPath, $path);
+                } catch (\Exception $ex) {
+                    $msg = $ex->getMessage();
+                    Utils::log(['upload', $msg, $client->response],$vendor);
+                    throw $ex;
                 }
             }
         }
     }
     /**
-     * [删除文件]
-     * @param  [type] $fileRootPath   [文件绝对路径]
-     * @return [type]        [description]
+     * 删除文件
+     * @param  [type] $rootPath   [文件绝对路径]
+     * @return void
      */
-    public static function delete($fileRootPath)
+    public static function delete($rootPath)
     {
         if (!self::$config['enable']) return false;
 
-        $filePath = self::getPath($fileRootPath);
+        $path = self::getPath($rootPath);
         foreach ((array) self::$config['vendor'] as $vendor => $conf) {
             $client = self::vendor($vendor);
             if ($client) {
-                $res = $client->_delete_file($filePath);
-                $res = json_decode($res, true);
-                if ($res['error']) {
-                    self::$error[$vendor] = array(
-                        'action' => 'delete',
-                        'code'   => 0,
-                        'state'  => 'Error',
-                        'msg'    => $res['msg']
-                    );
+                try {
+                    $response = $client->delete($path);
+                } catch (\Exception $ex) {
+                    $msg = $ex->getMessage();
+                    Utils::log(['delete', $msg, $client->response],$vendor);
+                    throw $ex;
                 }
             }
         }
     }
-    public static function getPath($fileRootPath)
+    public static function getPath($rootPath)
     {
-        return ltrim(FilesClient::getPath($fileRootPath, '-root'), '/');
+        return ltrim(FilesClient::getPath($rootPath, '-root'), '/');
     }
 }

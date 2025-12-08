@@ -10,12 +10,21 @@
  */
 class ChainHook
 {
+
     /**
-     * [钩子:内链替换]
+     * 微信接口:内链替换
      * @param [type] $content [参数]
      * @return [string]       [返回替换过的内容]
      */
-    public static function run($content)
+    public static function weixin($content)
+    {
+    }
+    /**
+     * 钩子:内链替换
+     * @param [type] $content [参数]
+     * @return [string]       [返回替换过的内容]
+     */
+    public static function field_hook($content)
     {
         $limit = Config::get('chain.limit');
         if ($limit == 0) {

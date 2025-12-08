@@ -1,0 +1,28 @@
+<input type="hidden" name="config[social][google][id]" value="11" />
+<input type="hidden" name="config[social][google][name]" value="Google" />
+<div class="alert alert-info mt-1"><i class="fa fa-fw fa-info-circle"></i> 申请地址:https://console.cloud.google.com/apis/credentials</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="google_enable">开启</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[social][google][enable]" id="google_enable" value="<?php echo @$social['google']['enable'] ;?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">客户端 ID:</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[social][google][appid]" class="form-control" id="google_appid" value="<?php echo $social['google']['appid']; ?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">客户端密钥:</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[social][google][appkey]" class="form-control" id="google_appkey" value="<?php echo $social['google']['appkey']; ?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">回调域名:</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[social][google][redirect]" class="form-control" id="google_redirect" value="<?php echo $social['google']['redirect']; ?>" />
+        <small class="form-text text-muted">例:https://www.icmsdev.com</small>
+    </div>
+</div>

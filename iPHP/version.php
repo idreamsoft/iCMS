@@ -8,5 +8,5 @@
  * @license http://www.iiiphp.com/license
  * @version 2.2.0
  */
-define('iPHP_VER', 'V2.2.0');//当前版本
+define('iPHP_VER', 'V2.2.0'); //当前版本
 define('iPHP_RELEASE', '20200501');

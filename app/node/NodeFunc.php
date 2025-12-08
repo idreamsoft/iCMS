@@ -8,7 +8,7 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class NodeFunc extends AppsFuncCommon implements AppsFuncBase
+class NodeFunc extends AppsFuncCommon implements AppsFuncInterface
 {
 	public static function value($vars)
 	{
@@ -16,9 +16,26 @@ class NodeFunc extends AppsFuncCommon implements AppsFuncBase
 	public static function node($vars)
 	{
 	}
-	public static function node_array($vars)
+	public static function url($vars)
 	{
-		$id = (int) $vars['id'];
+		if(isset($vars['dir'])){
+			$id = NodeCache::get('dir2nid', $vars['dir']);
+		}else{
+			$id = (int) $vars['id'];
+		}
+		$node = NodeApp::node($id, false);
+		echo $node['url'];
+	}
+	public static function data($vars)
+	{
+		if(isset($vars['dir'])){
+			$id = NodeCache::get('dir2nid', $vars['dir']);
+		}else{
+			$id = (int) $vars['id'];
+		}
+		if (empty($id)) {
+			return;
+		}
 		return NodeApp::node($id, false);
 	}
 	public static function lists($vars)
@@ -34,7 +51,7 @@ class NodeFunc extends AppsFuncCommon implements AppsFuncBase
 		}
 		if (isset($vars['appid'])) {
 			$w = ['appid', $vars['appid']];
-			if (!is_numeric($vars['appid'])) {
+			if (!is_numeric($vars['appid']) && is_string($vars['appid'])) {
 				try {
 					$apps = Apps::getData($vars['appid']);
 					$apps['id'] && $w = ['appid', $apps['id']];
@@ -48,12 +65,16 @@ class NodeFunc extends AppsFuncCommon implements AppsFuncBase
 		isset($vars['cid'])  && $vars['id'] = $vars['cid'];
 		isset($vars['cid!']) && $vars['id!'] = $vars['cid!'];
 
-
 		isset($vars['mode'])    && $where[]    = ['mode', $vars['mode']];
 		isset($vars['dir'])     && $where[]    = ['dir', $vars['dir']];
+		if(isset($vars['rootdir'])){
+			$rootid = NodeCache::get('dir2nid', $vars['rootdir']);
+			$where[] = ['rootid', $rootid];
+		}
 		isset($vars['rootid'])  && $where[]    = ['rootid', $vars['rootid']];
 		isset($vars['rootid!']) && $whereNot[] = ['rootid', '<>', $vars['rootid!']];
 
+		$vars['stype'] == 'top' && $where[] = ['rootid', 0];
 		if ($vars['stype'] == 'sub') {
 			if (isset($vars['sub'])) {
 				$vars['stype'] = 'suball';
@@ -62,21 +83,25 @@ class NodeFunc extends AppsFuncCommon implements AppsFuncBase
 				unset($vars['id']);
 			}
 		}
-		$vars['stype'] == 'top' && $where[] = ['rootid', 0];
-		$vars['stype'] == 'suball' && $where[] = ['rootid', NodeCache::getIds($vars['id'])];
-		$vars['stype'] == 'self' && $where[] = ['rootid', NodeCache::get('parent', $vars['id'])];
+		if ($vars['stype'] == 'suball' && $vars['id']) {
+			$where[] = ['id', 'in',NodeCache::getIds($vars['id'])?:0];
+			unset($vars['id']);
+		}
+		if ($vars['stype'] == 'self') {
+			$where[] = ['rootid', NodeCache::get('parent', $vars['id'])];
+			unset($vars['id']);
+		}
+		self::inited($vars, $model, $where, $whereNot);
 
-		self::init($vars, $model, $where, $whereNot);
-		self::setApp(Node::APPID, Node::APP);
 		self::props();
 		self::keywords();
-		self::orderby(['hot' => 'count', 'new' => 'id'], 'sortnum');
+		self::orderby(['hot' => 'count', 'new' => 'id'], 'sortnum', 'ASC');
 		self::where();
-		return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+		return self::getResource(__METHOD__);
 	}
-	public static function resource($vars, $idsArray = null)
+	public static function resource($idsArray = null)
 	{
-		$vars['ids'] && $idsArray = $vars['ids'];
+		$vars = self::$vars;
 		$resource = NodeModel::field('id')->where($idsArray)->orderBy('id', $idsArray)->select();
 		$resource = self::many($vars, $resource);
 		return $resource;
@@ -99,13 +124,13 @@ class NodeFunc extends AppsFuncCommon implements AppsFuncBase
 				continue;
 			}
 			$roleArray = $C['config']['role'];
-			if (UserCP::checkRole($roleArray['publish'])||empty($roleArray['publish'])) {
+			if (UserCenter::checkRole($roleArray['publish']) || empty($roleArray['publish'])) {
 				if ($C['status'] && empty($C['outurl'])) {
 					$tag = ($level == '1' ? "" : "├ ");
 					$selected = ($selid == $C['id']) ? "selected" : "";
 					$text = str_repeat("│　", $level - 1) . $tag . $C['name'] . "[id:{$C['id']}]" . ($C['outurl'] ? "[∞]" : "");
 
-					UserCP::checkRole($roleArray['examine']) && $text .= '[审核]';
+					UserCenter::checkRole($roleArray['examine']) && $text .= '[审核]';
 
 					$option = sprintf(
 						'<option value="%s" %s>%s</option>',
@@ -141,14 +166,15 @@ class NodeFunc extends AppsFuncCommon implements AppsFuncBase
 	public static function many($vars, $resource = [])
 	{
 		if ($resource) {
-			if ($vars['meta']) {
-				$idArray = array_column($resource, 'id');
-				$idArray && $meta_data = (array) AppsMeta::data(Node::APP, $idArray);
+			$idArray = array_column($resource, 'id');
+			if ($vars['meta'] && $idArray) {
+				$metaData = [];
+				AppsMeta::data(Node::APP, $idArray,$metaData);
 			}
 			foreach ($resource as $key => $value) {
 				$node = NodeCache::getId($value['id']);
-				if ($vars['meta'] && $meta_data) {
-					$node += (array) $meta_data[$value['id']];
+				if ($vars['meta'] && $metaData) {
+					$node += (array) $metaData[$value['id']];
 				}
 				$node && $resource[$key] = $node;
 			}

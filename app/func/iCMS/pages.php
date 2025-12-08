@@ -14,8 +14,6 @@ function iCMS_pages($vars)
 	if (empty($conf)) {
 		return;
 	}
-	View::parseVars($vars);
-	View::unfuncVars($vars);
 
 	// $as = $vars['as'];
 	// $array = $vars['array'];
@@ -39,9 +37,13 @@ function iCMS_pages($vars)
 		Pages::$setting['index'] = Route::make(array('page' => null), $conf['url']);
 		$conf['url'] = Route::make($query, $conf['url']);
 	}
-	$obj = Paging::make($conf);
+	$Paging = Paging::make($conf);
+    View::generic([
+		'PAGES' => $Paging,
+		'PAGE'  => $Paging->vars()
+	]); 
 	if (isset($vars['show'])) {
-		echo $obj->show($vars['show']);
+		echo $Paging->show($vars['show']);
 	}
-	return $obj;
+	return $Paging;
 }

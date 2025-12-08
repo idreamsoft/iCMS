@@ -10,25 +10,17 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-// class SpiderProjectModel extends Model
-// {
-//     protected $casts = [
-//         'config'    => 'array',
-//     ];
-// }
 class SpiderProject
 {
 
     public static function get($id)
     {
         $key = 'spider:project:' . $id;
-        $data = $GLOBALS[$key];
-        if (!isset($GLOBALS[$key])) {
+        return Cache::temp($key, function () use ($id) {
             $data = SpiderProjectModel::get($id);
-            $data+= $data['config'];
-            $GLOBALS[$key] = $data;
-        }
-        return $data ?: array();
+            $data += $data['config'];
+            return $data;
+        });
     }
     public static function option($id = 0, &$output = null)
     {

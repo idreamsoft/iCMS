@@ -1,83 +1,65 @@
 [
     {
-        "id": "system",
+        "id": "settings",
         "children": [
             {
-                "id": "config",
+                "id": "system",
                 "caption": "系统设置",
-                "href": "config",
+                "href": "/config/system",
                 "icon": "cog",
                 "sort": "-999",
+                "children-show": false,
                 "children": [
                     {
                         "caption": "调试",
-                        "href": "config&tab=config.debug",
-                        "icon": "cog"
+                        "href": "/config/system/debug",
+                        "icon": "bugs"
                     },
-
                     {
                         "caption": "缓存",
-                        "href": "config&tab=config.cache&dir=cache",
-                        "icon": "cog"
-                    },
-
-                    {
-                        "caption": "缩略图",
-                        "href": "config&tab=config.thumb&dir=files",
-                        "icon": "cog"
-                    },
-                    {
-                        "caption": "水印",
-                        "href": "config&tab=config.watermark&dir=files",
-                        "icon": "cog"
-                    },
-                    {
-                        "caption": "时间",
-                        "href": "config&tab=config.time",
-                        "icon": "cog"
-                    },
-                    {
-                        "caption": "更新",
-                        "href": "config&tab=config.system",
-                        "icon": "cog"
-                    },
-                    {
-                        "caption": "后台",
-                        "href": "config&tab=config.other",
-                        "icon": "cog"
-                    },
-                    {
-                        "caption": "动态属性",
-                        "href": "config&tab=apps.meta&dir=apps",
-                        "icon": "cog"
+                        "href": "/config/system/cache",
+                        "menuOnly": true,
+                        "icon": "hourglass-half"
                     }
                 ]
             },
             {
+                "caption": "更新系统缓存",
+                "href": "/config/cache",
+                "icon": "sync",
+                "ui": "cms:ui:ajax"
+            },
+            {
                 "id": "site",
                 "caption": "站点设置",
-                "href": "config&do=site",
+                "href": "/config/site",
                 "icon": "cog",
                 "sort": "-999",
+                "childrentest": "ConfigAdmincp::getSiteMemu",
                 "children": [
                     {
                         "caption": "站点",
-                        "href": "config&do=site&tab=site.base",
+                        "href": "/config/site/base",
                         "icon": "cog"
                     },
                     {
                         "caption": "模板",
-                        "href": "config&do=site&tab=site.template",
+                        "href": "/config/site/template",
                         "icon": "cog"
                     },
                     {
-                        "caption": "URL",
-                        "href": "config&do=site&tab=site.route",
+                        "caption": "路由",
+                        "href": "/config/site/route",
                         "icon": "cog"
                     },
                     {
-                        "caption": "附件",
-                        "href": "config&do=site&tab=site.file&dir=files",
+                        "caption": "自定义",
+                        "href": "/config/site/meta",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "字典",
+                        "href": "/config/site/dict",
                         "icon": "cog"
                     }
                 ]
@@ -92,9 +74,9 @@
                 "children": [
                     {
                         "caption": "更新系统设置",
-                        "href": "config&do=cache",
+                        "href": "/config/cache",
                         "icon": "sync",
-                        "target": "iPHP_FRAME"
+                        "ui": "cms:ui:ajax"
                     }
                 ]
             }

@@ -10,30 +10,41 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class NodeEvent
+class NodeEvent extends DBEvent
 {
-    public static function changed($response, $event, $model)
+    public static $appid = iCMS_APP_NODE;
+
+    public static function changed($response, $Builder, $event, $isMulti)
     {
-        $event == 'updated' && $model->field('id')->get();
-        $id = $model->getResponse('id');
-        $appid = iCMS_APP_NODE;
-        if (isset($response['pid'])) {
-            /** 属性变化 */
-            AppsMap::change('pid', $appid, $response['pid'], $event, $id, 'Prop');
+        if ($event == 'updated') {
+            $idArr = $Builder->field('id')->pluck();
+        } else {
+            $idArr = [$response['id']];
         }
-        //缩略图变化
-        if (isset($response['pic']) || isset($response['bpic']) || isset($response['mpic']) || isset($response['spic'])) {
-            FilesPic::change($response, $appid, $event, $id);
-        }
+        array_map(function ($id) use ($response, $Builder, $event, $isMulti) {
+            if (!$id) {
+                return;
+            }
+            if (isset($response['pid'])) {
+                /** 属性变化 */
+                AppsMap::change('pid', self::$appid, $response['pid'], $event, $id, 'Prop');
+            }
+            //缩略图变化
+            if (isset($response['pic']) || isset($response['bpic']) || isset($response['mpic']) || isset($response['spic'])) {
+                FilesPic::change($response, self::$appid, $event, $id);
+            }
+        }, $idArr);
     }
-    public static function deleted($response, $model)
+
+    public static function deleted($response, $Builder, $event, $isMulti)
     {
-        $row = $model->field('id')->get();
-        $iid = $row['id'];
-        $appid = iCMS_APP_NODE;
-        if ($iid) {
-            AppsMap::delete($appid, $iid, 'Prop');
-            Files::delete($appid, $iid);
-        }
+        $idArr = $Builder->field('id')->pluck();
+        array_map(function ($id) {
+            if (!$id) {
+                return;
+            }
+            AppsMap::delete(self::$appid, $id, 'Prop');
+            Files::delete(self::$appid, $id);
+        }, $idArr);
     }
 }

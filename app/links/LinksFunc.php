@@ -22,8 +22,7 @@ class LinksFunc extends AppsFuncCommon
 		$vars['type'] == 'logo' && $where[] = ['logo', '<>', ''];
 		isset($vars['cid'])   && $where[] = ['cid', $vars['cid']];
 
-		self::init($vars, $model, $where, $whereNot);
-		self::setApp(Links::APPID, Links::APP);
+		self::inited($vars, $model, $where, $whereNot);
 		self::where();
 		$model->orderBy('sortnum ASC,id ASC');
 		return self::getResource(__METHOD__, true);

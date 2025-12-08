@@ -10,80 +10,58 @@
  */
 class UserNodeApp extends UserContentApp
 {
-    public function __construct()
-    {
-        parent::__construct();
-    }
     public function API_manage()
     {
         return $this->display();
     }
-    
-    public function do_delete()
+
+    /**
+     * user:node:delete
+     * @return void
+     */
+    public function api_delete()
     {
-        $id = Request::post('id');
-        if ($id) {
-            $where = [
-                'id' => $id,
-                'userid' => User::$id
-            ];
-            try {
-                UserNodeModel::where($where)->delete();
-                iJson::success('user:node:delete');
-            } catch (\sException $ex) {
-                $msg = $ex->getMessage();
-                iJson::error($msg);
-            }
-        }
+        $id = (int) Request::post('id');
+        $where = ['id' => $id, 'userid' => User::$id];
+        return (bool)UserNodeModel::where($where)->delete();
     }
 
-    public function ACTION_data()
+    public function api_get()
     {
-        $id = Request::post('id');
-        if ($id) {
-            $where = [
-                'id' => $id,
-                'userid' => User::$id
-            ];
-            $data = UserNodeModel::where($where)->get();
-            iJson::success($data);
-        } else {
-            iJson::error();
-        }
+        $id = (int) Request::post('id');
+        $where = ['id'=> $id, 'userid' => User::$id];
+        return UserNodeModel::where($where)->get();
     }
-    public function ACTION_create()
-    {
-        $data = Request::post();
-        extract($data);
 
+    public function api_create()
+    {
+        $post = Request::post();
+        extract($post);
         $userid = User::$id;
         $appid = iCMS_APP_ARTICLE;
         $status = '1';
 
-        empty($name) && iJson::error('user:node:name:empty');
+        empty($name) && AppsBase::alert('user:node:name:empty');
 
-        $fwd = iPHP::callback('Filter::run', array(&$name), false);
-        $fwd && iJson::error('user:node:name:disable');
+        $fwd = iPHP::callback('Filter::run', [&$name], false);
+        $fwd && AppsBase::alert('user:node:name:disable');
 
-        $fwd = iPHP::callback('Filter::run', array(&$description), false);
-        $fwd && iJson::error('user:node:description:disable');
+        $fwd = iPHP::callback('Filter::run', [&$description], false);
+        $fwd && AppsBase::alert('user:node:description:disable');
 
         $max = UserNodeModel::where(compact(['userid', 'appid']))->count('id');
-        $max >= User::$config['node']['max'] && iJson::error('user:node:max');;
+        if ($max && User::$config['node']['max'] && $max >= User::$config['node']['max']) {
+            AppsBase::alert('user:node:max');
+        }
 
         $fields = UserNodeModel::getFields();
         $data = compact($fields);
         unset($data['id']);
-        try {
-            if ($id) {
-                $data['id'] = UserNodeModel::update($data, ['id' => $id]);
-            } else {
-                $data['id'] = UserNodeModel::create($data);
-            }
-            iJson::success($data, 'user:node:success');
-        } catch (\sException $ex) {
-            $msg = $ex->getMessage();
-            iJson::error($msg);
+        if ($id) {
+            $data['id'] = UserNodeModel::update($data, ['id' => $id]);
+        } else {
+            $data['id'] = UserNodeModel::create($data);
         }
+        return 'user:node:success';
     }
 }

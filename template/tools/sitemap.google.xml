@@ -1,0 +1,104 @@
+<!--{'<'|cat:'?xml version="1.0" encoding="UTF-8"?'|cat:'>'}-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+
+    <url>
+        <loc><!--{$site.url}--></loc>
+        <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <!--{foreach value="device" from="$site.devices"}-->
+    <url>
+        <loc><!--{$device.url}--></loc>
+        <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+        <changefreq>always</changefreq>
+        <priority>1.0</priority>
+    </url>
+    <!--{/foreach}-->
+    <!--{if !$cid}-->
+        <!--{iCMS:node:list loop="true" row="100" stype="top"}-->
+        <url>
+            <loc><!--{$node_list.url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>always</changefreq>
+            <priority>0.9</priority>
+        </url>
+        <!--{foreach value="hl" key="lg" from="$site.devices"}-->
+        <url>
+            <loc><!--{$node_list.iurl[$lg].url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>always</changefreq>
+            <priority>0.9</priority>
+        </url>
+        <!--{/foreach}-->
+        <!--{iCMS:node:list as="sub_node" loop="true" stype='sub' row="100" id=$node_list.id}-->
+        <url>
+            <loc><!--{$sub_node.url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>always</changefreq>
+            <priority>0.8</priority>
+        </url>
+        <!--{foreach value="hl" key="lg" from="$site.devices"}-->
+        <url>
+            <loc><!--{$sub_node.iurl[$lg].url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>always</changefreq>
+            <priority>0.9</priority>
+        </url>
+        <!--{/foreach}-->
+        <!--{/iCMS}-->
+        <!--{/iCMS}-->
+        <!--{iCMS:article:list loop="true" row="1000" sub="all"}-->
+        <url>
+            <loc><!--{$article_list.url|escape}--></loc>
+            <lastmod><!--{$article_list.pubdate|date:"Y-m-d"}--></lastmod>
+            <changefreq>weekly</changefreq>
+            <priority>0.7</priority>
+        </url>
+        <!--{/iCMS}-->
+
+        <!--{iCMS:tag:list loop="true" row="1000"}-->
+        <url>
+            <loc><!--{$tag_list.url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>daily</changefreq>
+            <priority>0.6</priority>
+        </url>
+        <!--{/iCMS}-->
+
+    <!--{else}-->
+        <!--{iCMS:node:list loop="true" stype='sub' row="1000" id="$cid"}-->
+        <url>
+            <loc><!--{$node_list.url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>daily</changefreq>
+            <priority>0.9</priority>
+        </url>
+        <!--{foreach value="hl" key="lg" from="$site.devices"}-->
+        <url>
+            <loc><!--{$node_list.iurl[$lg].url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>always</changefreq>
+            <priority>0.9</priority>
+        </url>
+        <!--{/foreach}-->
+        <!--{/iCMS}-->
+        <!--{iCMS:article:list loop="true" row="1000" sub="all" cid="$cid"}-->
+        <url>
+            <loc><!--{$article_list.url|escape}--></loc>
+            <lastmod><!--{$article_list.pubdate|date:"Y-m-d"}--></lastmod>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+        </url>
+        <!--{/iCMS}-->
+        <!--{iCMS:tag:list loop="true" row="1000" sub="all" cid="$cid"}-->
+        <url>
+            <loc><!--{$tag_list.url|escape}--></loc>
+            <lastmod><!--{$iCMS.NOW|date:"Y-m-d"}--></lastmod>
+            <changefreq>daily</changefreq>
+            <priority>0.7</priority>
+        </url>
+        <!--{/iCMS}-->
+    <!--{/if}-->
+</urlset>

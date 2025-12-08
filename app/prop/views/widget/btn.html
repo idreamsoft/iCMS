@@ -1,4 +1,4 @@
-<a class="<?php echo $class; ?>" href="<?php echo ADMINCP_URL; ?>=prop&do=add&_app=<?php echo $app; ?>&field=<?php echo $field; ?>" data-toggle="modal" data-meta='{"width":"60%","height":"600px"}' title="<?php echo $title; ?>">
+<a class="<?php echo $class; ?> " i="cms:ui:modal" href="{{prop/add}}?_app=<?php echo $app; ?>&field=<?php echo $field; ?>" data-params='{"width":"60%","height":"600px"}' title="<?php echo $title; ?>">
     <?php echo $text; ?>
 </a>
 <?php if (!$GLOBALS['PROP.CALLBACK'][$field]) { ?>
@@ -9,7 +9,7 @@
         // console.log(el, name);
         if (name == 'INPUT') {
             el.val(data.val);
-            $('.itemList', el.parent()).before('<a class="dropdown-item" href="javascript:;" data-mode="true" data-target="#' + data.field + '" data-insert="' + data.val + '">' + data.name + '</a>')
+            $('.itemList', el.parent()).before('<a class="dropdown-item" href="javascript:;" data-mode="true" data-target="#' + data.field + '" i="cms:ui:insert" data-insert="' + data.val + '">' + data.name + '</a>')
         } else if (name == 'SELECT') {
             el.append('<option value="' + data.val + '">' + data.name + ' [' + data.field + '="' + data.val + '"]</option>');
             el.trigger("chosen:updated");

@@ -1,0 +1,99 @@
+<?php $title = "附件"; ?>
+<input type="hidden" name="saveCall[file]" value="FilesAdmincp::saveCall_config_file">
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">附件URL</label>
+    <div class="col-sm-8">
+        <!-- <textarea name="config[file][url]" id="file_url" class="span6" style="height: 90px;"><?php echo $config['file']['url'] ; ?></textarea> -->
+        <input type="text" name="config[file][url]" class="form-control" id="file_url" value="<?php echo $config['file']['url'] ; ?>" />
+        <small class="form-text text-muted">
+            <!-- 可填写多个,系统将随机选择.<br />格式一行一条<br /> -->如果访问不到,请自行调整.<br />请填写完整的URL,例:https://www.icmsdev.com/res/</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">文件保存目录</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[file][dir]" class="form-control" id="file_dir" value="<?php echo $config['file']['dir'] ; ?>" />
+        <small class="form-text text-muted">位于 public 目录下</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">目录结构</label>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="config[file][dir_format]" class="form-control" id="file_dir_format" value="<?php echo $config['file']['dir_format'] ; ?>" />
+            <a class="btn btn-dark dropdown-toggle" id="file_dir_format_menu" data-bs-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-question-circle"></i> 帮助</a>
+            <ul class="dropdown-menu" aria-labelledby="file_dir_format_menu">
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{Y}" data-target="#file_dir_format"><span class="label label-inverse">Y</span> 4位数年份</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{y}" data-target="#file_dir_format"><span class="label label-inverse">y</span> 2位数年份</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{m}" data-target="#file_dir_format"><span class="label label-inverse">m</span> 月份01-12</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{n}" data-target="#file_dir_format"><span class="label label-inverse">n</span> 月份1-12</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{d}" data-target="#file_dir_format"><span class="label label-inverse">n</span> 日期01-31</a>
+                </li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{j}" data-target="#file_dir_format"><span class="label label-inverse">j</span> 日期1-31</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{md5:0,2}/" data-target="#file_dir_format"><span class="label label-inverse">md5:0,2</span> 文件MD5</a>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{md5:2,3}/" data-target="#file_dir_format"><span class="label label-inverse">md5:2,3</span> 文件MD5</a>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{date:Ymd}/" data-target="#file_dir_format"><span class="label label-inverse">date:Ymd</span> 日期</a>
+                </li>
+                <li class="divider"></li>
+                <li>
+                    <a class="dropdown-item" i="cms:ui:insert" href="{EXT}" data-target="#file_dir_format"><span class="label label-inverse">EXT</span> 文件类型</a>
+                </li>
+            </ul>
+        </div>
+        <small class="form-text text-muted">为空全部存入同一目录</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">允许上传类型</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[file][allow_ext]" class="form-control" id="file_allow_ext" value="<?php echo $config['file']['allow_ext'] ; ?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">检测文件</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[file][check_md5]" id="file_check_md5" value="<?php echo $config['file']['check_md5'];?>" />
+        <small class="form-text text-muted">检测文件是否上传过,开启后同一个文件只能上传一次,如果需要重新上传请在后台文件管理里删除后,再重新上传</small>
+    </div>
+</div>
+<!--
+    <hr />
+    <div class="form-group row">
+<label class="col-sm-2 col-form-label text-sm-end" for="example">远程附件</label>
+<div class="col-sm-8">
+      <div class="switch">
+        <input type="checkbox" i="cms:ui:switch" name="config[file][remote][enable]" id="file_remote_enable" value="<?php echo $config['file']['remote']['enable'];?>"/>
+      </div>
+    <small class="form-text text-muted">>开启后,可接受其它iCMS程序上传/删除附件</span>
+    </div>
+    </div>
+    <div class="form-group row">
+
+<label class="col-sm-2 col-form-label text-sm-end" for="example">AccessKey</label>
+<div class="col-sm-8">
+        <input type="text" name="config[file][remote][AccessKey]" class="form-control" id="file_remote_AccessKey" value="<?php echo $config['file']['remote']['AccessKey'] ; ?>"/>
+    <small class="form-text text-muted">>该AccessKey会和接口URL中包含的Token进行比对，从而验证安全性</span>
+    </div>
+    </div>
+    <div class="form-group row">
+
+<label class="col-sm-2 col-form-label text-sm-end" for="example">SecretKey</label>
+<div class="col-sm-8">
+        <input type="text" name="config[file][remote][SecretKey]" class="form-control" id="file_remote_SecretKey" value="<?php echo $config['file']['remote']['SecretKey'] ; ?>"/>
+    <small class="form-text text-muted">>该SecretKey会和接口URL中包含的Token进行比对，从而验证安全性</span>
+    </div>
+    </div>
+-->

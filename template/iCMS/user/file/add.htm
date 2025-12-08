@@ -9,7 +9,7 @@
     <body>
         <div class="block m-0  block-transparent">
             <div class="block-content">
-                <form i="upload" action="<!--{iCMS:route url='FilesUser' id='$_REQUEST.id'}-->" method="POST" target="iPHP_FRAME" enctype="multipart/form-data">
+                <form i="upload" action="<!--{iCMS:route url='FilesUser' id='$_REQUEST.id'}-->" method="POST" i="cms:ui:form" enctype="multipart/form-data">
                     <input type="hidden" name="action" value="upload" />
                     <input type="hidden" name="callback" value="<!--{$_REQUEST.callback}-->_callback" />
                     <input type="hidden" name="udir" value="<!--{$_REQUEST.dir}-->" />

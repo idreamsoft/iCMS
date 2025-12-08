@@ -1,0 +1,37 @@
+<?php 
+$title = "用户组"; 
+isset($data) OR $data = [];
+isset($data['config']) OR $data['config'] = [];
+isset($data['config']['role']) OR $data['config']['role'] = [];
+?>
+<textarea id="roleJson" class="hide">
+<?php echo json_encode($arr); ?>
+</textarea>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_allow">允许访问</label>
+    <div class="col-sm-8">
+        <input data-source='/role/selectpage/user' value="<?php echo @$data['config']['role']['allow']; ?>" name="rs[config][role][allow]" id="config_role_allow" class="form-control" i="cms:ui:selectpage" multiple="multiple" placeholder="请选择用户组(可多选)..." />
+        <small class="form-text text-muted">设置允许访问的用户组</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_forbid">限制访问</label>
+    <div class="col-sm-8">
+        <input data-source='/role/selectpage/user' value="<?php echo @$data['config']['role']['forbid']; ?>" name="rs[config][role][forbid]" id="config_role_forbid" class="form-control" i="cms:ui:selectpage" multiple="multiple" placeholder="请选择用户组(可多选)..." />
+        <small class="form-text text-muted">设置限制访问的用户组</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_publish">支持投稿</label>
+    <div class="col-sm-8">
+        <input data-source='/role/selectpage/user' value="<?php echo @$data['config']['role']['publish']; ?>" name="rs[config][role][publish]" id="config_role_publish" class="form-control" i="cms:ui:selectpage" multiple="multiple" placeholder="请选择用户组(可多选)..." />
+        <small class="form-text text-muted">设置支持投稿的用户组</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label" for="config_role_examine">审核投稿</label>
+    <div class="col-sm-8">
+        <input data-source='/role/selectpage/user' value="<?php echo @$data['config']['role']['examine']; ?>" name="rs[config][role][examine]" id="config_role_examine" class="form-control" i="cms:ui:selectpage" multiple="multiple" placeholder="请选择用户组(可多选)..." />
+        <small class="form-text text-muted">设置需要审核投稿的用户组</small>
+    </div>
+</div>

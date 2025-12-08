@@ -10,85 +10,155 @@
  */
 class UserAdmincp extends AdmincpCommon
 {
-    public function __construct()
-    {
-        parent::__construct();
-        self::$primaryKey = UserModel::getPrimaryKey();
-        $this->uid = (int)$_GET['id'];
-    }
+    use AdmincpCommonTrait;
 
-    public function save_config()
-    {
-        Config::$data = Request::post('config');
-        foreach ((array)Config::$data['open'] as $key => $value) {
-            if ($value['appid'] && $value['appkey']) {
-                Config::$data['open'][$key]['enable'] = true;
-            }
-        }
-        Config::save(self::$appId);
-        // return self::success('保存成功');
-    }
+    public static $_status = 1;
+    public static $orderBy = [
+        'id'         => 'ID',
+        'hits'       => '点击',
+        'hits_week'  => '周点击',
+        'hits_month' => '月点击',
+        'fans'       => '粉丝数',
+        'follow'     => '关注数',
+        'article'    => '文章数',
+        'favorite'   => '收藏数',
+        'comment'    => '评论数',
+    ];
 
     /**
      * 上传头像
      *
      * @return void
      */
-    public static function do_uploadAvatar($uid=0)
+    public static function done_avatar($id = null)
     {
-        empty($uid) && $uid = (int)Request::get('uid');
-        FilesMark::$enable = false;
-        Files::$check_data  = false;
-        FilesCloud::$enable = false;
-        FilesClient::$config['allow_ext'] = 'jpg,png,jpeg';
-        $path = get_user_pic($uid);
-        $udir = dirname($path);
-        try {
-            return FilesClient::upload('upfile', $udir, $uid);
-        } catch (\Exception $ex) {
-            iJson::error($ex->getMessage());
+        empty($id) && $id = (int)Request::get('id');
+        return UserUtils::avatar($id);
+    }
+
+    public function done_typeMap()
+    {
+        $arr = [
+            UserOpenid::TYPE_WEB   => 'WEB',
+            UserOpenid::TYPE_WXA   => '小程序',
+            UserOpenid::TYPE_QRCODE=> '扫码'
+        ];
+        if (is_array(self::$CONFIG['social'])) {
+            foreach (self::$CONFIG['social'] as $type) {
+                !isset($arr[$type['id']]) && $arr[$type['id']] = $type['name'];
+            }
         }
+
+        $arr += (array)Prop::get('type');
+        $list = [];
+        if ($arr) {
+            foreach ($arr as $id => $name) {
+                $list[] = iJson::listItem(['type' => $id], $name);
+            }
+        }
+
+        return iJson::listData($list);
     }
-    public static function do_deck()
-    {
-        include self::view("user.deck");
-    }
+
     public function do_add()
     {
-        if ($this->uid) {
-            $user = UserModel::get($this->uid);
-            $user && $userdata = UserData::get($this->uid);
+        if ($this->id) {
+            $rs = UserModel::get($this->id);
+            $rs && $userdata = UserData::get($this->id);
         }
-        self::added($this, __METHOD__, $user);
-        include self::view("user.add");
+        if ($rs) {
+            $rs['avatar'] = iCMS_FILE_URL . User::getPic($this->id);
+        } else {
+            $rs = [
+                'role_id'=> 3,
+                'status' => 1,
+            ];
+        }
+        include self::view();
     }
+
     /**
-     * [登录用户]
-     * @return [type] [description]
+     * 登录用户
+     * @return void
      */
     public function do_login()
     {
-        if ($this->uid && Member::isSuperRole()) {
-            $user = UserModel::get($this->uid);
+        $userid = (int)Request::sget('userid');
+        if ($userid && Admin::isSuperRole()) {
+            $user = UserModel::get($userid);
             User::setCookie($user);
-            $url = Route::routing('{uid}/home', [$this->uid]);
-            Helper::redirect($url);
+            $url = Route::routing('{userid}/home', [$userid]);
+            Utils::jumpto($url);
         }
     }
-    public function do_manage()
+
+    public function do_index()
     {
+        self::setContext([
+            'tablist' => 'params',
+            'params'  => [
+                'wxappid' => Request::get('wxappid'),
+                'status'  => Request::get('status'),
+            ]
+        ]);
+
+        if (Request::isAjax()) {
+            return $this->index();
+        }
+
+        include self::view();
+    }
+
+    public function do_order()
+    {
+        self::$MODEL = 'UserOrderModel';
+        self::setContext([
+            'tablist' => 'params',
+            'params'  => [
+                'status'  => Request::get('status'),
+            ]
+        ]);
+
+        if (Request::isAjax()) {
+            return $this->order();
+        }
+
+        include self::view();
+    }
+
+    public function order()
+    {
+        $where = [];
+
+        $status = Request::get('status');
+        is_numeric($status) && $where['status'] = (int) $status;
+
+        return self::tableData('UserOrderModel', [
+            'where' => $where
+        ], function ($rows) {
+            $rows = array_map(function ($row){
+                // $row['role_name'] = $roleArr[$row['role_id']]['name'];
+                return $row;
+            }, $rows);
+            return $rows;
+        });
+    }
+
+    public function index()
+    {
+        $where = [];
+
+        $status = Request::get('status');
+        is_numeric($status) && $where['status'] = (int) $status;
 
         $wxappid = Request::get('wxappid');
-        $wxappid && $where['account'] = array('like', "%@{$wxappid}%");
+        $wxappid && $where['email'] = ['like', "%@{$wxappid}.wxa"];
 
         $keywords = Request::get('keywords');
-        $keywords && $where['CONCAT(account,nickname)'] = array('like', "%{$keywords}%");
+        $keywords && $where['CONCAT(account,nickname)'] = ['like', "%{$keywords}%"];
 
         $role_id = Request::get('role_id');
         $role_id && $where['role_id'] = $role_id;
-
-        $status = Request::get('status');
-        is_numeric($status) && $where['status'] = $status;
 
         $regip = Request::get('regip');
         $regip && $where['regip'] = $regip;
@@ -96,49 +166,28 @@ class UserAdmincp extends AdmincpCommon
         $loginip = Request::get('loginip');
         $loginip && $where['loginip'] = $loginip;
 
-        // $pid = $_GET['pid'];
-        // if (is_numeric($_GET['pid'])) {
-        //     $uri_array['pid'] = $pid;
-        //     if ($_GET['pid'] == 0) {
-        //         $sql .= " AND `pid`=''";
-        //     } else {
-        //         iMap::init('prop', self::$appId, 'pid');
-        //         $map_where = iMap::where($pid);
-        //     }
-        // }
-
-        // if ($map_where) {
-        //     $map_sql = iSQL::select_map($map_where);
-        //     $sql     = ",({$map_sql}) map {$sql} AND `uid` = map.`iid`";
-        // }
-
-        $orderby = self::setOrderBy(array(
-            'uid'        => "UID",
-            'hits'       => "点击",
-            'hits_week'  => "周点击",
-            'hits_month' => "月点击",
-            'fans'       => "粉丝数",
-            'follow'     => "关注数",
-            'article'    => "文章数",
-            'favorite'   => "收藏数",
-            'comment'   => "评论数",
-        ));
-
-        $result = UserModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
-
-        include self::view("user.manage");
+        return self::tableData([
+            'where' => $where
+        ], function ($rows) {
+            $roleArr = Role::user();
+            $rows = array_map(function ($row) use ($roleArr) {
+                $row['role_name'] = $roleArr[$row['role_id']]['name'];
+                return $row;
+            }, $rows);
+            return $rows;
+        });
     }
-    public function save()
+
+    public function save(&$data = [])
     {
         $user = UserModel::postData();
-        $userData = UserData::postData();
+        $userData = UserData::postData('userdata');
+        $postud = Request::post('userdata');
 
-        $uid      = (int)$user['uid'];
-        $account  = $user['account'];
-        $phone    = $user['phone'];
-        $email    = $user['email'];
+        $id = (int)$user['id'];
+        $account = $user['account'];
+        $phone = $user['phone'];
+        $email = $user['email'];
         $nickname = $user['nickname'];
         $password = $user['password'];
         unset($user['password']);
@@ -146,117 +195,109 @@ class UserAdmincp extends AdmincpCommon
         $nickname or self::alert('昵称不能为空');
         $account or self::alert('账号不能为空');
 
-        preg_match("/^[\w_\-@\.]+$/i", $account) or self::alert('账号格式错误，只能由英文字母、数字或_-组成,不支持中文');
+        preg_match("/^[\w_\-@\.]+$/i", $account) or self::alert('账号格式错误,只能由英文字母、数字或_-组成,不支持中文');
 
         if ($phone) {
-            preg_match("/^1[34578]\d{9}$/i", $phone) or self::alert('手机号格式错误');
+            Utils::isPhone($phone) or self::alert('手机号格式错误');
         }
         if ($email) {
             preg_match("/^[\w\-\.]+@[\w\-]+(\.\w+)+$/i", $email) or self::alert('邮箱格式错误');
         }
 
-        $user['regdate']       = str2time($user['regdate']);
+        $user['regdate'] = str2time($user['regdate']);
         $user['lastlogintime'] = str2time($user['lastlogintime']);
 
-        UserModel::check(compact('account'), $uid) && self::alert('该账号已经存在');
-        UserModel::check(compact('nickname'), $uid) && self::alert('该昵称已经存在');
+        UserModel::check(compact('account'), $id) && self::alert('该账号已经存在');
+        UserModel::check(compact('nickname'), $id) && self::alert('该昵称已经存在');
 
-        if (empty($uid)) {
+        if ($userData['city']) {
+            $citys = explode('/', $userData['city']);
+            $userData['province'] = $citys[0];
+        }
+        if ($postud['birthday']) {
+            list($userData['year'], $userData['month'], $userData['day']) = explode('-', $postud['birthday']);
+        }
+
+        if (empty($id)) {
             $password or self::alert('密码不能为空');
             $user['password'] = User::password($password);
-            $user['uid'] = UserModel::create($user, true);
-            if ($user['uid']) {
-                $userData['uid'] = $user['uid'];
+            $user['id'] = UserModel::create($user, true);
+            if ($user['id']) {
+                $userData['userid'] = $user['id'];
                 UserData::create($userData, true);
             }
         } else {
             $password && $user['password'] = User::password($password);
-            UserModel::update($user, compact('uid'));
-            $userData['uid'] = $uid;
-            UserData::updateOrCreate($userData, compact('uid'));
+            UserModel::update($user, compact('id'));
+            $userData['userid'] = $id;
+            UserData::updateOrCreate($userData, ['userid' => $id]);
         }
-        $user['id'] = $user['uid'];
-        self::saved($this, __METHOD__, $user);
-        // return self::success('保存成功');
+        return Admincp::url('/user/index');
     }
-    public function do_batch()
+
+    public function deleting($ids = [])
     {
-        $actions = array(
-            'prop' => function ($idArray, $ids, $batch) {
-                $pid = Request::post('pid');
-                UserModel::update(compact('pid'), array('uid' => $idArray));
-            },
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    $this->do_delete((int)$id);
-                }
-            },
-        );
+        if ($ids) {
+            foreach ($ids as $key => $id) {
+                UserModel::delete($id);
+                UserData::delete($id);
 
-        return AdmincpBatch::run($actions, "用户");
-    }
-    public function do_delete($uid = null)
-    {
-        $uid === null && $uid = $this->uid;
-        $uid or self::alert('请选择要删除的用户');
-        UserModel::delete($uid);
-        UserData::delete($uid);
-
-        $where = ['user_id' => $uid];
-        UserNodeModel::delete($where);
-        UserOpenidModel::delete($where);
-        UserFollowModel::delete($where);
-        UserReportModel::delete($where);
-        DB::hasTable('user_cdata') && DB::table('user_cdata')->delete($where);
-
-        // return self::success('用户删除完成');
+                $where = ['userid' => $id];
+                UserNodeModel::delete($where);
+                UserOpenidModel::delete($where);
+                UserFollowModel::delete($where);
+                UserReportModel::delete($where);
+                DB::hasTable('user_cdata') && DB::table('user_cdata')->delete($where);
+            }
+        }
+        return true;
     }
 
     public static function shadow($data)
     {
-        $id  = $data['id'];
-        $user_id  = $data['user_id'];
+        $id = $data['id'];
+        $user_id = $data['user_id'];
         $account = $data['account'];
         $nickname = $data['nickname'];
 
-        $has = UserModel::field('uid')->where($user_id)->value();
+        $has = UserModel::field('id')->where($user_id)->value();
         if ($has) {
-            UserModel::update(['type' => '255'], array('uid' => $user_id));
+            UserModel::update(['type' => '255'], ['id' => $user_id]);
         } else {
-            $account = substr(md5('members:' . $id), 8, 16);
-            $user_id = UserModel::field('uid')->where('account', $account)->value();
+            $account = substr(md5('admins:' . $id), 8, 16);
+            $user_id = UserModel::field('id')->where('account', $account)->value();
             if (empty($user_id)) {
                 //创建管理员影子用户
-                $user_id = UserModel::create(array(
-                    'role_id'   => Config::get('user.register.role'),
-                    'account' => $account,
-                    'nickname' => $nickname,
-                    'password' => User::password(random(32)),
-                    'type'     => '255',
-                    'status'   => '1',
-                ));
+                $user_id = UserModel::create([
+                    'role_id'   => Config::get('user.register.role')?:3,
+                    'account'   => $account,
+                    'nickname'  => $nickname,
+                    'password'  => User::password(random(32)),
+                    'type'      => '255',
+                    'status'    => '1',
+                ]);
             }
         }
         return $user_id;
     }
 
     /**
-     * [autoCacheUsercpMenu 在更新所有缓存时，将会自动执行]
+     * 更新会员中心菜单缓存
+     *
+     * @return void
+     */
+    public static function done_ucpCache()
+    {
+        self::autoCacheUsercpMenu();
+    }
+
+    /**
+     * autoCacheUsercpMenu 在更新所有缓存时，将会自动执行
      */
     public static function autoCacheUsercpMenu()
     {
-        UserCP::usercpMenuCache('manage');
-        UserCP::usercpMenuCache('content');
-    }
-
-    public static function widget_count()
-    {
-        $total = UserModel::count();
-        $widget[] = array($total, '全部');
-        foreach (User::$statusMap as $status => $text) {
-            $count = UserModel::where('status', $status)->count();
-            $widget[] = array($count, $text);
-        }
-        return $widget;
+        UserCenter::usercpMenuCache('default', true);
+        UserCenter::usercpMenuCache('manage', true);
+        UserCenter::usercpMenuCache('content', true);
     }
 }

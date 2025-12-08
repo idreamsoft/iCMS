@@ -10,6 +10,7 @@
         "hashids/hashids": "^2.0",
         "pclzip/pclzip": "^2.8",
         "phpmailer/phpmailer": "^6.5",
-        "ezyang/htmlpurifier": "^4.13"
+        "ezyang/htmlpurifier": "^4.13",
+        "aliyuncs/oss-sdk-php": "^2.6"
     }
 }

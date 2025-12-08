@@ -1,0 +1,23 @@
+<?php 
+$title   = '社交登陆';
+$header_enable = !true;
+$content_class = 'p-0';
+$social = $config['social']?:[];
+list($views, $pattern) = AdmincpView::scan('app/config/social/*', 'user', 1);
+?>
+<div class="block">
+    <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+        <?php foreach ($views as $k => $v): ?>
+        <li class="nav-item"><a class="nav-link <?=$k?:'active'?>" href="#tab_<?=$v[2]?>"><?=lang($v[2])?></a></li>
+        <?php endforeach;?>
+    </ul>
+    <div class="block-content block-content-full">
+        <div class="tab-content">
+            <?php foreach ($views as $k => $v): ?>
+            <div id="tab_<?=$v[2]?>" class="tab-pane <?=$k?:'active'?>">
+                <?php include AdmincpView::display($v[1]);?>
+            </div>
+            <?php endforeach;?>
+        </div>
+    </div>
+</div>

@@ -8,66 +8,108 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class SearchApp
+class SearchApp extends AppsBase
 {
-    public $methods = array(iPHP_APP);
-    public static $route   = null;
-    public static $data     = array();
-    public static $callback = array();
-    public function do_iCMS()
+    public $methods = [iPHP_APP];
+    public static $route = null;
+    public static $data = [];
+    public static $callback = [];
+
+    public function do_index()
     {
         return $this->display();
     }
-    public function API_iCMS()
+    public function api_search()
     {
         return $this->display();
     }
+
+    public function api_index()
+    {
+        return $this->display();
+    }
+
+    public function done_sign()
+    {
+        $query = Request::post('query');
+        if ($query) {
+            extract($query);
+            $time = time();
+            $once = random(8);
+            $keyword = auth_encode($query['keyword'] . '@#@' . $once);
+            $params = compact('app', 'do', 'keyword', 'time');
+            $params['sign'] = Utils::sign($params);
+            $url = Route::routing();
+            return Route::make($params, $url);
+        }
+    }
+
     public function display($tpl = false, $app = 'search')
     {
+        // $params = Request::param();
+        // var_dump($params);
+        // $decode = auth_decode($params['keyword']);
+        // $sign = $params['sign'];
+        // unset($params['sign']);
+        // list($keyword,$once) = explode('@#@',$decode);
+        // // $keyword = auth_encode($_keyword.'@#@'.$once);
+        // // $params['keyword'] = $keyword;
+        // // var_dump($params);
+        // $_sign = Utils::sign($params);
+        // if($sign!=$_sign){
+        //     AppsBase::alert('Signature error', 60000);
+        // }
         $keyword = Request::param('keyword');
         $keyword = rawurldecode($keyword);
         $keyword = Security::encoding($keyword);
 
-        if(class_exists('Filter')){
+        if (class_exists('Filter')) {
             Filter::$disable = Cache::get('search/disable');
-            $fwd = iPHP::callback('Filter::run', array(&$keyword), false);
-            $fwd && AppsApp::throwError('iCMS:search:Illegal', 60002);
+            Filter::disable($keyword) && self::alert('iCMS:search:Illegal', 60002);
         }
 
         $data['keyword'] = $keyword;
-        $data['title']   = $keyword;
-        $data['iurl']    = (array) self::iurl($keyword);
-        $keyword && $this->search_log($keyword);
-
+        $data['title'] = $keyword;
+        $data['iurl'] = (array) self::iurl($keyword, $app);
+        $keyword && $this->log($keyword);
         $appData = Apps::getData(Search::APPID);
         $data['SAPP'] = Apps::getDataLite($appData);
-
         $tpl === false && $tpl = sprintf('%s/search.htm', View::TPL_FLAG_1);
-        return AppsApp::render($data, $tpl, 'search', $app);
+        return self::render($data, $tpl, 'search', $app);
     }
-    public static function iurl($q, $query = null, $page = true)
+
+    public static function iurl($keyword = null, $app = 'search', $page = true)
     {
-        $query === null && $query = array('app' => 'search', 'q' => $q);
-        $iURL           =  new stdClass();
-        $iURL->url      = Route::make($query, self::$route ?: 'route::api');
-        $iURL->pageurl  = Route::make('page={P}', $iURL->url);
-        $iURL->href     = $iURL->url;
+        $query = ['app' => $app, 'do' => 'search', 'keyword' => $keyword];
+        $i = new stdClass();
+        empty(self::$route) && self::$route = Route::routing('api');
+        $i->url = Route::make($query, self::$route);
+        $i->pageurl = Route::make('page={P}', $i->url);
+        $i->href = $i->url;
         if (self::$callback['iurl'] && is_callable(self::$callback['iurl'])) {
-            $iURL = call_user_func_array(self::$callback['iurl'], array($iURL, $query));
+            $i = call_user_func_array(self::$callback['iurl'], [$i, $query]);
         }
-        $page && Route::getPageUrl($iURL);
-        return $iURL;
+        if (Route::$callback['device']) {
+            $d = call_user_func_array(Route::$callback['device'], [$i]);
+            $i = (object)array_merge((array)$i, $d);
+        }
+        if (Route::$callback['url']['data']) {
+            call_user_func_array(Route::$callback['url']['data'], [&$i]);
+        }
+        $page && Route::setPageUrl($i);
+        return $i;
     }
-    private function search_log($search)
+
+    private function log($search)
     {
         // $interval = 30;
         // $ip    = Request::ip();
-        $time  = time();
+        $time = time();
         // $key   = 'search/'.$ip;
         // $stime = Cache::get($key);
 
         // if($stime && $time-$stime<$interval){
-        //     iAPP::throwError('您搜索太快休息下,'.format_time($interval,'cn').'之后再继续', 60003);
+        //     Application::alert('您搜索太快休息下,'.format_time($interval,'cn').'之后再继续', 60003);
         // }
         // Cache::set($key,$time,$interval);
 

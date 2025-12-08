@@ -10,21 +10,17 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class UserContentApp extends UserCP
+class UserContentApp extends UserCenter
 {
-	public function __construct()
-	{
-		parent::__construct();
-	}
 	public function display()
 	{
 		$app = Request::sget('app');
-		if ($app != iAPP::$NAME) {
+		if ($app != Application::$NAME) {
 			$_GET['s'] = $app;
 		}
 		return self::view('content');
 	}
-	public function API_content()
+	public function api_content()
 	{
 		return $this->display();
 	}

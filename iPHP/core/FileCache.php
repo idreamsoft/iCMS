@@ -1,4 +1,5 @@
 <?php
+
 // namespace iPHP\core;
 
 /**
@@ -12,169 +13,195 @@
  */
 class FileCache
 {
-	protected $_cache_sock;
-	protected $_have_zlib;
-	protected $_compress_enable;
-	protected $_dirs;
-	protected $_file;
+    protected $_cache_sock;
+    protected $_have_zlib;
+    protected $_compress_enable;
+    protected $_compress_level;
+    protected $_dir_level;
+    protected $_dirs;
+    protected $_file;
 
-	public function __construct($args = array('dirs' => '', 'level' => '0', 'compress' => '9'))
-	{
-		$this->_dirs            = rtrim(iPHP_APP_CACHE . '/' . $args['dirs'], '/') . '/';
-		$this->_dir_level       = empty($args['level']) ? -1 : floor(32 / $args['level']);
-		$this->_compress_enable = $args['compress'];
-		$this->_have_zlib       = function_exists("gzcompress");
-		$this->_cache_sock      = array();
-	}
-	public function ping()
-	{
-		return true;
-	}
-	public function add($key, $val, $exp = 0)
-	{
-		$this->_file = $this->get_file($key, 'add');
-		$value       = array(
-			"Time"    => time(),
-			"Expires" => $exp,
-			"Data"    => $val,
-		);
-		$data = serialize($value);
-		$this->_cache_sock = '<?php exit;?>';
-		if ($this->_have_zlib && $this->_compress_enable) {
-			$this->_cache_sock .= gzcompress($data, 9);
-		} else {
-			$this->_cache_sock .= $data;
-		}
-		return $this->write($this->_file, $this->_cache_sock);
-	}
-	public function get($key)
-	{
-		$this->_file = $this->get_file($key, 'get');
-		if (!file_exists($this->_file)) return NULL;
-		$D     = file_get_contents($this->_file);
-		$D     = str_replace('<?php exit;?>', '', $D);
-		$value = unserialize(($this->_have_zlib && $this->_compress_enable) ? @gzuncompress($D) : $D);
-		if ($value['Expires'] == 0) {
-			return $value['Data'];
-		} else {
-			$_time = time();
-			return ($_time - $value['Time'] < $value['Expires']) ? $value['Data'] : false;
-		}
-	}
-	public function get_multi($keys)
-	{
-		foreach ($keys as $key) {
-			$value[$key] = $this->get($key);
-		}
-		return $value;
-	}
-	public function replace($key, $value, $exp = 0)
-	{
-	}
-	public function delete($key = '', $time = 0)
-	{
-		$this->_file = $this->get_file($key, 'get');
-		@chmod($this->_file, 0777);
-		return @unlink($this->_file);
-	}
-	public function get_file($key, $method)
-	{
-		if (is_file($key)) {
-			return $key;
-		}
-		$key     = str_replace(':', '/', $key);
-		$dirPath = $this->_dirs . (strpos($key, '/') !== false ? dirname($key) : '');
-		if ($this->_dir_level != -1) {
-			$md5_array  = $this->str_split(md5($key), $this->_dir_level);
-			$md5_array && $dirPath   .= '/' . implode('/', $md5_array) . '/';
-		}
-		if (!file_exists($dirPath) && $method == 'add') {
-			$this->mkdir($dirPath);
-		}
-		$strrchr = strrchr($key, '/');
-		$strrchr !== false && $key = $strrchr;
-		return $dirPath . $key . '.php';
-	}
-	public function keys($pattern = '*')
-	{
-		$lists = array();
-		if (strpos($pattern, '*') === false) {
-			$pattern = sprintf("%s/%s/*", trim($this->_dirs, '/'), trim($pattern, '/'));
-		}
-		$array = glob($this->_dirs . $pattern);
-		if ($array) foreach ($array as $value) {
-			$lists[] = $value;
-			if (is_dir($value)) {
-				$_lists = $this->keys($value, $pattern);
-				$lists  = array_merge($lists, $_lists);
-			}
-		}
-		return (array)$lists;
-	}
-	private function check($fn)
-	{
-		strpos($fn, '..') !== false && trigger_error('What are you doing?', E_USER_ERROR);
-	}
+    public function __construct($args = ['dirs' => '', 'level' => '0', 'compress' => true])
+    {
+        $this->_dirs = rtrim(iPHP_APP_CACHE . '/' . $args['dirs'], '/') . '/';
+        $this->_dir_level = is_numeric($args['level']) && $args['level'] ? floor(32 / (int)$args['level']) : -1;
+        $this->_compress_enable = $args['compress'];
+        $this->_compress_level = 9;
+        $this->_have_zlib = function_exists('gzcompress');
+        $this->_cache_sock = [];
+    }
 
-	private function write($fn, $data, $check = 1, $method = "wb+", $iflock = 1, $chmod = 0)
-	{
-		$check && $this->check($fn);
-		// @touch($fn);
-		$handle = fopen($fn, $method);
-		$iflock && flock($handle, LOCK_EX);
-		fwrite($handle, $data);
-		// $method=="rb+" && ftruncate($handle,strlen($data));
-		fclose($handle);
-		$chmod && @chmod($fn, 0644);
-	}
-	private function escapeDir($dir)
-	{
-		$dir = str_replace(array("'", '#', '=', '`', '$', '%', '&', ';'), '', $dir);
-		return rtrim(preg_replace('/(\/){2,}|(\\\){1,}/', '/', $dir), '/');
-	}
-	private function mkdir($d)
-	{
-		$d = $this->escapeDir($d);
-		$d = str_replace('//', '/', $d);
-		if (file_exists($d))
-			return @is_dir($d);
+    public function ping()
+    {
+        return true;
+    }
 
-		// Attempting to create the directory may clutter up our display.
-		if (@mkdir($d)) {
-			$stat = @stat(dirname($d));
-			$dir_perms = $stat['mode'] & 0007777;  // Get the permission bits.
-			@chmod($d, $dir_perms);
-			return true;
-		} elseif (is_dir(dirname($d))) {
-			return false;
-		}
+    public function set($key, $val, $exp = 0)
+    {
+        return $this->add($key, $val, $exp);
+    }
 
-		// If the above failed, attempt to create the parent node, then try again.
-		if (($d != '/') && ($this->mkdir(dirname($d))))
-			return $this->mkdir($d);
+    public function add($key, $val, $exp = 0)
+    {
+        $this->_file = $this->file($key, 'add');
+        return $this->store($key, $val, $exp);
+    }
 
-		return false;
-	}
-	private function str_split($str, $level = 1)
-	{
-		if ($level < 1) return false;
+    private function store($key, $val, $exp)
+    {
+        $type = gettype($val);
+        $value = [
+            'Time'    => time(),
+            'Expires' => $exp,
+            'Type'    => $type,
+            'Data'    => $type === 'object' ? serialize($val) : $val,
+        ];
+        $data = json_encode($value, JSON_UNESCAPED_UNICODE);
+        $this->_cache_sock = '<?php exit;?>';
+        if ($this->_have_zlib && $this->_compress_enable) {
+            $this->_cache_sock .= gzcompress($data, $this->_compress_level);
+        } else {
+            $this->_cache_sock .= $data;
+        }
+        return $this->write($this->_file, $this->_cache_sock);
+    }
 
-		if ($level == 1) {
-			$ret = array(substr($str, 0, 3), substr($str, 3));
-		} elseif ($level == 2) {
-			$ret = array(substr($str, 0, 3), substr($str, 3, 6), substr($str, 6));
-		} else {
-			$strlen = strlen($str);
-			$ret    = array();
-			for ($i = 0; $i < $strlen; $i += $level) {
-				$ret[] = substr($str, $i, $level);
-			}
-		}
+    public function get($key)
+    {
+        $this->_file = $this->file($key, 'get');
+        if (!file_exists($this->_file)) {
+            return null;
+        }
+        $handle = fopen($this->_file, 'rb');
+        $size = filesize($this->_file);
+        $content = $size > 0 ? fread($handle, filesize($this->_file)) : '';
+        fclose($handle);
+        $D = str_replace('<?php exit;?>', '', $content);
+        $value = json_decode(($this->_have_zlib && $this->_compress_enable) ? @gzuncompress($D) : $D, true);
+        if ($value['Type'] === 'object') {
+            $value['Data'] = unserialize($value['Data']);
+        }
+        if ($value['Expires'] == 0) {
+            return $value['Data'];
+        } else {
+            $_time = time();
+            return ($_time - $value['Time'] < $value['Expires']) ? $value['Data'] : false;
+        }
+    }
 
-		return $ret;
-	}
+    public function get_multi($keys)
+    {
+        foreach ($keys as $key) {
+            $value[$key] = $this->get($key);
+        }
+        return $value;
+    }
+
+    public function replace($key, $value, $exp = 0)
+    {
+    }
+
+    public function delete($key = '', $time = 0)
+    {
+        $this->_file = $this->file($key, 'get');
+        if (file_exists($this->_file)) {
+            @chmod($this->_file, 0777);
+            if (!unlink($this->_file)) {
+                throw new \Exception("Failed to delete file: {$this->_file}");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public function file($key, $method)
+    {
+        if (is_file($key)) {
+            return $key;
+        }
+        $key = str_replace(':', '/', $key);
+        $dirPath = $this->_dirs . (strpos($key, '/') !== false ? dirname($key) : '');
+        if ($this->_dir_level != -1) {
+            $md5_array = $this->split(md5($key), $this->_dir_level);
+            $md5_array && $dirPath .= '/' . implode('/', $md5_array) . '/';
+        }
+        if (!file_exists($dirPath) && $method == 'add') {
+            $this->mkdir($dirPath);
+        }
+        $strrchr = strrchr($key, '/');
+        $strrchr !== false && $key = $strrchr;
+        $filePath = $dirPath . $key . '.php';
+        $this->check($filePath); // 添加路径安全检查
+        return $filePath;
+    }
+
+    public function keys($pattern = '*')
+    {
+        $lists = [];
+        if (strpos($pattern, '*') === false) {
+            $pattern = sprintf('%s/%s/*', trim($this->_dirs, '/'), trim($pattern, '/'));
+        }
+        $array = glob($this->_dirs . $pattern);
+        if ($array) {
+            foreach ($array as $value) {
+                $lists[] = $value;
+                if (is_dir($value)) {
+                    $_lists = $this->keys($value, $pattern);
+                    $lists = array_merge($lists, $_lists);
+                }
+            }
+        }
+        return (array)$lists;
+    }
+
+    private function check($fn)
+    {
+        if (!Security::safePath($fn)) {
+            throw new sException('What are you doing?', -99);
+        }
+    }
+
+    private function write($fn, $data, $check = 1, $method = 'wb+', $iflock = 1, $chmod = 0)
+    {
+        $check && $this->check($fn);
+        // @touch($fn);
+        $handle = fopen($fn, $method);
+        $iflock && flock($handle, LOCK_EX);
+        fwrite($handle, $data);
+        // $method=="rb+" && ftruncate($handle,strlen($data));
+        fclose($handle);
+        $chmod && @chmod($fn, 0644);
+    }
+
+    private function escapeDir($dir)
+    {
+        $dir = str_replace(["'", '#', '=', '`', '$', '%', '&', ';'], '', $dir);
+        return rtrim(preg_replace('/(\/){2,}|(\\\){1,}/', '/', $dir), '/');
+    }
+
+    private function mkdir($d)
+    {
+        $d = $this->escapeDir($d);
+        if (file_exists($d)) {
+            return is_dir($d);
+        }
+        if (empty($d)) {
+            return false;
+        }
+        if (mkdir($d, 0777, true)) {
+            return true;
+        }
+        return false;
+    }
+
+    private function split($str, $level = 1)
+    {
+        if ($level < 1) {
+            return false;
+        }
+        return array_map('strval', str_split($str, $level));
+    }
 }
-
 
 //$c = new FileCache(array(
 //				'dirs'=>"cache_dir_1",

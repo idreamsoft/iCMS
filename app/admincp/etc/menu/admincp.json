@@ -1,9 +1,9 @@
 [{
         "id": "admincp",
         "sort": "-9999999",
-        "caption": "管理",
+        "caption": "管理首页",
         "icon": "si si-speedometer",
-        "href": "iPHP_SELF"
+        "href": "admincp/dashboard"
     },
     {
         "caption": "-",
@@ -12,7 +12,7 @@
     {
         "id": "cms",
         "sort": "-9999997",
-        "caption": "内容管理",
+        "caption": "内容",
         "icon": "si si-grid",
         "children": [
 
@@ -50,7 +50,7 @@
         "sort": "9999999"
     },
     {
-        "id": "system",
+        "id": "settings",
         "sort": "99999999",
         "caption": "系统",
         "icon": "si si-settings",

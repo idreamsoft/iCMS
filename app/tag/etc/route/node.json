@@ -1,0 +1,8 @@
+{
+    "tag": {
+        "label": "标签",
+        "template": "{iTPL}\/tag.htm",
+        "rule": "\/tag\/{TKEY}{EXT}",
+        "tips": "{ID},{0xID},{TKEY},{NAME},{ZH_CN},{HASH@ID},{HASH@0xID}"
+    }
+}

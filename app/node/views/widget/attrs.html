@@ -1,0 +1,39 @@
+<div class="form-control hide mb-3">
+    <div class="form-group row" 
+    i="app:node:vAttrs" 
+    data-items="<?=json_param($data);?>"
+    data-from="<?=$from;?>"
+    >
+        <label class="form-label" for="categoryAttr">分类属性 <a class="btn btn-sm btn-link" @click="close"><i class="fa fa-fw fa-times-circle"></i></a></label>
+        <div class="col-sm-12">
+            <div :class="{'block block-rounded':true,'block-mode-hidden':hide} ">
+                <div class="block-content p-0">
+                    <table class="table table-sm table-bordered table-striped table-vcenter">
+                        <tr>
+                            <th>项目名</th>
+                            <th>键名</th>
+                            <th>值</th>
+                            <th><a class="btn btn-sm btn-link" @click="add"><i class="fa fa-fw fa-plus-circle"></i></a></th>
+                        </tr>
+                        <tbody>
+                            <tr v-for="(item, index) in items">
+                                <td>
+                                    {{item.name}}
+                                    <input :name="'<?=$name;?>['+index+'][name]'" class="form-control" :class="{ hide:item.name!=''}"  :value="item.name" />
+                                    
+                                </td>
+                                <td>
+                                    {{item.key}}
+                                    <input :name="'<?=$name;?>['+index+'][key]'" class="form-control" :class="{ hide: item.key!='' }"  :value="item.key">
+                                </td>
+                                <td><input :name="'<?=$name;?>['+index+'][value]'" class="form-control" :value="item.value"></td>
+                                <td><a class="btn btn-sm btn-link" @click="remove(index)"><i class="fa fa-fw fa-times"></i></a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <small class="form-text text-muted">注：全部删除后，重新编辑时会自动加载分类默认设置</small>
+        </div>
+    </div>
+</div>

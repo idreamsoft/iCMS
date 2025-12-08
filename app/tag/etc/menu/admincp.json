@@ -9,7 +9,7 @@
                 "children":[
                     {
                         "caption":"标签配置",
-                        "href":"tag&do=config",
+                        "href":"/tag/config",
                         "icon":"cog"
                     },
                     {
@@ -17,12 +17,12 @@
                     },
                     {
                         "caption":"标签管理",
-                        "href":"tag",
+                        "href":"/tag/index",
                         "icon":"tag"
                     },
                     {
                         "caption":"添加标签",
-                        "href":"tag&do=add",
+                        "href":"/tag/add",
                         "icon":"edit"
                     },
                     {
@@ -30,12 +30,12 @@
                     },
                     {
                         "caption":"分类管理",
-                        "href":"tagCategory",
+                        "href":"/tagCategory/index",
                         "icon":"sitemap"
                     },
                     {
                         "caption":"添加分类",
-                        "href":"tagCategory&do=add",
+                        "href":"/tagCategory/add",
                         "icon":"edit"
                     }
                 ]
@@ -47,9 +47,9 @@
             "id": "cache",
             "children": [{
                 "caption": "更新标签分类缓存",
-                "href": "tagCategory&do=cache",
+                "href": "/tagCategory/cache",
                 "icon": "sync",
-                "target": "iPHP_FRAME"
+                "ui": "cms:ui:ajax"
             }]
         }]
     }

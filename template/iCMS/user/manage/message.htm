@@ -1,0 +1,67 @@
+<div class="block">
+    <div class="block-content p-0">
+        <div i="cms:chat:wrapper" class="cms-chat-wrapper container ">
+            <div class="row">
+                <div class="col-sm-3 chat-left">
+                    <!--{iCMS:message:users loop="true" row="10" }-->
+                    <a i="cms:chat:room" href="javascript:;" class="chat-room <!--{$message_users.index?:'active'}-->" data-userid="<!--{$message_users.friender.id}-->">
+                        <div class="chat-room-avatar">
+                            <img class="img-avatar img-avatar32" src="<!--{$message_users.friender.avatar}-->" i="cms:user:avatar" alt="">
+                        </div>
+                        <div class="chat-room-info">
+                            <div class="chat-room-info-head">
+                                <!--{$message_users.friender.name}-->
+                            </div>
+                            <div class="chat-room-info-detail" i="chat:lastMsg:<!--{$message_users.friender.id}-->"><!--{$message_users.content}--></div>
+                        </div>
+                    </a>
+                    <!--{/iCMS}-->
+                </div>
+                <div class="col-sm-9 chat-right">
+                    <div class="block m-0">
+                        <div class="block-header chat-header">
+                            <h3 class="block-title">
+                                <span class="chat-title" i="cms@chat:room:name"></span>
+                            </h3>
+                        </div>
+                        <div class="block-content p-0">
+                            <div class="chat-messages" id="chat-messages">
+                                <div class="chat-item" v-if="messages && messages.length > 0" v-for="(item, index) in messages">
+                                    <div class="message-time">
+                                        <span>{{item.sendtimeText}}</span>
+                                    </div>
+                                    <div :class="{'message-wrapper':true, 'message-wrapper-left': item.sender.id === item.friend, 'message-wrapper-right': item.sender.id === item.userid }">
+                                        <div v-if="item.sender.id === item.friend" class="message-user-avatar">
+                                            <img :src="item.sender.avatar" />
+                                        </div>
+                                        <div class="message-content" :style="{ order: item.sender.id === item.userid ? '-1' : 'unset' }">{{item.content}}</div>
+                                        <div v-if="item.sender.id === item.userid" class="message-user-avatar">
+                                            <img :src="item.sender.avatar" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="block-content  border-top p-0">
+                            <div class="chat-sent">
+                                <form i="cms:message:send" data-notify="false" class="message-send" action="<!--{iCMS:route url='message'}-->" method="POST">
+                                    <input type="hidden" name="action" value="send" />
+                                    <input type="hidden" name="userid" value="">
+                                    <input type="hidden" name="username" value="">
+                                    <div class="d-flex flex-column">
+                                        <div>
+                                            <textarea name="content" type="text" class="chat-content form-control form-control-alt"></textarea>
+                                        </div>
+                                        <div class="ms-auto">
+                                            <button type="submit" class="btn btn-sm btn-alt-success fw-light m-1" style="width: 90px;">发送</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -66,7 +66,7 @@ class ContentDataModel extends Model
         }
         return $data;
     }
-    public static function getData($where)
+    public static function data($where)
     {
         $data = array();
         if (self::$unionKey) {
@@ -132,7 +132,7 @@ class ContentDataModel extends Model
         self::sharding($id);
         try {
             $field = self::$unionKey;
-            return parent::delete($field, $id);
+            return parent::delete($id,$field);
         } catch (\sException $ex) {
             $state = $ex->getState();
             if ($state == '42S02') { //表不存在

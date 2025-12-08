@@ -8,57 +8,60 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class iCMS_DB_Func extends AppsFuncCommon
+class iCMS_dbFunc extends AppsFuncCommon
 {
-	public static function select($vars = null)
-	{
-		$table = $vars['table'];
-		if (empty($table)) {
-			$vars['iid']   or Script::warning('iCMS&#x3a;DB 标签出错! 缺少参数"table"或"table"值为空.');
-			return;
-		}
-		$where  = array();
-		$whereNot  = array();
-		$resource  = array();
-		if ($vars['connection']) {
-			$model = DB::connection($vars['connection'])->table($table);
-		} else {
-			$model = DB::table($table);
-		}
-		$model->field('id');
+    public static function select($vars = null)
+    {
+        $table = $vars['table'];
+        if (empty($table)) {
+            $vars['iid'] or self::msg(['func_param', ['iCMS:db:select', 'table']]);
+            return;
+        }
+        $where = [];
+        $whereNot = [];
+        $resource = [];
+        if ($vars['connection']) {
+            $model = DB::connection($vars['connection'])->table($table);
+        } else {
+            $model = DB::table($table);
+        }
+        $model->field('id');
 
-		self::init($vars, $model, $where, $whereNot);
-		// self::node('cid');
-		self::orderby([], 'id');
-		self::where();
+        self::inited($vars, $model, $where, $whereNot);
+        // self::node('cid');
+        self::orderby([], 'id');
+        self::where();
 
-		$whereNot && $model->where($whereNot);
-		$where && $model->where($where);
-		$hash = md5($model->getSql());
+        $whereNot && $model->where($whereNot);
+        $where && $model->where($where);
+        $hash = md5($model->getSql());
 
-		$paging = self::paging($hash, __CLASS__);
-		list($total, $offset, $pageSize) = $paging;
+        self::paging($hash, __CLASS__);
 
-		$cacheName = sprintf('%s/%s/%s/%d_%d', iPHP_DEVICE, 'DB', $hash, $offset, $pageSize);
-		$resource  = self::getCache($cacheName);
-		if (empty($resource)) {
-			$idsArray = self::getIds($paging);
-			if ($idsArray) {
-				$model = $model->field(true,'*')->where($idsArray);
-				if (isset($vars['loop'])) {
-					$resource = $model->orderBy('id', $idsArray)->select();
-				} else {
-					$resource = $model->get();
-				}
-			}
-			$cacheTime = isset($vars['time']) ? (int) $vars['time'] : -1;
-			$vars['cache'] && Cache::set($cacheName, $resource, $cacheTime);
-		}
-		return $resource;
-	}
+        $resource = self::getCache(self::$cacheName);
+        if (empty($resource)) {
+            $idsArray = self::getIds();
+            if ($idsArray) {
+                $model = $model->field(true, '*')->where($idsArray);
+                if (isset($vars['loop'])) {
+                    $resource = $model->orderBy('id', $idsArray)->select();
+                } else {
+                    $resource = $model->get();
+                }
+            }
+            $cacheTime = isset($vars['time']) ? (int) $vars['time'] : -1;
+            $vars['cache'] && Cache::set(self::$cacheName, $resource, $cacheTime);
+        }
+        return $resource;
+    }
+
+    public static function getLastSql($vars = null)
+    {
+        echo DB::getLastSql();
+    }
 }
 
-function iCMS_DB($vars)
+function iCMS_db($vars)
 {
-	return iCMS_DB_Func::select($vars);
+    return iCMS_dbFunc::select($vars);
 }

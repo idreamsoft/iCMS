@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>文件管理器</title>
+    <meta name="keywords" content="<!--{$article.keywords}-->" />
+    <meta name="description" content="<!--{$article.description}-->" />
+    <!--{iCMS:public:ui}-->
+    <style>
+        .cms-filesBrowse .thumbnail {
+            height: 120px !important;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            padding: 10px !important;
+        }
+
+        .cms-filesBrowse img {
+            width: 100%;
+            height: 100%;
+            border: 1px solid #dde2e9;
+            border-radius: 4px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="page-container">
+        <main id="main-container">
+            <!-- Page Content -->
+            <div class="content" i="cms:files:browse">
+                <div class="row items-push cms-filesBrowse">
+                    <div class="col-6 col-sm-4 col-md-4 col-lg-2 animated fadeIn " v-if="items && items.length > 0" v-for="(item, index) in items">
+                        <div class="form-check form-block">
+                            <input data-type="file" type="radio" class="form-check-input" name="one" :id="'f'+index" :value="item.path" :url="item.url">
+                            <label class="form-check-label thumbnail" :for="'f'+index">
+                                <img class="" :data-src="item.url" :alt="item.source">
+                                <!-- <a class="img-link img-link-zoom-in img-thumb img-lightbox" :href="item.url" target="_blank">
+                                </a> -->
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Page Content -->
+        </main>
+        <!-- END Main Container -->
+    </div>
+    <!-- END Page Container -->
+</body>
+
+</html>

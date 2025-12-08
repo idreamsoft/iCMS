@@ -11,10 +11,10 @@
 class PluginMarkdownHook
 {
     /**
-     * [插件:正文markdown解析]
+     * 插件:正文markdown解析
      * @param string $content  [参数]
      */
-    public static function run($content, &$resource = null)
+    public static function field_hook($content, &$resource = null)
     {
         $resource['markdown'] && $content = PluginMarkdown::parser($content,$resource['htmldecode']);
         return $content;

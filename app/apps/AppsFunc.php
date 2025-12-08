@@ -18,17 +18,17 @@ class AppsFunc extends AppsFuncCommon
         $status    = isset($vars['status']) ? $vars['status'] : 1;
         $where     = [['status', $status],['apptype', '>','0']];
 
+        isset($vars['apptype']) && $where[] = ['apptype', $vars['apptype']];
         isset($vars['type']) && $where[] = ['type', $vars['type']];
-        self::init($vars, $model, $where, $whereNot);
+        self::inited($vars, $model, $where, $whereNot);
         self::orderby([], 'id');
         self::where();
 
-        return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+        return self::getResource(__METHOD__);
     }
-    public static function resource($vars, $idsArray = null)
+    public static function resource($idsArray = null)
     {
-        $vars['ids'] && $idsArray = $vars['ids'];
-
+        $vars = self::$vars;
         $resource = AppsModel::field('*')
             ->where($idsArray)
             ->orderBy('id', $idsArray)

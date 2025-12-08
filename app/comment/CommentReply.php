@@ -14,24 +14,44 @@ class CommentReply
     public function __construct()
     {
     }
+
+    public static function getList(array $params)
+    {
+        $vars = [
+            'row'       => 5,
+            'page'      => true
+        ];
+        $vars = array_merge($vars, $params);
+        $replyList = CommentReplyFunc::lists($vars);
+        $pageData = CommentReplyFunc::$pageData;
+        $page = [];
+        if ($PAGES = CommentReplyFunc::$PAGES) {
+            $page = $PAGES->vars();
+        }
+        return ['rows'=>$replyList, 'pageData'=>$pageData, 'page'=>$page];
+    }
+
     public static function remove($id = 0, $userid = null)
     {
         $data = CommentReplyModel::get($id);
         $where['id'] = $id;
-        $userid  && $where['userid'] = $userid;
+        $userid && $where['userid'] = $userid;
         CommentReplyModel::where($where)->delete();
-		Apps::updateDec('comment', $data['iid'], iCMS_APP_COMMENT);
+        Apps::updateDec('comment', $data['iid'], iCMS_APP_COMMENT);
     }
+
     public static function delete($appid, $iid)
     {
         $where['iid'] = $iid;
         $where['appid'] = $appid;
         CommentReplyModel::where($where)->delete();
     }
+
     public static function updateReplyCountInc($id, $step = 1)
     {
         return CommentReplyModel::where($id)->inc('reply_count', $step);
     }
+
     public static function updateReplyCountDec($id, $step = 1)
     {
         return CommentReplyModel::where($id)->where('reply_count', '>', '0')->dec('reply_count', $step);

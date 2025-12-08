@@ -1,0 +1,25 @@
+<div batch="title">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="title">标题</label>
+        <input type="text" name="BatchData[title]" class="form-control" value="" />
+    </div>
+</div>
+<div batch="fields">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bdapp">所属应用</label>
+        <input name="BatchData[app]" 
+        i="cms:ui:selectpage" 
+        data-key="app" 
+        data-text="app" 
+        data-source="/apps/selectpage" 
+        data-search="app,title" id="bdapp" class="form-control" placeholder="请选择所属应用..." value="">
+    </div>
+    <div class="input-group input-group-sm mt-1">
+        <label class="input-group-text" for="rs-field">属性字段</label>
+        <input type="text" name="BatchData[field]" class="form-control" 
+            i="cms:ui:selectpage" 
+            data-linkage-appid="#bdapp" 
+            data-source="/appsHooks/field" id="rs-field" placeholder="请选择属性字段..." value="" />
+    </div>
+</div>
+

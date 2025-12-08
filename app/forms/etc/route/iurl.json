@@ -1,0 +1,7 @@
+{  
+    "FKEY": {
+        "call": "Forms::routeRule",
+        "regular":"(.+)",
+        "query":"key"
+    }
+}

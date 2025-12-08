@@ -12,9 +12,13 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserReport
 {
+    const KEY = "UserReport";
+    const APP = 'user';
+    const APPID = iCMS_APP_USER;
+
     public static function getReason()
     {
-        $reason = Config::get("user.report.reason");
-        return $reason ? explode("\n", $reason) : [];
+        $data = Config::get('user.report');
+        return $data ? explode("\n", $data['reason']) : [];
     }
 }

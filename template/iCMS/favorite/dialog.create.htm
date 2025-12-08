@@ -1,0 +1,33 @@
+<div class="favorite-create">
+    <form i="cms:favorite:create" action="<!--{iCMS:route url='favorite'}-->" method="POST">
+        <input type="hidden" name="action" value="create" />
+        <div class="favorite-create-content form-horizontal">
+            <div class="form-group">
+                <label for="title" class="col-sm-2 form-label">标题</label>
+                <div class="col-sm-10">
+                    <input type="text" id="title" name="title" class="form-control" placeholder="最多输入20字">
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="description" class="col-sm-2 form-label">描述</label>
+                <div class="col-sm-10">
+                    <textarea name="description" id="description" class="form-control" placeholder="可选,最多输入256字" style="height: 66px;"></textarea>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="mode_1" name="mode" value="1" checked="true">
+                    <label class="form-check-label fs-sm" for="mode_1"><b> 公开 </b><span class="text-muted">公开后不能设置为私密</span></label>
+                </div>
+                <div class="form-check">
+                    <input type="radio" class="form-check-input" id="mode_0" name="mode" value="0">
+                    <label class="form-check-label fs-sm" for="mode_0"><b> 私密 </b><span class="text-muted">只有你可以查看这个收藏夹</span></label>
+                </div>
+            </div>
+        </div>
+        <div class="d-flex justify-content-between mt-2">
+            <button type="button" class="btn btn-light" name="cancel">取消</button>
+            <button type="submit" class="btn btn-primary">确认创建</button>
+        </div>
+    </form>
+</div>

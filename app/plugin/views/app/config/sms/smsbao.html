@@ -1,0 +1,35 @@
+<?php 
+$id = 'smsBao';
+$input_n = 'config[plugin][SMS]['.$id.']';
+$input_v = $config['plugin']['SMS'][$id];
+?>
+<div class="alert alert-warning">短信宝服务</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="enable">启用</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="<?=$input_n?>[enable]" id="plugin_sms_<?=$id?>_enable" value="<?php echo $input_v['enable'] ;?>">
+        <small class="form-text text-muted"></small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="plugin_<?=$id?>_AccessKeyId">用户名</label>
+    <div class="col-sm-8">
+        <input type="text" name="<?=$input_n?>[AccessKeyId]" class="form-control" id="plugin_sms_<?=$id?>_AccessKeyId" value="<?php echo $input_v['AccessKeyId']; ?>" />
+        <small class="form-text text-muted">短信平台注册的用户名</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="plugin_sms_<?=$id?>_AccessKeySecret">ApiKey</label>
+    <div class="col-sm-8">
+        <input type="text" name="<?=$input_n?>[AccessKeySecret]" class="form-control" id="plugin_sms_<?=$id?>_AccessKeySecret" value="<?php echo $input_v['AccessKeySecret']; ?>" />
+        <small class="form-text text-muted">ApiKey</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="plugin_sms_<?=$id?>_TemplateCode">验证码短信模版</label>
+    <div class="col-sm-8">
+        <input type="text" name="<?=$input_n?>[TemplateCode]" class="form-control" id="plugin_sms_<?=$id?>_TemplateCode" value="<?php echo $input_v['TemplateCode']; ?>" />
+        <small class="form-text text-muted">验证码短信模版</small>
+    </div>
+</div>

@@ -229,7 +229,7 @@ return array (
   ),
   'article' => 
   array (
-    'img_title' => '0',
+    'img_title' => '1',
     'pic_center' => '1',
     'pic_next' => '0',
     'pageno_incr' => '',
@@ -560,7 +560,13 @@ return array (
     'UserNode' => 'api.php?app=UserNode',
     'UserNode/manage' => 'api.php?app=UserNode&do=manage',
     'UserProfile' => 'api.php?app=UserProfile',
-    'api' => 'api.php',
+    'article' => 
+    array (
+      'label' => '文章',
+      'template' => '{iTPL}/article.htm',
+      'rule' => '/{CDIR}/{YYYY}/{MM}{DD}/{ID}{EXT}',
+      'tips' => '{ID},{0xID},{LINK},{Hash@ID},{Hash@0xID}',
+    ),
     'comment' => 'api.php?app=comment',
     'favorite' => 'api.php?app=favorite',
     'favorite/{id}' => 'api.php?app=favorite&id={id}',
@@ -568,10 +574,6 @@ return array (
     'forms/save' => 'api.php?app=forms&do=save',
     'forms/{id}' => 'api.php?app=forms&id={id}',
     'payment' => 'api.php?app=payment',
-    'public/captcha' => 'api.php?app=public&do=captcha',
-    'public/license:charge' => 'api.php?app=public&do=license&s=charge',
-    'public/privacy' => 'api.php?app=public&do=privacy',
-    'public/terms' => 'api.php?app=public&do=terms',
     'search' => 'api.php?app=search',
     'user' => 'api.php?app=user',
     'user/article' => 'api.php?app=user&do=manage&pg=article',

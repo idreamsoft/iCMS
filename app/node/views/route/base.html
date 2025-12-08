@@ -1,0 +1,66 @@
+<?php
+if ($this->ROUTE) {
+    foreach ($this->ROUTE as $key => $value) {
+        $value = str_replace(
+            ['[NODE@NAME]', '[NODE@APP]'],
+            [$this->NODE_NAME, $this->app],
+            $value
+        );
+        $route_id = 'route_' . $key;
+        $template_id = 'template_' . $key;
+        $cname = $this->NODE_NAME;
+        ?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end">
+        <?=Lang($value['label'])?><br />
+        <?php echo $key; ?>
+    </label>
+    <div class="col-sm-8">
+        <?php $s['rule'] && include self::view('route/rule', $this->VIEW_DIR); ?>
+        <?php $s['tpl'] && include self::view('route/template', $this->VIEW_DIR); ?>
+        <small class="form-text text-muted">
+            <?=Lang($value['info'])?>
+        </small>
+    </div>
+</div>
+<hr />
+<?php  } ?>
+<?php } ?>
+<?php if ($s) { ?>
+<div class="d-none">
+    <button id="meta-add" class="btn btn-sm btn-outline-secondary" type="button" href="#node-app-meta"><i class="fa fa-fw fa-plus-circle"></i> 增加新路由</button>
+</div>
+<?php } ?>
+<?php if ($s['rule']) { ?>
+<div class="alert alert-info">
+    <strong>Warning!</strong> URL规则请综合评估下最终的url是否会冲突导致无法解析
+</div>
+<?php } ?>
+<?php if ($s['tpl']) { ?>
+<div class="alert alert-info">
+    <span class="badge bg-info">
+        <?php echo View::TPL_FLAG_1; ?>
+    </span>为系统设置的模板,自动匹配<br />
+    <span class="badge bg-info">
+        <?php echo View::TPL_FLAG_2; ?>
+    </span>为系统设置的设备,自动匹配,默认两个设备desktop、mobile,请分别制作两套模板
+</div>
+<?php } ?>
+<?php
+$template = [];//;Config::template();
+foreach ((array)$template as $key => $value) { ?>
+<div class="form-group row">
+    <div class="col-sm-2 col-form-label text-sm-end">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="<?php echo $value['name']; ?>" name="create[]" checked>
+            <?=Lang($value['name'].' device'); ?> <small>模板目录</small>
+        </div>
+    </div>
+    <div class="col-sm-8">
+        <div class="input-group">
+            <input type="text" name="<?php echo $s['tpl_name']; ?>[dirs][<?php echo $value['name']; ?>]" class="form-control" value="<?php echo isset($rs['template']['dirs'][$value['name']]) ? $rs['template']['dirs'][$value['name']] : $value['tpl']; ?>" />
+            <button class="btn btn-alt-primary" i="cms:ui:file:browse" data-dir="template" data-mode="dir"><i class="fa fa-fw fa-list"></i>{{#Lang('Choice')}}</button>
+        </div>
+    </div>
+</div>
+<?php } ?>

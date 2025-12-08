@@ -1,13 +1,17 @@
 <!-- Hero -->
+<?php $navData = Menu::getNav(); if(empty($navData)){ return;} ?>
 <div class="bg-body-light">
-    <div class="content content-full">
+    <div class="content content-full py-2">
         <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center">
             <h1 class="flex-sm-fill h3 my-2">
                 <?php echo Menu::$SET['nav.name']?:$navData[1]['name'];?>
-                <small class="d-block d-sm-inline-block mt-2 mt-sm-0 font-size-base font-w400 text-muted"><?php echo Menu::$SET['nav.title']?:$navData[1]['title'];?></small>
+                <small class="d-block d-sm-inline-block mt-2 mt-sm-0 fs-base fw-normal text-muted"><?php echo Menu::$SET['nav.title']?:$navData[1]['title'];?></small>
             </h1>
-            <nav class="flex-sm-00-auto ml-sm-3" aria-label="breadcrumb">
+            <nav class="flex-sm-00-auto ms-sm-3" aria-label="breadcrumb">
                 <ol class="breadcrumb breadcrumb-alt">
+                    <li class="breadcrumb-item" aria-current="page">
+                        <a href="<?php echo ADMINCP_URL;?>" target="_top"><i class="fa fa-fw fa-gauge"></i> 后台</a>
+                    </li>
                     <?php
                         if($navData[0])foreach ($navData[0] as $mBC){
                             empty($mBC['url']) && $mBC['url'] = 'javascript:;';

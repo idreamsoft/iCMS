@@ -1,0 +1,8 @@
+{
+    "data-dels": {
+        "name": "删除数据",
+        "icon": "trash-alt",
+        "sort": 18,
+        "call": "dels"
+    }
+}

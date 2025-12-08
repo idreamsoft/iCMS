@@ -1,0 +1,243 @@
+<div i-access="admincp/system_info" class="block block-rounded">
+    <div class="block-header block-header-default">
+        <h3 class="block-title"><i class="fa fa-fw fa-cogs"></i> 系统信息</h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close"> <i class="si si-close"></i></button>
+        </div>
+    </div>
+    <div class="block-content block-content-full">
+        <div class="row g-4">
+            <!-- 核心系统信息 -->
+            <div class="col-lg-3 col-md-6">
+                <div class="bg-light rounded-3 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="item item-circle bg-primary text-white me-3">
+                            <i class="fa fa-code fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">程序版本</h6>
+                            <small class="text-muted"><?php printf("%s %s.%s",iPHP_APP,iCMS_VERSION,date("YmdHi", iCMS_GIT_TIME));?></small>
+                        </div>
+                    </div>
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>数据库:</span>
+                            <span><?php echo DB::getDriverName();?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="bg-light rounded-3 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="item  item-circle bg-info text-white me-3">
+                            <i class="fab fa-php fa-3x"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">PHP环境</h6>
+                            <small class="text-muted">版本 <?php echo PHP_VERSION; ?></small>
+                        </div>
+                    </div>
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>运行方式:</span>
+                            <span><?php echo strtoupper(php_sapi_name()); ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="bg-light rounded-3 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="item item-circle bg-warning text-white me-3">
+                            <i class="fa fa-database fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">数据库</h6>
+                            <small class="text-muted"><?php echo DB::getDriverName()=='mysql'?'MySQL':'SQLite';?> <?php echo DB::version(0); ?></small>
+                        </div>
+                    </div>
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>支持:</span>
+                            <span><?php echo version_compare(PHP_VERSION, '5.5', '>=') ? 'mysqli' : 'mysql'; ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="bg-light rounded-3 p-4 h-100">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="item  item-circle bg-success text-white me-3">
+                            <i class="fa fa-server fa-2x"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bold mb-1">Web服务器</h6>
+                            <small class="text-muted"><?php echo Request::server('SERVER_SOFTWARE'); ?></small>
+                        </div>
+                    </div>
+                    <div class="small text-muted">
+                        <div class="d-flex justify-content-between mb-1">
+                            <span>IP:</span>
+                            <span><?php echo Request::server('SERVER_ADDR') . ":" . Request::server('SERVER_PORT'); ?></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 详细系统信息 -->
+        <div class="row mt-4">
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="card-title mb-0">
+                            <i class="fa fa-cogs text-primary me-2"></i>系统环境
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">操作系统</span>
+                                <span class="fw-semibold"><?php $os = explode(" ", php_uname()); echo $os[0]; ?> <?php echo ('/' == DIRECTORY_SEPARATOR) ? $os[2] : $os[1]; ?></span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">服务器时间</span>
+                                <span class="fw-semibold"><?php echo date("Y-m-d H:i:s"); ?></span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">总空间</span>
+                                <span class="fw-semibold text-info"><?php $dt = round(@disk_total_space(".") / (1024 * 1024 * 1024), 3); echo $dt ? $dt : '∞' ?>G</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">剩余空间</span>
+                                <span class="fw-semibold text-success"><?php $df = round(@disk_free_space(".") / (1024 * 1024 * 1024), 3); echo $df ? $df : '∞' ?>G</span>
+                            </div>
+                            <?php if (@function_exists('phpinfo')){?>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">PHPINFO</span>
+                                <a href="{{./phpinfo}}" target="_blank">查看</a>
+                            </div>
+                            <?php }?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-6">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="card-title mb-0">
+                            <i class="fa fa-sliders-h text-primary me-2"></i>PHP配置
+                        </h6>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">最大内存</span>
+                                <span class="fw-semibold"><?php echo $this->check("memory_limit"); ?></span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">最大上传</span>
+                                <span class="fw-semibold"><?php echo $this->check("upload_max_filesize"); ?></span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">超时时间</span>
+                                <span class="fw-semibold"><?php echo $this->check("max_execution_time"); ?>秒</span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">POST限制</span>
+                                <span class="fw-semibold"><?php echo $this->check("post_max_size"); ?></span>
+                            </div>
+                            <div class="list-group-item d-flex justify-content-between align-items-center">
+                                <span class="text-muted">被屏蔽函数</span>
+                                <span class="fw-semibold text-success"><?php echo get_cfg_var("disable_functions") ? '<a class="tip text-warning" href="javascript:;" title="' . get_cfg_var("disable_functions") . '">查看</a>' : "无"; ?></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 扩展支持状态 -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-white border-bottom">
+                        <h6 class="card-title mb-0">
+                            <i class="fa fa-puzzle-piece text-primary me-2"></i>扩展支持
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row g-3">
+                            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <?php if(function_exists('curl_init')): ?>
+                                    <i class="fa fa-check-circle text-success me-2"></i>
+                                    <?php else: ?>
+                                    <i class="fa fa-times-circle text-danger me-2"></i>
+                                    <?php endif; ?>
+                                    <span class="small fw-semibold">CURL</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <?php if(function_exists('mb_convert_encoding')): ?>
+                                    <i class="fa fa-check-circle text-success me-2"></i>
+                                    <?php else: ?>
+                                    <i class="fa fa-times-circle text-danger me-2"></i>
+                                    <?php endif; ?>
+                                    <span class="small fw-semibold">mb_string</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <?php if(function_exists('gd_info')): ?>
+                                    <i class="fa fa-check-circle text-success me-2"></i>
+                                    <?php else: ?>
+                                    <i class="fa fa-times-circle text-danger me-2"></i>
+                                    <?php endif; ?>
+                                    <span class="small fw-semibold">
+                                        GD库
+                                        <?php
+                                            if (function_exists('gd_info')) {
+                                                $gd_info = @gd_info();
+                                                echo $gd_info["GD Version"];
+                                            } else {
+                                                echo "未安装";
+                                            }
+                                        ?>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <?php if(function_exists('session_start')): ?>
+                                    <i class="fa fa-check-circle text-success me-2"></i>
+                                    <?php else: ?>
+                                    <i class="fa fa-times-circle text-danger me-2"></i>
+                                    <?php endif; ?>
+                                    <span class="small fw-semibold">Session</span>
+                                </div>
+                            </div>
+                            <div class="col-lg-2 col-md-3 col-sm-4 col-6">
+                                <div class="d-flex align-items-center p-2 bg-light rounded">
+                                    <?php if(ini_get('safe_mode')): ?>
+                                    <i class="fa fa-check-circle text-success me-2"></i>
+                                    <?php else: ?>
+                                    <i class="fa fa-times-circle text-danger me-2"></i>
+                                    <?php endif; ?>
+                                    <span class="small fw-semibold">安全模式</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

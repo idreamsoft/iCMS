@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vditor</title>
+    <script src="/assets/libs/jquery-2.2.4.min.js"></script>
+    <link rel="stylesheet" href="/assets/libs/editor/vditor/dist/index.css" />
+    <script src="/assets/libs/editor/vditor/dist/index.min.js"></script>
+    <style>
+        body {
+            margin: 0px;
+            padding: 0px;
+        }
+
+        #content {
+            width: 96%;
+            min-height: 150px;
+        }
+
+        #content iframe.iframe__video {
+            min-height: 300px !important;
+            max-height: 450px !important;
+        }
+
+        #content.vditor-reset table td,
+        #content.vditor-reset table th {
+            word-break: unset;
+            white-space: unset;
+        }
+    </style>
+    <base target="_blank">
+</head>
+
+<body>
+    <div id="content" class="content"></div>
+    <script>
+        window.addEventListener('message', function (event) {
+            if (event.data && event.data.pvel) {
+                let $pvel = window.parent.$(event.data.pvel);
+                Vditor.preview(
+                    el,
+                    $pvel.text(),
+                    {
+                        cdn: '/assets/libs/editor/vditor',
+                        "after": function () {
+                            $pvel.hide();
+                        }
+                    }
+                );
+            }
+        });
+
+        var el = document.getElementById('content');
+        function adjustIframeHeight() {
+            var contentHeight = el.offsetHeight;
+            // 通过 postMessage 将内容高度发送给父页面
+            window.parent.postMessage({ height: contentHeight }, '*');
+        }
+
+
+        setInterval(adjustIframeHeight, 500);
+    </script>
+</body>
+
+</html>

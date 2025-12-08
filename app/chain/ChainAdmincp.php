@@ -10,12 +10,7 @@
  */
 class ChainAdmincp extends AdmincpCommon
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->id = (int) $_GET['id'];
-    }
-
+    use AdmincpCommonTrait;
     public function do_add()
     {
         if ($this->id) {
@@ -24,11 +19,11 @@ class ChainAdmincp extends AdmincpCommon
             $rs['keyword'] = Request::get('keyword');
             $rs['replace'] = Request::get('replace');
         }
-        $_GET['url'] && $rs['replace'] = Chain::getLink($rs['keyword'], Request::get('url'));
+        Request::get('url') && $rs['replace'] = Chain::getLink($rs['keyword'], Request::get('url'));
 
-        include self::view("add");
+        include self::view();
     }
-    public function save()
+    public function save(&$data = [])
     {
         $data = ChainModel::postData();
         $data['keyword'] or self::alert('关键词不能为空');
@@ -44,75 +39,28 @@ class ChainAdmincp extends AdmincpCommon
             ChainModel::update($data, $data['id']);
         }
         $this->autoCache();
-        // self::success('保存成功');
-    }
-    /**
-     * 标签管理，设置为内链回调
-     */
-    public static function batchTag($idArray, $ids, $batch)
-    {
-        $result = TagModel::select($idArray);
-        $nodeArray  = Node::many($result, 'cid');
-        $tnodeArray = Node::many($result, 'tcid', Tag::APPID);
-        foreach ($result as $tag) {
-            $C = (array) $nodeArray[$tag['cid']];
-            $TC = (array) $tnodeArray[$tag['tcid']];
-            $url = Route::get('tag', array($tag, $C, $TC))->href;
-
-            $data = ['keyword' => $tag['name']];
-            $check = ChainModel::field('id')->where($data)->value();
-            if (!$check) {
-                $data['replace'] = $url;
-                $flag = ChainModel::create($data, true);
-            }
-        }
-        // return $flag;
     }
 
-    public function do_manage()
+    public function index()
     {
-        $keyword = Request::get('keyword');
-        $keyword && $where['keyword'] = array('REGEXP', $keyword);
-        $orderby = self::setOrderBy();
-        $result = ChainModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
+        $keywords = Request::get('keywords');
+        $keywords && $where['keyword'] = array('REGEXP', $keywords);
+        return  self::tableData(['where' => $where], function ($rows) {
+            // $rows = array_map(function ($row) {
+            //     return $row;
+            // }, $rows);
+            return $rows;
+        });
+    }
 
-        include self::view("manage");
-    }
-    public function do_delete($id = null)
-    {
-        $id === null && $id = $this->id;
-        $id or self::alert('请选择要删除的关键词');
-        ChainModel::delete($id);
-        $this->autoCache();
-        // $dialog && self::success('关键词已经删除');
-    }
-    public function do_batch()
-    {
-        $stype = AdmincpBatch::$config['stype'];
-        $actions = array(
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    $this->do_delete($id);
-                }
-                // return true;
-                // self::success('关键词全部删除完成');
-            }
-        );
-        return AdmincpBatch::run($actions, "网站");
-    }
-    /**
-     * [更新缓存]
-     *
-     * @return  [type]  [return description]
-     */
-    public function do_cache()
+    public function deleted($ids = null)
     {
         $this->autoCache();
     }
+
+
     /**
-     * [autoCache 在更新所有缓存时，将会自动执行]
+     * autoCache 在更新所有缓存时，将会自动执行
      */
     public static function autoCache()
     {

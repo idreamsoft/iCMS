@@ -1,0 +1,40 @@
+<?php 
+$title   = '短信接口';
+$header_enable = !true;
+$content_class = 'p-0';
+$scan = AdmincpView::scan('app/config/sms/*', 'plugin', 1);
+$tabs = $scan[0] ?: [];
+?>
+<div class="block">
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label text-sm-end" for="plugin_SMS_expire">过期时间</label>
+        <div class="col-sm-8">
+            <div class="input-group">
+                <input type="text" name="config[plugin][SMS][expire]" class="form-control" id="plugin_SMS_expire" value="<?php echo $config['plugin']['SMS']['expire'] ?: 60; ?>" />
+                <span class="input-group-text">秒</span>
+            </div>
+            <small class="form-text text-muted">短信验证码过期时间</small>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label text-sm-end"></label>
+        <div class="col-sm-8">
+            <div class="block">
+                <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt align-items-center" data-toggle="tabs" role="tablist">
+                    <?php foreach ($tabs as $k => $v): ?>
+                    <li class="nav-item"><a class="nav-link <?=$k?:'active'?>" href="#tab_<?=$v[2]?>"><?=lang('plugin:sms:api:'.$v[2])?></a></li>
+                    <?php endforeach;?>
+                </ul>
+                <div class="block-content block-content-full">
+                    <div class="tab-content">
+                        <?php foreach ($tabs as $k => $v):?>
+                        <div id="tab_<?=$v[2]?>" class="tab-pane <?=$k?:'active'?>">
+                            <?php include AdmincpView::display($v[1],'plugin');?>
+                        </div>
+                        <?php endforeach;?>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

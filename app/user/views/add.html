@@ -1,0 +1,258 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+    <div class="content" id="{{APP_MAINID}}">
+        <div class="block">
+            <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+                <li class="nav-item"><a class="nav-link active" href="#user-info"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+                <li class="nav-item"><a class="nav-link" href="#user-data"><i class="fa fa-fw fa-users"></i> 用户资料</a></li>
+                <li class="nav-item"><a class="nav-link" href="#apps-former"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+                <li class="nav-item"><a class="nav-link" href="#apps-meta"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+            </ul>
+            <div class="block-content">
+                <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                    <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                    <div id="user-add" class="tab-content">
+                        <div id="user-info" class="tab-pane active">
+                            <?php if (Admin::isSuperRole()) { ?>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="role_id">角色</label>
+                                <div class="col-sm-8">
+                                    <input data-source='/role/selectpage/user' value="<?php echo $rs['role_id']; ?>" name="rs[role_id]" id="role_id" class="form-control" i="cms:ui:selectpicker" placeholder="请选择用户组" />
+                                </div>
+                            </div>
+                            <?php } ?>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="cid">状 态</label>
+                                <div class="col-sm-8">
+                                    <input data-source='statusMap' class="form-control" i="cms:ui:selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="pid">属 性</label>
+                                <div class="col-sm-8">
+                                    <input data-source='./prop/pid' class="form-control" i="cms:ui:prop" name="rs[pid]" data-max="5" multiple="true" value="<?php echo $rs['pid']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="type">类型</label>
+                                <div class="col-sm-8">
+                                    <input data-source='./typeMap' class="form-control" i="cms:ui:selectpicker" name="rs[type]" value="<?php echo $rs['type']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="account"> 账号</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[account]" class="form-control" id="account" value="<?php echo $rs['account']; ?>" data-rule="required"/>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="account"> 手机号</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[phone]" class="form-control" id="phone" value="<?php echo $rs['phone']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="account"> 邮箱</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[email]" class="form-control" id="email" value="<?php echo $rs['email']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="password"> 密码</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <input type="text" name="rs[password]" class="form-control" id="password" value="" <?php echo ($rs['id']?'':'data-rule="required"'); ?>/>
+                                        <a href="javascript:;" class="btn btn-dark" data-toggle="random" data-target="#password">生成</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="nickname">昵称</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[nickname]" class="form-control" id="nickname" value="<?php echo $rs['nickname']; ?>" data-rule="required"/>
+                                </div>
+                            </div>
+                            <?php if ($this->id) {; ?>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end">头像</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" i="cms:ui:file:btns" data-url="./avatar/id/<?php echo $this->id; ?>" data-upload="true" data-preview="true" value="<?php echo $rs['avatar']; ?>" />
+                                </div>
+                            </div>
+                            <?php }; ?>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="gender">性别</label>
+                                <div class="col-sm-8">
+                                    <select id="gender" name="rs[gender]" class="form-control" i="cms:ui:selectpicker">
+                                    <option value="1">男</option>
+                                    <option value="0">女</option>
+                                </select>
+                                </div>
+                            </div>
+                            <?php AppsWidget::credit($rs); ?>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="fans">数据1</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">粉丝数</span>
+                                        <input type="text" name="rs[fans]" class="form-control" id="fans" value="<?php echo $rs['fans']; ?>" />
+                                        <span class="input-group-text">关注数</span>
+                                        <input type="text" name="rs[follow]" class="form-control" id="follow" value="<?php echo $rs['follow']; ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="article">数据2</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">评论数</span>
+                                        <input type="text" name="rs[comment]" class="form-control" id="comment" value="<?php echo $rs['comment']; ?>" />
+                                        <span class="input-group-text">文章数</span>
+                                        <input type="text" name="rs[article]" class="form-control" id="article" value="<?php echo $rs['article']; ?>" />
+                                        <span class="input-group-text">收藏数</span>
+                                        <input type="text" name="rs[favorite]" class="form-control" id="favorite" value="<?php echo $rs['favorite']; ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="hits">访问数</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">总数</span>
+                                        <input type="text" name="rs[hits]" class="form-control" id="hits" value="<?php echo $rs['hits']; ?>" />
+                                        <span class="input-group-text">当天</span>
+                                        <input type="text" name="rs[hits_today]" class="form-control" id="hits_today" value="<?php echo $rs['hits_today']; ?>" />
+                                        <span class="input-group-text">昨天</span>
+                                        <input type="text" name="rs[hits_yday]" class="form-control" id="hits_yday" value="<?php echo $rs['hits_yday']; ?>" />
+                                        <span class="input-group-text">周</span>
+                                        <input type="text" name="rs[hits_week]" class="form-control" id="hits_week" value="<?php echo $rs['hits_week']; ?>" />
+                                        <span class="input-group-text">月</span>
+                                        <input type="text" name="rs[hits_month]" class="form-control" id="hits_month" value="<?php echo $rs['hits_month']; ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="regip">注册</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">IP</span>
+                                        <input type="text" name="rs[regip]" class="form-control" id="regip" value="<?php echo $rs['regip']; ?>" />
+                                        <span class="input-group-text">时间</span>
+                                        <input type="text" name="rs[regdate]" class="form-control" id="regdate" value="<?php echo get_date($rs['regdate']); ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="lastloginip">最后登录</label>
+                                <div class="col-sm-8">
+                                    <div class="input-group">
+                                        <span class="input-group-text">IP</span>
+                                        <input type="text" name="rs[lastloginip]" class="form-control" id="lastloginip" value="<?php echo $rs['lastloginip']; ?>" />
+                                        <span class="input-group-text">时间</span>
+                                        <input type="text" name="rs[lastlogintime]" class="form-control" id="lastlogintime" value="<?php echo get_date($rs['lastlogintime']); ?>" />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="user-data" class="tab-pane hide">
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="realname">姓名</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[realname]" class="form-control" id="realname" value="<?php echo $userdata['realname']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="mobile">联系电话</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[mobile]" class="form-control" id="mobile" value="<?php echo $userdata['mobile']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="city">国家</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[country]" class="form-control" id="country" value="<?php echo $userdata['country']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="city">省市区</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[city]" class="form-control" i="cms:ui:citypicker" id="city" value="<?php echo $userdata['city']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="address">地址</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[address]" class="form-control" id="address" value="<?php echo $userdata['address']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="cid">生日</label>
+                                <div class="col-sm-8">
+                                    <input type="text" id="birthday" name="userdata[birthday]" class="form-control" i="cms:ui:datepicker" value="<?php echo $userdata['year']; ?>-<?php echo $userdata['month']; ?>-<?php echo $userdata['day']; ?>">
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="constellation">星座</label>
+                                <div class="col-sm-8">
+                                    <select v-model="constellation" id="constellation" name="userdata[constellation]" class="form-control" i="cms:ui:selectpicker" data-placeholder="星座">
+                                    <option value="白羊座">白羊座 3.21-4.19</option>
+                                    <option value="金牛座">金牛座 4.20-5.20</option>
+                                    <option value="双子座">双子座 5.21-6.21</option>
+                                    <option value="巨蟹座">巨蟹座 6.22-7.22</option>
+                                    <option value="狮子座">狮子座 7.23-8.22</option>
+                                    <option value="处女座">处女座 8.23-9.22</option>
+                                    <option value="天秤座">天秤座 9.23-10.23</option>
+                                    <option value="天蝎座">天蝎座 10.24-11.22</option>
+                                    <option value="射手座">射手座 11.23-12.21</option>
+                                    <option value="魔羯座">魔羯座 12.22-1.19</option>
+                                    <option value="水瓶座">水瓶座 1.20-2.18</option>
+                                    <option value="双鱼座">双鱼座 2.19-3.20</option>
+                                </select>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="profession">职业</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[profession]" class="form-control" id="profession" value="<?php echo $userdata['profession']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="personstyle">个人标签</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="userdata[personstyle]" id="personstyle" class="form-control" value="<?php echo $userdata['personstyle']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-2 col-form-label text-sm-end" for="slogan">个性签名</label>
+                                <div class="col-sm-8">
+                                    <textarea name="userdata[slogan]" id="slogan" rows="5" class="form-control"><?php echo $userdata['slogan']; ?></textarea>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="apps-former" class="tab-pane" role="tabpanel">
+                            <?php Former::admincp($rs,'user')->render(); ?>
+                        </div>
+                        <div id="apps-meta" class="tab-pane" role="tabpanel">
+                            <?php AppsWidget::metadata($rs['id']); ?>
+                        </div>
+                    </div>
+                    <?php self::form()->submit(); ?>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <?php self::foot(); ?>

@@ -1,0 +1,8 @@
+<button class="btn btn-primary" type="submit"><i class="fa fa-fw fa-check"></i> 提交</button>
+<div class="clearfloat mt-2"></div>
+<?php include self::view("layout", "former"); ?>
+<?php if ($this->id && $_GET['app'] == 'apps') { ?>
+<a href="{{<?php echo $rs['app']; ?>/add}}?appid=<?php echo $this->id; ?>&preview" class="btn btn-success " i="cms:ui:modal" data-params='{"width":"85%","height":"640px"}'>
+    <i class="fa fa-fw fa-eye"></i> 预览表单
+</a>
+<?php } ?>

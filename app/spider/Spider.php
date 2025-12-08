@@ -13,62 +13,62 @@ class Spider
     const APP = 'spider';
     const APPID = iCMS_APP_SPIDER;
 
-    public static $cid      = null;
-    public static $rid      = null;
-    public static $pid      = null;
-    public static $urlId    = null;
-    public static $poid     = null;
-    public static $title    = null;
-    public static $url      = null;
-    public static $work     = false;
+    public static $cid = null;
+    public static $rid = null;
+    public static $pid = null;
+    public static $urlId = null;
+    public static $poid = null;
+    public static $title = null;
+    public static $url = null;
+    public static $work = false;
     public static $urlslast = null;
-    public static $allHtml  = array();
-    public static $indexid  = null;
+    public static $allHtml = [];
+    public static $indexid = null;
 
-    public static $listSave  = false;
-    public static $isShell  = false;
-    public static $isTest   = false;
+    public static $listSave = false;
+    public static $isShell = false;
+    public static $isTest = false;
 
     public static $content_right_code = false;
     public static $content_error_code = false;
 
-    public static $referer     = null;
-    public static $encoding    = null;
-    public static $useragent   = null;
-    public static $cookie      = null;
-    public static $charset     = null;
-    public static $CURL_PROXY  = false;
-    public static $PROXY_ARRAY = array();
-    public static $PROXY_URL   = false;
+    public static $referer = null;
+    public static $encoding = null;
+    public static $useragent = null;
+    public static $cookie = null;
+    public static $charset = null;
+    public static $CURL_PROXY = false;
+    public static $PROXY_ARRAY = [];
+    public static $PROXY_URL = false;
     /**
      * 采集回调
-     * 
+     *
      * data  内容采集结果回调
      * content 采集项目回调
      * @var array
      */
-    public static $callback    = [];
+    public static $callback = [];
 
-    public static $spider_url_ids   = array();
+    public static $spider_url_ids = [];
 
     public static function checker($pid = null, $url = null, $title = null)
     {
-        $pid   === null && $pid = Spider::$pid;
-        $url   === null && $url = Spider::$url;
+        $pid === null && $pid = Spider::$pid;
+        $url === null && $url = Spider::$url;
         $title === null && $title = Spider::$title;
         $project = SpiderProject::get($pid);
         $indexid = self::getIndexId();
-        Spider::$callback['url:id']      = 0;
+        Spider::$callback['url:id'] = 0;
         Spider::$callback['url:indexid'] = 0;
-        Spider::$callback['url:data']    = array();
+        Spider::$callback['url:data'] = [];
 
         if (($project['checker'] && empty($indexid))) {
-            $mode  = $project['checker'];
-            $mode  = Spider::$callback['checker:mode'] ?: $mode;
-            $url   = Spider::$callback['checker:url'] ?: $url;
+            $mode = $project['checker'];
+            $mode = Spider::$callback['checker:mode'] ?: $mode;
+            $url = Spider::$callback['checker:url'] ?: $url;
             $title = Spider::$callback['checker:title'] ?: $title;
-            $url   = SpiderUrl::url($url);
-            $hash  = SpiderUrl::hash($url, $title);
+            $url = SpiderUrl::url($url);
+            $hash = SpiderUrl::hash($url, $title);
             $where = [];
 
             switch ($mode) {
@@ -85,25 +85,25 @@ class Spider
                     // }
                     $where['url'] = $url;
                     $label = $url . PHP_EOL;
-                    $msg   = $label . '该网址的内容已经发布过!请检查是否重复';
+                    $msg = $label . '该网址的内容已经发布过!请检查是否重复';
                     break;
                 case '2': //按标题检查
                 case '5': //按标题检查更新
                     $where['title'] = $title;
                     $label = $title . PHP_EOL;
-                    $msg   = $label . '该标题的内容已经发布过!请检查是否重复';
+                    $msg = $label . '该标题的内容已经发布过!请检查是否重复';
                     break;
                 case '3': //网址和标题
                 case '6': //网址和标题更新
                     $where['url'] = $url;
                     $where['title'] = $title;
                     $label = $title . PHP_EOL . $url;
-                    $msg   = $label . '该网址和标题的内容已经发布过!请检查是否重复';
+                    $msg = $label . '该网址和标题的内容已经发布过!请检查是否重复';
                     break;
                 case '8': //路径和标题 hash
                     $where['hash'] = $hash;
                     $label = $title . PHP_EOL . $url . PHP_EOL . $hash;
-                    $msg   = $label . '该网址和标题的内容已经发布过!请检查是否重复';
+                    $msg = $label . '该网址和标题的内容已经发布过!请检查是否重复';
                     break;
             }
             switch ($project['self']) {
@@ -114,20 +114,20 @@ class Spider
                     $where['rid'] = Spider::$rid;
                     break;
             }
-            $row = array();
+            $row = [];
             if ($where) {
                 $md5 = md5(json_encode($where));
                 if (Spider::$callback['checker'] && Spider::$callback['checker'] == $md5) {
                     $row = Spider::$callback['url:data'];
                 } else {
-                    $row = SpiderUrlModel::field("id,indexid,publish,status")->where($where)->get();
+                    $row = SpiderUrlModel::field('id,indexid,publish,status')->where($where)->get();
                     Spider::$callback['checker'] = $md5;
                 }
             }
             if ($row) {
                 Spider::$callback['url:data'] = $row;
-                if (in_array($mode, array("1", "2", "3"))) {
-                    if (in_array($row['publish'], array("1", "2"))) {
+                if (in_array($mode, ['1', '2', '3'])) {
+                    if (in_array($row['publish'], ['1', '2'])) {
                         // if (Spider::$isShell) {
                         //     SpiderTools::prints('%s [publish=%s] %s', [$msg, $row['publish'], __METHOD__], 'r');
                         // }
@@ -149,7 +149,7 @@ class Spider
     {
         @set_time_limit(0);
         Spider::$callback['STATUS'] = 'publish';
-        Spider::$callback['RETURN'] = false;
+        // Spider::$callback['RETURN'] = false;
 
         $check && Spider::checker(Spider::$pid, Spider::$url, Spider::$title);
 
@@ -175,38 +175,50 @@ class Spider
 
         Spider::checker(Spider::$pid, $_POST['reurl'], $_POST['title']);
 
-        if (Spider::$callback['RETURN']) {
-            return Spider::$callback['RETURN'];
+        if (Spider::$callback['return']) {
+            return call_user_func_array(Spider::$callback['return'],[$_POST]);
         }
+
         $project = SpiderProject::get(Spider::$pid);
         $_POST['cid'] = isset($_POST['cid']) ? $_POST['cid'] : $project['cid'];
 
-        $poid  = Spider::$poid ?: $project['poid'];
+        $poid = Spider::$poid ?: $project['poid'];
         $spost = SpiderPost::get($poid);
         if (empty($spost)) {
             throw new FalseEx('SpiderPost empty');
         };
 
-        $appid = $_POST['appid'] ?: $spost['app'];
-        $app   = Apps::getData($appid);
+        if ($spost['app']) {
+            $className = Admincp::init($spost['app']);
+            if (!class_exists($className)) {
+                throw new FalseEx($className . ' class not exists');
+            }
+            $admincp = iPHP::getInstance($className);
+            $appid = $admincp->appid();
+            !isset($_POST['appid']) && $_POST['appid'] = $appid;
+        };
 
         $indexid = self::getIndexId();
-        $indexid = Spider::$callback['url:indexid'] ?: $indexid;
-
+        //已经发布过的
         if ($indexid) {
             if ($spost['primary']) {
                 $_POST[$spost['primary']] = $indexid;
-            } else {
-                self::getAppDataIds($indexid, $app);
+            } elseif($admincp) {
+                $model = $admincp->getModel();
+                $pk = $model::getPrimaryKey();
+                $pk && $_POST['rs'][$pk] = $indexid;
+                $_POST['dataId'] = $admincp->getDataIds($indexid);
+                // $admincp->spider_getDataIds($indexid);
+                // self::getAppDataIds($indexid, $app);
             }
         }
 
         if (Spider::$callback['post'] && is_callable(Spider::$callback['post'])) {
-            $_POST = call_user_func_array(
+            $ret = call_user_func_array(
                 Spider::$callback['post'],
-                array($_POST, Spider::$callback['post:data'], Spider::$urlId)
+                [&$_POST, Spider::$callback['post:data'], Spider::$urlId]
             );
-            if ($_POST['callback']) {
+            if ($ret) {
                 return $_POST;
             }
         }
@@ -216,16 +228,22 @@ class Spider
         };
 
         $urlId = Spider::$callback['url:id'] ?: Spider::$urlId;
-        empty($urlId) && $urlId = SpiderUrl::getId($app); //填加采集数据到spider_url表 并获取ID
-
+        if (empty($urlId)) {
+            list($urlId, $newIndexId) = SpiderUrl::getId($_POST); //填加采集数据到spider_url表 并获取ID
+            // 如果 newIndexId 存在且与当前的 indexid 不同，则更新 indexid 并处理
+            if ($newIndexId && $newIndexId != $indexid) {
+                $indexid = $newIndexId;
+                // $admincp->spider_getDataIds($indexid);
+            }
+        }
         //todo list
         //支持 update:xxx 字段更新
         //if($project['checker']=="7"||Spider::$callback['UPDATE_SUB_CRAWL']){
         if (Spider::$callback['UPDATE_SUB_CRAWL']) {
-            $result = array('id' => $indexid);
+            $result = ['id' => $urlId, 'indexid'=> $indexid];
         } else {
-            SpiderPost::commit($urlId, $spost);
-            $result = Spider::$callback['result'];
+            $admincp = SpiderPost::commit($urlId, $spost);
+            $result = ['id' => $urlId, 'indexid'=>$admincp->RESULT['id']];
         }
 
         if ($_POST['commit:callData']) {
@@ -235,7 +253,7 @@ class Spider
                     $result[$key . '_data'] = SpiderData::sub_crawl(
                         $value,
                         $rule,
-                        $result['id']
+                        $result['indexid']
                     );
                 }
             }
@@ -243,7 +261,7 @@ class Spider
 
         Spider::$callback['save'] && Spider::$callback['commit'] = Spider::$callback['save'];
         if (Spider::$callback['commit'] && is_callable(Spider::$callback['commit'])) {
-            $ret = call_user_func_array(Spider::$callback['commit'], array($result, $_POST));
+            $ret = call_user_func_array(Spider::$callback['commit'], [$result, $_POST]);
             if ($ret['callback'] || $ret['return']) {
                 return $ret;
             }
@@ -259,16 +277,16 @@ class Spider
             /**
              * 主表 回调 更新关联ID
              */
-            $admincp->SPIDER['primary'] = function ($id) use ($urlId) {
+            $admincp->callback['saved']['primary'] = function (&$data) use ($urlId) {
                 Spider::$callback['result'] = [
-                    'id' => $id,
+                    'id' => $data['id'],
                 ];
-                SpiderUrl::update_indexid($urlId, $id);
+                SpiderUrl::update_indexid($urlId, $data['id']);
             };
             /**
              * 数据表 回调 成功发布
              */
-            $admincp->SPIDER['data'] = function () use ($urlId) {
+            $admincp->callback['saved']['data'] = function (&$data) use ($urlId) {
                 SpiderUrl::update_publish($urlId);
             };
         } else {
@@ -276,6 +294,7 @@ class Spider
             SpiderUrl::update_publish($urlId);
         }
     }
+
     public static function callback($obj, $id, $type = null)
     {
         if ($type === null || $type == 'primary') {
@@ -293,19 +312,22 @@ class Spider
     public static function getIndexId()
     {
         $indexid = Spider::$indexid ?: (int)Request::param('indexid');
-        return (int)$indexid;
+        return Spider::$callback['url:indexid'] ?: (int)$indexid;
     }
+
     public static function getAppDataIds($indexid, $APPDATA)
     {
-        if (empty($indexid)) return;
+        if (empty($indexid)) {
+            return;
+        }
 
         if ($APPDATA['app'] == 'article') {
-            $_POST['article_id']  = $indexid;
-            $_POST['data_id']     = ArticleDataModel::getData($indexid, 'id');
+            $_POST['article_id'] = $indexid;
+            $_POST['dataId'] = ArticleDataModel::getValue($indexid, 'id');
         } else {
             $model = Content::model($APPDATA);
-            $primary = Content::$primaryKey;
-            $_POST[$primary] = $indexid;
+            $pk = $model::getPrimaryKey();
+            $_POST[$pk] = $indexid;
             if ($unionKey = ContentDataModel::$unionKey) {
                 $where = [$unionKey => $indexid];
                 $_POST[$unionKey] = $indexid;

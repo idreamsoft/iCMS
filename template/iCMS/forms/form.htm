@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title><!--{$forms.title}-->_ <!--{$site.title}-->_ <!--{$site.seotitle}--></title>
+    <meta name="keywords" content="<!--{$forms.keywords}-->" />
+    <meta name="description" content="<!--{$forms.description}-->" />
+    <meta name="params" data-params="<!--{$forms.params|json}-->" />
+    <meta name="mobile-agent" content="format=xhtml;url=<!--{$forms.iurl.mobile.url}-->" />
+    <meta name="mobile-agent" content="format=html5;url=<!--{$forms.iurl.mobile.url}-->" />
+    <link rel="alternate" media="only screen and(max-width: 640px)" href="<!--{$forms.iurl.mobile.url}-->" />
+    <!--{iCMS:public:ui}-->
+
+</head>
+
+<body>
+    <div id="page-container">
+        <!-- Main Container -->
+        <main id="main-container">
+            <!--{include file="./widget/top.htm"}-->
+            <!--{if $forms.pic.url}-->
+            <!-- Hero Content -->
+            <div class="bg-secondary" style="background-image: url('<!--{$forms.pic.url}-->')">
+                <div class="bg-black-25">
+                    <div class="content content-full overflow-hidden">
+                        <div class="my-8 text-center">
+                            <h1 class="text-white mb-2 invisible" data-toggle="appear" data-class="animated fadeInDown">
+                                <!--{$forms.title}-->
+                            </h1>
+                            <h2 class="h4 fw-light text-white-75 invisible" data-toggle="appear" data-class="animated fadeInDown">
+                                <!--{$forms.description}-->
+                            </h2>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Hero Content -->
+            <!--{/if}-->
+
+            <div class="content content-boxed">
+                <div class="row">
+                    <div class="col-md-8 bg-white p-0">
+                        <nav class="bg-light m-1 p-3" aria-label="breadcrumb">
+                            <ol class="breadcrumb breadcrumb-alt">
+                                <li class="breadcrumb-item">
+                                    <a href="<!--{$site.url}-->">首页</a>
+                                </li>
+                                <!--{foreach value="breadcrumb" from="$node.navArray"}-->
+                                <li class="breadcrumb-item">
+                                    <a href="<!--{$breadcrumb.url}-->">
+                                        <!--{$breadcrumb.name}-->
+                                    </a>
+                                </li>
+                                <!--{/foreach}-->
+                                <li class="breadcrumb-item active" aria-current="page">
+                                    <!--{$forms.link}-->
+                                </li>
+                            </ol>
+                        </nav>
+                        <h1 class="h1 text-center my-2 fw-semibold">
+                            <!--{$forms.title}-->
+                        </h1>
+                        <div class="text-center fs-sm">
+                            <span class="d-inline-block py-2 px-4 bg-body-light rounded">
+                                <a href="<!--{$node.url}-->"><!--{$node.name}--></a> ·
+                                <a i="cms@h:user:ucard" data-userid="<!--{$forms.user.id}-->" class="link-effect fw-semibold px-1" href="<!--{$forms.user.url}-->">
+                                    <!--{$forms.user.name}-->
+                                </a>
+                                发布时间：
+                                <!--{$forms.pubdate|date:"Y-m-d H:i"}-->
+                            </span>
+                        </div>
+                        <div class="content">
+
+                            <!--{if $forms.description}-->
+                            <div class="fs-sm text-muted bg-body-light p-2 rounded">
+                                <!--{$forms.description}-->
+                            </div>
+                            <!--{/if}-->
+
+                        </div>
+                        <div class="content content-boxed">
+                            <div class="form-body">
+                                <!--自定义表单的表单-->
+                                <form action="<!--{$forms.action}-->" method="POST" i="cms:ui:form">
+                                    <!--表单结构-->
+                                    <!--{iCMS:forms:create form="$forms"}-->
+                                    <div class="form-group row py-4 mt-4 bg-body-light">
+                                        <label class="col-sm-2"></label>
+                                        <div class="col-sm-8 text-sm-start" style="text-align:center;">
+                                            <button type="submit" class="btn btn-lg btn-primary px-5 py-2" data-loading-text="提交中，请稍候..."><i class="fa fa-fw fa-check"></i> 提 交</button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </div>
+                            <!-- END Story -->
+
+                            <!-- Actions -->
+                            <!--{include file="./widget/actions.htm" item="$forms"}-->
+
+
+                            <div class="block block-rounded">
+                                <div class="block-header block-header-default">
+                                    <h3 class="block-title">评论</h3>
+                                </div>
+                                <div class="block-content block-content-full">
+                                    <!--{iCMS:comment:vlist}-->
+                                    <!--{iCMS:comment:form}-->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Section Content -->
+                        <div class="block block-no-shadow">
+                            <div class="block-header block-header-default">
+                                <h3 class="block-title">相关文章</h3>
+                            </div>
+                            <div class="block-content block-content-full">
+                                <div class="row">
+                                    <!--{iCMS:forms:list loop="true" node_id="$forms.node_id" row="9"}-->
+                                    <div class="col-md-4">
+                                        <a class="block block-bordered block-rounded block-link-pop" href="<!--{$forms_list.url}-->">
+                                            <div class="block-content bg-secondary" style="max-height: 110px; background-image: url('<!--{$forms_list.pic.url}-->')">
+                                                <h4 class="text-white mt-5 push">
+                                                    <!--{$forms_list.title}-->
+                                                </h4>
+                                            </div>
+                                            <div class="block-content block-content-full fs-sm">
+                                                <span class="text-primary mr-1">
+                                                    <!--{$forms_list.user.name}-->
+                                                </span>
+                                                <span><!--{$forms_list.pubdate}--></span>
+                                            </div>
+                                        </a>
+                                    </div>
+                                    <!--{/iCMS}-->
+                                </div>
+                            </div>
+                        </div>
+                        <!-- END Section Content -->
+                    </div>
+                    <div class="col-md-4 mt-2 mt-md-0">
+                        <!--{include file="./right.author.htm" userid="$forms.userid"}-->
+                        <!--{iCMS:article:list row="10" cid="$node.id"}-->
+                        <!--{include file="./right.hots.htm" hotsList="$article_list"}-->
+                        <!--{include file="./right.comments.htm"}-->
+                        <!--{include file="./right.social.htm"}-->
+                    </div>
+                </div>
+            </div>
+            <!-- More Stories -->
+
+            <!-- END More Stories -->
+            <!--{include file="./widget/footer.htm"}-->
+            <script src="<!--{$forms.hits.script}-->"></script>
+        </main>
+        <!-- END Main Container -->
+    </div>
+</body>
+
+</html>

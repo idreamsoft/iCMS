@@ -1,23 +1,37 @@
 [{
-    "id": "assist",
-    "children": [{
-            "caption": "-"
-        },
-        {
+        "id": "assist",
+        "children": [{
             "id": "prop",
             "caption": "属性",
             "icon": "puzzle-piece",
             "children": [{
                     "caption": "属性管理",
-                    "href": "prop",
+                    "href": "/prop/index",
                     "icon": "puzzle-piece"
                 },
                 {
                     "caption": "添加属性",
-                    "href": "prop&do=add",
+                    "href": "/prop/add",
                     "icon": "edit"
+                }, {
+                    "caption": "更新缓存",
+                    "href": "/prop/cache",
+                    "icon": "sync",
+                    "ui": "cms:ui:ajax"
                 }
             ]
-        }
-    ]
-}]
+        }]
+    },
+    {
+        "id": "tools",
+        "children": [{
+            "id": "cache",
+            "children": [{
+                "caption": "更新属性缓存",
+                "href": "/prop/cache",
+                "icon": "sync",
+                "ui": "cms:ui:ajax"
+            }]
+        }]
+    }
+]

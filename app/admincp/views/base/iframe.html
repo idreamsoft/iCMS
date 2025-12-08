@@ -1,0 +1,6 @@
+<?php
+defined('iPHP') or exit('What are you doing?');
+self::head([['breadcrumb'], null]);
+?>
+<iframe id="main-iframe" name="main-iframe" src="<?php echo $src;?>" frameborder="0" style="width: 100%; height: 100%;"></iframe>
+<?php self::foot(['page.footer',false]); ?>

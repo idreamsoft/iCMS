@@ -8,26 +8,30 @@
  * @license http://www.iiiphp.com/license
  * @version 2.2.0
  */
-defined('iPHP') OR exit('What are you doing?');
-defined('iPHP_LIB') OR exit('iPHP vendor need define iPHP_LIB');
-
-Vendor::register('Hashids');
+defined('iPHP') or exit('What are you doing?');
+defined('iPHP_LIB') or exit('iPHP vendor need define iPHP_LIB');
 
 use Hashids\Hashids;
 
-class VendorHashids {
-	public $instance;
-	public function __construct($param=array()){
-        empty($param['salt'])&& $param['salt'] = iPHP_KEY;
+class VendorHashids
+{
+    public $instance;
+
+    public function __construct($param = [])
+    {
+        empty($param['salt']) && $param['salt'] = iPHP_KEY;
         empty($param['len']) && $param['len'] = 8;
-    	$this->instance = new Hashids($param['salt'],$param['len']);
-	}
-    public function encode() {
-        $numbers = func_get_args();
-        return call_user_func_array(array($this->instance, 'encode'),$numbers);
+        $this->instance = new Hashids($param['salt'], $param['len']);
     }
-    public function decode($hash) {
-    	return $this->instance->decode($hash);
+
+    public function encode()
+    {
+        $numbers = func_get_args();
+        return call_user_func_array([$this->instance, 'encode'], $numbers);
+    }
+
+    public function decode($hash)
+    {
+        return $this->instance->decode($hash);
     }
 }
-

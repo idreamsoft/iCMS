@@ -90,7 +90,7 @@ class HTMLPurifier_AttrDef_URI_Host extends HTMLPurifier_AttrDef
         $toplabel = "$an(?:$and*$an)?";
         // hostname    = *( domainlabel "." ) toplabel [ "." ]
         if (preg_match("/^(?:$domainlabel\.)*($toplabel)\.?$/i", $string, $matches)) {
-            if (!ctype_digit($matches[1])) {
+            if (!ctype_digit((string)$matches[1])) {
                 return $string;
             }
         }

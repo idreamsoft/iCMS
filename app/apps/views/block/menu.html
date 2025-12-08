@@ -1,120 +1,227 @@
-<div class="form-group row">
-    <div class="col-sm-12">
-        <table class="table table-hover table-sm table-borderless">
-            <thead class="bg-light text-black">
-                <tr>
-                    <th>菜单编辑器</th>
-                </tr>
-            </thead>
-            <tbody id="menuEdit">
-                <?php
-                $GLOBALS['mIdx'][1] = 0;
-                function menuEdit($M, $level, $child, $pid = 0, $name = 'menuData')
-                {
-                    $value = $M;
-                    $name .= "[" . (int)$GLOBALS['mIdx'][$level] . "]";
-                    unset($value['children']);
-                    $ltag = ($level == '1' ? "" : "├ ");
-                    $childName = $name . '[children]';
-                    echo '<tr date-level="'.$level.'">';
-                    echo '<td>';
-                    echo '<div class="form-inline">';
-                    echo '<div class="input-group input-group-sm pl-0" data-name="' . $name . '">';
-                    $ltag && print '<label class="input-group-prepend"><span class="input-group-text">' . str_repeat("│　", $level - 1) . $ltag . '</span></label>';
-                    foreach ($value as $k => $val) {
-                        echo '<label class="input-group-prepend"><span class="input-group-text">' . $k . '</span></label>';
-                        echo '<input type="text" name="' . $name . '[' . $k . ']" class="form-control" value="' . $val . '" />';
-                        echo '<div class="input-group-append"></div>';
-                    }
-                    echo '<div class="input-group-append">';
-                    echo '<button i="add:tr" type="button" class="hide btn btn-sm btn-light input-group-text" data-name="' . $childName . '"><i class="si si-plus"></i></button>';
-                    echo '<button i="delete:tr" type="button" class="btn btn-sm btn-light input-group-text" data-name="' . $childName . '"><i class="si si-close"></i></button>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '</div>';
-                    echo '</td>';
-                    echo '</tr>';
-                    $GLOBALS['mIdx'][$level]++;
-                    if ($child) {
-                        foreach ($M['children'] as $item) {
-                            $child = $item['children'] ? true : false;
-                            menuEdit($item, $level + 1, $child, $item['id'], $childName);
-                        }
-                    }
-                }
-                Menu::$callback['func'] = 'menuEdit';
-                Menu::$callback['recursive'] = false;
-                Menu::callfunc($menuArray);
-                ?>
-            </tbody>
-        </table>
-        <script>
-            $(function() {
-                $('#menuEdit').sortable({
-                    placeholder: "ui-state-highlight",
-                    // cancel: ".clearfloat",
-                    delay: 300,
-                    sort: function(event, ui) {},
-                    receive: function(event, ui) {
+<!-- JSON编辑器操作按钮 -->
+<!-- <div v-show="showJsonEditor" class="mb-4 flex gap-2">
+    <button @click="loadFromJson()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+        <i class="fas fa-upload"></i>
+        从JSON加载数据
+    </button>
+    <button @click="saveData()" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+        <i class="fas fa-save"></i>
+        保存到JSON
+    </button>
+</div> -->
 
-                    }
-                });
-                var doc = $(document);
-                doc.on("click", "[i^=delete]", function(event) {
-                    var attr = $(this).attr('i').split(':');
-                    var par = $(this).parents(attr[1]);
-                    par.remove();
-                    console.log(par);
-                });
-                doc.on("click", "[i^=add]", function(event) {
-                    iCMS.ui.dialog({
-                        follow: this,
-                        height: 'auto',
-                        content: document.getElementById('addMenu-box'),
-                        modal: false,
-                        title: '添加新菜单',
-                        okValue: '创建',
-                        ok: function() {
-                            var a = $("#newdirname"),
-                                n = a.val(),
-                                d = this;
-                            if (n == "") {
-                                iCMS.ui.alert("请输入目录名称!");
-                                a.focus();
-                                return false;
-                            } else {
-                                $.post('<?php echo ADMINCP_URL; ?>=files&do=mkdir&CSRF_TOKEN=<?php echo Security::$CSRF_TOKEN; ?>', {
-                                        name: n,
-                                        pwd: '<?php echo $pwd; ?>'
-                                    },
-                                    function(json) {
-                                        if (json.code) {
-                                            d.content(json.message).button([{
-                                                value: '完成',
-                                                callback: function() {
-                                                    window.location.reload();
-                                                },
-                                                autofocus: true
-                                            }]);
-                                            window.setTimeout(function() {
-                                                window.location.reload();
-                                            }, 3000);
-                                        } else {
-                                            iCMS.ui.alert(json.message);
-                                            a.focus();
-                                            return false;
-                                        }
-                                    }, "json");
-                            }
-                            return false;
-                        }
-                    });
-                });
-            })
-        </script>
-        <textarea id="menujson" class="form-control hide" style="height:450px;font-family: Consolas,monospace;"><?php echo jsonFormat($menuArray); ?></textarea>
+<link rel="stylesheet" href="<?php echo APP_ASSETS_DIR; ?>/css/menu.css" />
+<div i="cms:apps:vMenu" class="p-6 bg-white rounded-lg shadow-lg">
+    <textarea name="menuJson" id="menu-data" class="form-control" v-show="showJsonEditor" rows="10" placeholder="JSON格式的菜单数据"><?php echo $menuJson?:'[]';?></textarea>
+    <!-- 顶部操作栏 -->
+    <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2">
+            <button @click="showJsonEditor = !showJsonEditor" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-code"></i>
+                {{ showJsonEditor ? '隐藏' : '显示' }} JSON文本框
+            </button>
+            <button @click="addItem()" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors">
+                <i class="fas fa-plus"></i>
+                添加菜单
+            </button>
+        </div>
+    </div>
+
+    <!-- 添加菜单表单 -->
+    <div v-if="showAddForm" class="bg-gray-50 p-4 rounded-lg mb-6 border">
+        <h3 class="text-lg font-semibold mb-4">添加新菜单</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">菜单名称</label>
+                <input v-model="newItem.caption" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入菜单名称">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">链接地址</label>
+                <input v-model="newItem.href" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入链接地址">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">图标</label>
+                <input v-model="newItem.icon" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="请输入图标类名">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">菜单ID</label>
+                <input v-model="newItem.id" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="留空自动生成">
+            </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+            <button @click="saveNewItem()" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+                保存
+            </button>
+            <button @click="cancelAdd()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors">
+                取消
+            </button>
+        </div>
+    </div>
+
+    <!-- 菜单列表 -->
+    <div class="space-y-2">
+        <menu-item v-for="(item, index) in items" :key="item.id || index" :item="item" :index="index" :parent="null" @edit="editItem" @delete="deleteItem" @add-child="addChild" @drag-start="onDragStart" @drag-end="onDragEnd" @drag-over="onDragOver" @drop="onDrop" @toggle-expand="toggleExpand"></menu-item>
+    </div>
+
+    <!-- 编辑模态框 -->
+    <div v-if="editingItem" class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div class="bg-white p-6 rounded-lg w-full max-w-md mx-4">
+            <h3 class="text-lg font-semibold mb-4">编辑菜单</h3>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">菜单名称</label>
+                    <input v-model="editingItem.caption" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">链接地址</label>
+                    <input v-model="editingItem.href" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">图标</label>
+                    <input v-model="editingItem.icon" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">菜单ID</label>
+                    <input v-model="editingItem.id" type="text" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+            </div>
+            <div class="flex gap-2 mt-6">
+                <button @click="saveEdit(editingItem._original)" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition-colors">
+                    保存
+                </button>
+                <button @click="cancelEdit()" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md transition-colors">
+                    取消
+                </button>
+            </div>
+        </div>
     </div>
 </div>
-<div id="addMenu-box" style="width:150px;display: none;">
-    <input class="form-control" id="newdirname" type="text" placeholder="请输入目录名称">
-</div>
+
+<!-- 菜单项组件模板 -->
+<script type="text/x-template" id="menu-item-template">
+    <div class="menu-item ml-2 mb-1 bg-white">
+        <div 
+            class="flex items-center p-1 mr-3 hover:bg-gray-50 transition-colors cursor-move"
+            draggable="true"
+            @dragstart="$emit('drag-start', $event, item, index, parent)"
+            @dragend="$emit('drag-end')"
+            @dragover.prevent="$emit('drag-over', $event)"
+            @drop.prevent.stop="$emit('drop', $event, item, index, parent, false)"
+        >
+            <!-- 拖拽手柄 -->
+            <div class="text-gray-400 mr-3 cursor-move">
+                <i class="fas fa-grip-vertical"></i>
+            </div>
+            
+            <!-- 展开/折叠按钮 -->
+            <button 
+                v-if="item.children && item.children.length > 0" 
+                @click="$emit('toggle-expand', item)"
+                class="text-gray-500 hover:text-gray-700 mr-2 w-4 h-4 flex items-center justify-center"
+            >
+                <i :class="item.expanded ? 'fas fa-chevron-down' : 'fas fa-chevron-right'"></i>
+            </button>
+            <div v-else class="w-6"></div>
+            
+            <!-- 图标 -->
+            <div v-if="item.icon" class="mr-3 w-5 h-5 flex items-center justify-center">
+                <i :class="[item.icon.includes(' ') ? item.icon : `fa fa-fw fa-${item.icon}`]" class="text-gray-600"></i>
+            </div>
+            
+            <!-- 菜单名称 -->
+            <div class="flex-1 relative">
+                <div 
+                    class="absolute inset-0 opacity-0 hover:opacity-100 transition-all duration-200 flex items-center justify-center bg-blue-100 border-2 border-blue-300 border-dashed"
+                    @dragenter.prevent
+                    @dragover.prevent
+                    @drop.prevent.stop="$emit('drop', $event, item, index, parent, true)"
+                    title="拖拽到此处作为子菜单"
+                >
+                    <span class="text-xs text-blue-600 font-medium">作为子菜单</span>
+                </div>
+                <span v-if="item.caption === '-'" class="text-gray-400 italic">-------------分隔线-----------</span>
+                <span v-else-if="item.caption" class="text-gray-800 font-medium">{{ item.caption }}</span>
+                <span v-else class="text-gray-800 font-medium">{{ item.id }}</span>
+                <span v-if="item.href" class="text-sm text-gray-500">{{ item.href }}</span>
+                
+                <!-- 内部拖拽放置区域 -->
+                <div 
+                    class="absolute inset-y-0 right-0 left-1/2 opacity-0 hover:opacity-100 transition-all duration-200 flex items-center justify-center"
+                    :class="{
+                        'opacity-100 bg-blue-100 border-2 border-blue-300 border-dashed': isDragOver,
+                        'pointer-events-auto': true
+                    }"
+                    @dragenter.prevent="isDragOver = true; $event.dataTransfer.dropEffect = 'copy'"
+                    @dragover.prevent="$event.dataTransfer.dropEffect = 'copy'"
+                    @dragleave.prevent="isDragOver = false"
+                    @drop.prevent="isDragOver = false; $emit('drop', $event, item, index, parent, true)"
+                    title="拖拽到此处作为子菜单"
+                >
+                    <span class="text-xs text-blue-600 font-medium">作为子菜单</span>
+                </div>
+            </div>
+            
+            <!-- 操作按钮 -->
+            <div class="flex items-center gap-2">
+                <button 
+                    @click="$emit('add-child', item)"
+                    class="text-blue-500 hover:text-blue-700 p-1 rounded transition-colors"
+                    title="添加子菜单"
+                >
+                    <i class="fas fa-plus text-sm"></i>
+                </button>
+                <button 
+                    @click="$emit('edit', item)"
+                    class="text-green-500 hover:text-green-700 p-1 rounded transition-colors"
+                    title="编辑"
+                >
+                    <i class="fas fa-edit text-sm"></i>
+                </button>
+                <button
+                    @click="$emit('delete', item, parent)"
+                    class="text-red-500 hover:text-red-700 p-1 rounded transition-colors"
+                    title="删除"
+                >
+                    <i class="fas fa-trash text-sm"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- 子菜单 -->
+        <div v-if="item.children && item.children.length > 0 && item.expanded" class="ml-2 border-l-2 border-gray-200 pl-4 pb-2">
+            <menu-item 
+                v-for="(child, childIndex) in item.children" 
+                :key="child.id || childIndex"
+                :item="child" 
+                :index="childIndex"
+                :parent="item"
+                @edit="$emit('edit', $event)"
+                @delete="(...args) => $emit('delete', ...args)"
+                @add-child="$emit('add-child', $event)"
+                @drag-start="(...args) => $emit('drag-start', ...args)"
+                @drag-end="(...args) => $emit('drag-end', ...args)"
+                @drag-over="(...args) => $emit('drag-over', ...args)"
+                @drop="(...args) => $emit('drop', ...args)"
+                @toggle-expand="$emit('toggle-expand', $event)"
+            ></menu-item>
+        </div>
+    </div>
+</script>
+
+<style>
+.menu-item .menu-item{
+    position: relative;
+}
+.menu-item .menu-item::before {
+    content: '';
+    position: absolute;
+    top: 19px;
+    left: -23px;
+    width: 20px;
+    height: 2px;
+    background-color: #e5e7eb;
+}
+</style>
+<!-- <textarea name="menuJson" id="menuJson" class="form-control" style="height: 150px;">
+<?php echo $menuJson?:'[]';?>
+</textarea> -->

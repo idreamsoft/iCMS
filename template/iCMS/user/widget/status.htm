@@ -1,0 +1,37 @@
+<div i="cms:user:status:0">
+    <a i="cms:user:goto:login" class="btn btn-sm btn-alt-primary" href="<!--{iCMS:route url='user/login'}-->" title="登录">登录</a>
+    <a i="cms:user:goto:register" class="btn btn-sm btn-alt-danger" href="<!--{iCMS:route url='user/register'}-->" title="注册">注册</a>
+</div>
+<div i="cms:user:status:1" style="display: none;">
+    <div i="cms:user:info" class="dropdown d-inline-block">
+        <button type="button" class="btn btn-sm btn-alt-secondary" id="page-header-user-dropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <img class="img-avatar img-avatar20" src="/assets/img/bank.gif" data-src="{{user.avatar}}"/>
+            <span class="d-none d-sm-inline-block ml-1">{{user.nickname}}</span>
+            <i class="fa fa-fw fa-angle-down d-none d-sm-inline-block"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-shadow p-0 border-0" aria-labelledby="page-header-user-dropdown">
+            <div class="p-3 text-center bg-primary-dark rounded-top">
+                <img src="/assets/img/bank.gif" data-src="{{user.avatar}}" class="img-avatar img-avatar48 img-avatar-thumb" alt="" />
+                <p class="mt-2 mb-0 text-white fw-semibold">{{user.nickname}}</p>
+                <p class="mb-0 text-white-50 fs-sm">{{user.role.name}}</p>
+            </div>
+            <div class="p-2">
+                <a class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user/manage/message'}-->">
+                    <span class="fs-sm fw-semibold">收件箱</span>
+                    <span class="badge rounded-pill bg-primary ms-2">{{message_num}}</span>
+                </a>
+                <div role="separator" class="dropdown-divider"></div>
+                <a class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user/manage/profile'}-->">
+                    <span class="fs-sm fw-semibold">我的资料</span>
+                </a>
+                <a class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user/manage/index'}-->">
+                    <span class="fs-sm fw-semibold">个人中心</span>
+                </a>
+                <div role="separator" class="dropdown-divider"></div>
+                <a i="cms:user:logout" class="dropdown-item d-flex align-items-center justify-content-between" href="<!--{iCMS:route url='user/logout'}-->">
+                    <span class="fs-sm fw-semibold">退出</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

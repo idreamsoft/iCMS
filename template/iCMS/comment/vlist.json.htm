@@ -1,0 +1,11 @@
+<!--{iCMS:user:data id="$param.userid"}-->
+<!--{array as="json" code="1" data=[]}-->
+
+<!--{iCMS:comment:list loop="true" row="10" 
+    iid="$param.iid" 
+    appid="$param.appid"
+}-->
+<!--{array as[]="json" data[][user]=$user_data}-->
+
+<!--{/iCMS}-->
+<!--{$json|json_encode}-->

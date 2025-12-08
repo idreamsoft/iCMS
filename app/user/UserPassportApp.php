@@ -12,58 +12,202 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserPassportApp
 {
-    public static $apiList = ['login', 'logout', 'register', 'findpwd'];
+    const LOGIN_QRCODE_KEY = 'loginQr';
+    const LOGIN_ERROR_TIMES = 'error/login.%s';
+
+    public static $apiList = ['login', 'loginQr', 'logout', 'register', 'findpwd', 'wxOpenid', 'activate'];
     public $methods = [];
-    public function __construct($auto = false)
+
+    public function __construct()
     {
-        if (iAPP::$DO == 'logout') {
-            return $this->API_logout();
+        if (Application::$DO == 'logout') {
+            return $this->api_logout();
         }
+
         /**
          * 已登陆,跳转到个人主页
          */
-        if (User::$data) {
-            $url = Route::routing('{uid}/home', [User::$id]);
-            Helper::redirect($url, true);
+        $checkLogin = User::$id ? true : false;
+        $state = Request::sparam('state');
+        //扫码时不判断
+        if ($state && stripos($state, self::LOGIN_QRCODE_KEY) !== false) {
+            $checkLogin = false;
+        }
+
+        if ($checkLogin) {
+            $url = User::route('url');
+            Utils::jumpto($url);
         } else {
-            UserCP::assign();
+            UserCenter::assign();
         }
     }
-    public function API_register()
+
+    public function done_findpwd()
+    {
+        $post = Request::post();
+        Captcha::check($post['captcha2']);
+        PluginVerify::verify($post['email'], $post['emailcode'], 'email');
+
+        trim($post['passwd']) or iJson::error('user:password:empty:new');
+        trim($post['passwd-confirm']) or iJson::error('user:password:empty:confirm');
+        $post['passwd'] == $post['passwd-confirm'] or iJson::error('user:password:unequal');
+
+        $user = UserModel::where(['email'=>$post['email']])->get();
+        empty($user) && iJson::error('user:not_exist');
+        User::checkStatus($user['status']);
+        $password = User::password($post['passwd']);
+        UserModel::update(compact('password'), $user['id']);
+
+        return ['message'=>'Successfully updated', 'url'=>Route::routing('user/login')];
+    }
+
+    public function done_findPwdStep()
+    {
+        $post = Request::post();
+        // PluginEmail::$debug = iPHP_DEBUG;
+        PluginVerify::email($post['email'], $post['code']);
+    }
+    public $activate_time = 86400;
+
+    /**
+     * 重新发送验证邮件
+     *
+     * @return void
+     */
+    public function done_resend_activate()
+    {
+        $code = Request::post('code');
+        $ref = $_SERVER['HTTP_REFERER'];
+        $decode = auth_decode($code);
+        empty($code) && iJson::error('request illegal');
+        if ($decode) {
+            list($userid, $expire_time) = explode(USER_AUTHASH, $decode);
+            if (time() - $expire_time < $this->activate_time) {
+                $user = UserModel::get($userid);
+                $this->send_verify_email($user);
+                return true;
+            } else {
+                iJson::error('user:activate:normal');
+            }
+        } else {
+            iJson::error('request illegal');
+        }
+    }
+
+    public function api_activate()
+    {
+        $code = Request::get('code');
+        $decode = auth_decode($code);
+        $msg = 'user:activate:expire';
+        $status = -1;
+        if ($decode) {
+            list($userid, $expire_time) = explode(USER_AUTHASH, $decode);
+            if (time() - $expire_time < $this->activate_time) {
+                $user = UserModel::get($userid);
+                $status = $user['status'];
+                if ($status === 4) {
+                    $flag = UserModel::where($userid)->update(['status'=> 1]);
+                    if ($flag) {
+                        $status = 1;
+                        // User::setCookie($user);
+                    }
+                    $msg = $flag ? 'user:activate:success' : 'user:activate:failure';
+                } elseif ($status === 1) {
+                    $msg = 'user:activate:activated';
+                } else {
+                    $msg = 'user:activate:failure';
+                    // $msg = 'user:status:'.$status;
+                }
+            }
+        }
+        View::assign([
+            'code'   => $code,
+            'status' => $status,
+            'msg'    => Lang::get($msg)
+        ]);
+        View::display('iCMS://user/activate.htm');
+    }
+
+    public function api_check()
+    {
+        $data = Request::post();
+        $without = Request::get('without');
+        $account = $data['account'];
+        $phone = $data['phone'];
+        $email = $data['email'];
+        if (isset($data['phone'])) {
+            $check = User::check($data['phone'], 'phone');
+        }
+        if (isset($data['email'])) {
+            $check = User::check($data['email'], 'email');
+        }
+        if (isset($data['account'])) {
+            $check = User::check($data['account'], 'account');
+        }
+        if (isset($without)) {
+            exit($check ? 'true' : 'false');
+        }
+        exit($check ? 'false' : 'true');
+    }
+
+    public function api_register()
     {
         $name = 'register.close';
         if (User::$config['register']['enable']) {
-            // $this->forward('r');
-            // User::status($this->forward, "login");
             $name = 'register';
         }
+        $this->registerPage($name);
+    }
+
+    public function registerPage($name = 'register')
+    {
+        $mode = User::$config['register']['mode'];
+        $modes = [];
+        if (in_array('account', $mode)) {
+            $modes['account'] = true;
+        }
+        if (in_array('phone', $mode)) {
+            if (isset($modes['account'])) {
+                unset($modes['account']);
+            }
+            $modes['phone'] = true;
+        }
+        if (in_array('email', $mode)) {
+            $modes['email'] = true;
+        }
+
+        View::assign('modes', $modes);
         $path = sprintf('iCMS://user/%s.htm', $name);
+        View::assign('mode', $mode);
         View::display($path);
     }
-    public function ACTION_register()
+
+    public function done_register()
     {
         User::$config['register']['enable'] or iJson::error('user:register:enable');
         $data = Request::post();
         $account = &$data['account'];
         $phone = $data['phone'];
         $email = $data['email'];
-        $data['signup-terms'] == 'on' or  iJson::error('user:register:terms_on');
+        $data['signup-terms'] == 'on' or iJson::error('user:register:terms_on');
 
-        if (User::$config['register']['verify']['phone']) {
-            if (User::$config['register']['captcha']) {
-                try {
-                    PluginSmsCode::check($data['phone'], $data['smscode']);
-                } catch (\sException $ex) {
-                    $msg = $ex->getMessage();
-                    iJson::error($msg);
+        if(empty($data['oauth'])){
+            if (in_array('phone',User::$config['register']['mode']) && User::$config['register']['verify']['phone']) {
+                if (User::$config['register']['captcha']) {
+                    PluginVerify::phone($data['phone'], $data['smscode']);
+                } else {
+                    iJson::error('user:register:open_captcha');
                 }
             } else {
-                iJson::error('user:register:open_captcha');
+                //存在短信验证码的情况 不在对图形验证码再次进行验证
+                if (User::$config['register']['captcha']) {
+                    Captcha::check();
+                }
             }
-        } else {
-            //存在短信验证码的情况 不在对图形验证码再次进行验证
+        }else{
+            $oauth = Crypt::decrypt($data['oauth']);
             if (User::$config['register']['captcha']) {
-                Captcha::check() or iJson::error('iCMS:captcha:error');
+                Captcha::check();
             }
         }
 
@@ -73,25 +217,32 @@ class UserPassportApp
             $len < 6 && iJson::error('user:account:min');
         }
 
-        if ($email) {
-            preg_match("/^[\w\-\.]+@[\w\-]+(\.\w+)+$/i", $email) or iJson::error('user:email:error');
-            empty($account) && $account = $email;
-            User::check($email, 'email') && iJson::error('user:email:exist');
+        $status = 1;
+        if (User::$config['register']['verify']['email']) {
+            $status = 4;
+            if ($email) {
+                Utils::isEmail($email) or iJson::error('user:email:error');
+                User::check($email, 'email') && iJson::error('user:email:exist');
+                empty($account) && $account = $email;
+            } else {
+                if ($oauth) {
+                    $status = 1;
+                } else {
+                    iJson::error('user:email:empty');
+                }
+            }
         }
+
         if ($phone) {
-            self::isPhone($phone) or iJson::error('user:phone:error');
+            Utils::isPhone($phone) or iJson::error('user:phone:error');
+            User::check($phone, 'phone') && iJson::error('user:phone:exist');
             ($account == $email) && $account = $phone;
             empty($account) && $account = $phone;
-            User::check($phone, 'phone') && iJson::error('user:phone:exist');
         }
 
         $ip = Request::ip();
-        try {
-            self::checkInterval(['regip' => $ip], 'register', 'regdate');
-        } catch (\sException $ex) {
-            $msg = $ex->getMessage();
-            iJson::error($msg);
-        }
+        self::checkInterval(['regip' => $ip], 'register', 'regdate');
+
         $account or iJson::error('user:account:empty');
         User::check($account, 'account') && iJson::error('user:account:exist');
 
@@ -99,31 +250,19 @@ class UserPassportApp
         trim($data['password-confirm']) or iJson::error('user:password-confirm:empty');
         $data['password'] == $data['password-confirm'] or iJson::error('user:password:unequal');
 
-        self::register($data);
-        $data['auth'] = User::setCookie($data);
+        self::register($data, $status);
+        $status === 1 && User::setCookie($data);
         unset($data['password'], $data['password-confirm']);
         $msg = 'user:register:success';
         if (User::$config['register']['verify']['email']) {
-            try {
-                $code = auth_encode($data['uid'] . USER_AUTHASH . time());
-                $active_url = Route::routing('user/email/active', 'code=' . $code);
-                PluginEmail::send([
-                    'subject' => Lang::get('user:email:active:subject'),
-                    'body' => Lang::get(
-                        'user:email:active:body',
-                        ['name' => '用户', 'url' => $active_url]
-                    ),
-                    'address' => [$data['email'], $account]
-                ]);
-                $data['verify:email'] = true;
+            if (empty($oauth)) {
+                $this->send_verify_email($data);
                 $msg = 'user:email:active:wait';
-                // $data['forward'] = Route::routing('user/email/active', 'code=' . $code)
-            } catch (\Exception $ex) {
-                // $msg = $ex->getMessage();
-                // iJson::error($msg);
             }
         }
-        iJson::success($data, $msg, $data['forward']);
+        $forward = Route::routing('user/home');
+        return [[], $msg, $forward];
+        // iJson::success($data, $msg, $data['forward']);
 
         // $openid && user_openid::save($data['uid'], $openid, $type, $appid);
 
@@ -138,59 +277,180 @@ class UserPassportApp
         // }
 
         //User::set_cache($uid);
-        // iJson::display(['code' => 1, 'forward' => $this->forward]);
+        // iJson::display(['code' => 1, 'forward' => UserUtils::$forward]);
     }
-    public function API_logout()
+
+    public function done_logout()
+    {
+        return $this->api_logout();
+    }
+
+    public function api_logout()
     {
         User::logout();
-        iJson::success('user:logout');
+        if (Request::isAjax()) {
+            return 'user:logout';
+        } else {
+            Utils::jumpto(UserUtils::$forward);
+        }
     }
-    public function API_login()
+
+    public function api_login()
     {
         $name = 'login.close';
         if (User::$config['login']['enable']) {
-            // $this->forward('r');
-            if (Request::get('sign')) {
-                // $this->openid();
-                $social = new UserSocialApp;
-                $social->login();
+            // UserUtils::forward('r');
+            if ($sign = Request::sget('sign')) {
+                if (User::$config['social'][strtolower($sign)]) {
+                    return $this->loginSocial();
+                }
+                if ($sign == 'qrcode' && User::$config['qrcode']['enable']) {
+                    return $this->loginQrcode();
+                }
             }
-            // User::status($this->forward, "login");
             $name = 'login';
         }
         $path = sprintf('iCMS://user/%s.htm', $name);
         View::display($path);
     }
-    public function ACTION_login()
+
+    public function getLoginQrKey($state)
+    {
+        return self::LOGIN_QRCODE_KEY . '/' . $state;
+    }
+
+    public function setLoginQrData($key, $user)
+    {
+        $data = array_filter_keys($user, 'id,account,password,nickname,status');
+        $data['forward'] = UserUtils::$forward;
+        Cache::set($key, $data);
+    }
+
+    public function api_loginQr()
+    {
+        $state = Request::spost('state');
+        $key = self::getLoginQrKey($state);
+        $data = Cache::get($key);
+        if ($data) {
+            User::setCookie($data);
+            Cache::delete($key);
+            return [
+                'data'   => ['userid'=>$data['id']],
+                'url'    => $data['url'],
+                'message'=> 'user:login:success',
+            ];
+        }
+    }
+
+    public function done_login()
     {
         User::$config['login']['enable'] or iJson::error('user:login:enable');
 
-        if (User::$config['login']['captcha']) {
-            Captcha::check() or iJson::error('iCMS:captcha:error');
-        }
-
         $post = Request::post();
         $gateway = $post['gateway'];
+        if (User::$config['login']['captcha']) {
+            $prefix = $gateway == 'account' ? 'account_login' : 'phone_login';
+            Captcha::check($post['captcha'], $prefix);
+        }
         $forward = $post['forward'];
         $post['remember'] && User::$cookieTime = 14 * 86400;
-        try {
-            if ($gateway == 'account') {
-                $result = self::loginAccount($post);
-            } elseif ($gateway == 'phone') {
-                $result = self::loginPhone($post);
-            }
+        if ($gateway == 'account') {
+            $result = self::loginAccount($post);
+        } elseif ($gateway == 'phone') {
+            $result = self::loginPhone($post);
+        }
+        $forward = $forward ?: Route::routing('{userid}/home', [$result['id']]);
 
-            if ($result) {
-                $forward = $forward ?: Route::routing('{uid}/home', [$result['uid']]);
-                iJson::success($result, 'user:login:success', $forward);
-            } else {
-                iJson::error('user:login:forbidden');
+        if ($oauth = $post['oauth']) {
+            $oauth = Crypt::decrypt($oauth);
+            if (is_array($oauth) && $oauth['openid']) {
+                UserOpenid::save($result['id'], $oauth['openid'], $oauth['platform'], $oauth['appid']);
+                if ($oauth['QRCODE_KEY']) {
+                    $user = User::get($result['id'], false);
+                    self::setLoginQrData($oauth['QRCODE_KEY'], $user);
+                }
             }
-        } catch (\sException $ex) {
-            $msg = $ex->getMessage();
-            iJson::error($msg);
+        }
+        return [$result, 'user:login:success', $forward];
+    }
+
+    /**
+     * 微信扫码登陆
+     *
+     * @return void
+     */
+    public function loginQrcode()
+    {
+        if ($social = UserOauth::getInstance('qrcode')) {
+            $social->getOpenid();
+            $this->openid($social);
         }
     }
+
+    /**
+     * 社交媒体账号登录
+     *
+     * @return void
+     */
+    public function loginSocial()
+    {
+        $sign = Request::sget('sign');
+        if ($social = UserOauth::getInstance($sign)) {
+            $social->getOpenid();
+            $this->openid($social);
+        }
+    }
+
+    public function openid($social)
+    {
+        $state = Request::sget('state', '');
+        $bind = Request::sget('bind');
+
+        if (empty($social->openid)) {
+            return;
+            // AppsBase::alert('OpenID not obtained');
+            // return Utils::jumpto(UserUtils::$forward);
+        }
+
+        $userid = UserOpenid::userid($social->openid, $social->name);
+        $info = [
+            'openid'        => $social->openid,
+            'account'       => short_md5($social->openid . $social->appid),
+            'appid'         => $social->appid,
+            'QRCODE_KEY'    => '',
+            'platform'      => $social->name
+        ];
+
+        if (stripos($state, self::LOGIN_QRCODE_KEY) !== false) {
+            $info['QRCODE_KEY'] = self::getLoginQrKey($state);
+        }
+
+        if ($userid) {
+            $user = User::get($userid, false);
+            if ($info['QRCODE_KEY']) {
+                self::setLoginQrData($info['QRCODE_KEY'], $user);
+            }
+            User::setCookie($user);
+            $social->clean();
+            Utils::jumpto(UserUtils::$forward);
+        } else {
+            View::assign('oauth', Crypt::encrypt($info));
+            View::assign('social', $info);
+            View::assign('query', compact(['sign', 'code', 'state', 'bind']));
+
+            if (isset($bind)) {
+                $social->clean();
+                View::display('iCMS://user/login.htm');
+            } else {
+                $user = $social->getUser();
+                $social->clean();
+                // User::check($user['nickname'], 'nickname') && $user['nickname'] = $sign . '_' . $user['nickname'];
+                View::assign('USER', $user);
+                $this->registerPage();
+            }
+        }
+    }
+
     public static function loginAccount($data)
     {
         $data = array_map('trim', $data);
@@ -199,19 +459,21 @@ class UserPassportApp
         }
         return self::login($data['account'], User::password($data['password']));
     }
+
     public static function loginPhone($data)
     {
         $data = array_map('trim', $data);
-        PluginSmsCode::check($data['phone'], $data['smscode']);
+        PluginVerify::phone($data['phone'], $data['smscode']);
         return self::login($data['phone']);
     }
+
     public static function register(&$data, $status = 1)
     {
         $time = time();
         $ip = Request::ip();
         $account = $data['account'];
         $data = $data + [
-            'role_id'       => User::$config['register']['role'],
+            'role_id'       => User::defaultRole(),
             'regip'         => $ip,
             'regdate'       => $time,
             'lastloginip'   => $ip,
@@ -224,22 +486,23 @@ class UserPassportApp
         }
         $data['password'] = User::password($data['password']);
         if (empty($data['nickname'])) {
-            $data['nickname'] = self::isPhone($account) ?
+            $data['nickname'] = Utils::isPhone($account) ?
                 substr_replace($account, '****', 3, 4) :
                 $account;
         }
-        User::check($account, 'account') && iJson::error('user:account:exist');
+        User::check($account, 'account') && AppsBase::alert('user:account:exist');
 
-        DB::beginTransaction();
-        try {
-            $data['uid'] = UserModel::create($data, true);
-            DB::commit();
-        } catch (\sException $ex) {
-            DB::rollBack();
-            $msg = $ex->getMessage();
-            iJson::error('iCMS:DB:error');
+        $data['id'] = UserModel::create($data, true);
+        if ($oauth = $data['oauth']) {
+            $oauth = Crypt::decrypt($oauth);
+            if (is_array($oauth) && $oauth['openid']) {
+                UserOpenid::save($data['id'], $oauth['openid'], $oauth['platform'], $oauth['appid']);
+                UserModel::update([
+                    'type'=> UserOpenid::platform($oauth['platform'])
+                ], $data['id']);
+            }
         }
-        AppsApp::hooked($data, 'user.register');
+        AppsBase::hooked($data, 'user.register');
         return $data;
     }
 
@@ -249,17 +512,15 @@ class UserPassportApp
         $ip = Request::ip();
 
         // self::checkInterval(['lastloginip' => $ip, 'account' => ['<>', $account]],'login','lastlogintime');
-        try {
-            $loginTimes = self::checkLoginTimes($account);
-        } catch (\sException $ex) {
-            $msg = $ex->getMessage();
-            iJson::error($msg);
-        }
-        $where = ['status' => '1'];
+        $loginTimes = self::checkLoginTimes($account);
+
+        $where = [];
 
         if ($password) { //密码登录方式
-            if (self::isPhone($account)) {
+            if (Utils::isPhone($account)) {
                 $where['phone'] = $account;
+            } elseif (Utils::isEmail($account)) {
+                $where['email'] = $account;
             } else {
                 $where['account'] = $account;
             }
@@ -269,13 +530,12 @@ class UserPassportApp
         }
 
         $model = UserModel::where($where);
-        $data = $model->field('uid,account,password,nickname,status')->get();
-        // var_dump(DB::getQueryLog());
-        // $openid && user_openid::save(User::$id, $openid, $platform, $appid);
+        $data = $model->field('id,account,password,nickname,status')->get();
 
         if ($data) {
+            User::checkStatus($data['status']);
             $model->update([
-                'lastloginip' => $ip,
+                'lastloginip'   => $ip,
                 'lastlogintime' => $time
             ]);
         } else {
@@ -286,7 +546,7 @@ class UserPassportApp
             } else {
                 self::setLoginTimes($account, $loginTimes);
                 //密码登录方式 登录失败
-                iJson::error('user:login:forbidden');
+                throw new sException('user:login:forbidden');
             }
         }
         self::setLoginTimes($account, null);
@@ -294,6 +554,7 @@ class UserPassportApp
         unset($data['password']);
         return $data;
     }
+
     //判断同IP登录或注册时间间隔
     public static function checkInterval($where, $type = 'register', $field = 'regdate')
     {
@@ -309,7 +570,7 @@ class UserPassportApp
             }
         }
     }
-    const LOGIN_ERROR_TIMES = 'error/login.%s';
+
     //记录登录错误次数
     public static function setLoginTimes($account, $loginTimes)
     {
@@ -326,11 +587,7 @@ class UserPassportApp
             Cache::set($cacheKey, $loginTimes, User::$config['login']['interval']);
         }
     }
-    //登录错误次数判断
-    public static function isPhone($text)
-    {
-        return preg_match("/^1[34578]\d{9}$/i", $text);
-    }
+
     public static function checkLoginTimes($account)
     {
         $time = time();
@@ -354,5 +611,52 @@ class UserPassportApp
             }
         }
         return $loginTimes;
+    }
+
+    public function send_verify_email($user)
+    {
+        $code = auth_encode($user['id'] . USER_AUTHASH . time());
+        $active_url = Route::routing('user/activate', 'code=' . $code);
+        PluginEmail::send([
+            'subject' => Lang::get('user:email:active:subject'),
+            'body'    => Lang::get(
+                'user:email:active:body',
+                ['name' => '用户', 'url' => $active_url]
+            ),
+            'address' => [$user['email'], $user['account']]
+        ]);
+    }
+
+    public static function silentLogin()
+    {
+        $config = Config::get('user');
+        if ($config && isset($config['login']) && isset($config['login']['auto_wx_login'])) {
+            if (Utils::isWeChatBrowser()) {
+                if (User::status()) {
+                    return true;
+                }
+
+                User::$config = $config;
+                try {
+                    if ($social = UserOauth::getInstance('qrcode')) {
+                        $url = $_SERVER['REQUEST_URL'];
+                        $code = $_GET['code'];
+                        $state = $_GET['state'];
+                        if (empty($code) && empty($state)) {
+                            $social->authorize($url, 'silent');
+                        } else {
+                            $social->getToken();
+                            $userid = UserOpenid::userid($social->openid, $social->name);
+                            if ($userid) {
+                                $user = UserModel::get($userid);
+                                User::setCookie($user);
+                            }
+                        }
+                    }
+                } catch (\Exception $ex) {
+                    echo $ex->getMessage();
+                }
+            }
+        }
     }
 }

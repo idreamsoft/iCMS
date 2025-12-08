@@ -1,12 +1,19 @@
 [{
     "id": "assist",
     "children": [{
-            "caption": "-"
-        },
-        {
-            "caption": "搜索管理",
-            "href": "search",
-            "icon": "search"
-        }
-    ]
+        "id": "search",
+        "caption": "搜索",
+        "icon": "search",
+        "children": [{
+                "caption": "搜索设置",
+                "href": "/search/config",
+                "icon": "cog"
+            },
+            {
+                "caption": "搜索管理",
+                "href": "/search/index",
+                "icon": "list"
+            }
+        ]
+    }]
 }]

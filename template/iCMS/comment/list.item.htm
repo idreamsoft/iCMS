@@ -1,60 +1,82 @@
-<div class="media push">
-    <a class="mr-3" href="<!--{$comment_list.user.url}-->">
-        <img class="img-avatar img-avatar32" src="<!--{$comment_list.user.avatar}-->" onerror="iUser.noavatar(this);" alt="" />
-    </a>
-    <div class="media-body" data-param="<!--{$comment_list.param|json_param}-->">
-        <a class="font-w600" href="<!--{$comment_list.user.url}-->">
-            <!--{$comment_list.user.name}-->
-        </a>
-        <!--{if $comment_list.user.uid==$author.uid}-->
-        <mark class="font-size-sm font-w600 text-success ml-1">作者</mark>
-        <!--{else}-->
-        <mark class="font-size-sm font-w600 text-danger ml-1"></mark>
-        <!--{/if}-->
-        <p class="my-1">
-            <!--{$comment_list.content|nl2br}-->
-        </p>
-        <div class="font-size-sm">
-            <a class="btn btn-sm btn-alt-primary mr-1" href="javascript:void(0)" i="event:vote:comment:up">
-                <i class="fa fa-caret-up mr-1"></i>
-                赞同
-                <span i="vote:comment:up:num"><!--{$comment_list.up}--></span>
-            </a>
-            <a class="btn btn-sm btn-alt-primary mr-1" href="javascript:void(0)" i="event:vote:comment:down">
-                <i class="fa fa-caret-down"></i>
-            </a>
-            <a class="mr-1 text-muted" href="javascript:void(0)" i="event:comment:reply">
-                <i class="fa fa-comment mr-1"></i>
-                <!--{if $comment_list.reply_count}-->
-                <!--{$comment_list.reply_count}-->
-                条评论
-                <!--{else}-->
-                添加评论
-                <!--{/if}-->
-            </a>
-            <a class="mr-1 text-muted" href="javascript:void(0)" i="event:user:report">
-                <i class="fa fa-flag"></i>
-                举报
-            </a>
-            <span class="text-muted">
-                <em>
-                    <!--{$comment_list.update_time|format_date}-->
-                </em>
-            </span>
-        </div>
-        <!--{if $comment_list.reply_count && $reply!=='false'}-->
-        <div class="commentReplyList">
-            <!--{iCMS:comment:reply loop="true" comment_id="$comment_list.id" row="$replyRow"}-->
-                <!--{include file="iCMS://comment/reply.item.htm"}-->
-            <!--{/iCMS}-->
-            <!--{if $comment_list.reply_count>$comment_reply.max}-->
-            <div class="media mt-3">
-                <a href="javascript:void(0)" i="event:comment:reply:all">
-                    查看全部<!--{$comment_list.reply_count}-->条回复
+<div class="cms-comment-list">
+    <!--{$comment_list.id}-->
+    <div i="comment:item" class="cms-comment-item">
+        <div class="cms-comment-author">
+            <div class="cms-comment-author-avatar">
+                <a href="<!--{$comment_list.user.url}-->" i="cms@h:user:ucard" data-userid="<!--{$comment_list.user.id}-->">
+                    <img src="<!--{$comment_list.user.avatar}-->" i="cms:user:avatar" alt="" />
                 </a>
+            </div>
+            <div class="cms-comment-author-info">
+                <div class="cms-comment-author-info-head">
+                    <a href="<!--{$comment_list.user.url}-->" i="cms@h:user:ucard" data-userid="<!--{$comment_list.user.id}-->">
+                        <!--{$comment_list.user.name}-->
+                    </a>
+                    <!--{if $comment_list.user.id==$ME.id}-->
+                    <span class="cms-comment-badge cms-comment-badge-me">我</span>
+                    <!--{/if}-->
+                    <!--{if $comment_list.user.id==$author.uid}-->
+                    <span class="cms-comment-badge cms-comment-badge-author">作者</span>
+                    <!--{/if}-->
+                </div>
+                <div class="cms-comment-author-info-detail">
+                    <!--{$comment_list.user.slogan}-->
+                </div>
+            </div>
+        </div>
+        <div class="cms-comment-content" data-params="<!--{$comment_list.params|json}-->">
+            <div class="cms-comment-item-inner">
+                <p><!--{$comment_list.content}--></p>
+            </div>
+            <div class="cms-comment-item-actions">
+                <div class="cms-comment-vote-buttons">
+                    <a i="cms:comment:vote:up" class="cms-comment-vote-btn <!--{$comment_list.is_up?'active':''}-->" href="javascript:void(0)">
+                        <i class="fa fa-caret-up"></i>
+                        赞同
+                        <span i="cms:comment:vote:up:num"><!--{$comment_list.up}--></span>
+                    </a>
+                    <a i="cms:comment:vote:down" class="cms-comment-vote-btn <!--{$comment_list.is_down?'active':''}-->" href="javascript:void(0)">
+                        <i class="fa fa-caret-down"></i>
+                    </a>
+                </div>
+
+                <a i="cms:comment:reply" href="javascript:void(0)">
+                    <i class="fa fa-comment"></i>
+                    <span>
+                        <!--{if $comment_list.reply_count}-->
+                        <!--{$comment_list.reply_count}-->条评论
+                        <!--{else}-->
+                        添加评论
+                        <!--{/if}-->
+                    </span>
+                </a>
+                <a i="cms:user:report" href="javascript:void(0)">
+                    <i class="fa fa-flag"></i>
+                    举报
+                </a>
+                <span class="cms-comment-timestamp">
+                    <!--{$comment_list.update_time|format_date}-->
+                </span>
+            </div>
+            <div i="reply:form" class="my-2"></div>
+            <!--{if $comment_list.reply_count && $reply!=='false'}-->
+            <div class="cms-comment-reply-list">
+                <div class="cms-comment-reply-header">
+                    <h3><!--{$comment_list.reply_count}--> 条评论</h3>
+                </div>
+                <div class="cms-comment-reply-content">
+                    <!--{iCMS:commentReply:list as="replyItem" loop="true" comment_id="$comment_list.id" row="$replyRow"}-->
+                        <!--{include file="iCMS://comment/reply.item.htm"}-->
+                    <!--{/iCMS}-->
+                </div>
+                <!--{iCMS:commentReply:getPageData as="pageData"}-->
+                <!--{if $pageData.current<$pageData.pageTotal}-->
+                    <a i="cms:comment:reply:loadmore" class="cms-comment-reply-loadmore">
+                        查看剩余<!--{"$pageData.total - $pageData.current*$pageData.pageSize"}--> 条回复​
+                    </a>                    
+                <!--{/if}-->
             </div>
             <!--{/if}-->
         </div>
-        <!--{/if}-->
     </div>
 </div>

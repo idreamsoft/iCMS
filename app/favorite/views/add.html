@@ -11,55 +11,74 @@
 defined('iPHP') or exit('What are you doing?');
 self::head();
 ?>
-<div class="content" id="<?php echo APP_MAINID; ?>">
+<div class="content" id="{{APP_MAINID}}">
     <div class="block">
         <div class="block-header block-header-default">
             <h3 class="block-title"><?php echo empty($this->id) ? '添加' : '修改'; ?>收藏夹</h3>
         </div>
         <div class="block-content">
-            <form action="<?php echo APP_DOURL; ?>" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
-                <input name="id" type="hidden" value="<?php echo $this->id; ?>" />
+            <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
                 <div class="tab-content">
                     <div id="-add-base" class="tab-pane active">
                         <div class="form-group row">
-                            <label class="col-sm-1 col-form-label" for="">标题</label>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">标题</label>
                             <div class="col-sm-8">
-                                <input type="text" name="title" class="form-control" id="title" value="<?php echo $rs['title']; ?>" />
+                                <input type="text" name="rs[title]" class="form-control" id="title" value="<?php echo $rs['title']; ?>" />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-1 col-form-label" for="">创建者</label>
-                            <div class="input-group col-sm-8">
-                                <input type="text" name="uid" class="form-control" id="uid" value="<?php echo $rs['uid']; ?>" />
-                                <input type="text" name="nickname" class="form-control" id="nickname" value="<?php echo $rs['nickname']; ?>" />
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">创建者</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[userid]" class="form-control" i="cms:ui:selectpage" 
+                                data-source="/user/selectpage" 
+                                data-show="nickname" 
+                                data-text="nickname" 
+                                data-text-name="rs[nickname]" 
+                                id="userid" value="<?php echo $rs['userid']; ?>" />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-1 col-form-label" for="">follow</label>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">follow</label>
                             <div class="col-sm-8">
-                                <input type="text" name="follow" class="form-control" id="follow" value="<?php echo $rs['follow']; ?>" />
+                                <input type="text" name="rs[follow]" class="form-control" id="follow" value="<?php echo $rs['follow']; ?>" />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-1 col-form-label" for="">count</label>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">count</label>
                             <div class="col-sm-8">
-                                <input type="text" name="count" class="form-control" id="count" value="<?php echo $rs['count']; ?>" />
+                                <input type="text" name="rs[count]" class="form-control" id="count" value="<?php echo $rs['count']; ?>" />
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-1 col-form-label" for="">介绍</label>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">介绍</label>
                             <div class="col-sm-8">
-                                <textarea name="description" id="description" class="form-control" style="height: 150px;"><?php echo $rs['description']; ?></textarea>
+                                <textarea name="rs[description]" id="description" class="form-control" style="height: 150px;"><?php echo $rs['description']; ?></textarea>
                             </div>
                         </div>
                         <div class="form-group row">
-                            <label class="col-sm-1 col-form-label" for="">mode</label>
+                            <label class="col-sm-2 col-form-label text-sm-end" for="">mode</label>
                             <div class="col-sm-8">
-                                <input type="text" name="mode" class="form-control" id="mode" value="<?php echo $rs['mode']; ?>" />
+                                <select name="rs[mode]" class="form-control" i="cms:ui:selectpicker" value="<?php echo $rs['mode']; ?>">
+                                    <option value="0">私密</option>
+                                    <option value="1">公开</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="pubdate">发布时间</label>
+                            <div class="col-sm-8">
+                                <input id="created" class="form-control" i="cms:ui:datepicker" data-enable-time="true" value="<?php echo $rs['created']; ?>" name="rs[created]" type="text" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="cid">状 态</label>
+                            <div class="col-sm-8">
+                                <input data-source='statusMap' class="form-control" i="cms:ui:selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
                             </div>
                         </div>
                     </div>
-                    <?php self::formSubmit(); ?>
+                    <?php self::form()->submit(); ?>
                 </div>
             </form>
         </div>

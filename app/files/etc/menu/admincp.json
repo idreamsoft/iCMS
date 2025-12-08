@@ -1,38 +1,45 @@
-[{
-    "id": "tools",
-    "children": [{
-            "id": "files",
-            "sort": "-998",
-            "caption": "文件管理",
-            "icon": "folder",
-            "children": [{
-                    "caption": "云存储配置",
-                    "href": "files&do=cloud_config",
-                    "icon": "cog"
-                },
-                {
-                    "caption": "-"
-                },
-                {
-                    "caption": "文件管理",
-                    "href": "files",
-                    "icon": "folder"
-                },
-                {
-                    "caption": "上传文件",
-                    "href": "files&do=multi&from=modal",
-                    "icon": "upload",
-                    "data-toggle": "modal",
-                    "data-meta": {
-                        "width": "85%",
-                        "height": "600px"
+[
+    {
+        "id": "tools",
+        "children": [
+            {
+                "id": "files",
+                "sort": "-998",
+                "caption": "文件管理",
+                "icon": "folder",
+                "children": [
+                    {
+                        "caption": "云存储配置",
+                        "href": "/files/cloud_config",
+                        "icon": "cog"
+                    },
+                    {
+                        "caption": "-"
+                    },
+                    {
+                        "caption": "文件管理",
+                        "href": "/files/index",
+                        "icon": "folder"
+                    },
+                    {
+                        "caption": "文件管理器",
+                        "href": "/filesExplorer/browse",
+                        "icon": "folder"
+                    },
+                    {
+                        "caption": "上传文件",
+                        "href": "/files/multi",
+                        "icon": "upload",
+                        "ui": "cms:ui:modal",
+                        "data-width": "85vh",
+                        "data-height": "75vh"
                     }
-                }
-            ]
-        },
-        {
-            "caption": "-",
-            "sort": "-997"
-        }
-    ]
-}]
+                ]
+            },
+            {
+                "caption": "-",
+                "sort": "-997"
+            }
+        ]
+    }
+]

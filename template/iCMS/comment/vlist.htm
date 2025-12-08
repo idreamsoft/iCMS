@@ -1,0 +1,162 @@
+<div i="cms:comment:vlist" class="cms-comment-hide cms-comment-list" 
+data-vars-row="5" 
+data-vars-reply_row="5" 
+data-vars-page_ajax="comment:vpage" 
+data-vars-page_style="4">
+    <div v-if="commentList && commentList.length > 0">
+        <div i="comment:item" class="cms-comment-item" v-for="(item, index) in commentList">
+            <div class="cms-comment-author">
+                <div class="cms-comment-author-avatar">
+                    <a :href="item.user.url" i="cms@h:user:ucard" :data-userid="item.user.id">
+                        <img :src="item.user.avatar" i="cms:user:avatar" alt="" />
+                    </a>
+                </div>
+                <div class="cms-comment-author-info">
+                    <div class="cms-comment-author-info-head">
+                        <a :href="item.user.url" i="cms@h:user:ucard" :data-userid="item.user.id">
+                            {{item.user.name}}
+                        </a>
+                        <span v-if="item.user.id == $APP.USER.id" class="cms-comment-badge cms-comment-badge-me">我</span>
+                        <span v-if="item.user.id == $APP.params.userid" class="cms-comment-badge cms-comment-badge-author">作者</span>
+                    </div>
+                    <div class="cms-comment-author-info-detail">
+                        {{item.user.slogan}}
+                    </div>
+                </div>
+            </div>
+            <div class="cms-comment-content">
+                <div class="cms-comment-item-inner">
+                    <p v-html="item.content"></p>
+                </div>
+                <div class="cms-comment-item-actions">
+                    <div class="cms-comment-vote-buttons">
+                        <a @click="comment_up(item)" :class="{'cms-comment-vote-btn': true, 'cms-comment-vote-btn-active': item.is_up}" href="javascript:void(0)">
+                            <i class="fa fa-caret-up"></i>
+                            赞同
+                            <span i="cms:comment:vote:up:num">{{item.up}}</span>
+                        </a>
+                        <a @click="comment_down(item)" :class="{'cms-comment-vote-btn': true, 'cms-comment-vote-btn-active': item.is_down}" href="javascript:void(0)">
+                            <i class="fa fa-caret-down"></i>
+                        </a>
+                    </div>
+                    <div class="cms-comment-action-buttons">
+                        <a v-if="config.reply.enable" @click="comment_reply(item,$event)" class="cms-comment-action-btn" href="javascript:;">
+                            <i class="fa fa-comment"></i>
+                            <span v-if="item.reply_count">{{item.replyList.show?'收起':item.reply_count+'条'}}评论</span>
+                            <span v-else>添加评论</span>
+                        </a>
+                        <a @click="user_report(item)" class="cms-comment-action-btn" href="javascript:;">
+                            <i class="fa fa-flag"></i>
+                            举报
+                        </a>
+                    </div>
+                    <div class="cms-comment-timestamp">
+                        {{format_date(item.update_time)}}
+                    </div>
+                </div>
+                <div i="reply:form" class="cms-comment-reply-form-container"></div>
+                <div class="cms-comment-reply-list" v-show="item.replyList.show">
+                    <div class="cms-comment-reply-wrapper" v-if="item.replyList.rows && item.replyList.rows.length > 0">
+                        <div class="cms-comment-reply-header">
+                            <h3 class="cms-comment-reply-title">{{item.reply_count}} 条评论</h3>
+                        </div>
+                        <div class="cms-comment-reply-content">
+                            <div i="reply:item" class="cms-comment-reply-item" v-for="(reply_item, reply_index) in item.replyList.rows" :data-pindex="index" :data-index="reply_index" :data-params="JSON.stringify(reply_item.params)">
+                                <div class="cms-comment-reply-avatar">
+                                    <a :href="reply_item.user.url" target="_blank" i="cms@h:user:ucard" :data-userid="reply_item.user.id">
+                                        <img class="cms-comment-reply-avatar-img" :src="reply_item.user.avatar" />
+                                    </a>
+                                </div>
+                                <div class="cms-comment-reply-body">
+                                    <div class="cms-comment-reply-user">
+                                        <a :href="reply_item.user.url" target="_blank" i="cms@h:user:ucard" :data-userid="reply_item.user.id">
+                                            {{reply_item.user.name}}
+                                        </a>
+                                        <span v-if="reply_item.user.id == $APP.USER.id" class="cms-comment-badge cms-comment-badge-me">我</span>
+                                        <span v-if="reply_item.user.id == item.user.id" class="cms-comment-badge cms-comment-badge-lou">楼主</span>
+                                        <span v-if="reply_item.user.id == $APP.params.userid" class="cms-comment-badge cms-comment-badge-author">作者</span>
+
+                                        <span v-if="reply_item.reply_user.id" class="cms-comment-reply-to"></span>
+                                        <a v-if="reply_item.reply_user.id" :href="reply_item.reply_user.url" target="_blank" i="cms@h:user:ucard" :data-userid="reply_item.reply_user.id">
+                                            {{reply_item.reply_user.name}}
+                                        </a>
+                                        <span v-if="reply_item.reply_user.id == $APP.USER.id" class="cms-comment-badge cms-comment-badge-me">我</span>
+                                        <span v-if="reply_item.reply_user.id == item.user.id" class="cms-comment-badge cms-comment-badge-lou">楼主</span>
+                                        <span v-if="reply_item.reply_user.id == $APP.params.userid" class="cms-comment-badge cms-comment-badge-author">作者</span>
+                                        <span class="cms-comment-reply-floor">{{reply_item.lou}}楼</span>
+                                    </div>
+                                    <div class="cms-comment-reply-text">
+                                        <p v-html="reply_item.content"></p>
+                                    </div>
+                                    <div class="cms-comment-reply-foot">
+                                        <span class="cms-comment-timestamp">
+                                            {{format_date(reply_item.update_time)}}
+                                        </span>
+                                        <div class="cms-comment-reply-foot-btns">
+                                            <a @click="reply_reply(reply_item,item,$event)" class="cms-comment-action-btn">
+                                                <i class="fa fa-fw fa-comment"></i> 回复
+                                            </a>
+                                            <a @click="reply_like(reply_item)" class="cms-comment-action-btn" :class="{'cms-comment-action-btn-active': reply_item.is_up}">
+                                                <i class="fa fa-fw fa-heart"></i> {{reply_item.up}}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div i="reply2:form" class="cms-comment-reply-form-container"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="cms-comment-reply-loadmore">
+                            <a class="cms-comment-reply-loadmore-btn" @click="reply_loadmore(item)" v-if="item.replyList.pageData.current<item.replyList.pageData.pageTotal">
+                                查看剩余{{item.replyList.pageData.total - item.replyList.pageData.current*item.replyList.pageData.pageSize}} 条回复​
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div v-else class="cms-comment-empty">
+        <i class="fa fa-comments"></i>
+        <p>暂无评论，成为第一个评论的用户吧！</p>
+    </div>
+    <div class="cms-comment-pagination">
+        <nav aria-label="Page navigation">
+            <ul class="pagination push" v-html="page.NAV">
+            </ul>
+        </nav>
+    </div>
+</div>
+
+<div class="cms-comment-hide">
+    <form i="cms@comment:reply:vform" class="cms-comment-reply-form" action="<!--{iCMS:route url='commentReply'}-->" method="POST">
+        <input type="hidden" name="action" value="add" />
+        <input type="hidden" name="id" value="" />
+        <input type="hidden" name="params" value="" />
+        <div class="cms-comment-reply-form-wrapper">
+            <div class="cms-comment-reply-form-avatar" i="cms:user:me:avatar">
+                <img i="cms@h:user:ucard" data-userid="{{user.id}}" src="/assets/img/bank.gif" data-src="{{user.avatar}}" />
+            </div>
+            <div class="cms-comment-reply-form-content">
+                <div class="cms-comment-reply-form-input">
+                    <div>
+                        <input type="text" name="content" class="cms-comment-reply-form-textarea" placeholder="发布一条评论吧" value="" />
+                    </div>
+                    <div class="cms-comment-reply-form-actions">
+                        <!--{iCMS:comment:config}-->
+                        <!--{if $comment_config.reply.captcha}-->
+                        <div class="cms-comment-reply-form-captcha">
+                            <div class="cms-comment-reply-form-captcha-group">
+                                <input type="text" maxlength="4" data-name="reply" name="captcha" class="cms-comment-reply-form-captcha-input" placeholder="请输入验证码" />
+                                <!--{iCMS:public:captcha name="reply" class="cms-comment-reply-form-captcha-img"}-->
+                            </div>
+                        </div>
+                        <!--{/if}-->
+                        <div class="cms-comment-reply-form-submit-wrapper">
+                            <button type="submit" class="cms-comment-reply-form-submit">发布</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

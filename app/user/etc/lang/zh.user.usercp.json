@@ -1,0 +1,11 @@
+{
+    "usercp":{
+        "content": {
+            "home": "内容中心"
+        },
+        "manage": {
+            "home": "个人中心"
+        }        
+    }
+
+}

@@ -23,8 +23,7 @@ class ArticleFuncSearch  extends AppsFuncCommon
         $pageSize = isset($vars['row']) ? (int) $vars['row'] : 10;
         $start = ($page && isset($vars['page'])) ? ($page - 1) * $pageSize : 0;
 
-        self::init($vars);
-        self::setApp(Article::APPID, Article::APP);
+        self::inited($vars);
 
         $hash = md5(json_encode($vars));
 
@@ -109,7 +108,7 @@ class ArticleFuncSearch  extends AppsFuncCommon
             $SPH->_error    && $msg[] = '[ERROR]' . $SPH->GetLastError();
             $SPH->_warning  && $msg[] = '[WARNING]' . $SPH->GetLastWarning();
             $SPH->_connerror && $msg[] = '[connerror]' . $SPH->connerror;
-            Script::warning(implode('<hr />', $msg));
+            $msg && self::msg(implode('<hr />', $msg));
             return array();
         }
 
@@ -118,8 +117,7 @@ class ArticleFuncSearch  extends AppsFuncCommon
             $idsArray = array_column($res["matches"], 'id');
         }
 
-        $paging = self::paging($hash, __METHOD__);
-        list($total, $offset, $pageSize) = $paging;
+        self::paging($hash, __METHOD__);
 
         if (empty($resource)) {
             $resource = ArticleFunc::resource($vars, $idsArray);

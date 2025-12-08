@@ -1,0 +1,13 @@
+<!--{'<'|cat:'?xml version="1.0" encoding="UTF-8"?'|cat:'>'}-->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+        <!--{iCMS:content:list appid="$node.appid" loop="true" row="500" sub="true" cid="$node.id"}-->
+        <!--{if $content_list.url}-->
+        <url>
+            <loc><!--{$content_list.url|escape}--></loc>
+            <lastmod><!--{$content_list.pubdate|date:"Y-m-d"}--></lastmod>
+            <changefreq>weekly</changefreq>
+            <priority>0.8</priority>
+        </url>
+        <!--{/if}-->
+        <!--{/iCMS}-->
+</urlset>

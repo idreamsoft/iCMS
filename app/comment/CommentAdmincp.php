@@ -11,13 +11,26 @@
 
 class CommentAdmincp extends AdmincpCommon
 {
-    public function __construct()
+    use AdmincpCommonTrait;
+
+    public function do_index()
     {
-        parent::__construct();
-        $this->id = (int) $_GET['id'];
+        self::setContext([
+            'tablist' => 'params',
+            'params'  => [
+                'status' => Request::get('status'),
+            ]
+        ]);
+
+        if (Request::isAjax()) {
+            return $this->index();
+        }
+
+        self::setJsPath('comment/assets/js/index');
+        include self::view('index', 'comment');
     }
 
-    public function do_manage($appid = 0)
+    public function index()
     {
         $appid = (int)Request::get('appid');
         $iid = (int)Request::get('iid');
@@ -34,74 +47,101 @@ class CommentAdmincp extends AdmincpCommon
         is_numeric($status) && $where['status'] = $status;
 
         if ($cid = (int)Request::get('cid')) {
-            Node::makeWhere($where,$cid);
+            Node::makeWhere($where, $cid);
         }
 
-        $id && $where['id'] = $id;;
+        $id && $where['id'] = $id;
+        ;
 
         $keywords = Request::get('keywords');
-        $keywords && $where['CONCAT(username,title)'] = array('REGEXP', $keywords);
+        $keywords && $where['CONCAT(username,title)'] = ['REGEXP', $keywords];
 
-        $orderby = self::setOrderBy();
-        $result = CommentModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
+        // $result = CommentModel::where($where)
+        //     ->orderBy($orderby)
+        //     ->paging();
+        // Node::$APPID = $appid;
+        // include self::view('index1');
 
-        Node::$APPID = $appid;
-
-        include self::view("comment.manage");
+        return  self::tableData(['where' => $where], function ($rows) {
+            $rows = array_map(function ($row) {
+                return $row;
+            }, $rows);
+            return $rows;
+        });
     }
 
     /**
-     * [查看评论回复]
-     * @return [type] [description]
+     * 查看评论回复
+     * @return void
      */
-    public function do_getReply()
+    public function do_reply()
     {
-        $idArray = (array)Request::post('ids');
-        empty($idArray) && self::alert('请选择要回复的评论');
-        $idArray = array_map('intval', $idArray);
-        $comment = CommentModel::field('id,userid,username,content,addtime,up')->where($idArray)->select();
-        foreach ($comment as $key => &$value) {
-            $value['addtime'] = get_date($value['addtime'], 'Y-m-d H:i:s');
+        if (Request::isAjax()) {
+            $idArray = (array)Request::param('ids');
+            $comment_id = (int)Request::param('comment_id');
+            $userid = (int)Request::param('userid');
+            $status = Request::param('status');
+            $ip = Request::param('ip');
+
+            $where = [];
+            $idArray && $where['comment_id'] = $idArray;
+            $comment_id && $where['comment_id'] = $comment_id;
+            $userid && $where['userid'] = $userid;
+            $ip && $where['ip'] = $ip;
+            isset($status) && $where['status'] = $status;
+
+            return  self::tableData('CommentReplyModel', ['where' => $where], function ($rows) {
+                $rows = array_map(function ($row) {
+                    return $row;
+                }, $rows);
+                return $rows;
+            });
         }
-        return $comment;
-        // self::success($comment);
-    }
-    public function do_delete($id = null)
-    {
-        $id === null && $id = $this->id;
-        $id or self::alert('请选择要删除的评论');
-        Comment::remove($id);
-        // $dialog && self::success('评论删除完成');
+
+        include self::view('reply');
     }
 
-    public function do_batch()
+    public function batching()
     {
-        $stype = AdmincpBatch::$config['stype'];
-        $actions = array(
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    Comment::remove($id);
+        return [
+            'reply_examine' => function ($ids, $data, $batch) {
+                foreach ($ids as $key => $id) {
+                    $flag = false;
+                    $data && $flag = CommentReplyModel::update($data, $id);
+                    if ($flag && isset(self::$CONFIG['reply']) && self::$CONFIG['reply']['examine']) {
+                        $comment_ids = CommentReplyModel::where($ids)->pluck('comment_id');
+                        if ($comment_ids) {
+                            $comment_ids = array_unique($comment_ids);
+                            if ($batch == 'status=1') {
+                                Comment::updateReplyCountInc($comment_ids);
+                            }
+                            if ($batch == 'status=4') {
+                                Comment::updateReplyCountDec($comment_ids);
+                            }
+                        }
+                    }
                 }
-                // self::success('删除完成');
-            },
-            'default' => function ($idArray, $ids, $batch, $data = null) {
-                $data === null && $data = Request::args($batch);
-                $data && CommentModel::update($data, $idArray);
-                // return true;
-            },
-        );
-        return AdmincpBatch::run($actions, "评论");
+            }
+        ];
+    }
+
+    public function deleting($ids = [])
+    {
+        if ($ids) {
+            foreach ($ids as $key => $id) {
+                Comment::remove($id);
+            }
+        }
+        return true;
     }
 
     public static function widget_count()
     {
         $total = CommentModel::count();
-        $widget[] = array($total, '全部');
-        foreach (Comment::$statusMap as $status => $text) {
+        $widget[] = [$total, '全部'];
+        foreach (CommentModel::$statusMap as $status => $text) {
             $count = CommentModel::where('status', $status)->count();
-            $widget[] = array($count, $text);
+            $widget[] = [$count, $text];
         }
         return $widget;
     }

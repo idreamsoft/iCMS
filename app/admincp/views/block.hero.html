@@ -1,0 +1,55 @@
+<!-- Hero -->
+<div class="bg-body-light">
+    <div class="bg-image" style="background-image: url('/assets/img/bg/photo17.jpg')">
+        <div class="bg-primary-dark-op">
+            <div class="content content-full">
+                <div class="d-flex flex-column flex-sm-row justify-content-sm-between align-items-sm-center mt-3 mb-2 text-center text-sm-start">
+                    <div class="flex-sm-fill">
+                        <h1 class="h3 fw-bold text-white mb-2" data-toggle="appear">
+                            {{#Lang('admincp:title')}}
+                        </h1>
+                        <h2 class="h6 fw-medium text-white-75 mb-0" data-toggle="appear">
+                            <a class="fw-semibold text-white-75" href="javascript:void(0)">
+                                <?php echo Admin::$ROLE['name'] . Admin::$nickname; ?>
+                            </a>，
+                            {{#Lang('admincp:slogan')}}
+                        </h2>
+                    </div>
+                    <div class="flex-sm-00-auto mt-3 mt-sm-0 ms-sm-3">
+                        <a href="{{config/system}}" class="btn btn-sm btn-primary" title="{{#Lang('System Settings')}}">
+                            <i class="fa fa-fw fa-cog"></i>
+                        </a>
+                        <div class="d-inline-block">
+                            <a class="btn btn-sm btn-alt-secondary" href="{{article/add}}">
+                                <i class="fa fa-fw fa-file me-1"></i>
+                                {{#Lang('Add','Article')}}
+                            </a>
+                        </div>
+
+                        <div class="dropdown d-inline-block">
+                            <button type="button" class="btn btn-sm btn-alt-primary" id="dropdown-analytics-overview" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fa fa-fw fa-cubes"></i>
+                                {{#Lang('Quick Add')}}
+                                <i class="fa fa-fw fa-angle-down"></i>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end fs-sm" aria-labelledby="dropdown-analytics-overview">
+                                <a class="dropdown-item fw-medium" href="{{tag/add}}">
+                                    <i class="fa fa-fw fa-plus me-1"></i>
+                                    {{#Lang('Add','Tag')}}
+                                </a>
+                                <?php $array = Apps::getArray(['apptype' => Apps::CONTENT_TYPE]); ?>
+                                <?php if ($array) foreach ($array as $key => $value) { ?>
+                                <a class="dropdown-item fw-medium" href="{{<?php echo $value['app']; ?>/add}}">
+                                    <i class="fa fa-fw fa-plus me-1"></i>
+                                    <?=lang('Add',[lcfirst($value['name'])]);?>
+                                </a>
+                                <?php } ?>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- END Hero -->

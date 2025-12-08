@@ -1,0 +1,9 @@
+<!--{'<'|cat:'?xml version="1.0" encoding="UTF-8"?'|cat:'>'}-->
+<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <!--{for start="2" stop="1000" value="i"}-->
+  <sitemap>
+    <loc><!--{$node.iurl.pageurl|replace:'{P}':"$i"}--></loc>
+    <lastmod><!--{$iCMS.now|date:"Y-m-d"}--></lastmod>
+  </sitemap>
+  <!--{/for}-->
+</sitemapindex>

@@ -12,55 +12,53 @@ defined('iPHP') or exit('What are you doing?');
 
 class SpiderData
 {
-
-    public static function crawl($_pid = NULL, $_rid = NULL, $_url = NULL, $_title = NULL, $_cid = NULL)
+    public static function crawl($_pid = null, $_rid = null, $_url = null, $_title = null, $_cid = null)
     {
         @set_time_limit(0);
         $urlId = Spider::$urlId;
         if ($urlId) {
-            $sRs   = SpiderUrlModel::get($urlId);
+            $sRs = SpiderUrlModel::get($urlId);
             $title = $sRs->title;
-            $cid   = $sRs->cid;
-            $pid   = $sRs->pid;
-            $url   = $sRs->url;
-            $rid   = $sRs->rid;
+            $cid = $sRs->cid;
+            $pid = $sRs->pid;
+            $url = $sRs->url;
+            $rid = $sRs->rid;
         } else {
             $title = Spider::$title;
-            $cid   = Spider::$cid;
-            $pid   = Spider::$pid;
-            $url   = Spider::$url;
-            $rid   = Spider::$rid;
+            $cid = Spider::$cid;
+            $pid = Spider::$pid;
+            $url = Spider::$url;
+            $rid = Spider::$rid;
 
-            $_title === NULL or $title = $_title;
-            $_cid   === NULL or $cid = $_cid;
-            $_pid   === NULL or $pid = $_pid;
-            $_url   === NULL or $url = $_url;
-            $_rid   === NULL or $rid = $_rid;
+            $_title === null or $title = $_title;
+            $_cid === null or $cid = $_cid;
+            $_pid === null or $pid = $_pid;
+            $_url === null or $url = $_url;
+            $_rid === null or $rid = $_rid;
         }
 
         if ($pid) {
-            $project        = SpiderProject::get($pid);
+            $project = SpiderProject::get($pid);
             $prule_list_url = $project['list_url'];
         }
-
-        $srule           = SpiderRule::get($rid);
-        $rule            = $srule['rule'];
-        $dataArray       = $rule['data'];
+        $srule = SpiderRule::get($rid);
+        $rule = $srule['rule'];
+        $dataArray = $rule['data'];
 
         if ($prule_list_url) {
-            $rule['list_url']   = $prule_list_url;
+            $rule['list_url'] = $prule_list_url;
         }
 
         if (Spider::$isTest) {
             $QUERY_STRING = parse_url_qs($_SERVER['QUERY_STRING']);
             echo '
-            <form action="'.$_SERVER['SCRIPT_NAME'].'" method="get">
-            <input name="app" type="hidden" value="'.$_GET['app'].'">
-            <input name="do" type="hidden" value="'.$_GET['do'].'">
-            pid:<input name="pid" value="'.Spider::$pid.'"/><br />
-            rid:<input name="rid" value="'.Spider::$rid.'"/><br />
-            <input name="url" value="'.Spider::$url.'" style="width:450px;"/><br />
-            <input name="title" value="'.Spider::$title.'" style="width:450px;"/>
+            <form action="' . $_SERVER['SCRIPT_NAME'] . '" method="get">
+            <input name="app" type="hidden" value="' . $_GET['app'] . '">
+            <input name="do" type="hidden" value="' . $_GET['do'] . '">
+            pid:<input name="pid" value="' . Spider::$pid . '"/><br />
+            rid:<input name="rid" value="' . Spider::$rid . '"/><br />
+            <input name="url" value="' . Spider::$url . '" style="width:450px;"/><br />
+            <input name="title" value="' . Spider::$title . '" style="width:450px;"/>
             <button type="submit" class="btn btn-primary"><i class="fa fa-fw fa-check"></i> 抓取</button>
             </form>
             ';
@@ -68,17 +66,24 @@ class SpiderData
             echo "<b>抓取规则信息</b><pre style='max-height:300px;overflow-y: scroll;'>";
             print_r(Security::escapeStr($srule));
             print_r(Security::escapeStr($project));
-            echo "</pre><hr />";
+            echo '</pre><hr />';
         }
 
-        $rule['proxy']          && SpiderHttp::$CURL_PROXY = $rule['proxy'];
-        $rule['data_charset']   && Spider::$charset = $rule['data_charset'];
+        $rule['proxy'] && SpiderHttp::$CURL_PROXY = $rule['proxy'];
+        $rule['data_charset'] && Spider::$charset = $rule['data_charset'];
         $rule['data_user_agent'] && Spider::$useragent = $rule['data_user_agent'];
 
-        $responses = array();
+        $responses = [];
         if (Spider::$isShell) {
             // SpiderTools::prints('抓取内容链接:[w]%s[/w]', [$url], 'g');
         }
+        if ($rule['list_urls'] && strpos($url, '://') === false) {
+            $list_urls = explode("\n", $rule['list_urls']);
+            $baseUrl = $list_urls[0];
+            $scheme = parse_url($baseUrl, PHP_URL_SCHEME);
+            $url = sprintf('%s://%s', $scheme, $url);
+        }
+
         $html = SpiderHttp::remote($url, __METHOD__);
         if (empty($html)) {
             $msg = sprintf(
@@ -94,15 +99,15 @@ class SpiderData
             );
         }
 
-        Spider::$allHtml        = array();
-        $rule['__url__']        = Spider::$url;
-        $responses['reurl']     = Spider::$url;
+        Spider::$allHtml = [];
+        $rule['__url__'] = Spider::$url;
+        $responses['reurl'] = Spider::$url;
         $responses['__title__'] = $title;
 
         self::set_http_config($rule);
         self::set_watermark_config($rule);
 
-        $subArray = array();
+        $subArray = [];
 
         foreach ((array)$dataArray as $key => $data) {
             $dname = $data['name'];
@@ -134,7 +139,7 @@ class SpiderData
             }
 
             /**
-             * [UNSET:name]
+             * UNSET:name
              * 注销[name]
              * @var string
              */
@@ -144,7 +149,7 @@ class SpiderData
                 continue;
             }
             /**
-             * [DATA:name]
+             * DATA:name
              * 把之前[name]处理完的数据当作原始数据
              * 如果之前有数据会叠加
              * 用于数据多次处理
@@ -156,7 +161,7 @@ class SpiderData
                 unset($responses[$dname]);
             }
             /**
-             * [PRE:name] 前置采集
+             * PRE:name 前置采集
              * 把PRE:name采集到的数据 当做原始数据
              * 一般用于抓取内容
              */
@@ -167,7 +172,7 @@ class SpiderData
             }
 
             /**
-             * [EMPTY:name]
+             * EMPTY:name
              * 如果[name]之前抓取结果数据为空使用这个数据项替换
              */
             if (strpos($dname, 'EMPTY:') !== false) {
@@ -225,8 +230,8 @@ class SpiderData
             // }
 
             /**
-             * [name.xxx]
-             * [name.xxx.oo]
+             * name.xxx
+             * name.xxx.oo
              * 采集内容做为数组
              */
             if (strpos($dname, '.') !== false) {
@@ -253,7 +258,7 @@ class SpiderData
             if (!is_array($responses[$dname]) && $data['multi']) {
                 if (strpos($responses[$dname], ',') !== false) {
                     $_dnameArray = explode(',', $responses[$dname]);
-                    $dnameArray  = array();
+                    $dnameArray = [];
                     foreach ((array)$_dnameArray as $key => $value) {
                         $value = trim($value);
                         $value && $dnameArray[] = $value;
@@ -272,7 +277,7 @@ class SpiderData
                 unset($responses[$key]);
             } else {
                 if ($key != 'body') {
-                    $responses[$key] = str_replace(iPHP_PAGEBREAK, ',', $responses[$key]);
+                    isset($responses[$key]) && $responses[$key] = str_replace(iPHP_PAGEBREAK, ',', $responses[$key]);
                 }
             }
             if (is_array($responses[$key])) {
@@ -285,7 +290,7 @@ class SpiderData
             $responses['title'] = $responses['__title__'];
         }
 
-        Spider::$allHtml = array();
+        Spider::$allHtml = [];
         unset($html);
 
         gc_collect_cycles();
@@ -293,7 +298,7 @@ class SpiderData
         //子采集 可独立发布
         if ($subArray) {
             if (Spider::$isTest) {
-                $subData = array();
+                $subData = [];
                 foreach ($subArray as $key => $value) {
                     $value['URLS'] && $subData[] = self::sub_crawl($value, $rule);
                 }
@@ -303,54 +308,57 @@ class SpiderData
         }
 
         if (Spider::$isTest) {
-            echo "<b>最终采集结果:</b>";
+            echo '<b>最终采集结果:</b>';
             echo "<pre style='width:99%;word-wrap: break-word;white-space: pre-wrap;'>";
             print_r(Security::escapeStr($responses));
             if ($subArray) {
                 echo '<br /><div style="padding: 20px;background-color: #ebebeb;">';
-                echo "<b>子采集结果(只测试第一条):</b><br />";
+                echo '<b>子采集结果(只测试第一条):</b><br />';
                 print_r(Security::escapeStr($subData));
-                echo "</div>";
+                echo '</div>';
             }
             echo '<hr />';
             echo '使用内存:' . File::sizeUnit(memory_get_usage()) . ' 执行时间:' . Helper::timerStop() . 's';
-            echo "</pre>";
+            echo '</pre>';
         }
 
         if (Spider::$callback['data'] && is_callable(Spider::$callback['data'])) {
-            $responses = call_user_func_array(Spider::$callback['data'], array($responses, $rule));
+            $responses = call_user_func_array(Spider::$callback['data'], [$responses, $rule]);
         }
 
         return $responses;
     }
+
     /**
-     * [sub_crawl 执行子采集]
+     * sub_crawl 执行子采集
      * @param  [type] $sub  [子采集配置]
      * @param  [type] $rule [主采集规则]
      * @param  [type] $indexid [indexid]
-     * @return [type]       [description]
+     * @return void
      */
     public static function sub_crawl($sub, $rule, $id = 0)
     {
         $sPOST = $sub['POST'];
-        $urls  = $sub['URLS'];
+        $urls = $sub['URLS'];
         $RULES = $sub['RULES'];
         if (!is_array($urls) && $urls) {
-            $urls = explode(",", $urls);
+            $urls = explode(',', $urls);
         }
-        if (empty($urls)) return;
+        if (empty($urls)) {
+            return;
+        }
 
         $count = count($urls);
 
         if (Spider::$isTest) {
             echo '<div style="padding: 20px;background-color: #ebebeb;">';
-            echo "<h3>执行子采集:</h3>";
-            echo "<hr />";
+            echo '<h3>执行子采集:</h3>';
+            echo '<hr />';
         } else {
-            $_POST = array();
+            $_POST = [];
             if ($sPOST && strpos($sPOST, 'poid@') !== false) {
                 list($_s, $poid) = explode('@', $sPOST);
-                $spost  = SpiderPost::get($poid);
+                $spost = SpiderPost::get($poid);
                 // $appid   = $spost->app;
                 if ($id && $spost->primary) {
                     $_POST[$spost->primary] = $id;
@@ -361,7 +369,7 @@ class SpiderData
             }
         }
 
-        $responses = array();
+        $responses = [];
         $index = 1;
         foreach ($urls as $key => $url) {
             $data = self::sub_crawl_data($url, $RULES, $rule);
@@ -384,24 +392,25 @@ class SpiderData
                         '子采集发布错误',
                         $url,
                         __CLASS__,
-                        array(
+                        [
                             'pid' => Spider::$pid,
                             'rid' => Spider::$rid
-                        )
+                        ]
                     );
                 }
                 $responses[$key] = $id;
             }
         }
 
-        Spider::$isTest && print "</div>";
+        Spider::$isTest && print '</div>';
 
         return $responses;
     }
+
     //子采集数据
     public static function sub_crawl_data($url, $RULES, $rule)
     {
-        $responses = array();
+        $responses = [];
         $responses['reurl'] = $url;
         $html = SpiderHttp::remote($url, __METHOD__);
         foreach ($RULES as $dname => $dvar) {
@@ -413,15 +422,16 @@ class SpiderData
 
     public static function set_http_config($rule)
     {
-        Http::$CURLOPT_ENCODING       = '';
-        Http::$CURLOPT_REFERER        = '';
-        Http::$CURLOPT_TIMEOUT        = 10;
+        Http::$CURLOPT_ENCODING = '';
+        Http::$CURLOPT_REFERER = '';
+        Http::$CURLOPT_TIMEOUT = 10;
         Http::$CURLOPT_CONNECTTIMEOUT = 3;
-        $rule['http']['ENCODING']      && Http::$CURLOPT_ENCODING        = $rule['http']['ENCODING'];
-        $rule['http']['REFERER']       && Http::$CURLOPT_REFERER         = $rule['http']['REFERER'];
-        $rule['http']['TIMEOUT']       && Http::$CURLOPT_TIMEOUT         = $rule['http']['TIMEOUT'];
-        $rule['http']['CONNECTTIMEOUT'] && Http::$CURLOPT_CONNECTTIMEOUT  = $rule['http']['CONNECTTIMEOUT'];
+        $rule['http']['ENCODING'] && Http::$CURLOPT_ENCODING = $rule['http']['ENCODING'];
+        $rule['http']['REFERER'] && Http::$CURLOPT_REFERER = $rule['http']['REFERER'];
+        $rule['http']['TIMEOUT'] && Http::$CURLOPT_TIMEOUT = $rule['http']['TIMEOUT'];
+        $rule['http']['CONNECTTIMEOUT'] && Http::$CURLOPT_CONNECTTIMEOUT = $rule['http']['CONNECTTIMEOUT'];
     }
+
     public static function set_watermark_config($rule)
     {
         // FilesMark::$config['pos'] = Config::get('watermark.pos');
@@ -433,11 +443,11 @@ class SpiderData
 
         if ($rule['watermark_mode']) {
             FilesMark::$config['pos'] = $rule['watermark']['pos'];
-            FilesMark::$config['x']   = $rule['watermark']['x'];
-            FilesMark::$config['y']   = $rule['watermark']['y'];
+            FilesMark::$config['x'] = $rule['watermark']['x'];
+            FilesMark::$config['y'] = $rule['watermark']['y'];
             $rule['watermark']['img'] && FilesMark::$config['img'] = $rule['watermark']['img'];
         }
-        if ($rule['watermark_mode'] == "2") {
+        if ($rule['watermark_mode'] == '2') {
             FilesMark::$enable = false;
         }
     }

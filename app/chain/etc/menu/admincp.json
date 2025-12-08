@@ -6,17 +6,22 @@
         "icon": "paperclip",
         "children": [{
                 "caption": "内链设置",
-                "href": "chain&do=config",
+                "href": "/chain/config",
                 "icon": "cog"
+            },{
+                "caption": "更新缓存",
+                "href": "/chain/cache",
+                "icon": "refresh",
+                "ui": "cms:ui:ajax"
             },
             {
                 "caption": "内链管理",
-                "href": "chain",
+                "href": "/chain/index",
                 "icon": "paperclip"
             },
             {
                 "caption": "添加内链",
-                "href": "chain&do=add",
+                "href": "/chain/add",
                 "icon": "edit"
             }
         ]

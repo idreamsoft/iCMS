@@ -8,82 +8,114 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-
+/**
+ * 开发者
+ * 
+ * @role 1
+ */
 class DeveloperAdmincp extends AdmincpBase
 {
     public function __construct()
     {
+        parent::__construct();
         AdmincpView::set('breadcrumb', false);
     }
-    public static function do_bugs()
+
+    public static function done_bugs()
     {
-        if (Request::isPost()) {
-            $post = Request::post();
-            $json = DeveloperApi::post('bugs', $post);
-            echo $json;
-            return false;
+        $post = Request::post();
+        $json = DeveloperApiProxy::post('bugs', $post);
+        echo $json;
+        return false;
+    }
+
+    /**
+     * 获取远程静态资源
+     *
+     * @role 1
+     * @return string
+     */
+    public function do_assets()
+    {
+        if ($js = Request::sget('js')) {
+            header(sprintf('Content-Type: %s; charset=UTF-8', FilesMime::get('js')));
+            $html = DeveloperApiProxy::get('getjs', ['path'=>$js]);
         }
-        include self::view("bugs", 'developer');
+        if ($css = Request::sget('css')) {
+            header(sprintf('Content-Type: %s; charset=UTF-8', FilesMime::get('css')));
+            $html = DeveloperApiProxy::get('getcss', ['path'=>$css]);
+        }
+        exit($html);
     }
 
     public function do_goto()
     {
         $config = Developer::getConfig();
-        $url = DeveloperApi::url('auth', ["token" => $config['auth']]);
-        Helper::redirect($url);
-    }
-    public function do_login()
-    {
-        $html = DeveloperApi::get('login', $_GET);
-        include self::view("main");
-    }
-    public function do_register()
-    {
-        $html = DeveloperApi::get('register', $_GET);
-        include self::view("main");
+        $url = DeveloperApiProxy::url('auth', ['token' => $config['auth']]);
+        Utils::jumpto($url);
     }
 
-    public function do_signup()
+    public function do_login()
+    {
+        $html = DeveloperApiProxy::get('login', $_GET);
+        self::setJsPath('developer/assets/js/login');
+        include self::view('main');
+    }
+
+    public function do_register()
+    {
+        $html = DeveloperApiProxy::get('register', $_GET);
+        self::setJsPath('developer/assets/js/register');
+        include self::view('main');
+    }
+
+    public function done_signup()
     {
         return $this->post('signup');
     }
+
     public function do_comment()
     {
-        $json = DeveloperApi::post('comment', $_POST);
+        $json = DeveloperApiProxy::post('comment', $_POST);
         echo $json;
         return false;
     }
-    public function do_accountLogin()
+
+    public function done_accountLogin()
     {
         return $this->post('accountLogin');
     }
-    public function do_phoneLogin()
+
+    public function done_phoneLogin()
     {
         return $this->post('phoneLogin');
     }
+
     public function post($method)
     {
-        $json = DeveloperApi::post($method, $_POST);
+        $json = DeveloperApiProxy::post($method, $_POST);
         $array = json_decode($json, true);
         if ($array['data']) {
             Developer::setConfig($array['data']);
         }
-        Cookie::destroy('captchaToken');
+        Session::uset('captchaToken');
         echo $json;
         return false;
     }
-    public function do_sendSMSCaptcha()
+
+    public function done_sendSMSCaptcha()
     {
-        $json = DeveloperApi::post('sendSMSCaptcha', $_POST);
-        Cookie::destroy('captchaToken');
+        $json = DeveloperApiProxy::post('sendSMSCaptcha', $_POST);
+        Session::uset('captchaToken');
         echo $json;
         return false;
     }
+
     public function do_getCaptcha()
     {
         Http::set('CURLOPT_HEADER', 1);
-        DeveloperApi::get('getCaptcha');
-        Cookie::set('captchaToken', Http::getHeader('Captcha-Token'));
+        DeveloperApiProxy::get('getCaptcha');
+        Session::set('captchaToken', Http::getHeader('Captcha-Token'));
         header('Content-type:image/jpeg');
         echo Http::getBody();
         return false;

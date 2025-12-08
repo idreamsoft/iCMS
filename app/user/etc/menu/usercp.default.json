@@ -1,0 +1,22 @@
+[
+    {
+        "id": "index",
+        "sort": -99999999,
+        "caption": "个人信息",
+        "url": "user/manage/index",
+        "icon": "fa fa-fw fa-id-card",
+        "template": "iCMS://user/manage/index.htm"
+    },
+    {
+        "id": "home",
+        "sort": -99999998,
+        "caption": "内管管理",
+        "url": "user/content/home",
+        "icon": "fa fa-fw fa-rectangle-list",
+        "template": "iCMS://user/content/home.htm"
+    },
+    {
+        "sort": -99999997,
+        "caption": "-"
+    }
+]

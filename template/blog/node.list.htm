@@ -1,68 +1,85 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <title><!--{$site.title}-->_ <!--{$site.seotitle}--></title>
-        <meta name="keywords" content="<!--{$site.keywords}-->" />
-        <meta name="description" content="<!--{$site.description}-->" />
-        <meta name="mobile-agent" content="format=xhtml;url=<!--{$site.urls.mobile}-->" />
-        <meta name="mobile-agent" content="format=html5;url=<!--{$site.urls.mobile}-->" />
-        <link rel="alternate" media="only screen and(max-width: 640px)" href="<!--{$site.urls.mobile}-->" />
-        <!--{iCMS:public:ui}-->
-    </head>
-    <body>
-        <div id="page-container">
-            <main id="main-container">
-                <!--{include file="./top.htm"}-->
-                <!--{include file="./hero.htm"}-->
 
-                <!-- Page Content -->
-                <div class="content content-boxed">
-                    <div class="row">
-                        <div class="col-md-8 bg-white p-0">
-                            <nav class="flex-sm-00-auto bg-light px-2" aria-label="breadcrumb">
-                                <ol class="breadcrumb breadcrumb-alt">
-                                    <li class="breadcrumb-item">
-                                        <a href="<!--{$site.url}-->">首页</a>
-                                    </li>
-                                    <!--{foreach value="breadcrumb" from="$node.navArray"}-->
-                                    <li class="breadcrumb-item">
-                                        <a href="<!--{$breadcrumb.url}-->">
-                                            <!--{$breadcrumb.name}-->
-                                        </a>
-                                    </li>
-                                    <!--{/foreach}-->
-                                </ol>
-                            </nav>
+<head>
+    <title><!--{$site.title}-->_<!--{$site.seotitle}--></title>
+    <meta name="keywords" content="<!--{$node.keywords}-->" />
+    <meta name="description" content="<!--{$node.description}-->" />
+    <!--{iCMS:public:ui}-->
+</head>
 
-                            <div class="bg-white">
-                                <!--{iCMS:article:list loop="true" page="true" row="5" cid="$node.id"}-->
-                                <!--{include file="./item.htm" item="$article_list"}-->
-                                <!--{iCMSelse}-->
-                                <p class="p-4">暂无相关内容</p>
-                                <!--{/iCMS}-->
+<body>
+    <div id="page-container">
+        <main id="main-container">
+            <!--{include file="./widget/top.htm"}-->
+            <!--{include file="./widget/hero.htm"}-->
+            <!--{include file="./widget/nav.htm"}-->
 
-                                <!-- Pagination -->
-                                <nav aria-label="Page navigation">
-                                    <ul class="pagination push">
-                                        <!--{$iCMS.PAGE.NAV}-->
+            <!-- Page Content -->
+            <div class="content content-boxed mb-1">
+                <div class="row">
+                    <div class="col-md-8 p-0">
+                        <div class="block block-rounded">
+                            <div class="block-header block-header-default">
+                                <h3 class="block-title">
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb breadcrumb-alt">
+                                            <li class="breadcrumb-item">
+                                                <a href="<!--{$site.url}-->">首页</a>
+                                            </li>
+                                            <!--{foreach value="breadcrumb" from="$node.navArray"}-->
+                                            <li class="breadcrumb-item">
+                                                <a href="<!--{$breadcrumb.url}-->">
+                                                    <!--{$breadcrumb.name}-->
+                                                </a>
+                                            </li>
+                                            <!--{/foreach}-->
+                                        </ol>
+                                    </nav>
+                                </h3>
+                            </div>
+                            <div class="block-content block-content-full">
+                                <div class="bg-white">
+                                    <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt" data-toggle="tabs" role="tablist">
+                                        <li class="nav-item">
+                                            <a class="nav-link active" href="#btabs-alt-static-home">最新</a>
+                                        </li>
+                                        <!--{iCMS:node:list loop="true" stype="sub" id="$node.id" row="10" }-->
+                                        <li class="nav-item">
+                                            <a class="nav-link js-tabs-link" href="<!--{$node_list.url}-->">
+                                                <!--{$node_list.name}-->
+                                            </a>
+                                        </li>
+                                        <!--{/iCMS}-->
                                     </ul>
-                                </nav>
-                                <!-- END Pagination -->
+                                    <div class="tab-content">
+                                        <div class="tab-pane active" id="btabs-static-home" role="tabpanel">
+                                            <!--{iCMS:content:list loop="true" page="true" row="10" sub="all" cid="$node.id"}-->
+                                            <!--{include file="./widget/item.htm" item="$content_list"}-->
+                                            <!--{iCMSelse}-->
+                                            <p class="p-4">暂无相关内容</p>
+                                            <!--{/iCMS}-->
+                                            <!--{include file="./widget/pagination.htm"}-->
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="col-md-4 mt-2 mt-md-0">
-                            <!--{include file="./right.search.htm"}-->
-                            <!--{iCMS:article:list row="10" cid="$node.id"}-->
-                            <!--{include file="./right.hots.htm" hotsList="$article_list"}-->
-                            <!--{include file="./right.comments.htm"}-->
-                            <!--{include file="./right.social.htm"}-->
-                        </div>
+                    </div>
+                    <div class="col-md-4 mt-2 mt-md-0">
+                        <!--{include file="./right.search.htm"}-->
+                        <!--{iCMS:article:list row="10" cid="$node.id"}-->
+                        <!--{include file="./right.hots.htm" hotsList="$article_list"}-->
+                        <!--{include file="./right.comments.htm"}-->
+                        <!--{include file="./right.social.htm"}-->
                     </div>
                 </div>
-                <!-- END Page Content -->
+            </div>
+            <!-- END Page Content -->
 
-                <!--{include file="./footer.htm"}-->
-            </main>
-        </div>
-    </body>
+            <!--{include file="./widget/footer.htm"}-->
+        </main>
+    </div>
+</body>
+
 </html>

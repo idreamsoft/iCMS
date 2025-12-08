@@ -1,6 +1,6 @@
 <?php
 // --------------------------------------------------------------------------------
-// PhpConcept Library - Zip Module 2.8.2
+// PhpConcept Library - Zip Module 2.8.4
 // --------------------------------------------------------------------------------
 // License GNU/LGPL - Vincent Blavet - August 2009
 // http://www.phpconcept.net
@@ -1787,6 +1787,7 @@ class PclZip
         $v_memory_limit = ini_get('memory_limit');
         $v_memory_limit = trim($v_memory_limit);
         $last           = strtolower(substr($v_memory_limit, -1));
+        $v_memory_limit = preg_replace('/\s*[KkMmGg]$/', '', $v_memory_limit);
 
         if ($last == 'g') {
             //$v_memory_limit = $v_memory_limit*1024*1024*1024;
@@ -2588,10 +2589,9 @@ class PclZip
                         PclZip::privErrorLog(PCLZIP_ERR_READ_OPEN_FAIL, "Unable to open file '$p_filename' in binary read mode");
 
                         return PclZip::errorCode();
-                    }
-
+                    }                    
                     // ----- Read the file content
-                    $v_content = @fread($v_file, $p_header['size']);
+                    $v_content = @fread($v_file, $p_header['size']>0 ? $p_header['size'] : 1);
 
                     // ----- Close the file
                     @fclose($v_file);
@@ -3512,6 +3512,12 @@ class PclZip
             }
         }
 
+        // Patch for Zip Traversal vulnerability
+        if (strpos($p_entry['stored_filename'], '../') !== false || strpos($p_entry['stored_filename'], '..\\') !== false) {
+            $p_entry['stored_filename'] = basename($p_entry['stored_filename']);
+            $p_entry['filename'] = basename($p_entry['stored_filename']);
+        }
+
         // ----- Add the path
         if ($p_path != '') {
             $p_entry['filename'] = $p_path . "/" . $p_entry['filename'];
@@ -4016,14 +4022,14 @@ class PclZip
                 if ($p_entry['compression'] == 0) {
 
                     // ----- Reading the file
-                    $p_string = @fread($this->zip_fd, $p_entry['compressed_size']);
+                    $p_string = $p_entry['compressed_size']?@fread($this->zip_fd, $p_entry['compressed_size']):'';
                 } else {
 
                     // ----- Reading the file
-                    $v_data = @fread($this->zip_fd, $p_entry['compressed_size']);
+                    $v_data = $p_entry['compressed_size']?@fread($this->zip_fd, $p_entry['compressed_size']):"";
 
                     // ----- Decompress the file
-                    if (($p_string = @gzinflate($v_data)) === false) {
+                    if ($v_data && ($p_string = @gzinflate($v_data)) === false) {
                         // TBC
                     }
                 }

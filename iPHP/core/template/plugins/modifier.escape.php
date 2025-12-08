@@ -6,7 +6,6 @@
  * @subpackage plugins
  */
 
-
 /**
  * Smarty escape modifier plugin
  *
@@ -22,6 +21,9 @@
  */
 function tpl_modifier_escape($string, $esc_type = 'html', $char_set = 'UTF-8')
 {
+    if(empty($string)) {
+        return '';
+    }
     switch ($esc_type) {
         case 'html':
             return htmlspecialchars($string, ENT_QUOTES, $char_set);
@@ -63,11 +65,11 @@ function tpl_modifier_escape($string, $esc_type = 'html', $char_set = 'UTF-8')
 
         case 'javascript':
             // escape quotes and backslashes, newlines, etc.
-            return strtr($string, array('\\' => '\\\\', "'" => "\\'", '"' => '\\"', "\r" => '\\r', "\n" => '\\n', '</' => '<\/'));
+            return strtr($string, ['\\' => '\\\\', "'" => "\\'", '"' => '\\"', "\r" => '\\r', "\n" => '\\n', '</' => '<\/']);
 
         case 'mail':
             // safe way to display e-mail address on a web page
-            return str_replace(array('@', '.'), array(' [AT] ', ' [DOT] '), $string);
+            return str_replace(['@', '.'], [' [AT] ', ' [DOT] '], $string);
 
         case 'nonstd':
             // escape non-standard chars, such as ms document quotes

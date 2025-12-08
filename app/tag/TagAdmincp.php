@@ -12,24 +12,33 @@ defined('iPHP') or exit('What are you doing?');
 
 class TagAdmincp extends AdmincpCommon
 {
-    public $callback = array();
+    use AdmincpCommonTrait;
+    public static $orderBy = [
+        'id'         => "ID",
+        'hits'       => "点击",
+        'hits_week'  => "周点击",
+        'hits_month' => "月点击",
+        'count'      => "使用数",
+        'good'       => "顶",
+        'postime'    => "时间",
+        'pubdate'    => "发布时间",
+        'comment'   => "评论数",
+    ];
     public function __construct()
     {
         parent::__construct();
-        $this->id = (int) $_GET['id'];
+        Node::$APPID = self::$APPID;
     }
-
     public function do_add()
     {
         $this->id && $rs = TagModel::get($this->id);
         if (empty($rs)) {
             $rs['status'] = '1';
         }
-        self::added($this, __METHOD__, $rs);
-        include self::view('tag.add');
+        include self::view();
     }
 
-    public function do_manage()
+    public function index()
     {
         $cid    = (int) $_GET['cid'];
         $tcid   = (int) $_GET['tcid'];
@@ -61,40 +70,22 @@ class TagAdmincp extends AdmincpCommon
         $field = Request::get('field');
         $field  && $where[] = array('field', $field);
 
-        // if (isset($_GET['pid']) && $pid != '-1') {
-        //     $uri_array['pid'] = $pid;
-        //     if ($_GET['pid'] == 0) {
-        //         $sql .= " AND `pid`=''";
-        //     } else {
-        //         iMap::init('prop', self::$appId, 'pid');
-        //         $map_where = iMap::where($pid);
-        //     }
-        // }
-        // if ($map_where) {
-        //     $map_sql = iSQL::select_map($map_where);
-        //     $sql     = ",({$map_sql}) map {$sql} AND `id` = map.`iid`";
-        // }
-
-        $orderby = self::setOrderBy(array(
-            'id'         => "ID",
-            'hits'       => "点击",
-            'hits_week'  => "周点击",
-            'hits_month' => "月点击",
-            'count'      => "使用数",
-            'good'       => "顶",
-            'postime'    => "时间",
-            'pubdate'    => "发布时间",
-            'comment'   => "评论数",
-        ));
-        $result = TagModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
-
-        include self::view("tag.manage");
+        return  self::tableData(['where' => $where], function ($rows) {
+            $nodeArr  = Node::many($rows, 'cid');
+            $tNodeArr = Node::many($rows, 'tcid', self::$APPID);
+            $rows = array_map(function ($row) use ($nodeArr, $tNodeArr) {
+                $C = (array) $nodeArr[$row['cid']];
+                $TC = (array) $tNodeArr[$row['tcid']];
+                $iurl = Route::get('tag', array($row, $C, $TC));
+                $row['url'] = $iurl->href;
+                return $row;
+            }, $rows);
+            return $rows;
+        });
     }
     /**
-     * [导入标签]
-     * @return [type] [description]
+     * 导入标签
+     * @return void
      */
     public function do_import()
     {
@@ -128,7 +119,11 @@ class TagAdmincp extends AdmincpCommon
                     }
                     $variable[$key] = $name;
                 }
-                $tids = Tag::create($variable, Member::$user_id, $cid, $tcid);
+                $tids = Tag::create($variable, [
+                    'userid' => Admin::$user_id,
+                    'cid'    => $cid,
+                    'tcid'   => $tcid,
+                ]);
                 $msg['success'] = count($tids);
             }
             @unlink($path);
@@ -140,18 +135,17 @@ class TagAdmincp extends AdmincpCommon
             );
         }
     }
-    public function save()
+    public function save(&$data = [])
     {
         $data = TagModel::postData();
 
-        $data['id'] && $row = TagModel::get($data['id']);
+        // $data['id'] && $row = TagModel::get($data['id']);
 
         empty($data['name']) && self::alert('标签名称不能为空');
         $data['title'] = $data['name'];
-
         $data['pubdate'] = str2time($data['pubdate']);
-        empty($data['userid']) && $data['userid'] = Member::$user_id;
-        empty($data['editor']) && $data['editor'] = Member::$nickname;
+        empty($data['userid']) && $data['userid'] = Admin::$user_id;
+        empty($data['editor']) && $data['editor'] = Admin::$nickname;
 
         if (empty($data['id'])) {
             $hasNameId = Tag::check($data['name']);
@@ -165,8 +159,8 @@ class TagAdmincp extends AdmincpCommon
         }
 
         $node = Node::get($data['cid']);
-        if (strstr($node['rule']['tag'], '{LINK}') !== false && empty($data['clink'])) {
-            $data['clink'] = Pinyin::get($data['name'], $this->config['clink']);
+        if ($node['rule']['tag'] && strstr($node['rule']['tag'], '{LINK}') !== false && empty($data['clink'])) {
+            $data['clink'] = Pinyin::get($data['name'], self::$CONFIG['clink']);
         }
 
         if ($data['clink'] && Tag::check($data['clink'], $data['id'], 'clink')) {
@@ -180,7 +174,6 @@ class TagAdmincp extends AdmincpCommon
 
         $data['tkey'] or $data['tkey'] = Tag::getTkey($data['name']);
 
-
         if (empty($data['id'])) {
             $this->makeTkey($data['tkey']);
             $data['postime']  = $data['pubdate'];
@@ -191,8 +184,6 @@ class TagAdmincp extends AdmincpCommon
             $this->makeTkey($data['tkey'], $data['id']);
             TagModel::update($data, $data['id']);
         }
-        self::saved($this, __METHOD__, $data);
-        // self::success('保存成功');
     }
     public function makeTkey(&$tkey, $id = 0)
     {
@@ -216,83 +207,35 @@ class TagAdmincp extends AdmincpCommon
         }
     }
 
-    public function do_delete($id = null)
+
+    public function batching()
     {
-        $id === null && $id = $this->id;
-        Tag::delete($id, 'id');
-        // $dialog && self::success("标签删除成功");
-    }
-    public function do_batch()
-    {
-        $stype = AdmincpBatch::$config['stype'];
-        $actions = array(
-            'move' => function ($idArray, $ids, $batch) {
-                $cid = (int) $_POST['cid'];
+        return array(
+            'move' => function ($ids, $data, $batch) {
+                $cid = (int) $data['nid'];
                 $cid or self::alert("请选择目标栏目");
-                $ocids = TagModel::field('cid')->where($idArray)->pluck();
-                TagModel::update(compact('cid'), $idArray);
+                // $ocids = TagModel::field('cid')->where($ids)->pluck();
+                TagModel::update(compact('cid'), $ids);
             },
-            'mvtcid' => function ($idArray, $ids, $batch) {
-                $tcid = (int) $_POST['tcid'];
+            'mvtcid' => function ($ids, $data, $batch) {
+                $tcid = (int) $data['tcid'];
                 $tcid or self::alert("请选择目标分类");
-                $ocids = TagModel::field('tcid')->where($idArray)->pluck();
-                TagModel::update(compact('tcid'), $idArray);
+                // $ocids = TagModel::field('tcid')->where($ids)->pluck();
+                TagModel::update(compact('tcid'), $ids);
             },
-            'prop' => function ($idArray, $ids, $batch) {
-                $pid = (array) $_POST['pid'];
-                $opids = TagModel::field('pid')->where($idArray)->pluck();
-                TagModel::update(compact('pid'), $idArray);
+            'related' => function ($ids, $data, $batch) {
+                $related = $data['related_text'];
+                TagModel::update(compact('related'), $ids);
             },
-            'tkey' => function ($idArray, $ids, $batch) {
-                $rs = TagModel::field('id,name')->select($idArray);
-                foreach ($rs as $tag) {
+            'tkey' => function ($ids, $data, $batch) {
+                $rows = TagModel::field('id,name')->select($ids);
+                foreach ($rows as $tag) {
                     $id = $tag['id'];
                     $tkey = Tag::getTkey($tag['name']);
                     TagModel::update(compact('tkey'), $id);
                 }
-            },
-            'keyword' => function ($idArray, $ids, $batch) {
-                $keywords = Request::post('mkeyword');
-                $pattern = Request::post('pattern');
-                if ($pattern == 'replace') {
-                    TagModel::update(compact('keywords'), $idArray);
-                    // $sql    = "`keywords` = '" . Request::post('mkeyword') . "'";
-                } elseif ($pattern == 'addto') {
-                    $kwArray = TagModel::field('id,keywords')->where($idArray)->pluck('id', 'keywords');
-                    foreach ($kwArray as $id => $kw) {
-                        $kw && $kw .= ',';
-                        $kw .= $keywords;
-                        $kw && TagModel::update(array('keywords' => trim($kw)), $id);
-                    }
-                }
-            },
-            'tag' => function ($idArray, $ids, $batch) {
-                $related = Request::post('mtag');
-                $pattern = Request::post('pattern');
-                if ($pattern == 'replace') {
-                    TagModel::update(compact('related'), $idArray);
-                    // $sql    = "`related` = '" . Request::post('mtag') . "'";
-                } elseif ($pattern == 'addto') {
-                    $kwArray = TagModel::field('id,related')->where($idArray)->pluck('id', 'related');
-                    foreach ($kwArray as $id => $kw) {
-                        $kw && $kw .= ',';
-                        $kw .= $related;
-                        $kw && TagModel::update(array('related' => trim($kw)), $id);
-                    }
-                }
-            },
-            'dels' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    $this->do_delete($id);
-                }
-            },
-            'default' => function ($idArray, $ids, $batch, $data = null) {
-                $data === null && $data = Request::args($batch);
-                $data && TagModel::update($data, $idArray);
-                return true;
-            },
+            }
         );
-        return AdmincpBatch::run($actions, "标签");
     }
     public function do_api_extract()
     {
@@ -304,7 +247,7 @@ class TagAdmincp extends AdmincpCommon
     public static function api_extract($title = null, $content = null)
     {
         $array    = compact('title', 'content');
-        $response = DeveloperApi::post('tag.extract', $array);
+        $response = DeveloperApiProxy::post('tag.extract', $array);
         return $response;
     }
 
@@ -312,7 +255,7 @@ class TagAdmincp extends AdmincpCommon
     {
         $total = TagModel::count();
         $widget[] = array($total, '全部');
-        foreach (Tag::$statusMap as $status => $text) {
+        foreach (TagModel::$statusMap as $status => $text) {
             $count = TagModel::where('status', $status)->count();
             $widget[] = array($count, $text);
         }

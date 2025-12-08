@@ -10,18 +10,20 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class UserManageApp extends UserCP
+class UserManageApp extends UserCenter
 {
-	public function __construct()
-	{
-		parent::__construct();
-	}
-	public function display()
-	{
-		return self::view('manage');
-	}
-	public function API_manage()
-	{
-		return $this->display();
-	}
+    public function api_manage()
+    {
+        return $this->display();
+    }
+	
+    public function api_index()
+    {
+        return $this->display();
+    }
+
+    public function display()
+    {
+        return self::view('manage');
+    }
 }

@@ -1,0 +1,28 @@
+<div class="block">
+    <?php if (AdmincpView::$EXTENDS) { ?>
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt" data-toggle="tabs" role="tablist">
+            <?php $tidx = 0;
+            foreach (AdmincpView::$EXTENDS as $tkey => $tab) { ?>
+                <li class="nav-item"><a class="nav-link <?php echo $tidx ?: 'active'; ?>" href="#ext-<?php echo $tkey; ?>" path="<?php echo $tab['path']; ?>"><?php echo $tab['title']; ?></a></li>
+            <?php $tidx++;
+            } ?>
+        </ul>
+        <div class="block-content">
+            <div class="tab-content pt-3">
+                <?php $tidx = 0;
+                foreach (AdmincpView::$EXTENDS as $tkey => $tab) { ?>
+                    <div id="ext-<?php echo $tkey; ?>" path="<?php echo $tab['path']; ?>" class="tab-pane <?php echo $tidx ?: 'active'; ?>" role="tabpanel">
+                        <?php include $tab['rootpath']; ?>
+                    </div>
+                <?php $tidx++;
+                } ?>
+            </div>
+        </div>
+    <?php } else { ?>
+        <div class="alert alert-info">
+            暂无扩展页面<br />
+            扩展页面格式：
+            /app/<?php echo Admincp::$APP_NAME; ?>/views/<?php echo Admincp::$APP_DO; ?>.*.html
+        </div>
+    <?php } ?>
+</div>

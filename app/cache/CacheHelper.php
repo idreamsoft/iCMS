@@ -5,6 +5,7 @@ class CacheHelper
     const APP = 'cache';
     const APPID = iCMS_APP_CACHE;
 
+
     public static function test($config)
     {
         $cache = Cache::init($config, true);
@@ -20,7 +21,7 @@ class CacheHelper
     {
         if (Config::get('cache.engine') == 'file') {
             @set_time_limit(0);
-            Cache::clean('*');
+            // Cache::clean('*');
         }
     }
 }

@@ -1,0 +1,27 @@
+<div class="my-4 d-flex justify-content-end">
+    <div class="btn-group" role="group">
+        <button type="button" i="cms:favorite:dialog" class="btn btn-light">
+            收藏 <i class="far fa-star"></i>(<span i="cms:favorite:num"><!--{$item.favorite}--></span>)
+        </button>
+        <button type="button" i="cms:vote:good" class="btn btn-light">
+            赞 <i class="far fa-thumbs-up"></i>(<span i="cms:vote:good:num"><!--{$item.good}--></span>)
+        </button>
+        <button type="button" class="btn btn-light dropdown-toggle" id="dropdown-blog-story" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            分享 <i class="fa fa-paper-plane mr-1"></i>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right fs-sm" aria-labelledby="dropdown-blog-story">
+            <a class="dropdown-item" i="cms:ui:tooltip" href="javascript:void(0)" data-bs-html="true" data-bs-placement="left" title='<img src="<!--{iCMS:public:qrcode data=$item.url}-->"> <p>用微信“扫一扫”</p>'>
+                <i class="fab fa-fw fa-2x fa-weixin mr-1"></i>
+                微信
+            </a>
+            <a class="dropdown-item" href="http://connect.qq.com/widget/shareqq/index.html?title=分享一个不错的网站&summary=<!--{$site.url}-->&pics=&url=<!--{$item.url}-->" target="_blank">
+                <i class="fab fa-fw fa-2x fa-qq mr-1"></i>
+                QQ
+            </a>
+            <a class="dropdown-item" href="http://service.weibo.com/share/share.php?url=<!--{$site.url}-->&title=分享一个不错的网站&appkey=&searchPic=true" target="_blank">
+                <i class="fab fa-fw fa-2x fa-weibo mr-1"></i>
+                微博
+            </a>
+        </div>
+    </div>
+</div>

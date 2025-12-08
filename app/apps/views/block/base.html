@@ -10,13 +10,9 @@
     ?>
             <div id="field_<?php echo $value['name']; ?>" class="form-group row mb-1">
                 <div class="input-group col-10">
-                    <div class="input-group-prepend">
-                        <div class="input-group-text"><?php echo $value['name']; ?></div>
-                    </div>
+                    <div class="input-group-text"><?php echo $value['name']; ?></div>
                     <span class="form-control"><?php echo $value['field'] . ' (' . $value['len'] . ') ' . ($value['unsigned'] ? 'UNSIGNED' : ''); ?> NOT NULL</span>
-                    <div class="input-group-append">
-                        <span class="input-group-text"><?php echo $value['label']; ?> <?php echo $value['comment']; ?></span>
-                    </div>
+                    <span class="input-group-text"><?php echo $value['label']; ?> <?php echo $value['comment']; ?></span>
                 </div>
             </div>
         <?php } ?>

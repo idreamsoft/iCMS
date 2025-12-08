@@ -12,83 +12,102 @@
 class AdmincpException extends sException
 {
     public static $ex;
-    public function __construct($message, $code = 0, Exception $previous = null)
+
+    public function __construct($message, $code = 0, $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
+
     public function display()
     {
-        $ex = self::$ex ?: $this;
-        $code    = $ex->getCode();
-        $line    = $ex->getLine();
-        $file    = $ex->getFile();
-        $message = Security::filterPath($ex->getMessage());
-        $trace   = Security::filterPath($ex->getTraceAsString());
-        $state   = (string)(method_exists($ex, 'getState') ? $ex->getState() : $code);
+        $ex = $this->getPrevious() ?: $this;
+        $exvar = iPHP::getException($ex);
+        extract($exvar);
+        $isAjax = Request::isAjax();
+        $isPost = Request::isPost();
+        // $html = ob_get_contents();
+        // $html = Security::filterPath($html);
+        // ob_end_clean();
 
-        Script::$dialog['width'] = 600;
-
-        if (Request::param('frame') || Request::isPost() || Request::file()) {
-            $isAlert = true;
-            iJson::$jsonp = 'AdmAlert';
+        $error = '';
+        $url = null;
+        if ($ex instanceof PDOException) {
+            $state = 'PDOException';
         }
-        if(Request::isAjax()){
-            $isAjax = true;
-            iJson::$jsonp = null;
-        }
-        switch ($state) {
+        switch ((string)$state) {
+            case 'json':
+                iJson::output($message);
+                break;
             case 'ajax':
                 $isAjax = true;
-                iJson::$jsonp = null;
                 break;
-            case 'alert': //admincpBase::alert
-                if ($isAjax) {
-                    return iJson::error($message);
-                }
+            case 'alert': //admincp::alert
+                $html = '';
                 break;
-            case 'error': //错误页面
-                $title = "出错啦!";
+            case 'template':
+                $title = Lang::get('admincp:template_error');
+                $message .= '<hr />' . Security::filterPath(implode('<br />', AdmincpView::$TEMPLATE));
+                $code = -9;
                 break;
             case 'uri': //无uri权限
-                $access  = Cache::get('app/access');
-                $text    = $message;
-                if (is_array($access) && $access[$message]) {
-                    $text = $access[$message];
-                }
-                $title   = "无权限访问!";
-                // $mText   = '的访问';
-                // if (stripos($text, 'do_') !== false) {
-                //     $mText = '功能的执行';
+                $access = Cache::get('app/access');
+                $text = $message;
+                // if (is_array($access) && $access[$message]) {
+                //     $text = $access[$message];
                 // }
-                $message = sprintf("对不起！您未获得【%s [%s]】的权限，请联系管理员为您开启。", $text,$message);
+                $title = Lang::get('no access');
+                $message = Lang::get('admincp:no_permission', [$text, $message]);
+                $code = -3;
                 break;
-            case 'node.alert': //无node权限 alert
-            case 'node.page': //无node权限 page
+            case 'node': //无node权限
                 list($cid, $type) = explode(':', $message);
-                $typeText = NodeAccess::$appTypeMap[$type];
-                empty($typeText) && $typeText = NodeAccess::$nodeTypeMap[$type];
-                $title   = "无权限访问!";
-                $cText = "节点【id={$cid}】";
-                $cid == "0" && $cText = '顶级节点';
-                $message = sprintf("对不起，您未获得%s %s权限，<br />请联系管理员为您开启。", $cText, $typeText);
+                $typeText = AdmincpAuth::$appTypeMap[$type];
+                empty($typeText) && $typeText = AdmincpAuth::$nodeTypeMap[$type];
+                $title = Lang::get('no access');
+                $cText = "node id={$cid}";
+                $cid == '0' && $cText = Lang::get('top node');
+                $message = Lang::get('admincp:no_permission', [$cText . $typeText]);
+                $code = -3;
                 break;
-            case '-90': //安全检测
-                $title = "非法访问!";
-                $error = sprintf('<hr/><div class="text-left">来路：%s</div>', $_SERVER["REQUEST_URI"]);
+            case 'illegal': //安全检测
+                $title = Lang::get('illegal access!');
+                $error = sprintf('<hr/><div class="text-start">%s：%s</div>', Lang::get('referer'), $_SERVER['REQUEST_URI']);
                 break;
+            case 'PDOException':
+                $code = -999;
+                list($pdocode, $message, $driver) = DB::getError($ex);
+                $title = Lang::get($driver . ' ERROR!');
+                $error = sprintf('<hr/><div class="text-start">%s</div>', str_replace("\n", '<br />', $trace));
+                break;
+            case 'success': //正常提示
+                $title = Lang::get('success');
+                $color = 'success';
+                $icon = 'fa fa-xs fa-check-circle';
+                break;
+            case 'security': //
+            case 'error': //admincp::error
             default:
-                Script::$dialog['height'] = 'auto';
-                $message .= sprintf(' 【STATE:%s】', $state);
-                $error = sprintf('<hr/><div class="text-left">%s</div>', str_replace("\n", "<br />", $trace));
+                $title = Lang::get('Error!');
+                $code = -99;
+                $code < 0 && $message .= sprintf(' 【STATE:%s】【CODE:%s】', $state, $code);
+                $error = sprintf('<hr/><div class="text-start">%s</div>', str_replace("\n", '<br />', $trace));
                 break;
         }
-        if ($isAjax) return iJson::error($message . $error, -1);
-
-        if ($isAlert) {
-            $time = 30000000;
-            Script::$dialog['sTitle'] = 'AdmincpException';
-            return Script::alert($message . $error, $time);
+        //后台没有登陆 不报错
+        if ($code < 0 && $code != Admin::LOGIN_CODE && !Admin::isLogin()) {
+            if ($isAjax || $isPost) {
+                iJson::fail('auth:login:required', 'reload');
+            }
+            return Request::status(404);
         }
-        include AdmincpView::display("exception", 'admincp');
+
+        if ($isAjax || $isPost) {
+            $msg = $message;
+            $title && $title .= '<hr class="m-0 mt-1"/>';
+            $code < 0 && $msg = $title . $html . $message . $error;
+            return iJson::fail($msg, $url, $code, $state);
+        }
+        AdmincpView::setJsPath('admincp/assets/js/exception');
+        include iPHP_APP_DIR . '/admincp/views/base/exception.html';
     }
 }

@@ -69,7 +69,7 @@ class HTMLPurifier_AttrDef_Integer extends HTMLPurifier_AttrDef
         }
 
         // test if it's numeric
-        if (!ctype_digit($digits)) {
+        if (!ctype_digit((string)$digits)) {
             return false;
         }
 

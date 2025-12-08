@@ -7,7 +7,7 @@
 * @site https://www.icmsdev.com
 * @licence https://www.icmsdev.com/LICENSE.html
 */
+include_once __DIR__.'/route.php';
 function iCMS_router($vars){
-	include_once __DIR__.'/route.php';
 	return iCMS_route($vars);
 }

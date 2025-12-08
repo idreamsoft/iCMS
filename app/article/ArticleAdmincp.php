@@ -9,60 +9,107 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 defined('iPHP') or exit('What are you doing?');
-defined('APP_URL') or define('APP_URL', 'admincp.php?app=article');
+defined('APP_URL') or define('APP_URL', '/admincp.php/article');
 
 class ArticleAdmincp extends AdmincpCommon
-{    
-    public $callback = array();
-    public $chapter  = false;
+{
+    use AdmincpCommonTrait;
 
-    public function __construct()
-    {
-        parent::__construct();
-        $this->id        = (int) $_GET['id'];
-        $this->dataid    = (int) $_GET['dataid'];
-        $this->_postype  = '1';
-        $this->_status   = '1';
+    public $callback = [];
+    public $chapter = false;
+    public $dataid = 0;
+    public $_postype = null;
+    public $_status = null;
+    public static $orderBy = [
+        'id'         => 'ID',
+        'hits'       => '点击',
+        'hits_week'  => '周点击',
+        'hits_month' => '月点击',
+        'good'       => '顶',
+        'postime'    => '时间',
+        'pubdate'    => '发布时间',
+        'weight'     => '权重',
+        'comment'    => '评论数',
+    ];
+    // public function __construct()
+    // {
+    //     parent::__construct();
+    //     // $this->_postype  = '1';
+    //     // $this->_status   = '1';
+    //     // throw new Exception("Error Processing Request", 1);
+    //     // trigger_error('sdfsdf',E_USER_DEPRECATED);
 
-        Node::$APPID     = self::$appId;
-    }
+    // }
 
     /**
-     * [添加文章]
-     * @access.menu true
-     * @access.auth true
+     * 添加文章
+     *
+     * @uri /article/data  获取文章正文
      */
     public function do_add()
-    {        
-        $article = $articleData = array();
-        if ($this->id) {
-            list($article, $data, $articleData) = Article::data($this->id, $this->dataid);
-            extract($articleData);
-        }
-        $bodyCount or $bodyCount = 1;
-        $cid        = empty($article['cid']) ? (int) Request::get('cid') : $article['cid'];
-        $nodeSelect = Node::setAccess('ca')->select($cid);
-        $node = $cid ? Node::get($cid) : [];
-        $article['pubdate'] = get_date($article['pubdate'], 'Y-m-d H:i:s');
-        $article['markdown'] && $this->config['markdown'] = "1";
+    {
+        $this->dataid = (int) Request::get('dataid');
+        $rs = $artData = [];
+        $this->id && list($rs, $data, $artData) = Article::data($this->id, $this->dataid);
+        $artData['bodyCount'] or $artData['bodyCount'] = 1;
+        // extract($artData); // chapterIds chapterTitles bodyArray bodyCount
+
+        $rs['cid'] = $rs['cid'] ?: (int) Request::sget('cid');
+        $Node = $rs['cid'] ? Node::get($rs['cid']) : [];
 
         if (empty($this->id)) {
-            $article['status']  = "1";
-            $article['postype'] = "1";
-            $article['editor']  = Member::$nickname;
-            $article['userid']  = Member::$user_id;
+            $rs['nodeAttrs'] = [];
+            $rs['status'] = '1';
+            $rs['postype'] = '1';
+            $rs['editor'] = Admin::$nickname;
+            $rs['userid'] = Admin::$user_id;
+        }
+        $rs['sortnum'] = $rs['sortnum'] ?: time();
+        $rs['weight'] = $rs['weight'] ?: time();
+
+        if (self::$CONFIG['editor'] == 'vditor' || $rs['markdown']) {
+            $rs['markdown'] = 1;
+            self::$CONFIG['editor'] = 'vditor';
+        }
+        if ($editor = Request::get('ui_editor')) {
+            self::$CONFIG['editor'] = ($editor == 'markdown') ? 'vditor' : $editor;
+            $rs['markdown'] = ($editor == 'markdown') ? 1 : 0;
         }
 
-        if (isset($_GET['ui_editor'])) {
-            $this->config['markdown'] = ($_GET['ui_editor'] == 'markdown') ? "1" : "0";
+        include self::view();
+    }
+
+    public function done_data($data = [], $chapter = 0)
+    {
+        $rs = $articleData = [];
+        $this->id && list($rs, $data, $articleData) = Article::data($this->id, $this->dataid);
+        $isChapter = $rs['chapter'] > 0 ? true : false;
+        $count = $articleData['bodyCount'] ?: 1;
+        $subtitle = isset($articleData['chapterTitles']) ? $articleData['chapterTitles'][0] : '';
+        $items = [];
+        if ($articleData['bodyArray']) {
+            foreach ($articleData['bodyArray'] as $key => $body) {
+                $items[$key] = [
+                    'chapterTitle' => $articleData['chapterTitles'][$key] ?: '',
+                    'chapterId'    => $articleData['chapterIds'][$key] ?: '',
+                    'body'         => $body,
+                    'show'         => $key ? false : true,
+                    'id'           => random(4),
+                    'display'      => 1
+                ];
+            }
+        } else {
+            $items[0] = [
+                'chapterTitle' => '',
+                'chapterId'    => '',
+                'body'         => '',
+                'show'         => true,
+                'id'           => random(4),
+                'display'      => 1
+            ];
         }
 
-
-        // AdmincpBase::$DEBUG['markdown'] = $this->config['markdown'];
-
-        // self::runHook('onAdd', [$this, __METHOD__, $article]);
-        self::added($this, __METHOD__, $article);
-        include self::view("article.add");
+        return compact('rs', 'items', 'isChapter', 'count', 'subtitle');
     }
 
     public function do_update_sort()
@@ -71,61 +118,44 @@ class ArticleAdmincp extends AdmincpCommon
             Article::update(compact('sortnum'), compact('id'));
         }
     }
-    public function do_batch()
+
+    public function batching()
     {
-        $stype = AdmincpBatch::$config['stype'];
-        $actions = array(
-            'purge' => function ($idArray, $ids, $batch) {
-                $_count = count($_POST['id']);
-                foreach ((array) $_POST['id'] as $i => $id) {
+        return [
+            'purge' => function ($ids, $data, $batch) {
+                foreach ((array)$ids as $i => $id) {
                     $this->do_purge($id, false);
                 }
             },
-            'thumb' => function ($idArray, $ids, $batch) {
-                foreach ((array) $_POST['id'] as $id) {
-                    $body   = ArticleDataModel::getBody($id);
+            'thumb' => function ($ids, $data, $batch) {
+                foreach ((array)$ids as $id) {
+                    $body = ArticleDataModel::getBody($id);
                     $picurl = FilesPic::remote($body, 'autopic');
                     $this->setPic($picurl, $id);
                 }
             },
-            'move' => function ($idArray, $ids, $batch) {
-                $cid = (int) $_POST['cid'];
-                $cid or self::alert("请选择目标栏目");
-                NodeAccess::check($cid, 'ca');
-                Article::update(compact('cid'), $idArray);
+            'move' => function ($ids, $data, $batch) {
+                $cid = (int) $data['nid'];
+                $cid or self::alert('请选择目标栏目');
+                AdmincpAuth::node($cid, 'ca');
+                Article::update(compact('cid'), $ids);
             },
-            'scid' => function ($idArray, $ids, $batch) {
-                $scid = (array) $_POST['bscid'];
-                Article::update(compact('scid'), $idArray);
+            'scid' => function ($ids, $data, $batch) {
+                $scid = (array) $data['scid'];
+                $scid = implode(',', $scid);
+                Article::update(compact('scid'), $ids);
             },
-            'prop' => function ($idArray, $ids, $batch) {
-                $pid = (array) $_POST['pid'];
-                Article::update(compact('pid'), $idArray);
-            },
-            'keyword' => function ($idArray, $ids, $batch) {
-                $pattern = Request::post('pattern');
-                if ($pattern == 'replace') {
-                    $data = array('keywords' => Request::post('bkeyword'));
-                    $data && Article::update($data, $idArray);
-                } elseif ($pattern == 'addto') {
-                    foreach ($idArray as $id) {
-                        $keywords = Article::value('keywords', $id);
-                        $keywords = ($keywords ? $keywords . ',' : '') . Request::post('bkeyword');
-                        Article::update(compact('keywords'), compact('id'));
-                    }
-                }
-            },
-            'tag' => function ($idArray, $ids, $batch) {
-                $pattern = Request::post('pattern');
-                $bTagArr = explode(',', Request::post('btag'));
-                foreach ($idArray as $id) {
-                    $art    = Article::get($id, 'tags,cid');
-                    $tagArr = $art['tags'] ? explode(',', $art['tags']) : array();
+            'tag' => function ($ids, $data, $batch) {
+                $pat = $data['pattern'];
+                $bTagArr = explode(',', $data['tag']);
+                foreach ((array)$ids as $id) {
+                    $art = Article::get($id, 'tags,cid');
+                    $tagArr = $art['tags'] ? explode(',', $art['tags']) : [];
                     $pieces = $bTagArr;
-                    if ($pattern == 'replace') {
-                    } elseif ($pattern == 'prepend') {
-                        $pieces  = array_merge($pieces, $tagArr);
-                    } elseif ($pattern == 'append') {
+                    if ($pat == 'replace') {
+                    } elseif ($pat == 'prepend') {
+                        $pieces = array_merge($pieces, $tagArr);
+                    } elseif ($pat == 'append') {
                         $pieces = array_merge($tagArr, $pieces);
                     }
                     $pieces = array_unique($pieces);
@@ -136,36 +166,29 @@ class ArticleAdmincp extends AdmincpCommon
                     }
                 }
             },
-            'meta' => function ($idArray, $ids, $batch) {
-                foreach ($idArray as $id) {
-                    AppsMeta::save(self::$appId, $id);
+            'meta' => function ($ids, $data, $batch) {
+                foreach ((array)$ids as $id) {
+                    AppsMeta::saveData(self::$APPID, $id);
                 }
             },
-            'quick_dels' => function ($idArray, $ids, $batch) {
-                $_count = count($idArray);
-                foreach ($idArray as $i => $id) {
+            'quick_dels' => function ($ids, $data, $batch) {
+                foreach ((array)$ids as $i => $id) {
                     $msg = $this->remove($id);
                 }
             },
-            'dels' => function ($idArray, $ids, $batch) {
-                $_count = count($idArray);
-                foreach ((array) $idArray as $i => $id) {
+            'dels' => function ($ids, $data, $batch) {
+                foreach ((array)$ids as $i => $id) {
                     $this->remove($id);
                 }
             },
-            'default' => function ($idArray, $ids, $batch, $data = null) {
-                $data === null && $data = Request::args($batch);
-                $data && Article::update($data, $idArray);
-            },
-        );
-        return AdmincpBatch::run($actions, "文章");
+        ];
     }
 
     public function do_check()
     {
-        $id    = (int) Request::get('id');
+        $id = (int) Request::get('id');
         $title = Request::get('title');
-        if ($this->config['repeatitle'] && Article::check($title, $id)) {
+        if (self::$CONFIG['repeatitle'] && Article::check($title, $id)) {
             return '该标题的文章已经存在,请检查是否重复';
         } else {
             return true;
@@ -174,12 +197,12 @@ class ArticleAdmincp extends AdmincpCommon
     }
 
     /**
-     * [简易编辑]
-     * @return [type] [description]
+     * 简易编辑
+     * @return void
      */
     public function do_simpleEdit()
     {
-        if(Request::isPost()){
+        if (Request::isPost()) {
             $data = Request::post();
             $id = $data['id'];
             return Article::update($data, $id);
@@ -189,33 +212,34 @@ class ArticleAdmincp extends AdmincpCommon
     }
 
     /**
-     * [查找正文图片]
-     * @return [type] [description]
+     * 查找正文图片
+     * @return void
      */
     public function do_findpic($id = null)
     {
         $id === null && $id = $this->id;
         $rs = $this->getContentPics($id);
         $_count = count($rs);
-        include self::view("files.manage", "files");
+        include self::view('manage', 'files');
     }
+
     public static function getContentPics($id = null)
     {
-        $content  = ArticleDataModel::getBody($id);
-        $picArray = array();
+        $content = ArticleDataModel::getBody($id);
+        $picArray = [];
         if ($content) {
             $content = stripslashes($content);
-            $array   = FilesPic::findImg($content);
-            $fArray  = array();
+            $array = FilesPic::findImg($content);
+            $fArray = [];
             foreach ($array as $key => $value) {
                 $value = trim($value);
                 // echo $value.PHP_EOL;
-                if (stripos($value, iCMS_FS_HOST) !== false) {
+                if (stripos($value, iCMS_FILE_HOST) !== false) {
                     $filepath = FilesClient::getPath($value, '-http');
-                    $rpath    = FilesClient::getPath($value, 'http2root');
+                    $rpath = FilesClient::getPath($value, 'http2root');
                     if ($filepath) {
-                        $pf   = pathinfo($filepath);
-                        $picArray[] = array(
+                        $pf = pathinfo($filepath);
+                        $picArray[] = [
                             'id'       => 'path@' . $filepath,
                             'rootpath' => $rpath,
                             'path'     => rtrim($pf['dirname'], '/') . '/',
@@ -223,7 +247,7 @@ class ArticleAdmincp extends AdmincpCommon
                             'size'     => @filesize($rpath),
                             'time'     => @filectime($rpath),
                             'ext'      => $pf['extension']
-                        );
+                        ];
                     }
                 }
             }
@@ -232,184 +256,185 @@ class ArticleAdmincp extends AdmincpCommon
     }
 
     /**
-     * [正文预览]
-     * @return [type] [description]
+     * 正文预览
+     * @return void
      */
-    public function do_preview()
+    public function do_detail()
     {
         echo ArticleDataModel::getBody($this->id);
     }
 
-    public function do_inbox()
-    {
-        $this->manage("inbox");
-    }
-    public function do_trash()
-    {
-        $this->_postype = 'all';
-        $this->manage("trash");
-    }
+    /**
+     * 用户文章列表
+     *
+     * @uri index 管理列表
+     * @uri examine 等待审核
+     * @uri off  未通过
+     * @uri trash 回收站
+     *
+     * @return void
+     */
     public function do_user()
     {
         $this->_postype = 0;
-        $this->manage();
+        return $this->do_index();
     }
-    public function do_examine()
-    {
-        $this->_postype = 0;
-        $this->manage("examine");
-    }
-    public function do_off()
-    {
-        $this->_postype = 0;
-        $this->manage("off");
-    }
-    public function do_normal()
-    {
-        $this->do_manage();
-    }
-    public function do_manage($stype = 'normal')
-    {
-        $this->manage($stype);
-    }
-    public function manage($stype = 'normal')
-    {
-        AdmincpBatch::set('stype', $stype);
 
+    public function do_test()
+    {
+        $id = ArticleModel::create([
+            'title' => time(),
+            'stitle'=> time()
+        ]);
+        // ArticleModel::delete($id);
+        // ArticleModel::get(4);
+        DB::getQueryLog(1);
+    }
+
+    public function do_index()
+    {
+        if ($sdo = Request::sget('sdo')) {
+            $this->_status = Article::$stypeMap[$sdo];
+        }
+
+        is_numeric($_GET['postype']) && $this->_postype = (int) $_GET['postype'];
+        is_numeric($_GET['status']) && $this->_status = (int) $_GET['status'];
+
+        if (Request::isAjax()) {
+            return $this->index();
+        }
+
+        self::setContext([
+            'params' => [
+                'postype' => $this->_postype,
+                'status'  => $this->_status,
+            ],
+            'tablist' => 'params',
+            'subApp'  => AppsWidget::subApp(self::$APPID)
+        ]);
+        include self::view('index');
+    }
+
+    public function index()
+    {
         if ($cid = (int) $_GET['cid']) {
             $node = Node::get($cid);
         }
-        //$stype OR $stype = Admincp::$APP_DO;
-        $map_where = array();
-        //status:[0:草稿][1:正常][2:回收][3:待审核][4:不合格]
-        //postype: [0:用户][1:管理员]
-        $stype && $this->_status = Article::$stypeMap[$stype];
-        $where = array();
-        is_numeric($_GET['postype']) && $this->_postype = (int) $_GET['postype'];
-        is_numeric($_GET['status']) && $this->_status = (int) $_GET['status'];
-        is_numeric($this->_postype) && $where[] = array('postype', $this->_postype);
-        is_numeric($this->_status) && $where[] = array('status', $this->_status);
+        $where = [];
 
-        $userid = Member::$user_id;
-        if (AdmincpAccess::app('MANAGE')) {
-            $userid = Request::get('userid');
-        }
-        $userid && $where[] = array('userid', $userid);
+        is_numeric($this->_postype) && $where[] = ['postype', $this->_postype];
+        is_numeric($this->_status) && $where[] = ['status', $this->_status];
 
-
-        // if (is_numeric($_GET['pid'])) {
-        //     $uri_array['pid'] = $pid;
-        //     iMap::init('prop', self::$appId, 'pid');
-        //     $map_where += iMap::where($_GET['pid']);
-        // }
-
-        NodeAccess::where($cid, $where, $whereAccess);
-
+        AdmincpAuth::where($where);
+        AdmincpAuth::nodeWhere($cid, $where);
 
         if ($keywords = Request::get('keywords')) {
-            $whereKw = array('title', 'REGEXP', $keywords);
+            $whereKw = ['title', 'REGEXP', $keywords];
             switch (Request::sget('st')) {
-                case "title":
+                case 'title':
                     break;
-                case "tag":
+                case 'tag':
                     $whereKw[0] = 'tags';
                     break;
-                case "source":
+                case 'source':
                     $whereKw[0] = 'source';
                     break;
-                case "clink":
+                case 'clink':
                     $whereKw[0] = 'clink';
                     break;
-                case "weight":
-                    $whereKw = array('weight', $keywords);
+                case 'weight':
+                    $whereKw = ['weight', $keywords];
                     break;
-                case "id":
+                case 'id':
                     $keywords = explode(',', $keywords);
-                    $whereKw = array('id', $keywords);
+                    $whereKw = ['id', $keywords];
                     break;
-                case "tkd":
-                    $whereKw = array('CONCAT(title,stitle,keywords,description)', 'REGEXP', $keywords);
+                case 'tkd':
+                    $whereKw = ['CONCAT(title,stitle,keywords,description)', 'REGEXP', $keywords];
                     break;
             }
             $where[] = $whereKw;
         }
+        $pid = Request::get('pid');
+        // isset($pid) && $where[] = DB::raw("FIND_IN_SET('{$pid}',pid)");
+        isset($pid) && $where[] = ['pid', 'FIND_IN_SET', $pid];
 
         $title = Request::get('title');
-        $title && $where[] = array('title', 'like', '%' . $title . '%');
+        $title && $where[] = ['title', 'like', '%' . $title . '%'];
 
         $tag = Request::get('tag');
-        $tag && $where[] = array('tag', 'REGEXP', '[[:<:]]' . $tag . '[[:>:]]');
+        $tag && $where[] = ['tag', 'REGEXP', '[[:<:]]' . $tag . '[[:>:]]'];
 
         $starttime = Request::get('starttime');
-        $starttime && $where[] = array('pubdate', '>=', str2time($starttime . (strpos($starttime, ' ') !== false ? '' : " 00:00:00")));
+        $starttime && $where[] = ['pubdate', '>=', str2time($starttime . (strpos($starttime, ' ') !== false ? '' : ' 00:00:00'))];
 
         $endtime = Request::get('endtime');
-        $endtime && $where[] = array('pubdate', '<=', str2time($endtime . (strpos($endtime, ' ') !== false ? '' : " 00:00:00")));
+        $endtime && $where[] = ['pubdate', '<=', str2time($endtime . (strpos($endtime, ' ') !== false ? '' : ' 00:00:00'))];
 
         $post_starttime = Request::get('post_starttime');
-        $post_starttime && $where[] = array('postime', '>=', str2time($post_starttime . (strpos($starttime, ' ') !== false ? '' : " 00:00:00")));
+        $post_starttime && $where[] = ['postime', '>=', str2time($post_starttime . (strpos($starttime, ' ') !== false ? '' : ' 00:00:00'))];
 
         $post_endtime = Request::get('post_endtime');
-        $post_endtime && $where[] = array('postime', '<=', str2time($post_endtime . (strpos($endtime, ' ') !== false ? '' : " 00:00:00")));
+        $post_endtime && $where[] = ['postime', '<=', str2time($post_endtime . (strpos($endtime, ' ') !== false ? '' : ' 00:00:00'))];
 
-        isset($_GET['pic']) && $where[] = array('haspic', ($_GET['pic'] ? 1 : 0));
+        isset($_GET['pic']) && $where[] = ['haspic', ($_GET['pic'] ? 1 : 0)];
 
+        return self::tableData([
+            'where' => $where,
+        ], function ($rows) {
+            $nodeArray = Node::many($rows, 'cid');
+            $scategoryArray = Node::many($rows, 'scid');
 
-        $orderby = self::setOrderBy(array(
-            'id'         => "ID",
-            'hits'       => "点击",
-            'hits_week'  => "周点击",
-            'hits_month' => "月点击",
-            'good'       => "顶",
-            'postime'    => "时间",
-            'pubdate'    => "发布时间",
-            'comment'   => "评论数",
-        ));
+            $rows = array_map(function ($item) use ($nodeArray) {
+                $C = (array)$nodeArray[$item['cid']];
+                $iurl = Route::get('article', [$item, $C]);
+                $item['url'] = $iurl->href;
 
-        $result = ArticleModel::where($whereAccess)->where($where)
-            ->orderBy($orderby)
-            ->paging();
-        include self::view("article.manage");
+                // self::actionBtns($item,[]);
+                // var_dump($item['picture']);
+                // $item['picture'] = $item['picture'].'_200x200.jpg';
+                // $item['test'] = ['1', '2'];
+                return $item;
+            }, $rows);
+            return $rows;
+        });
     }
-    public function save()
-    {
 
-        $data = ArticleModel::postData();
+    public function save(&$data = [])
+    {
+        empty($data) && $data = ArticleModel::postData();
 
         $data['id'] && $row = Article::get($data['id']);
-
-        $data['body'] = (array) $_POST['body'];
-
         $data['tags'] = Tag::name($data['tags']);
 
         empty($data['title']) && self::alert('标题不能为空');
         empty($data['cid']) && self::alert('请选择所属栏目');
-        (empty($data['body']) && empty($data['url']))  && self::alert('文章内容不能为空');
+        (empty(self::getbody()) && empty($data['url'])) && self::alert('文章内容不能为空');
 
         $data['pubdate'] = str2time($data['pubdate']);
-        empty($data['userid']) && $data['userid'] = Member::$user_id;
-        empty($data['editor']) && $data['editor'] = Member::$nickname;
+        empty($data['userid']) && $data['userid'] = Admin::$user_id;
+        empty($data['editor']) && $data['editor'] = Admin::$nickname;
 
-        if (!Member::isSuperRole()) {
-            $data['userid'] = $row['userid']; //非管理员禁止更新文章所属用户ID
-        }
-
-        if ($this->config['filter'] && is_array($this->config['filter']) && !isset($_POST['nofilter'])) {
-            foreach ($this->config['filter'] as $fkey => $fvalue) {
-                list($field, $text) = explode(':', $fvalue);
-                if ($fwd = iPHP::callback('Filter::run', array(&$data[$field]), false)) {
-                    self::alert($text . '中包含【' . $fwd . '】被系统屏蔽的字符，请重新填写。');
-                }
+        if (!Admin::isSuperRole()) { //非超级管理
+            $data['userid'] = Admin::$user_id;
+            $data['editor'] = Admin::$nickname;
+            if ($row && $row['userid'] != $data['userid']) {
+                // $data['userid'] = $row['userid'];
+                self::alert('无权进行此项操作');
             }
         }
 
-        if ($this->config['repeatitle'] && Article::check($data['title'], $data['id'])) {
+        !isset($_POST['nofilter']) && iPHP::callback('Filter::run', [&$data, self::$CONFIG['filter']], E_USER_ERROR);
+
+        if (self::$CONFIG['repeatitle'] && Article::check($data['title'], $data['id'])) {
             self::alert('该标题的文章已经存在请检查是否重复');
         }
 
+        AdmincpAuth::node($data['cid'], $row ? 'ce' : 'ca');
         $node = Node::get($data['cid']);
-        if (strstr($node['rule']['article'], '{LINK}') !== false && empty($data['clink'])) {
-            $data['clink'] = Pinyin::get($data['title'], $this->config['clink']);
+
+        if ($node['rule']['article'] && strstr($node['rule']['article'], '{LINK}') !== false && empty($data['clink'])) {
+            $data['clink'] = Pinyin::get($data['title'], self::$CONFIG['clink']);
         }
 
         if ($data['clink'] && Article::check($data['clink'], $data['id'], 'clink')) {
@@ -417,133 +442,78 @@ class ArticleAdmincp extends AdmincpCommon
         }
 
         if (empty($data['description']) && empty($data['url'])) {
-            if ($_POST['markdown']) {
-                $mdBody = PluginMarkdown::parser(implode('', $data['body']));
-                empty($mdBody) && $mdBody = $data['body'];
+            $body = self::getbody();
+            if ($data['markdown']) {
+                $mdBody = PluginMarkdown::parser(implode('', $body));
+                empty($mdBody) && $mdBody = $body;
                 $data['description'] = $this->autodesc($mdBody);
             } else {
-                $data['description'] = $this->autodesc($data['body']);
+                $data['description'] = $this->autodesc($body);
             }
         }
         FilesPic::values($data);
-        $data['picdata'] = FilesPic::data($data);
+        FilesPic::data($data, 'picdata');
         $data['haspic'] = empty($data['pic']) ? 0 : 1;
-        
 
-        $REFERER_URL = $_POST['REFERER'];
-        if (empty($REFERER_URL) || strstr($REFERER_URL, '=save')) {
-            $REFERER_URL = APP_URL . '&do=manage';
+        $REFERER_URL = Request::post('REFERER');
+        if (empty($REFERER_URL)) {
+            $REFERER_URL = Admincp::url('/article/index');
         }
-
-        $body = $data['body'];
-        unset($data['body']);
 
         if (empty($data['id'])) {
             $data['postime'] = time();
             $data['chapter'] = 0;
-            $data['mobile']  = 0;
-
-            $data['id']  = Article::create($data);
-
-            // if ($data['status'] && Config::get('plugin.baidu.sitemap.sync')) {
-            //     $msg = $this->do_baiduping($article_id, false);
-            // }
-
-            // if ($this->callback['return']) {
-            //     return $this->callback['return'];
-            // }
-            // if ($this->callback['save:return']) {
-            //     $this->callback['indexid'] = $article_id;
-            //     return $this->callback['save:return'];
-            // }
-            // if ($_GET['callback'] == 'json') {
-            //     echo self::success(array(
-            //         "code"    => '1001',
-            //         'indexid' => $article_id
-            //     ));
-            //     return;
-            // }
-
-            // if (isset($_GET['keyCode'])) {
-            //     self::success('文章保存成功', 'url:' . APP_URL . "&do=edit&id=" . $data['id']);
-            // }
+            $data['mobile'] = 0;
+            $data['id'] = Article::create($data);
         } else {
             is_null(Request::post('isChapter')) && $data['chapter'] = 0;
             unset($data['postime']);
             Article::update($data, $data['id']);
-
-            // $data['url'] or $this->article_data($body, $data);
-
-            // if ($this->callback['return']) {
-            //     return $this->callback['return'];
-            // }
-
-            // if ($this->callback['save:return']) {
-            //     $this->callback['indexid'] = $article_id;
-            //     return $this->callback['save:return'];
-            // }
-            // if (isset($_GET['keyCode'])) {
-            //     self::success('文章保存成功');
-            // }
-            // self::success('文章编辑完成<br />3秒后返回文章列表', 'url:' . $REFERER_URL);
         }
+        $this->save_data($data);
 
-        $this->article_data($body, $data);
-        $data['url'] = Route::get('article', array($data, $node))->href;
+        $data['url'] = Route::get('article', [$data, $node])->href;
 
-        self::saved($this, __METHOD__, $data);
-
-        $button = array(
-            array("text" => "查看", "target" => '_blank', "url" => $data['url'], "close" => false),
-            array("text" => "编辑", "url" => APP_URL . "&do=edit&id=" . $data['id']),
-            array("text" => "继续添加", "url" => APP_URL . "&do=add&cid=" . $data['cid']),
-            array("text" => "返回列表", "url" => $REFERER_URL),
-            array("text" => "网站首页", "url" => iCMS_URL, "target" => '_blank')
-        );
-        $time = 10;
+        $btn = [
+            ['text' => '查看', 'target' => '_blank', 'url' => $data['url'], 'close' => false],
+            ['text' => '编辑', 'url' => APP_URL . '/edit/id/' . $data['id']],
+            ['text' => '继续添加', 'url' => APP_URL . '/add/cid/' . $data['cid']],
+            ['text' => '返回列表', 'url' => $REFERER_URL],
+            ['text' => '网站首页', 'url' => iCMS_URL, 'target' => '_blank']
+        ];
+        $time = 3000;
         $onClose = ['url' => $REFERER_URL];
-        return ["data" => compact('button', 'time', 'onClose')];
-
-        // return self::success(compact('data', 'btns', 'time'), '保存成功', $REFERER_URL);
-
-        // if (isset($_GET['keyCode'])) {
-        //     self::success('文章保存成功', 'url:' . APP_URL . "&do=edit&id=" . $data['id']);
-        // }
-
-        // $moreBtn = array(
-        //     array("text" => "查看该文章", "target" => '_blank', "url" => $url, "close" => false),
-        //     array("text" => "编辑该文章", "url" => APP_URL . "&do=edit&id=" . $data['id']),
-        //     array("text" => "继续添加文章", "url" => APP_URL . "&do=add&cid=" . $data['cid']),
-        //     array("text" => "返回文章列表", "url" => $REFERER_URL),
-        //     array("text" => "查看网站首页", "url" => iCMS_URL, "target" => '_blank')
-        // );
-        // Script::$dialog['modal'] = true;
-        // Script::dialog('success:#:check:#:文章添加完成!<br />10秒后返回文章列表' . $msg, 'url:' . $REFERER_URL, 10, $moreBtn);
+        return ['data' => compact('btn', 'time', 'height', 'onClose')];
     }
-    public function do_delete($id = null)
+
+    public function deleting($ids = [])
     {
-        $id === null && $id = $this->id;
-        $this->remove($id);
-        return ['action' => 'delete', 'id' => $id];
+        if ($ids) {
+            foreach ($ids as $key => $id) {
+                $this->remove($id);
+            }
+        }
+        return true;
     }
+
     public function do_purge($id = null, $return = false)
     {
         $id === null && $id = $_GET['id'];
         $article = Article::get($id);
         // $node = NodeApp::node($article['cid'], false);
         $node = Node::get($article['cid']);
-        $iurl = (array) Route::get('article', array($article, $node));
+        $iurl = (array) Route::get('article', [$article, $node]);
 
         foreach ($iurl as $key => $value) {
             if (is_array($value) && isset($value['url'])) {
-                $url  = $value['url'];
-                $p    = parse_url($value['url']);
-                $url  = str_replace($p['host'], $p['host'] . '/~cc', $value['url']);
+                $url = $value['url'];
+                $p = parse_url($value['url']);
+                $url = str_replace($p['host'], $p['host'] . '/~cc', $value['url']);
                 $purl = str_replace($p['host'], $p['host'] . '/~cc', $value['pageurl']);
                 $msg[] = Http::purge($url);
                 $msg[] = Http::purge($url, true);
                 for ($i = 2; $i < 100; $i++) {
-                    $purl  = str_replace('{P}', $i, $purl);
+                    $purl = str_replace('{P}', $i, $purl);
                     $msg[] = Http::purge($purl);
                     $msg[] = Http::purge($purl, true);
                 }
@@ -551,59 +521,64 @@ class ArticleAdmincp extends AdmincpCommon
         }
         return $msg;
     }
+
     public static function remove($id, $uid = '0', $postype = '1')
     {
         $id = (int) $id;
-        $id or self::alert("请选择要删除的文章");
-        $uid && $where = array('userid' => $uid, 'postype' => $postype);
-        if (!AdmincpAccess::app('DELETE')) {
-            $where[] = array('userid', Member::$user_id);
+        $id or self::alert('请选择要删除的文章');
+        $uid && $where = ['userid' => $uid, 'postype' => $postype];
+        if (!AdmincpAuth::app('delete')) {
+            $where[] = ['userid', Admin::$user_id];
         }
         $art = Article::get($id, 'cid,pic,tags', $where);
-        NodeAccess::check($art['cid'], 'cd');
+        AdmincpAuth::node($art['cid'], 'cd');
         Article::delete($id);
         ArticleDataModel::delete($id);
-        return sprintf("ID[%s]文章删除", $id);
+        return sprintf('ID[%s]文章删除', $id);
     }
 
-    public function article_data($bodyArray, $data)
+    public function save_data(&$data)
     {
         $article_id = $data['id'];
         $haspic = $data['haspic'];
         $chapter = $data['chapter'];
 
         $isChapter = Request::post('isChapter');
-        $data_id   = Request::post('data_id');
-        is_array($data_id) && $data_id = array_filter($data_id);
+        $dataIdArr = Request::post('dataId');
+        $bodyArray = self::getbody();
 
-        $_data_id = ArticleDataModel::get_ids($article_id);
+        is_array($dataIdArr) && $dataIdArr = array_filter($dataIdArr);
+
+        $_dataIdArr = ArticleDataModel::getIds($article_id);
         $chapterIds = [];
         //章节模式
         if ($isChapter) {
-            $chapterIds   = (array)$data_id;
-            $chapterIds   = array_filter($chapterIds);
+            $chapterIds = (array)$dataIdArr;
+            $chapterIds = array_filter($chapterIds);
             $chapterTitle = Request::post('chapterTitle');
-            $chapter      = Request::post('chapterNum');
+            $chapter = Request::post('chapterNum');
             empty($chapter) && $chapter = count($bodyArray);
             foreach ($bodyArray as $idx => $body) {
                 if (is_array($body)) {
-                    $body['body'] && $this->body($body['body'], $body['subtitle'], $article_id, null, $haspic);
+                    $body['body'] && $artData = $this->body($body['body'], $body['subtitle'], $article_id, null, $haspic);
                 } else {
                     $artDataId = (int)$chapterIds[$idx];
                     $subtitle = $chapterTitle[$idx];
-                    $this->body($body, $subtitle, $article_id, $artDataId, $haspic);
+                    $artData = $this->body($body, $subtitle, $article_id, $artDataId, $haspic);
                 }
+                $data['article_data'][] = $artData;
             }
         } else {
-            $artDataId = $data_id[0];
+            $artDataId = $dataIdArr[0];
             $subtitle = Request::post('subtitle');
-            $body = implode(iPHP_PAGEBREAK.PHP_EOL.PHP_EOL, $bodyArray);
-            $artDataId = $this->body($body, $subtitle, $article_id, $artDataId, $haspic);
-            $chapterIds = [$artDataId];
+            $body = implode(iPHP_PAGEBREAK . PHP_EOL, $bodyArray);
+            $artData = $this->body($body, $subtitle, $article_id, $artDataId, $haspic);
+            $data['article_data'][] = $artData;
+            $chapterIds = [$artData['id']];
             $chapter = 0;
         }
-        if (is_array($_data_id)) {
-            $diff = array_diff_values($chapterIds, $_data_id);
+        if (is_array($_dataIdArr)) {
+            $diff = array_diff_values($chapterIds, $_dataIdArr);
             if ($diff['-']) { //删除章节
                 ArticleDataModel::delete($article_id, $diff['-'], 'id');
             }
@@ -611,38 +586,46 @@ class ArticleAdmincp extends AdmincpCommon
         Article::update(compact('chapter'), $article_id);
         // iPHP::callback(array("Spider", "callback"), array($this, $article_id, 'data'));
     }
+
+    public static function getbody()
+    {
+        if (isset($_POST['rs'])) {
+            $rs = $_POST['rs'];
+            $body = isset($rs['body']) ? $rs['body'] : '';
+        }
+        if ($_POST['body']) {
+            $body = $_POST['body'];
+        }
+        return (array)$body;
+    }
+
     public function body($body, $subtitle, $article_id = 0, $id = 0, &$haspic = 0)
     {
         // $body = preg_replace(array('/<script.+?<\/script>/is','/<form.+?<\/form>/is'),'',$body);
-
-        Request::post('dellink') && $body = preg_replace("/<a[^>].*?>(.*?)<\/a>/si", "\\1", $body);
-
-        if ($_POST['markdown']) {
-            $body = Security::escapeStr($body);
+        Request::post('dellink') && $body = preg_replace("/<a[^>].*?>(.*?)<\/a>/si", '\\1', $body);
+        if ($_POST['rs']['markdown']) {
+            // $body = Security::escapeStr($body);
         } else {
             Request::post('autoformat') && $body = autoformat($body);
-            // $this->config['autoformat'] && $body = autoformat($body);
+            // self::$CONFIG['autoformat'] && $body = autoformat($body);
         }
-        if ($this->config['emoji'] == 'unicode') {
-            $body = preg_replace('/\\\ud([8-9a-f][0-9a-z]{2})/i', '\\\\\ud$1', json_encode($body));
-            $body = json_decode($body);
-            $body = preg_replace('/\\\ud([8-9a-f][0-9a-z]{2})/i', '\\\\\ud$1', $body);
-        } elseif ($this->config['emoji'] == 'clean') {
-            $body = preg_replace('/\\\ud([8-9a-f][0-9a-z]{2})/i', '', json_encode($body));
-            $body = json_decode($body);
-        }
+
         $fields = ArticleDataModel::getFields($id);
-        $data   = compact($fields);
+        $data = compact($fields);
+        !isset($_POST['nofilter']) && iPHP::callback('Filter::run', [&$data, self::$CONFIG['filter']], E_USER_ERROR);
 
         if ($id) {
             ArticleDataModel::update($data, compact('id', 'article_id'));
         } else {
             $id = ArticleDataModel::create($data);
         }
+        $data['id'] = $id;
+        $data['article_id'] = $article_id;
         $this->remote($body, compact('id', 'article_id'));
 
-        return $id;
+        return $data;
     }
+
     public function remote($body, $where)
     {
         Request::post('noWatermark') && FilesMark::$enable = false;
@@ -663,10 +646,14 @@ class ArticleAdmincp extends AdmincpCommon
 
     public static function autodesc($body)
     {
-        $length = Config::get('article.descLen');
-        $$enable = Config::get('article.autodesc');
+        $length = Config::get('article.descLen')?:100;
+        $enable = Config::get('article.autodesc');
+        if (!$enable) {
+            return;
+        }
         return cutWords($body, $length, $enable);
     }
+
     public function setPic($picurl, $article_id, $field = 'pic')
     {
         if (is_array($picurl)) {
@@ -675,22 +662,28 @@ class ArticleAdmincp extends AdmincpCommon
             }
             return;
         }
-        if (stripos($picurl, iCMS_FS_HOST) !== false) {
+        if (stripos($picurl, iCMS_FILE_HOST) !== false) {
             $field == 'pic' && $haspic = 1;
 
-            $check  = Article::value($field, $article_id);
+            $check = Article::value($field, $article_id);
             if ($check) {
                 return;
             }
 
             $pic = FilesClient::getPath($picurl, '-http');
-            list($width, $height, $type, $attr) = @getimagesize(FilesClient::getRoot($pic));
-
-            $picdata  = Article::value('picdata', $article_id);
-            $picdata[$field] = ['w' => $width, 'h' => $height];
-            $data = compact('haspic', 'picdata');
-            $data[$field] = $pic;
-            Article::update($data, array('id' => $article_id));
+            $picroot = FilesClient::getRoot($pic);
+            if (file_exists($picroot)) {
+                list($width, $height, $type, $attr) = getimagesize($picroot);
+                $picdata = Article::value('picdata', $article_id);
+                $picdata[$field] = ['w' => $width, 'h' => $height];
+                $data = compact('haspic', 'picdata');
+                $data[$field] = $pic;
+                Article::update($data, ['id' => $article_id]);
+            }
         }
+    }
+    public function getDataIds($indexid)
+    {
+        return ArticleDataModel::getIds($indexid);
     }
 }

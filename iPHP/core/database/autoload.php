@@ -33,6 +33,14 @@ require_once __DIR__ .'/src/Connectors/SqlServerConnector.php';
 require_once __DIR__ .'/src/ConfigurationUrlParser.php';
 require_once __DIR__ .'/src/Manager.php';
 
+
+// if (version_compare(PHP_VERSION, '8.0', ">=")) {
+//     $Builder_Path = __DIR__ .'/src/Builder.php';
+// }else{
+//     $Builder_Path = __DIR__ .'/src/Builder7.php';
+// }
+// require_once $Builder_Path;
+require_once __DIR__ .'/src/ModelEntity.php';
 require_once __DIR__ .'/src/Builder.php';
 require_once __DIR__ .'/src/DB.php';
 

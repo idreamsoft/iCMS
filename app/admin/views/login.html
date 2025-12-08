@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="zh">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>iCMS Administrator's Control Panel</title>
+    <meta name="Copyright" content="iCMSdev.com" />
+    <meta name="author" content="iCMSdev" />
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="shortcut icon" href="/assets/img/favicon.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/assets/img/favicon-192x192.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/img/apple-touch-icon-180x180.png" />
+    <link rel="stylesheet" href="/assets/css/admincp.min.css?v=<?php echo time(); ?>" id="css-main" />
+    <script src="/assets/libs/require.js" data-main="/assets/js/init.min.js?v=<?php echo time(); ?>"></script>
+
+    <style>
+        :root {
+            --bg-gradient: linear-gradient(135deg, var(--icms-primary) 0%, #5fc3f7 50%, #a331ff 100%);
+            --text-gradient: linear-gradient(315deg, #a331ff 0%, #043df2 100%);
+            --glass-bg: rgba(255, 255, 255, 0.5);
+            --glass-border: rgba(203, 213, 224, 0.3);
+            --shadow-light: 0 8px 32px 0 rgba(74, 85, 104, 0.15);
+            --shadow-heavy: 0 20px 40px 0 rgba(74, 85, 104, 0.1);
+
+            --icms-primary: #2356d7;
+            --icms-secondary: #070707;
+            --icms-accent: #2356d7;
+            --icms-accent-light: #1996fb;
+            --btn-gradient: linear-gradient(45deg, var(--icms-accent), var(--icms-accent-light));
+            --text-primary: #2d3748;
+            --text-secondary: #4a5568;
+            --color-1: 0 100% 63%;
+            --color-2: 270 100% 63%;
+            --color-3: 210 100% 63%;
+            --color-4: 195 100% 63%;
+            --color-5: 90 100% 63%;
+        }
+
+        * {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            position: relative;
+            overflow: hidden;
+            background-image: var(--bg-gradient);
+        }
+
+        .login-container {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-evenly;
+            padding: 2rem;
+            position: relative;
+            z-index: 1;
+            gap: 0;
+        }
+
+        .login-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 10px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-heavy);
+            padding: 3rem;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            overflow: hidden;
+            animation: slideInFromRight 0.8s ease-out 0.2s both;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .login-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 25px 50px 0 rgba(74, 85, 104, 0.15);
+        }
+
+        .login-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        }
+
+        .logo-container {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .logo-container img {
+            max-width: 180px;
+            height: auto;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+        }
+
+        .welcome-text {
+            color: var(--text-secondary);
+            font-size: 3rem;
+            font-weight: 400;
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .form-control-modern {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(203, 213, 224, 0.5);
+            border-radius: 12px;
+            color: var(--text-primary);
+            font-size: 1rem;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(8px);
+            width: 100%;
+        }
+
+        .form-control-modern::placeholder {
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .form-control-modern:focus {
+            background: rgba(255, 255, 255, 1);
+            border-color: var(--icms-accent);
+            box-shadow: 0 0 0 3px rgba(129, 161, 193, 0.2);
+            outline: none;
+        }
+
+        .input-group-modern {
+            position: relative;
+            display: flex;
+        }
+
+        .input-group-modern .form-control-modern {
+            border-top-right-radius: 0;
+            border-bottom-right-radius: 0;
+        }
+
+        .captcha-container {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(203, 213, 224, 0.5);
+            border-left: none;
+            border-radius: 0 12px 12px 0;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(8px);
+        }
+
+        .captcha-img {
+            border-radius: 6px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .captcha-img:hover {
+            transform: scale(1.05);
+        }
+
+        .btn-login {
+            background: var(--btn-gradient);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            padding: 1rem 2rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(129, 161, 193, 0.3);
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-login::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(129, 161, 193, 0.4);
+            background: linear-gradient(135deg, var(--icms-accent-light) 0%, var(--icms-accent) 100%);
+        }
+
+        .btn-login:hover::before {
+            left: 100%;
+        }
+
+        .btn-login:active {
+            transform: translateY(0);
+        }
+
+        .footer-text {
+            text-align: center;
+            margin-top: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            line-height: 1.6;
+        }
+
+        .footer-text a {
+            color: var(--icms-accent);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-text a:hover {
+            color: var(--icms-accent-light);
+        }
+
+        .floating-shapes {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+        }
+
+        .shape {
+            position: absolute;
+            background: rgb(255 255 255 / 0.2);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .shape:nth-child(1) {
+            width: 80px;
+            height: 80px;
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+
+        .shape:nth-child(2) {
+            width: 120px;
+            height: 120px;
+            top: 60%;
+            right: 10%;
+            animation-delay: 2s;
+        }
+
+        .shape:nth-child(3) {
+            width: 60px;
+            height: 60px;
+            bottom: 20%;
+            left: 20%;
+            animation-delay: 4s;
+        }
+
+        .shape:nth-child(4) {
+            width: 90px;
+            height: 90px;
+            top: 30%;
+            right: 25%;
+            animation: floatAndFade 8s ease-in-out infinite;
+            animation-delay: 1s;
+        }
+
+        .shape:nth-child(5) {
+            width: 70px;
+            height: 70px;
+            top: 70%;
+            left: 50%;
+            animation: floatAndFade 10s ease-in-out infinite;
+            animation-delay: 3s;
+        }
+
+        .shape:nth-child(6) {
+            width: 100px;
+            height: 100px;
+            bottom: 40%;
+            right: 15%;
+            animation: floatAndFade 12s ease-in-out infinite;
+            animation-delay: 5s;
+        }
+
+        .shape:nth-child(7) {
+            width: 50px;
+            height: 50px;
+            top: 10%;
+            left: 60%;
+            animation: floatAndFade 9s ease-in-out infinite;
+            animation-delay: 7s;
+        }
+
+        .shape:nth-child(8) {
+            width: 110px;
+            height: 110px;
+            bottom: 10%;
+            left: 40%;
+            animation: floatAndFade 11s ease-in-out infinite;
+            animation-delay: 2s;
+        }
+
+        .welcome-card {
+            /* background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-radius: 24px;
+            border: 1px solid var(--glass-border);
+            box-shadow: var(--shadow-heavy); */
+            /* padding: 2.5rem; */
+            /* margin-bottom: 2rem; */
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            max-width: 600px;
+            width: 100%;
+            animation: slideInFromLeft 0.8s ease-out;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            height: 40vh;
+        }
+
+        .welcome-card:hover {
+            transform: translateY(-5px);
+            /* box-shadow: 0 25px 50px 0 rgba(74, 85, 104, 0.15); */
+        }
+
+        .welcome-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            /* background: linear-gradient(90deg, transparent, rgba(129, 161, 193, 0.4), transparent); */
+        }
+
+        .welcome-text {
+            font-size: clamp(1.5rem, 4vw, 3.5rem);
+            font-weight: 700;
+            margin-bottom: 1rem;
+            line-height: 1.2;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .text-clip {
+            background-clip: text;
+            background-image: var(--text-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        .rainbow::before{
+            content: '';
+            filter: blur(calc(.8* 1rem));
+            background-size: 200%;
+            background-image: linear-gradient(90deg, hsl(var(--color-1)), hsl(var(--color-5)), hsl(var(--color-3)), hsl(var(--color-4)), hsl(var(--color-2)));
+            animation: rainbow var(--speed,2s) infinite linear;
+            --tw-translate-x: -50%;
+            --tw-translate-y: 0;
+            --tw-rotate: 0;
+            --tw-skew-x: 0;
+            --tw-skew-y: 0;
+            --tw-scale-x: 1;
+            --tw-scale-y: 1;
+            --speed: 2s;
+            transform: translate(var(--tw-translate-x), var(--tw-translate-y)) rotate(var(--tw-rotate)) skewX(var(--tw-skew-x)) skewY(var(--tw-skew-y)) scaleX(var(--tw-scale-x)) scaleY(var(--tw-scale-y));
+            position: absolute;
+            bottom: -20%;
+            left: 50%;
+            height: 20%;
+            width: 100%;
+        }
+        .welcome-description {
+            color: rgb(255 255 255 / 60%);
+            font-size: clamp(0.9rem, 2.5vw, 1.5rem);
+            font-weight: 400;
+            line-height: 1.6;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .is-invalid {
+            border: 1px solid rgb(172 1 39 / 91%);
+            box-shadow: 0 0 0 3px rgb(253 0 0 / 20%);
+        }
+        @keyframes rainbow {
+            0% {
+                content: '';
+                background-position: 0
+            }
+
+            to {
+                content: '';
+                background-position: 200%
+            }
+        }
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+            }
+        }
+
+        @keyframes floatAndFade {
+            0% {
+                opacity: 0;
+                transform: translateY(0px) rotate(0deg) scale(0.5);
+            }
+
+            20% {
+                opacity: 0.8;
+                transform: translateY(-30px) rotate(90deg) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateY(-50px) rotate(180deg) scale(1.2);
+            }
+
+            80% {
+                opacity: 0.6;
+                transform: translateY(-30px) rotate(270deg) scale(0.8);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(0px) rotate(360deg) scale(0.3);
+            }
+        }
+
+        @keyframes slideInFromLeft {
+            0% {
+                opacity: 0;
+                transform: translateX(-50px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            0% {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInFromRight {
+            0% {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+
+            100% {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width:1024px) {
+            .login-container {
+                padding: 1rem;
+                gap: 1rem;
+                justify-content: center;
+            }
+
+            .welcome-card {
+                /* padding: 2rem; */
+                /* margin-bottom: 1rem; */
+                /* border-radius: 20px; */
+                height: auto;
+            }
+
+            /* 字体大小现在由clamp()函数自动调整，无需在媒体查询中设置 */
+
+            .login-card {
+                padding: 2rem;
+                margin: 0;
+                border-radius: 10px;
+            }
+
+            .logo-container img {
+                max-width: 150px;
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .login-container {
+                flex-direction: row;
+                /* gap: 3rem; */
+                align-items: center;
+                padding-top: 0;
+                min-height: 100vh;
+            }
+
+            .welcome-card {
+                margin-bottom: 0;
+                margin-right: 0;
+            }
+        }
+    </style>
+    <script type="text/javascript">
+        const $APP = {
+            init: true,
+            bootstrap: "admincp",
+            SCRIPT_NAME: "<?php echo ADMINCP_URL; ?>",
+            CSRF_TOKEN: '<?php echo Security::$CSRF_TOKEN; ?>',
+            url: "<?php echo Admincp::url('admin'); ?>",
+            do: "login",
+            method: "do_login",
+            name: "admin",
+            lang: "<?php echo Admincp::$LANGUAGE; ?>",
+            jspath: "<?php echo Admincp::url('admin/assets/js/login.js'); ?>",
+            jsdebug: "<?php echo iPHP_JS_DEBUG; ?>",
+            gitTime: "<?php echo iCMS_GIT_TIME; ?>",
+            release: "<?php echo md5(iCMS_RELEASE); ?>",
+        };
+    </script>
+</head>
+
+<body id="page-container">
+    <div class="floating-shapes">
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+        <div class="shape"></div>
+    </div>
+
+    <div class="login-container">
+        <div class="welcome-card">
+            <div class="welcome-text text-clip">
+                <?=Lang('admincp:login:welcome'); ?>
+            </div>
+            <div class="welcome-description ">
+                <?=Lang('admincp:login:description'); ?>
+            </div>
+        </div>
+        <div class="login-card">
+            <div class="logo-container">
+                <img src="/assets/img/iCMS.png" alt="iCMS Logo" />
+            </div>
+
+            <form action="<?php echo Admincp::url('admin/login'); ?>" method="POST">
+                <input type="hidden" name="CSRF_TOKEN" value="<?php echo Security::$CSRF_TOKEN;?>" />
+
+                <div class="form-group">
+                    <input type="text" class="form-control-modern" id="iAccount" name="iAccount" placeholder="<?=Lang('auth:enter_account'); ?>" data-rule="required,minlength:5" autocomplete="username" />
+                </div>
+
+                <div class="form-group">
+                    <input type="password" class="form-control-modern" id="iPassWord" name="iPassWord" placeholder="<?=Lang('auth:enter_password'); ?>" data-rule="required,minlength:6" autocomplete="current-password" />
+                </div>
+
+                <div class="form-group">
+                    <div class="input-group-modern">
+                        <input type="text" class="form-control-modern" id="captcha" name="captcha" placeholder="<?=Lang('auth:enter_captcha'); ?>" maxlength="4" data-wrap=".form-group" data-rule="required" autocomplete="off" />
+                        <div class="captcha-container">
+                            <img src="<?php echo Admincp::url('admin/captcha'); ?>" alt="<?=Lang('auth:captcha'); ?>" class="captcha-img" i="cms:ui:captcha" title="点击刷新验证码" />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <button type="submit" class="btn-login">
+                        <i class="fa fa-fw fa-sign-in-alt me-2"></i>
+                        <?=Lang('Login'); ?>
+                    </button>
+                </div>
+            </form>
+
+            <div class="footer-text">
+                <strong>
+                    <a href="https://www.icmsdev.com/v8/" target="_blank">
+                        <?php echo iPHP_APP ?> V8
+                    </a>
+                </strong> &copy;
+                <a href="https://www.icmsdev.com" target="_blank">
+                    iCMSDEV.COM
+                </a>
+                2008 - <?php echo date("Y") ?>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

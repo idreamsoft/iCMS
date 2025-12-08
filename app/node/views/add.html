@@ -1,0 +1,187 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block" data-toggle="tabs" role="tablist">
+            <li class="nav-item"><a class="nav-link active" href="#node-add-base"><i class="fa fa-fw fa-info-circle"></i> 基本信息</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-add-url"><i class="fa fa-fw fa-link"></i> 模式设置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-add-route"><i class="fa fa-fw fa-columns"></i> 路由&模版</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-extend"><i class="fa fa-fw fa-cog"></i> 配置</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-former"><i class="fa fa-fw fa-wrench"></i> 自定义</a></li>
+            <li class="nav-item"><a class="nav-link" href="#apps-meta"><i class="fa fa-fw fa-sitemap"></i> 动态属性</a></li>
+            <li class="nav-item"><a class="nav-link" href="#node-attr"><i class="fa fa-fw fa-sitemap"></i> 内容属性</a></li>
+        </ul>
+        <div class="block-content">
+            <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                <input name="rs[id]" type="hidden" value="<?php echo $rs['id']; ?>" />
+                <div id="node-add" class="tab-content">
+                    <div id="node-add-base" class="tab-pane active" role="tabpanel">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="cid">上级<?php echo $this->NODE_NAME; ?></label>
+                            <div class="col-sm-8">
+                                <input name="rs[rootid]" 
+                                data-url="/node/selectpage/access/a" 
+                                data-node-root="true" 
+                                data-node-name="<?php echo $this->NODE_NAME; ?>"
+                                data-node-appid="<?php echo Node::$APPID; ?>"
+                                id="rootid" 
+                                class="form-control" i="cms:ui:node" placeholder="请选择所属栏目..." value="<?php echo $rootid; ?>">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="pid">属 性</label>
+                            <div class="col-sm-8">
+                                <input name="rs[pid]" class="form-control" i="cms:ui:prop" data-source="/node/prop/pid" multiple="multiple" value="<?php echo $rs['pid']; ?>">
+                            </div>
+                        </div>
+
+                        <?php if (empty(Node::$APPID)) { ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="appid">所属应用</label>
+                            <div class="col-sm-8">
+                                <input name="rs[appid]" id="appid" class="form-control" i="cms:ui:selectpage" data-source="/apps/selectpage" data-search="app,title" placeholder="请选择<?php echo $this->NODE_NAME; ?>所属应用..." value="<?php echo $rs['appid']; ?>">
+                            </div>
+                        </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="name"><?php echo $this->NODE_NAME; ?>名称</label>
+                            <div class="col-sm-8">
+                                <?php if (empty($this->id)) { ?>
+                                <textarea name="rs[name]" data-rule="required" id="name" class="form-control" style="height: 150px;"><?php echo $rs['name']; ?></textarea>
+                                <small class="form-text text-muted">可批量添加<?php echo $this->NODE_NAME; ?>,每行一个</small>
+                                <?php } else { ?>
+                                <input name="rs[name]" data-rule="required" id="name" class="form-control" type="text" value="<?php echo $rs['name']; ?>" />
+                                <?php } ?>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="subname"><?php echo $this->NODE_NAME; ?>别名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[subname]" class="form-control" id="subname" value="<?php echo $rs['subname']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="dir"><?php echo $this->NODE_NAME; ?>目录</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rs[dir]" class="form-control" id="dir" value="<?php echo $rs['dir']; ?>" />
+                                    <div class="input-group-text">{CDIR}</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="pic">封面</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[pic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-browse="true" data-preview="true" value="<?php echo $rs['pic']; ?>" />
+                            </div>
+                        </div>
+
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="title">SEO 标题</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[title]" class="form-control" id="title" value="<?php echo $rs['title']; ?>" />
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="keywords">关 键 字</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[keywords]" class="form-control" id="keywords" value="<?php echo $rs['keywords']; ?>" onkeyup="javascript:this.value=this.value.replace(/，/ig,',');" />
+                            </div>
+                        </div>
+                        <div class="form-group row" style="width:100%;">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="description"><?php echo $this->NODE_NAME; ?>简介</label>
+                            <div class="col-sm-8">
+                                <textarea name="rs[description]" id="description" class="form-control" style="height: 150px;width:600;"><?php echo $rs['description']; ?></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="url">外部链接</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[url]" class="form-control" id="url" value="<?php echo $rs['url']; ?>" />
+                                <small class="form-text text-muted"><span class="label label-important">外部链接设置后所有项目无效,此<?php echo $this->NODE_NAME; ?>仅为一个链接.不设置请留空</small></span>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="sortnum"><?php echo $this->NODE_NAME; ?>排序</label>
+                            <div class="col-sm-8">
+                                <input id="sortnum" class="form-control" value="<?php echo $rs['sortnum']; ?>" name="rs[sortnum]" type="text" />
+                            </div>
+                        </div>
+                        <?php if ($rs['userid'] && $rs['userid'] == Admin::$user_id) { ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="creator">创建者</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rs[userid]" class="form-control" i="cms:ui:selectpage" data-source="/admin/selectpage" data-show="nickname" data-text-name="rs[creator]" id="userid" value="<?php echo $rs['userid'] ? $rs['userid'] : Admin::$user_id; ?>" />
+                                </div>
+                            </div>
+                        </div>
+                        <?php } ?>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="password">访问口令</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[password]" class="form-control" id="password" value="<?php echo $rs['password']; ?>" />
+                                <small class="form-text text-muted">设置后需要输入正确口令才能访问该栏目及栏目下内容</small>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="status"><?php echo $this->NODE_NAME; ?>状态</label>
+                            <div class="col-sm-8">
+                                <input data-source='statusMap' data-field="status" class="form-control" i="cms:ui:bs-selectpicker" name="rs[status]" value="<?php echo $rs['status']; ?>">
+                            </div>
+                        </div>
+                    </div>
+                    <div id="node-add-url" class="tab-pane" role="tabpanel">
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="mode">访问模式</label>
+                            <div class="col-sm-8">
+                                <select name="rs[mode]" value="<?php echo $rs['mode']; ?>" id="mode" i="cms:ui:selectpicker">
+                                    <option value="0">动态</option>
+                                    <option value="1">静态</option>
+                                    <option value="2">伪静态(推荐)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="domain">绑定域名</label>
+                            <div class="col-sm-8">
+                                <input type="text" name="rs[domain]" class="form-control" id="domain" value="<?php echo $rs['domain']; ?>" />
+                                <small class="form-text text-muted">例 https://test.icmsdev.com</small>
+                            </div>
+                        </div>
+                        <div class="form-group row" v-show="mode!='0'">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="htmlext">URL后缀</label>
+                            <div class="col-sm-8">
+                                <div class="input-group">
+                                    <input type="text" name="rs[htmlext]" class="form-control" id="htmlext" value="<?php echo $rs['htmlext']; ?>" />
+                                    <div class="input-group-text">{EXT}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div id="node-add-route" class="tab-pane" role="tabpanel">
+                        <?php $s = array(
+                            "rule" => true,"rule_name"=>'rs[rule]', 
+                            "tpl" => true,"tpl_name"=>'rs[template]'
+                        ); ?>
+                        <?php include self::view('route/base', $this->VIEW_DIR); ?>
+                    </div>
+                    <div id="apps-extend" class="tab-pane" role="tabpanel">
+                        <?php AppsWidget::extend($rs); ?>
+                    </div>
+                    <div id="apps-former" class="tab-pane" role="tabpanel">
+                        <?php Former::admincp($rs,'node')->render(); ?>
+                    </div>
+                    <div id="apps-meta" class="tab-pane" role="tabpanel">
+                        <?php AppsWidget::metadata($rs['id'],iCMS_APP_NODE); ?>
+                    </div>
+                    <div id="node-attr" class="tab-pane" role="tabpanel">
+                        <?php AppsWidget::attribute($rs['config']['attribute'],'attribute'); ?>
+                    </div>
+                    <?php self::form()->submit(); ?>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

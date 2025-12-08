@@ -1,0 +1,15 @@
+<div batch="scid">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bscid">副栏目</label>
+        <input name="BatchData[scid]" id="bscid" class="form-control" i="cms:ui:node" data-max="5" multiple="multiple" placeholder="请选择副栏目(可多选)..." value="">
+    </div>
+</div>
+<div batch="postype">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bpostype">发布类型</label>
+        <input name="BatchData[postype]" id="bpostype" type="text" data-source='postypeMap' class="form-control" i="cms:ui:selectpicker" value="">
+    </div>
+</div>
+<div batch="meta">
+    <?php AppsWidget::metadata(0); ?>
+</div>

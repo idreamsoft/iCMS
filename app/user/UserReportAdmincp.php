@@ -9,30 +9,41 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 defined('iPHP') or exit('What are you doing?');
-
-class UserReportAdmincp extends AdmincpBase
+/**
+ * 用户举报
+ */
+class UserReportAdmincp extends AdmincpCommon
 {
-    public $ACCESC_TITLE = '用户举报';
-
-    public function __construct()
+    public static $orderBy = [
+        'id'    => "ID",
+        'create_time' => "时间",
+    ];
+    public function do_detail()
     {
-        parent::__construct();
+        $rs = UserReportModel::get($this->id);
+        $reason = UserReport::getReason();
+        $rs['reason_text'] = $reason[$rs['reason']];
+        $fields = UserReportModel::fullFields();
+        include self::view();
     }
-
-    public function do_manage()
+    public function do_index()
     {
-        $reasonArray = UserReport::getReason();
+        if (Request::isAjax()) {
+            return $this->index();
+        }
+        include self::view();
+    }
+    public function index()
+    {
         $keywords = Request::get('keywords');
         $keywords && $where['content'] = array('like', "%{$keywords}%");
-
-        $orderby = self::setOrderBy(array(
-            'id'    => "ID",
-            'create_time' => "时间",
-        ));
-
-        $result = UserReportModel::where($where)
-            ->orderBy($orderby)
-            ->paging();
-        include self::view("report.manage");
+        return  self::tableData(['where' => $where], function ($rows) {
+            $reason = UserReport::getReason();
+            $rows = array_map(function ($row) use ($reason) {
+                $row['reason_text'] = $reason[$row['reason']];
+                return $row;
+            }, $rows);
+            return $rows;
+        });
     }
 }

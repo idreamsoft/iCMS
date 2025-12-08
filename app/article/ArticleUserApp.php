@@ -10,33 +10,28 @@
  */
 class ArticleUserApp extends UserContentApp
 {
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
-    public function API_manage()
+    public function api_manage()
     {
         return $this->display();
     }
-    public function API_publish()
-    {
-        $id = Request::get('id');
-        if ($id) {
-            $id && list($article, $data, $articleData) = Article::data($id, null, User::$id);
-        }
 
-        $isMarkdown = (int)(iCMS::$config['article']['markdown'] || $article['markdown']);
+    public function api_publish()
+    {
+        $config = User::$config['post'];
+        $id = (int)Request::get('id');
+        $id && list($article, $data, $articleData) = Article::data($id, null, User::$id);
+        $isMarkdown = (int)($config['markdown'] || iCMS::$config['article']['markdown'] || $article['markdown']);
         $once = time();
         $sign = Utils::sign(compact('isMarkdown', 'id', 'once'));
 
         if (is_array($articleData['bodyArray'])) {
-            $articleData['body'] = implode(iPHP_PAGEBREAK.PHP_EOL.PHP_EOL, $articleData['bodyArray']);
+            $articleData['body'] = implode(iPHP_PAGEBREAK . PHP_EOL . PHP_EOL, $articleData['bodyArray']);
         }
-        if(!$isMarkdown){//ueditor
-            $articleData['body'] = htmlspecialchars($articleData['body']);
+        if (!$isMarkdown) {//ueditor
+            $articleData['body'] && $articleData['body'] = htmlspecialchars($articleData['body']);
         }
 
+        View::assign('editor', $config['editor'] ?: iCMS::$config['article']['editor']);
         View::assign('sign', $sign);
         View::assign('once', $once);
         View::assign('isMarkdown', $isMarkdown);
@@ -45,53 +40,56 @@ class ArticleUserApp extends UserContentApp
         View::assign('articleData', $articleData);
         return $this->display();
     }
-    public function do_delete()
-    {
-        $id = (int) Request::post('id');
-        $where = ['id' => $id, 'userid' => User::$id];
 
-        DB::beginTransaction();
-        try {
-            Article::update(['status' => 2], $where);
-            DB::commit();
-        } catch (\sException $ex) {
-            DB::rollBack();
-            $msg = $ex->getMessage();
-            iJson::error($msg);
-        }
-        iJson::success();
-    }
-    public function ACTION_save()
+    /**
+     * 删除文章
+     *
+     * @return void
+     */
+    public function api_delete()
     {
-        if (User::$config['post']['captcha']) {
-            // Captcha::check() or iJson::error('iCMS:captcha:error');
+        // if ($id_hash = Request::post('id')) {
+        //     $id = Crypt::decrypt($id_hash);
+        // }
+        // $id or AppsBase::alert('errors:cryptId');
+        $id = (int)Request::post('id');
+        $id or AppsBase::alert('errors:empty:id');
+        $where = ['id' => $id, 'userid' => User::$id];
+        return (bool)Article::update(['status' => 2], $where);
+    }
+
+    public function done_save()
+    {
+        $config = User::$config['post'];
+        if ($config['captcha']) {
+            Captcha::check();
         }
-        if (User::$config['post']['interval']) {
+        if ($config['interval']) {
             $last_postime = ArticleModel::where(['userid' => User::$id])->max('postime');
-            if ($_SERVER['REQUEST_TIME'] - $last_postime < User::$config['post']['interval']) {
-                iJson::error('user:publish:interval');
+            if ((int)$_SERVER['REQUEST_TIME'] - (int)$last_postime < (int)$config['interval']) {
+                AppsBase::alert('user:publish:interval');
             }
         }
         $data = Request::post();
 
         $isMarkdown = (int) $data['isMarkdown'];
-        $sign = Utils::sign(array(
+        $sign = Utils::sign([
             'isMarkdown' => $isMarkdown,
-            'id' => (int) $data['id'],
-            'once' => $data['once']
-        ));
+            'id'         => (int) $data['id'],
+            'once'       => $data['once']
+        ]);
         if ($sign != $data['sign']) {
-            iJson::error('iCMS:sign:error');
+            iJson::error('errors:sign');
         }
-        $data = array_filter_keys($data, 'id,cid,title,body,source,author,pic,tags,description');
+        $data = array_filter_keys($data, 'id,cid,ucid,title,body,source,author,pic,tags,description');
         $data['markdown'] = $isMarkdown;
 
         if ($isMarkdown) {
             $body = $data['body'];
         } else {
-            $body = Vendor::run('CleanHtml', array($_POST['body']));
+            $body = Vendor::run('CleanHtml', [$_POST['body']]);
         }
- 
+
         $data['userid'] = User::$id;
         $data['author'] or $data['author'] = User::$nickname;
         $data['editor'] = User::$nickname;
@@ -100,57 +98,47 @@ class ArticleUserApp extends UserContentApp
         empty($data['cid']) && iJson::error('user:publish:empty:cid');
         empty($body) && iJson::error('user:publish:empty:body');
         if ($data['pic']) {
-            $tmparray = array("\0", "%00", '..');
+            $tmparray = ["\0", '%00', '..'];
             if (str_replace($tmparray, '', $data['pic']) != $data['pic']) {
-                iJson::error('iCMS:file:invaild');
+                iJson::error('errors:invalid_file');
             }
-            FilesClient::checkExt($data['pic']) or iJson::error('iCMS:file:failure');
+            FilesClient::checkExt($data['pic']) or iJson::error('errors:illegal_file_type');
         }
         array_walk_recursive($data, function (&$value, $key) {
-            $fwd = iPHP::callback('Filter::run', array(&$value), false);
+            $fwd = iPHP::callback('Filter::run', [&$value], false);
             $fwd && iJson::error('user:publish:filter_' . $key);
         });
 
         $data['pubdate'] = time();
-        $data['postype'] = "0";
+        $data['postype'] = '0';
 
         $node = NodeCache::getId($data['cid']);
         $roleArray = $node['config']['role'];
-        $data['status'] = UserCP::checkRole($roleArray['examine']) ? 3 : 1;
+        $data['status'] = UserCenter::checkRole($roleArray['examine']) ? 3 : 1;
 
-
-        DB::beginTransaction();
-        try {
-            if ($data['id']) {
-                Article::update(
-                    $data,
-                    array('id' => $data['id'], 'userid' => User::$id)
-                );
-                ArticleDataModel::update(
-                    array('body' => $body),
-                    array('article_id' => $data['id'])
-                );
-            } else {
-                $data['postime'] = time();
-                $data['id'] = Article::create($data);
-                ArticleDataModel::create(array(
-                    'article_id' => $data['id'],
-                    'body' => $body
-                ));
-            }
-            DB::commit();
-        } catch (\sException $ex) {
-            DB::rollBack();
-            $msg = $ex->getMessage();
-            iJson::error($msg);
+        if ($data['id']) {
+            Article::update(
+                $data,
+                ['id' => $data['id'], 'userid' => User::$id]
+            );
+            ArticleDataModel::update(
+                ['body' => $body],
+                ['article_id' => $data['id']]
+            );
+        } else {
+            $data['postime'] = time();
+            $data['id'] = Article::create($data);
+            ArticleDataModel::create([
+                'article_id' => $data['id'],
+                'body'       => $body
+            ]);
         }
-        $lang = array(
+
+        $msgMap = [
             '1' => 'user:publish:success',
             '3' => 'user:publish:examine',
-        );
-        // $url = Route::routing('ArticleUser:publish');
-        // $url = Route::make(['id'=>$data['id']],$url);
-        $url = Route::routing('ArticleUser/manage');
-        iJson::success($lang[$data['status']]);
+        ];
+        $url = Route::create('ArticleUser/manage');
+        return [true, $msgMap[$data['status']], $url];
     }
 }

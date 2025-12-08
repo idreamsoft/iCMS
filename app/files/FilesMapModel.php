@@ -45,7 +45,7 @@ class FilesMapModel extends Model
     //     $content = stripslashes($content);
     //     $array   = FilesPic::findImg($content, $match);
     //     foreach ($array as $key => $value) {
-    //         if (stripos($value, iCMS_FS_HOST) === false) {
+    //         if (stripos($value, iCMS_FILE_HOST) === false) {
     //             continue;
     //         }
     //         self::set($appid, $indexid, $value, 'path');

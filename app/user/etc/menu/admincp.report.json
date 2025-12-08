@@ -1,11 +1,17 @@
-[{
-    "id": "assist",
-    "children": [
-        {
-            "caption": "举报管理",
-            "href": "UserReport&do=manage",
-            "sort": "9999999",
-            "icon": "flag"
-        }
-    ]
-}]
+[
+    {
+        "id": "members",
+        "children": [
+            {
+                "id": "users",
+                "children": [
+                    {
+                        "caption": "举报管理",
+                        "icon": "link",
+                        "href": "/UserReport/index"
+                    }
+                ]
+            }
+        ]
+    }
+]

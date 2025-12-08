@@ -1,0 +1,153 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+    <div class="content" id="{{APP_MAINID}}">
+
+        <div class="block block-rounded block-mode-hidden000">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">搜索</h3>
+                <div class="block-options">
+                    <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                </div>
+            </div>
+            <div class="block-content block-content-full">
+                <form action="{{APP_DOURL}}" method="get" class="table-search">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="status">状态</label>
+                                <input type="text" data-source='statusMap' class="form-control" i="cms:ui:selectpicker" name="status" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="postype">类型</label>
+                                <input type="text" data-source='postypeMap' class="form-control" i="cms:ui:selectpicker" name="postype" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="pid">属性</label>
+                                <input type="text" data-source="./prop/pid" class="form-control" i="cms:ui:selectpicker" name="pid" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="cid">栏目</label>
+                                <input type="text" class="form-control" 
+                                i="cms:ui:node" 
+                                data-node-access="cm"
+                                data-node-appid="<?php echo self::$APPID;?>" 
+                                name="cid" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <div class="input-group-text">
+                                    <input type="checkbox" class="form-check-input" name="scid" value="1">
+                                    <label class="form-check-label" for="scid">副栏目</label>
+                                </div>
+                                <div class="input-group-text">
+                                    <input type="checkbox" class="form-check-input" name="sub" value="1">
+                                    <label class="form-check-label" for="sub">子栏目</label>
+                                </div>
+                                <div class="input-group-text">
+                                    <input type="checkbox" class="form-check-input" name="hidden" value="1">
+                                    <label class="form-check-label" for="hidden">隐藏栏目</label>
+                                </div>
+                                <div class="input-group-text">
+                                    <input type="checkbox" class="form-check-input" name="pic" value="1">
+                                    <label class="form-check-label" for="pic">缩略图</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">发布时间</span>
+                                <input type="text" class="form-control" i="cms:ui:daterangepicker" name="pubdate" value="<?php echo $_GET['starttime']; ?>" placeholder="开始时间 - 结束时间" />
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <span class="input-group-text">添加时间</span>
+                                <input type="text" class="form-control" i="cms:ui:datepicker" name="post_starttime" value="" placeholder="开始时间" />
+                                <span class="input-group-text">-</span>
+                                <input type="text" class="form-control" i="cms:ui:datepicker" name="post_endtime" value="" placeholder="结束时间" />
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="orderby">排序</label>
+                                <select data-source='./orderby' class="form-control" i="cms:ui:bs-selectpicker" name="orderby">
+                                    <option value="">默认排序</option>
+                                </select>
+                                <label class="input-group-text" for="pageSize">每页</label>
+                                <input class="form-control" style="max-width:56px ;" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                                <label class="input-group-text" for="pageSize">条记录</label>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-4 mt-1">
+                            <div class="input-group input-group-sm">
+                                <label class="input-group-text" for="st">查找方式</label>
+                                <select name="st" class="form-control">
+                                <option value="title" selected>标题</option>
+                                <option value="tag">标签</option>
+                                <option value="source">出处</option>
+                                <option value="clink">自定义链接</option>
+                                <option value="id">ID</option>
+                                <option value="weight">置顶权重</option>
+                                <option value="tkd">标题/关键字/简介</option>
+                                <option value="pic">缩略图</option>
+                            </select>
+                                <label class="input-group-text" for="keywords">关键字</label>
+                                <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                            </div>
+                        </div>
+                        <div class="col-sm-12 d-flex justify-content-end mt-2">
+                            <button class="btn btn-sm btn-alt-primary table-btn-search me-2" type="submit"><i
+                                class="fa fa-fw fa-search"></i> 搜 索</button>
+                            <button class="btn btn-sm btn-alt-secondary table-btn-reset" type="reset"><i
+                                class="fa fa-fw fa-repeat"></i> 重 置</button>
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+        <div class="block">
+            <div class="block-content p-0">
+                <div id="toolbar" class="toolbar row">
+                    <div class="input-group input-group-sm" role="group">
+                        <a href="{{./add}}" id="add" class="btn btn-alt-primary">
+                            <i class="fa fa-fw fa-add"></i> {{#Lang('Add')}}
+                        </a>
+                        <a href="{{./edit}}" id="edit" class="btn btn-alt-primary table-btn-edit disabled" disabled>
+                            <i class="fa fa-fw fa-edit"></i> {{#Lang('Edit')}}
+                        </a>
+                        <a href="{{./delete}}" id="delete" class="btn btn-alt-primary table-btn-delete disabled" disabled>
+                            <i class="fa fa-fw fa-trash"></i> {{#Lang('Delete')}}
+                        </a>
+                        <?php AdmincpBatch::group(); ?>
+                    </div>
+                </div>
+
+                <table id="table" width="100%" data-operate-detail="false">
+                </table>
+
+            </div>
+        </div>
+
+    </div>
+
+    <?php self::foot(); ?>

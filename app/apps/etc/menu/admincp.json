@@ -1,39 +1,47 @@
 [{
-    "id": "system",
-    "children": [{
-        "id": "apps",
-        "caption": "应用管理",
-        "icon": "cubes",
-        "sort": "0",
+        "id": "settings",
         "children": [{
+            "id": "apps",
             "caption": "应用管理",
-            "href": "apps",
-            "icon": "cubes"
-        }, {
-            "caption": "添加应用",
-            "href": "apps&do=add",
-            "icon": "plus-square"
-        }, {
-            "caption": "-"
-        }, {
-            "caption": "应用路由",
-            "href": "apps&do=route",
-            "icon": "bezier-curve"
-        }, {
-            "caption": "字段钩子",
-            "href": "apps&do=hooks",
-            "icon": "puzzle-piece"
+            "icon": "cubes",
+            "sort": "0",
+            "children": [{
+                    "caption": "应用管理",
+                    "href": "/apps/index",
+                    "icon": "cubes"
+                },
+                {
+                    "caption": "添加应用",
+                    "href": "/apps/add",
+                    "icon": "plus-square"
+                },
+                {
+                    "caption": "-"
+                },
+                {
+                    "caption": "应用路由",
+                    "href": "/apps/route",
+                    "icon": "bezier-curve",
+                    "show":false 
+                },
+                {
+                    "caption": "字段钩子",
+                    "href": "/appsHooks/index",
+                    "icon": "puzzle-piece"
+                }
+            ]
         }]
-    }]
-}, {
-    "id": "tools",
-    "children": [{
-        "id": "cache",
+    },
+    {
+        "id": "tools",
         "children": [{
-            "caption": "更新应用缓存",
-            "href": "apps&do=cache",
-            "icon": "sync",
-            "target": "iPHP_FRAME"
+            "id": "cache",
+            "children": [{
+                "caption": "更新应用缓存",
+                "href": "/apps/cache",
+                "icon": "sync",
+                "ui": "cms:ui:ajax"
+            }]
         }]
-    }]
-}]
+    }
+]

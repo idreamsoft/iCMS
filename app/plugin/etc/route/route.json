@@ -1,0 +1,3 @@
+{
+    "plugin/email/verify": "app=plugin&do=email&s=verify"
+}

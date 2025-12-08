@@ -1,0 +1,67 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="{{APP_DOURL}}" method="get" class="table-search">
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="cid">栏目</label>
+                            <input type="text" class="form-control" i="cms:ui:node" data-node-access="cm" name="cid" value="">
+                            <div class="input-group-text">
+                                <input type="checkbox" class="form-check-input" name="sub" value="1">
+                                <label class="form-check-label" for="sub">子栏目</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="pid">采集方案</label>
+                            <input type="text" data-source='/spiderProject/selectpage' class="form-control" i="cms:ui:selectpicker" name="pid" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="rid">采集规则</label>
+                            <input type="text" data-source='/spiderRule/selectpage' class="form-control" i="cms:ui:selectpicker" name="rid" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="orderby">时间</label>
+                            <input type="text" name="days" id="days" class="form-control" value="<?php echo $_GET['days'] ? $_GET['days'] : 7; ?>" />
+                            <div class="input-group-text">天内</div>
+                        </div>
+                    </div>
+                </div>
+                <?php AdmincpForm::tableSearchDefault(); ?>
+            </form>
+        </div>
+    </div>
+    <div class="block">
+        <div class="block-header">
+            <h3 class="block-title">错误信息</h3>
+            <div class="block-options" id="buttonsToolbar"></div>
+        </div>
+        <div class="block-content p-0">
+            <table id="table" width="100%"></table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

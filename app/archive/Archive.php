@@ -32,7 +32,6 @@ class Archive
         if (empty($result['porp_id']) && isset($data['pid'])) {
             $result['porp_id'] = $data['pid'];
         }
-
         $fullFields = ArchiveModel::fullFields();
         $keys = array_keys($fullFields);
         foreach ($keys as $idx => $key) {
@@ -41,6 +40,7 @@ class Archive
         unset($result['id']);
         return $where;
     }
+
     // public static function updated($appId, $id, $data)
     // {
     //     $where = self::data($result, $appId, $id, $data);
@@ -51,19 +51,23 @@ class Archive
     //     $where = self::data($result, $appId, $id, $data);
     //     ArchiveModel::create($result, $where, true);
     // }
-    public static function update($appId, $id, $data){
+    public static function update($appId, $id, $data)
+    {
+        return;
         $where = self::data($result, $appId, $id, $data);
         foreach ($result as $key => $value) {
-            if(is_array($value) && $value[0]=='-'){
-                $where[$key] = ['>',0];
+            if (is_array($value) && $value[0] == '-') {
+                $where[$key] = ['>', 0];
             }
         }
         ArchiveModel::update($result, $where);
     }
+
     public static function save($appId, $id, $data, $apps = null)
-    {   
+    {
+        return;
         $where = self::data($result, $appId, $id, $data);
-        $model =  new ArchiveModel;
+        $model = new ArchiveModel();
         $pk = $model->getPrimaryKey();
         $check = $model->field($pk)->where($where)->value();
         if ($check) {
@@ -77,8 +81,10 @@ class Archive
             $flag = $model->create($result, true);
         }
     }
+
     public static function delete($appId, $id)
     {
+        return;
         $where['appid'] = (int)$appId;
         $where['index_id'] = (int)$id;
         ArchiveModel::delete($where);

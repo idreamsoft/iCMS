@@ -12,4 +12,5 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserOpenidModel extends Model
 {
+
 }

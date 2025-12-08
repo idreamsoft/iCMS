@@ -10,13 +10,13 @@
  */
 class Prop
 {
-    const APP = 'plugin';
+    const APP = 'Prop';
     const APPID = iCMS_APP_PLUGIN;
 
+    const PREFIX = "prop";
     public static $sapp   = null;
     public static $field = null;
     public static $DATA = array();
-    public static $statusMap = array('禁用', '启用');
 
     public static function app($app)
     {
@@ -40,27 +40,44 @@ class Prop
         // prop/article/author=>id
         // prop/author/id
         foreach ((array) $app_field_id as $key => $a) {
-            Cache::set('prop/' . $key, $a, 0);
+            Cache::set(sprintf("%s/%s", self::PREFIX, $key), $a, 0);
         }
         // prop/article
         // prop/author
         foreach ((array) $app_field_val as $k => $a) {
-            Cache::set('prop/' . $k, $a, 0);
+            Cache::set(sprintf("%s/%s", self::PREFIX, $k), $a, 0);
         }
     }
 
-    public static function get($field, $valArray = NULL, $app = "")
+    public static function getMap($class, $key)
+    {
+        $vkey = $key . 'Map';
+        $class_vars = get_class_vars($class);
+        $maps = [];
+        if ($class_vars[$vkey]) {
+            $maps = $class::${$vkey};
+        }
+        if ($arr = Prop::get($key)) {
+            $maps = array_merge($maps, $arr);
+        }
+        return $maps;
+    }
+    public static function get($field, $app = "",$int=false)
     {
         self::$field = $field;
         $app or $app = Admincp::$APP_NAME;
         self::$sapp && $app = self::$sapp;
-        is_array($valArray) or $valArray  = explode(',', $valArray);
-        $propArray = Cache::get("prop/{$app}/{$field}");
-        // empty($propArray) && $propArray = Cache::get("prop/{$field}");
+        $key = sprintf("%s/%s/%s", self::PREFIX, $app, $field);
+        $propArray = Cache::get($key);
+        $result = [];
         if ($propArray) foreach ((array) $propArray as $k => $P) {
-            self::$DATA[$P['val']] = $P['name'];
+            $v = $P['val'];
+            if($int && !is_numeric($v)){
+                $v = $P['id'];
+            }
+            $result[$v] = $P['name'];
         }
-        return self::$DATA;
+        return $result;
     }
 
     public static function deleteAppData($appid = null, $app = null)
@@ -81,7 +98,7 @@ class Prop
     public static function create($data)
     {
         if ($data['field'] == 'prop_id' || $data['field'] == 'pid') {
-            is_numeric($data['val']) or iPHP::throwError($data['field'] . '字段的值只能用数字');
+            is_numeric($data['val']) or iPHP::alert($data['field'] . '字段的值只能用数字');
             $data['val'] = (int) $data['val'];
         }
         $where = array_filter_keys($data, 'app,val,field,cid');
@@ -100,7 +117,7 @@ class Prop
             PropModel::where($where)->where('id', $id)->delete();
             $iid && $where['iid'] = $iid;
             PropMapModel::where($where)->where('node', $id)->delete();
-            Cache::delete('prop/' . $rs['field']);
+            Cache::delete(self::PREFIX . '/' . $rs['field']);
         }
     }
 }

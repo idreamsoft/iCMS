@@ -10,11 +10,9 @@
  */
 class NodeWidget
 {
-    
-    public static function btn($title="添加节点",$target=null)
+    public static function attrs($data=[],$name='rs[nodeAttrs]',$from='#cid')
     {
-        include AdmincpView::display("widget/btn", "node");
-        return AdmincpView::html();
+        include AdmincpView::display('widget/attrs', 'node');
     }
 
 }

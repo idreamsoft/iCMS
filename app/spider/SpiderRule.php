@@ -13,15 +13,14 @@ class SpiderRule
 	public static function get($id)
 	{
 		$key = 'spider:rule:' . $id;
-		$data = $GLOBALS[$key];
-		if (!isset($GLOBALS[$key])) {
+		$data = Cache::temp($key, function () use ($id) {
 			$data = SpiderRuleModel::get($id);
 			$data['rule']['user_agent'] or $data['rule']['user_agent'] = "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)";
-			$GLOBALS[$key] = $data;
-		}
-        array_walk_recursive($data['rule'],function(&$item, $key){
-            $item = htmlspecialchars_decode($item);
-        });
+			return $data;
+		});
+		array_walk_recursive($data['rule'], function (&$item, $key) {
+			$item = htmlspecialchars_decode($item);
+		});
 		Spider::$useragent = $data['rule']['user_agent'];
 		Spider::$encoding  = $data['rule']['curl']['encoding'];
 		Spider::$referer   = $data['rule']['curl']['referer'];

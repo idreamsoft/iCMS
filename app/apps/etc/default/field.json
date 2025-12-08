@@ -2,11 +2,12 @@
     "base": {
         "label": "基本信息",
         "icon": "fa fa-info-circle",
-        "fields": [{
+        "fields": [
+            {
                 "id": "id",
                 "label": "内容id",
                 "comment": "主键 自增ID",
-                "field": "PRIMARY",
+                "field": "INT",
                 "name": "id",
                 "default": "",
                 "type": "PRIMARY",
@@ -19,7 +20,7 @@
             },
             {
                 "id": "cid",
-                "label": "栏目cid",
+                "label": "栏目",
                 "field": "INT",
                 "name": "cid",
                 "default": "",
@@ -86,6 +87,32 @@
                 "validate": [
                     "empty"
                 ]
+            },
+            {
+                "type": "br"
+            },
+            {
+                "id": "keywords",
+                "label": "关键词",
+                "field": "VARCHAR",
+                "name": "keywords",
+                "type": "text",
+                "default": "",
+                "len": "255",
+                "class": ""
+            },
+            {
+                "type": "br"
+            },
+            {
+                "id": "description",
+                "label": "简介",
+                "field": "VARCHAR",
+                "name": "description",
+                "type": "textarea",
+                "default": "",
+                "len": "5120",
+                "class": ""
             },
             {
                 "type": "br"
@@ -166,7 +193,8 @@
     "publish": {
         "label": "发布设置",
         "icon": "fa fa-rocket",
-        "fields": [{
+        "fields": [
+            {
                 "id": "pubdate",
                 "label": "发布时间",
                 "field": "INT",
@@ -330,7 +358,7 @@
                 "label": "排序",
                 "field": "INT",
                 "name": "sortnum",
-                "default": "",
+                "default": "TIMESTAMP",
                 "type": "number",
                 "len": "10",
                 "unsigned": "1",
@@ -341,7 +369,7 @@
                 "label": "权重",
                 "field": "INT",
                 "name": "weight",
-                "default": "",
+                "default": "TIMESTAMP",
                 "type": "number",
                 "len": "10",
                 "class": ""

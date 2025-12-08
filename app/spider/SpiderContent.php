@@ -50,8 +50,8 @@ class SpiderContent
          * RULE@1@ooxx.com/list.html@[true|false]
          */
         if (strpos($data['rule'], 'RULE@') !== false) {
-            SpiderTools::prints('<b>数据项[%s] 使用(rid=%s)规则抓取</b>:%s<hr />', [$name, $_rid, var_export($_urls, true)], 'g');
             list($_rid, $_urls, $_checker) = explode('@', str_replace('RULE@', '', $data['rule']));
+            SpiderTools::prints('<b>数据项[%s] 使用(rid=%s)规则抓取</b>:%s<hr />', [$name, $_rid, var_export($_urls, true)], 'g');
             empty($_urls) && $_urls = trim($html);
             SpiderList::$SETTING['DATA@RULE']['check'] = ($_checker === 'false' ? false : true); //是否检测采集过
             return SpiderList::crawl('DATA@RULE', false, $_rid, $_urls, null);
@@ -84,7 +84,7 @@ class SpiderContent
                 } else {
                     self::$hash        = array();
                     $_content          = SpiderContent::match($html, $data, $rule);
-                    $cmd5              = md5($_content);
+                    $cmd5              = $_content?md5($_content):rand(1000,9999);
                     $contentArray[]    = $_content;
                     self::$hash[$cmd5] = Spider::$url;
                     $data['page'] && self::page_data($html, $data, $rule, $contentArray);
@@ -143,7 +143,7 @@ class SpiderContent
         }
         if (empty(Spider::$allHtml)) {
             $page_url_array = array();
-            $page_area_rule = trim($rule['page_area_rule']);
+            $page_area_rule = $rule['page_area_rule']?trim($rule['page_area_rule']):'';
             if ($page_area_rule) {
                 if (strpos($page_area_rule, 'DOM::') !== false) {
                     if (Spider::$isTest) {
@@ -207,10 +207,11 @@ class SpiderContent
                     $page_url = str_replace('<%url%>', $rule['__url__'], $rule['page_url']);
                 } else {
                     $page_url_rule = SpiderTools::pregTag($rule['page_url_parse']);
-                    preg_match('|' . $page_url_rule . '|is', $rule['__url__'], $matches, PREG_SET_ORDER);
-                    $page_url = str_replace('<%url%>', $matches['url'], $rule['page_url']);
+                    $page_url_rule && preg_match('|' . $page_url_rule . '|is', $rule['__url__'], $matches);
+
+                    $matches['url'] && $page_url = str_replace('<%url%>', $matches['url'], $rule['page_url']);
                 }
-                if (stripos($page_url, '<%step%>') !== false) {
+                if ($page_url && stripos($page_url, '<%step%>') !== false) {
                     for ($pn = $rule['page_no_start']; $pn <= $rule['page_no_end']; $pn = $pn + $rule['page_no_step']) {
                         $pno = $pn;
                         if ($rule['page_no_fill']) {
@@ -246,7 +247,7 @@ class SpiderContent
                 Spider::$content_right_code = ($data['dom'] ? 'DOM::' : '') . $data['rule'];
             }
             $rule['page_url_right'] && Spider::$content_right_code = trim($rule['page_url_right']);
-            Spider::$content_error_code = trim($rule['page_url_error']);
+            Spider::$content_error_code = $rule['page_url_error']?trim($rule['page_url_error']):'';
             if (Spider::$isTest) {
                 echo "<b>有效分页特征码:</b>";
                 echo Security::escapeStr(Spider::$content_right_code);
@@ -346,9 +347,9 @@ class SpiderContent
 
                 list($content_dom, $content_fun, $content_attr) = explode("\n", $data['rule']);
             }
-            $content_dom  = trim($content_dom);
-            $content_fun  = trim($content_fun);
-            $content_attr = trim($content_attr);
+            $content_dom && $content_dom  = trim($content_dom);
+            $content_fun && $content_fun  = trim($content_fun);
+            $content_attr && $content_attr = trim($content_attr);
             $content_fun or $content_fun = 'html';
 
             if ($data['multi']) {
@@ -387,10 +388,13 @@ class SpiderContent
                 unset($conArray, $_content, $match_hash);
             } else {
                 if ($content_attr) {
-                    $content = $doc[$content_dom]->$content_fun($content_attr);
+                    $content = pq($content_dom)->$content_fun($content_attr);
                 } else {
-                    $content = $doc[$content_dom]->$content_fun();
+                    $content = call_user_func([$doc[$content_dom],$content_fun]);
+                    // $content = $doc[$content_dom]->$content_fun();
                 }
+            // var_dump($content,$content_fun,$content_attr);
+
                 if (Spider::$isTest) {
                     echo "<b>[" . $data['name'] . "]匹配结果:</b><pre style='max-height:120px;overflow-y: scroll;'>";
                     print_r(htmlspecialchars($content));
@@ -448,7 +452,7 @@ class SpiderContent
                             echo "</pre>";
                         }
                     }
-                    if (self::$match_data && preg_match('/<%content(\d*)%>/i', $data['cleanbefor'])) {
+                    if (self::$match_data && $data['cleanbefor'] && preg_match('/<%content(\d*)%>/i', $data['cleanbefor'])) {
                         $content = self::replace_content($data['cleanbefor']);
                     }
                 } else {

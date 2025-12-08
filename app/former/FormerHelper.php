@@ -18,40 +18,38 @@ class FormerHelper
         $attr && $element->attr($attr);
         return $element;
     }
-    public static function checkbox($data, $attr)
+    public static function checkbox($data, $attr, $selected = null)
     {
-        if (is_array($data)) {
-            $flag = true;
-        } else {
-            $flag = false;
+        if (!is_array($data)) {
             $data = explode(";", $data);
         }
+        ksort($data);
         $html = '';
-        foreach ($data as $optk => $val) {
-            $val = trim($val, "\r\n");
-            if ($val === '') continue;
+        foreach ($data as $value => $text) {
+            if ($text === '') continue;
 
-            if ($flag) {
-                $opt_text  = $optk;
-                $opt_value = $val;
-            } else {
-                list($opt_text, $opt_value) = explode("=", $val);
+            if (strpos($text, '=') !== false) {
+                list($text, $value) = explode("=", $text);
             }
+            $text = trim($text, "\r\n");
 
-            $opt_value === null && $opt_value = $opt_text;
+            $value === null && $value = $text;
             $attr2 = $attr;
-            $attr2['value'] = $opt_value;
-            $attr2['class'] .= ' custom-control-input ' . $attr2['id'];
-            $attr2['id'] .= '_' . $optk;
-
+            $attr2['value'] = $value;
+            $attr2['class'] .= ' form-check-input ' . $attr2['id'];
+            $attr2['id'] .= '_' . $value;
+            $attr2['data-checked'] = $selected;
+            if(!is_null($value) && $selected==$value){
+                // $attr2['checked'] = 'checked';
+            }
             $label = self::element(
                 'label',
                 [
                     'for' => $attr2['id'],
                     // 'class' => $attr['type'] . '-inline'
-                    'class' => 'custom-control-label'
+                    'class' => 'form-check-label'
                 ]
-            )->html($opt_text);
+            )->html($text);
 
             $input = self::element('input', $attr2);
 
@@ -60,10 +58,28 @@ class FormerHelper
             }
             $element = $input . $label;
             $html .= self::element("div", [
-                'class' => sprintf('custom-control custom-%s custom-control-lg custom-control-inline', $attr['type']),
+                'class' => sprintf('custom-control custom-%s form-check-lg form-check-inline', $attr['type']),
             ])->html($element);
         }
         return $html;
+    }
+    public static function json($fields)
+    {
+        $output = [];
+        if ($fields) {
+            // $field_array = apps_mod::get_field_array($fields,true);
+            $baseFieldsKeys = AppsTable::getBaseFieldsKeys();
+            foreach ($fields as $key => $item) {
+                $tabs = array($key, $item['label']);
+                $fieldArray = $item['fields'];
+                foreach ($fieldArray as $k => $value) {
+                    $value['tabs'] = $tabs;
+                    $readonly = in_array($value['name'], $baseFieldsKeys) ? true : false;
+                    $output[] = [$key, $value, $readonly];
+                }
+            }
+        }
+        echo json_encode($output);
     }
     public static function makejs($fields, $format = null)
     {
@@ -91,12 +107,14 @@ class FormerHelper
     {
         is_array($data) or $data = explode(";", $data);
         $option = '';
+        $sval = explode(',',$sval);
         foreach ($data as $ok => $val) {
             $val = trim($val, "\r\n");
             if ($val) {
                 list($opt_text, $opt_value) = explode("=", $val);
                 $opt_value === null && $opt_value = $opt_text;
-                $selected = $opt_value == $sval ? 'selected' : '';
+                $selected = in_array($opt_value,$sval);
+                $selected = $selected? 'selected' : '';
                 $opt_type = Former::$config['option'] ? '[' . $name . '="' . $opt_value . '"]' : '';
                 $option .= sprintf(
                     '<option value="%s" %s>%s %s</option>',

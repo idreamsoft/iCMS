@@ -1,0 +1,23 @@
+<?php $title ="回复评论";?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="comment_reply_enable">回复</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" data-on-text="开启" data-off-text="关闭" name="config[reply][enable]" id="comment_reply_enable" value="<?php echo $config['reply']['enable'] ;?>" />
+        <small class="form-text text-muted">是否开启评论回复</small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="comment_reply_enable">审核回复</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" data-on-text="开启" data-off-text="关闭" name="config[reply][examine]" id="comment_reply_examine" value="<?php echo $config['reply']['examine'] ;?>" />
+        <small class="form-text text-muted">开启后评论回复需要审核才能显示</small>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="comment_reply_captcha">验证码</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" data-on-text="开启" data-off-text="关闭" name="config[reply][captcha]" id="comment_reply_captcha" value="<?php echo $config['reply']['captcha'] ;?>" />
+        <small class="form-text text-muted">开启后发表评论回复需要验证码</small>
+    </div>
+</div>

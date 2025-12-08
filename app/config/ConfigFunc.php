@@ -8,7 +8,7 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class ConfigFunc extends AppsFuncCommon
+class ConfigFunc
 {
     public static function get($vars = null)
     {
@@ -19,6 +19,7 @@ class ConfigFunc extends AppsFuncCommon
         if (isset($vars['key']) && is_array($config)) {
             $config = $config[$vars['key']];
         }
+        $vars['keys'] && $config = array_filter_keys($config, $vars['keys'], isset($vars['is_remove_keys']) ? false : true);
         return $config;
     }
 }

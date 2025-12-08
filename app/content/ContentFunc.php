@@ -9,102 +9,151 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 
-class ContentFunc extends AppsFuncCommon implements AppsFuncBase
+class ContentFunc extends AppsFuncCommon implements AppsFuncInterface
 {
-    public static $APPDATA  = null; //应用信息接口
-    public static $tables   = null; //应用表信息
-    public static $APP      = null;
-    public static $APPID    = 0;
-    public static $table    = null;
-    public static $primary  = null;
+    public static $tables = null; //应用表信息
+    public static $table = null;
+    public static $primary = null;
     public static $relation = null;
+
     public static function value($vars)
     {
     }
 
-    /**
-     * 已在 nodeApp contentApp 设置数据回调,
-     * 在应用范围内可以不用设置 app="应用名/应用ID"
-     **/
-    public static function interfaced($data = null)
+    public static function field($vars)
     {
-        self::$APPDATA = $data;
+        self::boot($vars, 'list');
+
+        !isset($vars['judge']) && $vars['judge'] = Request::get();
+        $judge = $vars['judge'];
+        $field = $vars['field'];
+        $separator = $vars['separator'] ?: ',';
+        $whereAs = $vars['whereAs'] ?: 'WHERE';
+        $selected = [];
+        if (isset($judge[$field])) {
+            $selected = $judge[$field];
+            $selected = explode($separator, $selected);
+        }
+
+        $urlVals = [];
+        $resource = [];
+        if($vars['all']!==false){
+            $text = $vars['all'] ?: Lang::get('All');
+            $resource[] = [
+                'id'     => $field . '-null',
+                'value'  => null,
+                'title'  => $text,
+                'text'   => $text,
+                'url'    => Route::make([$field=> null], $vars['url']),
+                'active' => $selected ? false : true,
+            ];
+        }
+        $apps = Content::$APP_DATA;
+        $fields = Former::getField($apps['fields'], $field);
+        $options = Former::optionData($fields['option']);
+
+        foreach ($options as $value => $text) {
+            if (isset($text['items'])) {
+                $optionItem = Former::optionItem($text['text'], $text['value'], $where, $selected, $fields, $separator, $vars);
+                $items = [];
+                foreach ($text['items'] as $k => $v) {
+                    $items[] = Former::optionItem($v['text'], $v['value'], $where, $selected, $fields, $separator, $vars);
+                }
+                $actives = array_column($items, 'active');
+                $optionItem['active'] = array_search(true,$actives)!==false;
+                $optionItem['items'] = $items;
+                $resource[] = $optionItem;
+            } else {
+                $resource[] = Former::optionItem($text, $value, $where, $selected, $fields, $separator, $vars);
+            }
+        }
+
+        View::append($whereAs, $where, true);
+
+        return $resource;
     }
-    private static function inited($vars, $func = 'list')
+
+    private static function boot($vars, $func = 'list')
     {
-        if ((empty($vars['app']) || $vars['app'] == 'content') && self::$APPDATA) {
-            $vars['app'] = self::$APPDATA['app'];
+        if ((empty($vars['app']) || $vars['app'] == 'content') && Content::$APP_DATA) {
+            $vars['app'] = Content::$APP_DATA['app'];
         }
         if (isset($vars['apps']) && is_array($vars['apps'])) {
             $vars['app'] = $vars['apps']['app'];
-            self::$APPDATA = $vars['apps'];
+            Content::$APP_DATA = $vars['apps'];
         }
         if (isset($vars['appid'])) {
             $ap = $vars['appid'];
-            if (self::$APPDATA && $ap != self::$APPDATA['id']) {
-                self::$APPDATA = null;
+            if (Content::$APP_DATA && $ap != Content::$APP_DATA['id']) {
+                Content::$APP_DATA = null;
             }
-        } else {
+        } elseif (isset($vars['app'])) {
             $ap = $vars['app'];
-            if (self::$APPDATA && $ap != self::$APPDATA['app']) {
-                self::$APPDATA = null;
+            if (Content::$APP_DATA && $ap != Content::$APP_DATA['app']) {
+                Content::$APP_DATA = null;
             }
+        } elseif (Content::$APPID) {
+            $ap = Content::$APPID;
         }
-        if (empty($ap) || $ap == 'content') {
-            Script::warning('iCMS&#x3a;content&#x3a;' . $func . ' 标签出错! 缺少参数"app"或"app"值为空.');
-        }
-        if (empty(self::$APPDATA)) {
-            self::$APPDATA = Apps::getData($ap);
-        }
-        empty(self::$APPDATA) && Script::warning('iCMS&#x3a;content&#x3a;' . $func . ' 标签出错! 缺少参数"app"或"app"值为空.');
-        self::$APP = self::$APPDATA['app'];
-        self::$APPID = self::$APPDATA['id'];
 
-        if ($rootid = self::$APPDATA['rootid']) {
-            $fields = self::$APPDATA['fields'];
+        if (empty($ap) || $ap == 'content') {
+            self::msg(['func_param', ['iCMS:content:' . $func, 'app']]);
+        }
+        if (empty(Content::$APP_DATA)) {
+            Content::$APP_DATA = Apps::getData($ap);
+        }
+        empty(Content::$APP_DATA) && self::msg(['func_param', ['iCMS:content:' . $func, 'app']]);
+        Content::$APP = Content::$APP_DATA['app'];
+        Content::$APPID = Content::$APP_DATA['id'];
+
+        if ($rootid = Content::$APP_DATA['rootid']) {
+            $fields = Content::$APP_DATA['fields'];
             if ($fArray = Former::fields($fields)) {
                 $column = array_column($fArray, 'type', 'id');
                 self::$relation = array_search('relation:id', $column);
             }
         }
     }
+
     public static function relation($vars, &$where)
     {
         if (self::$relation && isset($vars[self::$relation])) {
             $where[] = [self::$relation, $vars[self::$relation]];
         }
     }
+
     public static function node($vars)
     {
-        $vars['apps'] = self::$APPDATA['app'];
+        $vars['apps'] = Content::$APP_DATA['app'];
         return nodeFunc::lists($vars);
     }
+
     public static function lists($vars)
     {
-        self::inited($vars, 'list');
+        self::boot($vars, 'list');
 
-        $whereNot  = array();
-        $resource  = array();
-        $model     = Content::model(self::$APPDATA)->field('id');
-        $status    = isset($vars['status']) ? (int) $vars['status'] : 1;
-        $where     = [['status', $status]];
+        $whereNot = [];
+        $resource = [];
+        $model = Content::model(Content::$APP_DATA)->field('id');
+        $status = isset($vars['status']) ? (int) $vars['status'] : 1;
+        $where = [['status', $status]];
 
-        $vars['call'] == 'user'  && $where[]    = ['postype', 0];
-        $vars['call'] == 'admin' && $where[]    = ['postype', 1];
-        isset($vars['userid'])   && $where[]    = ['userid', $vars['userid']];
-        isset($vars['weight'])   && $where[]    = ['weight', $vars['weight']];
-        isset($vars['ucid'])     && $where[]    = ['ucid', $vars['ucid']];
-        isset($vars['pic'])      && $where[]    = ['haspic', '1'];
-        isset($vars['nopic'])    && $where[]    = ['haspic', '0'];
-        isset($vars['startdate']) && $where[] = array('pubdate', '>=', str2time($vars['startdate'] . (strpos($vars['startdate'], ' ') !== false ? '' : " 00:00:00")));
-        isset($vars['enddate'])   && $where[] = array('pubdate', '<=', str2time($vars['enddate'] . (strpos($vars['enddate'], ' ') !== false ? '' : " 00:00:00")));
+        $vars['call'] == 'user' && $where[] = ['postype', 0];
+        $vars['call'] == 'admin' && $where[] = ['postype', 1];
+        isset($vars['userid']) && $where[] = ['userid', $vars['userid']];
+        isset($vars['weight']) && $where[] = ['weight', $vars['weight']];
+        isset($vars['ucid']) && $where[] = ['ucid', $vars['ucid']];
+        isset($vars['pic']) && $where[] = ['haspic', '1'];
+        isset($vars['nopic']) && $where[] = ['haspic', '0'];
+        isset($vars['startdate']) && $where[] = ['pubdate', '>=', str2time($vars['startdate'] . (strpos($vars['startdate'], ' ') !== false ? '' : ' 00:00:00'))];
+        isset($vars['enddate']) && $where[] = ['pubdate', '<=', str2time($vars['enddate'] . (strpos($vars['enddate'], ' ') !== false ? '' : ' 00:00:00'))];
 
         self::relation($vars, $where);
-        self::init($vars, $model, $where, $whereNot);
-        self::setApp(self::$APPID, self::$APP);
+        self::inited($vars, $model, $where, $whereNot);
+        self::setApp(Content::$APPID, Content::$APP);
         self::nodes('cid');
-        self::tags(self::$APPDATA['fields']);
-        self::props(self::$APPDATA['fields']);
+        self::tags(Content::$APP_DATA['fields']);
+        self::props(Content::$APP_DATA['fields']);
         self::keywords('title');
         self::orderby([
             'hot'   => 'hits',
@@ -114,13 +163,14 @@ class ContentFunc extends AppsFuncCommon implements AppsFuncBase
             'month' => 'hits_month'
         ]);
         self::where();
-        return self::getResource(__METHOD__, [__CLASS__, 'resource']);
+        return self::getResource(__METHOD__);
     }
-    public static function resource($vars, $idsArray = null)
-    {
-        $vars['ids'] && $idsArray = $vars['ids'];
 
-        $resource =  Content::model(self::$APPDATA)->field('*')
+    public static function resource($idsArray = null)
+    {
+        $vars = self::$vars;
+
+        $resource = Content::model(Content::$APP_DATA)->field('*')
             ->where($idsArray)
             ->orderBy('id', $idsArray)
             ->select();
@@ -128,20 +178,27 @@ class ContentFunc extends AppsFuncCommon implements AppsFuncBase
         $resource = self::many($vars, $resource);
         return $resource;
     }
+
     public static function many($vars, $resource)
     {
-
         if ($resource) {
-            $contentApp = new contentApp(self::$APP);
+            $appClassName = sprintf('%sApp', ucfirst(Content::$APP));
+            if (class_exists($appClassName)) {
+                $ContentApp = new $appClassName;
+            }else{
+                $ContentApp = new ContentApp(Content::$APP);
+            }
+            
             $idArray = array_column($resource, 'id');
-            if ($vars['data'] || $vars['pics']) {
-                $idArray && $DATAS = (array) $contentApp->data($idArray);
+            if ($vars['data'] || $vars['body_pics']) {
+                $idArray && $DATAS = (array) $ContentApp->data($idArray);
             }
             if ($vars['meta'] && $idArray) {
-                $metaData = (array) AppsMeta::data(self::$APP, $idArray);
+                $metaData = [];
+                AppsMeta::data(Content::$APP, $idArray, $metaData);
             }
 
-            if ($vars['tags']) {
+            if ($vars['tag']) {
                 $tagArray = array_column($resource, 'tags', 'id');
                 $tagArray && $tagsData = (array) TagApp::many($tagArray);
                 unset($tagArray);
@@ -150,23 +207,23 @@ class ContentFunc extends AppsFuncCommon implements AppsFuncBase
 
             foreach ($resource as $key => &$value) {
                 try {
-                    $contentApp->values($value, $vars);
+                    $ContentApp->values($value, $vars);
                 } catch (\FalseEx $fex) {
                     $value = [];
                     continue;
                 }
 
-                if (($vars['data'] || $vars['pics']) && $DATAS) {
-                    $value['data']  = (array) $DATAS[$value['id']];
-                    if ($vars['pics']) {
-                        $value['pics'] = FilesPic::findImgUrl($value['data']['body']);
+                if (($vars['data'] || $vars['body_pics']) && $DATAS) {
+                    $value['data'] = (array) $DATAS[$value['id']];
+                    if ($vars['body_pics']) {
+                        $value['body_pics'] = FilesPic::findImgUrl($value['data']['body']);
                         if (!$value['data']) {
                             unset($value['data']);
                         }
                     }
                 }
 
-                if ($vars['tags'] && $tagsData) {
+                if ($vars['tag'] && $tagsData) {
                     $value += (array) $tagsData[$value['id']];
                 }
                 if ($vars['meta'] && $metaData) {
@@ -174,7 +231,7 @@ class ContentFunc extends AppsFuncCommon implements AppsFuncBase
                 }
 
                 if ($vars['page']) {
-                    $value['page'] = $GLOBALS['page'] ? $GLOBALS['page'] : 1;
+                    $value['page'] = isset($GLOBALS['page']) ? $GLOBALS['page'] : 1;
                     $value['total'] = $vars['total'];
                 }
                 $resource[$key] = $value;
@@ -182,15 +239,16 @@ class ContentFunc extends AppsFuncCommon implements AppsFuncBase
         }
         return $resource;
     }
+
     public static function prev($vars)
     {
         $vars['order'] = 'p';
         return self::next($vars);
     }
+
     public static function next($vars)
     {
-        self::inited($vars, 'next');
-
+        self::boot($vars, 'next');
         $where = [];
         empty($vars['order']) && $vars['order'] = 'n';
         isset($vars['cid']) && $where[] = ['cid', $vars['cid']];
@@ -204,25 +262,25 @@ class ContentFunc extends AppsFuncCommon implements AppsFuncBase
             // $sql .= " AND `id` > '{$vars['id']}' ORDER BY id ASC LIMIT 1";//MyISAM
         }
         self::relation($vars, $where);
-        $model = Content::model(self::$APPDATA)->field($field)->where($where);
+        $model = Content::model(Content::$APP_DATA)->field($field)->where($where);
         $hash = md5($model->getSql());
         if ($vars['cache']) {
-            $cacheName = sprintf("s%/s%/s%", iPHP_DEVICE, self::$APP, $hash);
+            $cacheName = sprintf('%s/%s/%s', iPHP_DEVICE, Content::$APP, $hash);
             $resource = Cache::get($cacheName);
             if (is_array($resource)) {
                 return $resource;
             }
         }
         $id = $model->value();
-        $data = Content::model(self::$APPDATA)->field('*')->get($id);
+        $data = Content::model(Content::$APP_DATA)->field('*')->get($id);
         if ($data) {
             $node = NodeCache::getId($data['cid']);
-            $resource = array(
+            $resource = [
                 'id'    => $data['id'],
                 'title' => $data['title'],
                 'pic'   => FilesPic::getArray($data['pic']),
-                'url'   => Route::get(self::$APP, array((array) $data, $node))->href,
-            );
+                'url'   => Route::get(Content::$APP, [(array) $data, $node])->href,
+            ];
         }
         $cacheTime = isset($vars['time']) ? (int) $vars['time'] : -1;
         $vars['cache'] && Cache::set($cacheName, $resource, $cacheTime);

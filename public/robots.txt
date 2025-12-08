@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: /api.php/public/sitemap/google

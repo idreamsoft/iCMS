@@ -1,4 +1,5 @@
 <?php
+
 // namespace iPHP\core;
 /**
  * iPHP - i PHP Framework
@@ -14,26 +15,34 @@ class iString
 {
     public static function strlen($str, $charset = 'UTF-8')
     {
+        if (is_null($str)) {
+            return 0;
+        }
         if (function_exists('mb_strlen')) {
             return mb_strlen($str, $charset);
         } elseif (function_exists('iconv_strlen')) {
             return iconv_strlen($str, $charset);
         } else {
             if ($charset == 'UTF-8') {
-                return strlen(utf8_decode($str));
-            } else {
-                return strlen($str);
+                if (function_exists('iconv')) {
+                    $str = iconv('UTF-8', 'ISO-8859-1', $str);
+                } elseif (function_exists('mb_convert_encoding')) {
+                    $str = mb_convert_encoding($str, 'ISO-8859-1', 'UTF-8');
+                }
             }
+            return strlen($str);
         }
     }
+
     public static function ltrim($str, $mask)
     {
         $len = strlen($mask);
-        if (strpos($str, $mask) === 0) {
+        if ($str && strpos($str, $mask) === 0) {
             $str = substr($str, $len);
         }
         return $str;
     }
+
     public static function rtrim($str, $mask)
     {
         $len = strlen($mask);
@@ -43,6 +52,7 @@ class iString
         }
         return $str;
     }
+
     public static function substr()
     {
         $args = func_get_args();
@@ -52,21 +62,53 @@ class iString
         } elseif (function_exists('iconv_substr')) {
             $func = 'iconv_substr';
         }
-        // else {
-        //     $func = [__CLASS__,'cut'];
-        // }
+        if (is_null($args[0])) {
+            return;
+        }
         return call_user_func_array($func, $args);
     }
+
     public static function cut($str, $len, $end = null)
     {
-        $s = self::substr($str, 0, $len);
-        $l = self::strlen($str);
-        $sl = self::strlen($s);
-        if ($l > $sl && $end) {
-            $s .= $end;
+        if (is_null($str) || $len <= 0) {
+            return '';
         }
-        return $s;
+
+        $result = '';
+        $currentLen = 0;
+        $strLen = self::strlen($str);
+        $i = 0;
+
+        while ($i < $strLen && $currentLen < $len) {
+            $char = self::substr($str, $i, 1);
+
+            // 判断是否为中文字符（包括中文标点符号）
+            if (preg_match('/[\x{4e00}-\x{9fff}\x{3000}-\x{303f}\x{ff00}-\x{ffef}]/u', $char)) {
+                // 中文字符算1个长度单位
+                $charLen = 1;
+            } else {
+                // 英文字符算0.5个长度单位（2个英文字符算1个长度单位）
+                $charLen = 0.5;
+            }
+
+            // 检查添加当前字符后是否会超出长度限制
+            if ($currentLen + $charLen > $len) {
+                break;
+            }
+
+            $result .= $char;
+            $currentLen += $charLen;
+            $i++;
+        }
+
+        // 如果原字符串被截断了，添加结束符
+        if ($i < $strLen && $end) {
+            $result .= $end;
+        }
+
+        return $result;
     }
+
     public static function bitcut($str, $len, $end = '')
     {
         $len = $len * 2;

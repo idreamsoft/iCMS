@@ -1,8 +1,8 @@
 <?php
+
 // namespace DataBase;
 
 //https://learnku.com/docs/laravel/7.x/database/7493
-
 
 // use DataBase\Manager;
 // use ReflectionClass;
@@ -12,11 +12,12 @@
 class DB
 {
     private static $handle;
-    private static $debug = array(
-        'log' => false, 
-        'trace' => false,
+    private static $config = [];
+    private static $debug = [
+        'log'     => false,
+        'trace'   => false,
         'explain' => false,
-    );
+    ];
 
     // public static $lastId;
     // public static $rowCount; //返回DELETE、 INSERT、或 UPDATE 语句受影响的行数。
@@ -25,66 +26,152 @@ class DB
     {
         return self::__called($method, $params);
     }
+
     public static function __callStatic($method, $params)
     {
         return self::__called($method, $params);
     }
+
     private static function __called($method, $params)
     {
         $instance = static::connection();
         $rc = new ReflectionClass($instance);
         if ($rc->hasMethod($method)) {
-            $call = array($instance, $method);
-            try {
-                return call_user_func_array($call, $params);
-            } catch (\Exception $ex) {
-                throw $ex;
-            }
+            $call = [$instance, $method];
+            return call_user_func_array($call, $params);
         } else {
-            throw new Exception("Calling method '$method' " . implode(', ', $params));
+            throw new Exception(sprintf( '%s::%s(%s) method does not exist.', get_class($instance),$method,implode(', ', $params)));
         }
     }
 
     public function __construct()
     {
     }
+
     /**
+     * 数据库连接
+     *
+     * @param string $name 数据库连接名,默认使用default
      * @return Connection
      */
     public static function connection($name = null)
     {
-        if (empty(self::$handle[$name])) {
-            self::$handle[$name] = Manager::getInstance()->connect($name);
+        // 如果没有指定连接名，使用默认连接
+        if ($name === null) {
+            $name = Manager::getInstance()->getDefaultConnection();
         }
-        self::$handle[$name]->loggingQueryLog     = self::$debug['log'];
-        self::$handle[$name]->loggingQueryTrace   = self::$debug['trace'];
-        self::$handle[$name]->loggingQueryExplain = self::$debug['explain'];
-
-        return self::$handle[$name];
+        
+        // 为每个连接名创建唯一的缓存键
+        $cacheKey = $name ?: 'default';
+        
+        if (empty(self::$handle[$cacheKey])) {
+            self::$handle[$cacheKey] = Manager::getInstance()->connect($name);
+        }
+        
+        self::$handle[$cacheKey]->loggingQueryLog = self::$debug['log'];
+        self::$handle[$cacheKey]->loggingQueryTrace = self::$debug['trace'];
+        self::$handle[$cacheKey]->loggingQueryExplain = self::$debug['explain'];
+        return self::$handle[$cacheKey];
     }
+
     public static function config($config = null)
     {
+        self::$config = $config;
         Manager::getInstance()->setConfig($config);
     }
+    public static function setDefaultConnection($name)
+    {
+        self::$config['default'] = $name;
+        Manager::getInstance()->setDefaultConnection($name);
+    }
+
+    /**
+     * 获取指定连接的句柄
+     *
+     * @param string $name 连接名
+     * @return Connection|null
+     */
     public static function handle($name = null)
     {
-        return self::$handle[$name];
+        $cacheKey = $name ?: 'default';
+        return isset(self::$handle[$cacheKey]) ? self::$handle[$cacheKey] : null;
     }
-    public static function debug($flag=1)
+    
+    /**
+     * 获取指定连接的数据库连接实例
+     *
+     * @param string $name 连接名
+     * @return Connection
+     */
+    public static function getConnection($name)
     {
-        if($flag>0){
-            self::$debug['log'] = true;
-            $flag>1 && self::$debug['trace'] = true;
-            $flag>2 && self::$debug['explain'] = true;
+        return self::connection($name);
+    }
+    
+    /**
+     * 清除指定连接的缓存
+     *
+     * @param string $name 连接名，为null时清除所有缓存
+     * @return void
+     */
+    public static function purgeConnection($name = null)
+    {
+        if ($name === null) {
+            self::$handle = [];
+        } else {
+            $cacheKey = $name ?: 'default';
+            unset(self::$handle[$cacheKey]);
         }
     }
+
+    public static function debug($flag = 1)
+    {
+        if ($flag > 0) {
+            self::$debug['log'] = true;
+            $flag > 1 && self::$debug['trace'] = true;
+            $flag > 2 && self::$debug['explain'] = true;
+        }
+    }
+
     public static function errorText($code)
     {
-        $array = $GLOBALS['DB.ERROR'];
-        if(empty($array)){
-            $array = include __DIR__.'/ErrorCode.php';
-        }
+        $array = include_once __DIR__ . '/ErrorCode.php';
         return $array[$code];
+    }
+
+    public static function getError($ex, $code = 0)
+    {
+        $message = $ex->getMessage();
+        $code = $ex->getCode();
+        $driver = strtoupper(DB::getDriverName());
+        $message = $driver . '.' . $message;
+        // $message .= '<hr />' . self::errorText($code);
+        $queryLog = DB::getQueryLog();
+        $queryLog && $message .= '<hr />' . DB::getQueryLog();
+        $codeMap = [
+            1045    => 'Database Access denied',
+            1049    => 'Database Nofound',
+            2002    => 'Database Host error',
+        ];
+        if ($msg = $codeMap[$code]) {
+            $message = $msg;
+            // trigger_error($msg,E_USER_ERROR);
+        }
+        return [$code, $message, $driver];
+        // throw $ex;
+        // $queryLog = $this->getQueryLog();
+
+        // if ($this->loggingQueryLog) {
+        //     $queryLog && $message = $message . '<hr />' . $queryLog;
+        // }
+        // $codeMap = [
+        //     1045    => 'Database Access denied',
+        //     1049    => 'Database Nofound',
+        //     2002    => 'Database Host error',
+        //     '42S22' => $message . '<hr />' . $queryLog
+        // ];
+        // $codeMap[$code] && $message = $codeMap[$code];
+        // throw new sException($message, -100,$ex);
     }
     // private function table($table)
     // {

@@ -19,8 +19,8 @@ function iCMS_debug($vars = null)
         DB::debug($vars['flag']);
         return;
     }
-    if ($vars['query']) {
-        var_dump(DB::getQueryLog());
+    if ($vars['querylog']) {
+        var_dump(DB::getQueryLog($vars['querylog']));
     } elseif ($vars['trace']) {
         var_dump(DB::getQueryTrace(
             is_bool($vars['trace']) ? null : $vars['trace']

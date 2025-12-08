@@ -33,7 +33,7 @@ if (!class_exists('Gmagick')) {
 		}
 		public function readImage($src)
 		{
-			if (empty($src)) {
+			if (empty($src)||!file_exists($src)) {
 				return;
 			}
 			list($this->width, $this->height, $this->type) = @getimagesize($src);
@@ -177,7 +177,7 @@ class Thumb
 	}
 	/**
 	 * 生成无图标志
-	 * @return [type] [description]
+	 * @return void
 	 */
 	private static function blank()
 	{
@@ -223,7 +223,7 @@ class Thumb
 	 * 等高/宽缩放
 	 * @param  [type]  $a      [description]
 	 * @param  boolean $reSize [description]
-	 * @return [type]          [description]
+	 * @return void
 	 */
 	private static function scale($a, $reSize = true)
 	{
@@ -244,7 +244,7 @@ class Thumb
 	 * 等比缩放
 	 * @param  [type]  $a      [description]
 	 * @param  boolean $reSize [description]
-	 * @return [type]          [description]
+	 * @return void
 	 */
 	private static function bitScale($a, $reSize = true)
 	{

@@ -1,0 +1,6 @@
+{
+  "name": "vditor",
+  "title": "Vditor 编辑器",
+  "markdown": true,
+  "description": "一款浏览器端的 Markdown 编辑器，支持所见即所得（富文本）、即时渲染（类似 Typora）和分屏预览模式。"
+}

@@ -1,0 +1,16 @@
+<div class="bg-white">
+    <div class="d-flex justify-content-between px-2">
+        <div class="d-flex align-items-center">
+            <a class="fw-semibold display-5 tracking-wider text-dark" href="<!--{$site.url}-->"><!--{$site.title}--></a>
+        </div>
+        <div class="d-flex align-items-center">
+            <!-- Search Form (visible on larger screens) -->
+            <div class="d-none d-sm-inline-block me-2">
+                <!--{include file="iCMS://search/form.htm" class="input-group-sm"}-->
+            </div>
+            <!-- END Search Form -->
+            <!--{include file="iCMS://user/widget/status.htm"}-->
+            <a class="btn btn-sm btn-alt-secondary ms-2" href="<!--{iCMS:route url='user/content/home'}-->" title="用户投稿">投稿</a>
+        </div>
+    </div>
+</div>

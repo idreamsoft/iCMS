@@ -1,0 +1,59 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<link rel="stylesheet" href="/assets/libs/webuploader/style.css" type="text/css" />
+<?php !AdmincpView::$IS_MODAL && printf ('<div class="content" id="%s">',APP_MAINID); ?>
+<div class="block m-0 h-screen">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">上传列表</h3>
+        <div class="block-options">
+            <div class="block-options-item">
+                <span class="badge bg-success" id="FilesUploaded" num="0" style="margin-top: 10px;">0个文件已上传</span>
+            </div>
+        </div>
+    </div>
+    <div class="block-content p-2">
+        <div id="uploader">
+            <div class="queueList">
+                <div id="dndArea" class="placeholder">
+                    <div id="filePicker"></div>
+                    <p>或将照片拖到这里，单次最多可选300张</p>
+                    <p>您可以尝试文件拖拽，使用QQ截屏工具，然后激活窗口后粘贴，或者点击添加图片按钮，来上传图片.</p>
+                </div>
+            </div>
+            <div class="progress push" class="w-100" style="height: 10px;display:none;">
+                <div class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0"
+                    aria-valuemax="100">
+                    <span style="font-size: 12px;">0%</span>
+                </div>
+            </div>
+            <div class="statusBar px-2" style="display:none;">
+                <div class="row">
+                    <div class="info col-sm-5"></div>
+                    <div class="col-sm-7 text-center text-md-end">
+                        <form id="multiForm">
+                            <input type="hidden" name="udir" value="<?php echo Request::get('udir') ;?>">
+                            <input type="checkbox" i="cms:ui:switch" data-label-text="水印" name="noWatermark"
+                                value="<?php echo Config::get('watermark.enable')?:'0' ;?>" />
+                        </form>
+                        <div id="filePicker2" class="btn btn-alt-primary"></div>
+                        <div class="uploadBtn btn btn-success"><i class="fa fa-fw fa-upload"></i> 开始上传</div>
+                    </div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php !AdmincpView::$IS_MODAL && print '</div>'; ?>
+<?php self::foot(); ?>

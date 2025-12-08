@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html 
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content">
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">
+                <i class="fa fa-fw fa-bars"></i> {{#Lang("Shortcut")}}
+            </h3>
+            <div class="block-options">
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle"><i class="si si-size-fullscreen"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+                <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close"><i class="si si-close"></i></button>
+            </div>
+        </div>
+        <div class="block-content">
+            <div class="row items-push text-center">
+                <?php if ($children) foreach ($children as $key =>$value) {?>
+                <div class="col-2">
+                    <a class="block block-rounded block-link-pop <?php echo $value['class']; ?>" i="<?php echo $value['ui']; ?>" data-toggle="appear" href="{{<?php echo $value['href']; ?>}}">
+                        <div class="block-content block-content-full">
+                            <div class="py-1 text-center">
+                                <div class="item item-2x item-rounded bg-dark text-white mx-auto">
+                                    <i class="fa fa-fw fa-3x fa-<?php echo $value['icon']; ?>"></i>
+                                </div>
+                                <div class="fs-6 fw-semibold pt-3">
+                                    <?php echo $value['caption']; ?>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

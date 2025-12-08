@@ -14,84 +14,120 @@ class AdmincpHooks
 {
     /**
      * 后台初始化
-     * Admincp::$HOOKS['onInit']
      */
     public static function onInit()
     {
-        Script::$dialog['title'] = iPHP_APP;
-
-        self::captcha(1); //验证码
-        Member::auth();  //登录验证
-        Admincp::$DATA = array(
-            'userid'   => Member::$user_id, //管理员绑定的用户ID
-            'username' => Member::$DATA['account'],
-            'nickname' => Member::$DATA['nickname']
-        );
-        Files::init(Admincp::$DATA); //文件应用初始配置
-        Former::init(Admincp::$DATA); //自定义表单、应用
-        Menu::init(); //后台菜单初始配置
+        self::language();
+        Admin::isLogin();
+        //后台菜单初始配置
+        Menu::init();
+        $admin = Admin::data();
+        //文件应用初始配置
+        Files::init($admin);
+        //自定义表单、应用
+        iPHP::callback(['Former', 'init'], [$admin]);
+        //站点设置
+        Config::setSiteId(1);
+        //检验CSRF
+        AdmincpAuth::security($admin['userid']);
     }
+
+    public static function language()
+    {
+        // 检查配置项是否存在，避免未定义索引的警告
+        $defaultLang = isset(iCMS::$config['language']['admincp']) ? iCMS::$config['language']['admincp'] : Lang::$default;
+        $sessionLang = Session::get('language');
+        // ADMINCP::$LANGUAGE = $sessionLang ?: $defaultLang;
+        ADMINCP::$LANGUAGE = 'zh';
+        Lang::init(ADMINCP::$LANGUAGE);
+        //{*}/etc/lang/zh.admincp*.json
+        Lang::load('*','admincp');
+         //{$app}/etc/lang/zh.admincp*.json
+        Lang::load(Admincp::$APP);
+    }
+
     /**
      * 验证权限
-     * Admincp::$HOOKS['onAuth']
      */
-    public static function onAuth()
+    public static function onPermission()
     {
-        return AdmincpAccess::auth();
+        //无需登录的方法,同时也就不需要鉴权了
+        $doc = Helper::getDocComment(Admincp::$APP_CLASS, Admincp::$APP_METHOD);
+        if (!($doc && $doc['login'] === false)) {
+            //检测是否登录
+            Admin::auth();
+            //判断需要验证角色权限
+            if (isset($doc['role'])) {
+                AdmincpAuth::checkRole($doc['role']);
+            }
+            //判断是否需要验证权限
+            //无需鉴权的方法,但需要登录
+            AdmincpAuth::init();
+            if ($doc['auth'] !== false) {
+                AdmincpAuth::checkUri(APP_DOURL);
+                // 判断控制器和方法是否有对应权限
+            }
+        }
+        Admincp::$DATA['access'] = true;
+        isset($doc['run']) && Admincp::$METHOD_RUN = $doc['run'];
+        // isset($doc['befor']) && Admincp::$METHOD_BEFOR = $doc['befor'];
+        // isset($doc['after']) && Admincp::$METHOD_AFTER = $doc['after'];
     }
 
     /**
-     * 应用实例化前
-     * Admincp::$HOOKS['onAppBegin']
-     */
-    public static function onAppBegin($className)
-    {
-        AdmincpAccess::security(Member::$user_id); //检验CSRF
-    }
-    /**
      * 应用实例化后
-     * Admincp::$HOOKS['onAppInit']
      */
-    public static function onAppInit($className)
+    public static function onAppInit()
     {
         self::history(); //访问记录
         self::process(); //前置处理
     }
+
     /**
      * 应用方法执行前
-     * Admincp::$HOOKS['onMethodBegin']
      */
     public static function onMethodBegin($className, $params)
     {
-        AdmincpAccess::accessUri(APP_URL_QS); //检查URL权限
-        AdmincpAccess::accessApp(
-            Admincp::$APP_NAME,
-            Admincp::$APP_INSTANCE,
-            Admincp::$APP_METHOD,
-            $params
-        ); //检查APP权限
-
         ob_start();
     }
+
     /**
      * 应用方法执行后
-     * Admincp::$HOOKS['onMethodEnd']
      */
-    public static function onMethodEnd($className, &$response)
+    public static function onMethodEnd()
     {
         $html = ob_get_contents();
-        ob_end_clean();
-        AdmincpAccess::html($html);
-        echo $html;
+        if ($html) {
+            ob_end_clean();
+            AdmincpBase::parse($html);
+            AdmincpAuth::html($html);
+            echo $html;
+        }
+        return $html;
     }
+
+    /**
+     * 后台异常处理
+     *
+     * @param Exception $ex
+     * @return void
+     */
+    public static function onException(Exception $ex)
+    {
+        Admincp::define();
+        $msg = $ex->getMessage();
+        $code = $ex->getCode();
+        $AE = new AdmincpException($msg, $code, $ex);
+        $AE->display();
+    }
+
     /**
      * 访问历史记录
-     * Admincp::$HOOKS['onHistory']
      */
     public static function history($get = false)
     {
-        $Cache   = Cache::newfileCache();
-        $key     = iPHP_APP_SITE . '/menu/history' . Member::$user_id;
+        $Cache = Cache::file();
+        $key = iPHP_APP_SITE . '/menu/history' . Admin::$user_id;
         $history = (array)$Cache->get($key);
         if ($get) {
             return $history;
@@ -103,44 +139,12 @@ class AdmincpHooks
         }
         $Cache->add($key, $history, 0);
     }
+
     /**
      * 通用前置处理
-     * Admincp::$HOOKS['onProcess']
      */
     public static function process()
     {
-        //Fixes 83
-        $_GET['perpage'] > 10000 && $_GET['perpage'] = 10000;
-
-        if (Admincp::$APP_METHOD == 'do_batch') {
-            $bmIds = $_POST['bmIds'];
-            if (isset($_POST['bmIds']) && $bmIds) {
-                $_POST['id'] = explode(',', $bmIds);
-            }
-        }
-        admincpAdmincp::createLog();
-    }
-
-    /**
-     * 后台验证码
-     */
-    public static function captcha($flag = null)
-    {
-        //显示
-        if (Request::get('do') == 'captcha') {
-            Captcha::get();
-            exit;
-        }
-        //检查
-        if ($flag) {
-            if (Request::post('action') == 'login') {
-                $captcha = Request::post('captcha');
-                if ($captcha === iPHP_KEY) {
-                    return true;
-                }
-
-                Captcha::check($captcha) or iJson::error('验证码错误', '.captcha-img');
-            }
-        }
+        AdmincpLogAdmincp::create();
     }
 }

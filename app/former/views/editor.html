@@ -1,0 +1,358 @@
+<!-- 字段编辑器 -->
+<div id="former-field-editor" class="hide" style="width:600px;text-align: left;">
+    <form id="former-field-form">
+        <input type="hidden" name="id" />
+        <input type="hidden" name="multiple" />
+        <div class="field-tab-box block block-no-shadow">
+            <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+                <li class="nav-item"><a class="nav-link active" href="#field-tab-b"><i class="fa fa-fw fa-cogs"></i> 配置</a></li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-0"><i class="fa fa-fw fa-layer-group"></i> UI</a></li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-1"><i class="fa fa-fw fa-check-double"></i> 验证</a>
+                </li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-2"><i class="fa fa-fw fa-cog"></i> 权限</a></li>
+                <li class="nav-item"><a class="nav-link" href="#field-tab-3"><i class="fa fa-fw fa-info-circle"></i> 提示</a>
+                </li>
+                <!-- <li class="nav-item"><a class="nav-link" href="#field-tab-5"><i class="fa fa-fw fa-cog"></i> 优化</a></li> -->
+                <li class="nav-item"><a class="nav-link" href="#field-tab-6"><i class="fa fa-fw fa-code"></i> 脚本</a></li>
+            </ul>
+            <div id="vue" class="tab-content block-content block-content-full">
+                <div id="field-tab-b" class="tab-pane active">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="label">字段名称</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="label" placeholder="字段名称">
+                            <small class="form-text text-muted">* 必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="name">字段名</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="name" placeholder="字段名">
+                            <small class="form-text text-muted">* 必填,只能填写英文字母</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="field">字段类型</label>
+                        <div class="col-sm-8">
+                            <select name="field" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="请选择...">
+                                <optgroup label="字符类型">
+                                    <option value='VARCHAR'>字符串(VARCHAR)</option>
+                                    <option value='TEXT'>文本(TEXT)</option>
+                                    <option value='MEDIUMTEXT'>大文本(MEDIUMTEXT)</option>
+                                    <option value='LONGTEXT'>超大文本(LONGTEXT)</option>
+                                </optgroup>
+                                <optgroup label="整数类型">
+                                    <option value='TINYINT'>小整数(TINYINT)</option>
+                                    <option value='SMALLINT'>大整数(SMALLINT)</option>
+                                    <option value='MEDIUMINT'>大整数(MEDIUMINT)</option>
+                                    <option value='INT'>超大整数(INT)</option>
+                                    <option value='BIGINT'>极大整数(BIGINT)</option>
+                                </optgroup>
+                                <optgroup label="浮点数类型">
+                                    <option value='DECIMAL'>小数值(DECIMAL)</option>
+                                    <option value='FLOAT'>单精度(FLOAT)</option>
+                                    <option value='DOUBLE'>双精度(DOUBLE)</option>
+                                </optgroup>
+                            </select>
+                            <small class="form-text text-muted">* 必填 不熟悉的请勿修改</small>
+                        </div>
+                    </div>
+                    <div id="unsigned-wrap" class="hide">
+                        <div class="form-group row mb-1">
+                            <label class="col-sm-2 col-form-label text-sm-end" for="unsigned">整数类型</label>
+                            <div class="col-sm-8">
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="unsigned-1" name="unsigned" value="1" _value="1">
+                                    <label class="form-check-label" for="unsigned-1">无符号</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input type="radio" class="form-check-input" id="unsigned-0" name="unsigned" value="0" _value="0">
+                                    <label class="form-check-label" for="unsigned-0">有符号</label>
+                                </div>
+                                <small class="form-text text-muted">* 必填</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="len">字段长度</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="len" class="form-control" value="" />
+                            <small class="form-text text-muted">* 必填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="default">默&nbsp;&nbsp;认&nbsp;值</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="default" class="form-control" value="" />
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="comment">字段注释</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="comment" class="form-control" value="" />
+                            <small class="form-text text-muted">选填,不熟悉的可不填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="type">数据类型</label>
+                        <div class="col-sm-8">
+                            <select name="type" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="请选择...">
+                                <?php foreach (FormerField::$DATAS as $key => $fields) { ?>
+                                <option value="<?php echo $fields['type'] ?>"><?php echo $fields['text'] ?></option>
+                                <?php } ?>
+                            </select>
+                            <small class="form-text text-muted">* 必填 不熟悉的请勿修改</small>
+                        </div>
+                    </div>
+                    <div id="option-wrap" class="form-group row mb-1 hide">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="former-option">选项列表</label>
+                        <div class="col-sm-8">
+                            <textarea type="text" name="option" class="form-control" id="former-option" disabled /></textarea>
+                            <small class="form-text text-muted">* 必填 格式: 选项=值;<br />
+                                电脑=pc;<br />
+                                手机=phone;<br />
+                                iPad;
+                            </small>
+                            <br />
+                            <small class="form-text text-warning">注意：数据类型为单选框或者下拉列表， 选项值必需为数字，如果不是请将字段类型改为 字符串(VARCHAR)</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-0" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="tabs">表单卡</label>
+                        <div class="col-sm-8">
+                            <select name="tabs" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="请选择...">
+                            </select>
+                            <small class="form-text text-muted">提交后，刷新 </small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="help">字段说明</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="help" class="form-control" value="" />
+                            <small class="form-text text-muted">选填 </small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="class">字段样式</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="class" class="form-control" value="" />
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div id="labelafter-wrap" class="form-group row mb-1 hide">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="labelafter">扩展信息</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="labelafter" class="form-control" value="" />
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <hr />
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="index">管理列表</label>
+                        <div class="col-sm-8">
+                            <input type="checkbox" name="admincp_index" class="form-control" i="cms:ui:switch" value="0" />
+                            <small class="form-text text-muted">管理列表显示</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="format">列表格式</label>
+                        <div class="col-sm-8">
+                            <select name="admincp_format" class="form-control selectpicker" i="cms:ui:bs-selectpicker" value="">
+                                <option value="">原文显示</option>
+                                <option value="badge">Table.format.badge</option>
+                                <!-- <option value="buttons">Table.format.buttons</option> -->
+                                <option value="content">Table.format.content</option>
+                                <option value="datetime">Table.format.datetime</option>
+                                <option value="dialog">Table.format.dialog</option>
+                                <option value="flag">Table.format.flag</option>
+                                <option value="icon">Table.format.icon</option>
+                                <option value="image">Table.format.image</option>
+                                <option value="images">Table.format.images</option>
+                                <option value="input">Table.format.input</option>
+                                <option value="link">Table.format.link</option>
+                                <!-- <option value="mapping">Table.format.</option> -->
+                                <!-- <option value="operate">Table.format.operate</option> -->
+                                <option value="search">Table.format.search</option>
+                                <option value="status">Table.format.status</option>
+                                <option value="switch">Table.format.switch</option>
+                                <option value="text">Table.format.text</option>
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-1" class="tab-pane">
+                    <div class="alert alert-warning p-1 m-1">可多选按顺序验证</div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="validate">数据验证</label>
+                        <div class="col-sm-8">
+                            <select id="validate" name="validate[]" class="form-control selectpicker" data-order="true"  i="cms:ui:bs-selectpicker" data-placeholder="请选择数据验证方式..." multiple="multiple">
+                                <option value='empty'>不能为空</option>
+                                <option value='number'>只能输入数字</option>
+                                <option value='hanzi'>只能输入汉字</option>
+                                <option value='character'>只能输入字母</option>
+                                <option value='minmax'>验证范围</option>
+                                <option value='count'>字数检测</option>
+                                <option value='email'>E-Mail地址</option>
+                                <option value='url'>网址</option>
+                                <option value='mobphone'>手机号码</option>
+                                <option value='telphone'>固定电话</option>
+                                <option value='phone'>电话/手机</option>
+                                <option value='idcard'>身份证号码</option>
+                                <option value='zipcode'>邮政编码</option>
+                                <option value='defined'>自定义</option>
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div validate="minmax" class="hide form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="">验证范围</label>
+                        <div class="input-group col-sm-8">
+                            <span class="input-group-text">最小值</span>
+                            <input disabled type="text" name="minmax[0]" class="form-control" id="former-minmax_0" value="" />
+                            <span class="input-group-text">-</span><span class="input-group-text">-</span>
+                            <span class="input-group-text">最大值</span>
+                            <input disabled type="text" name="minmax[1]" class="form-control" id="former-minmax_1" value="" />
+                        </div>
+                    </div>
+                    <div validate="count" class="hide form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="count">字数检测</label>
+                        <div class="input-group col-sm-8">
+                            <span class="input-group-text">最小字数</span>
+                            <input disabled type="text" name="count[0]" class="form-control" id="former-count_0" value="" />
+                            <span class="input-group-text">-</span><span class="input-group-text">-</span>
+                            <span class="input-group-text">最大字数</span>
+                            <input disabled type="text" name="count[1]" class="form-control" id="former-count_1" value="" />
+                        </div>
+                    </div>
+                    <div validate="defined" class="hide form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="defined">代码</label>
+                        <div class="col-sm-8">
+                            <textarea disabled name="defined" id="former-defined" class="form-control" style="height:60px;"></textarea>
+                            <div class="alert alert-warning">
+                                可以自己填写提交时数据验证代码(javascript) <br /> 注:该代码将会包含在表单的submit事件里
+                                <br />
+                                <pre class="m-0">
+<code>
+$(表单ID).submit(function(){
+    .....
+    验证代码
+    .....
+})</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-2" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="access-view">查看权限</label>
+                        <div class="col-sm-8">
+                            <select data-url='/role/selectpage/user' multiple="multiple" name="access[view][]" id="access-view" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="请选择用户组">
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="access-edit">编辑权限</label>
+                        <div class="col-sm-8">
+                            <select data-url='/role/selectpage/user' multiple="multiple" name="access[edit][]" id="access-edit" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="请选择用户组">
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="access-edit">删除权限</label>
+                        <div class="col-sm-8">
+                            <select data-url='/role/selectpage/user' multiple="multiple" name="access[delete][]" id="access-delete" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="请选择用户组">
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-21" class="tab-pane">
+                    <div class="alert alert-warning p-1 m-1">保存数据时或者展示时执行,可多选按顺序执行</div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="func">数据处理</label>
+                        <div class="col-sm-8">
+                            <select name="func" class="form-control" placeholder="请选择数据处理方式..." multiple="multiple">
+                                <optgroup label="保存数据时">
+                                    <option value='input:repeat'>检查重复</option>
+                                    <option value='input:pinyin'>转成拼音</option>
+                                    <option value='input:cleanhtml'>清除HTML</option>
+                                    <option value='input:formathtml'>格式化HTML</option>
+                                    <option value='input:strtolower'>小写字母</option>
+                                    <option value='input:strtoupper'>大写字母</option>
+                                    <option value='input:firstword'>获取头字母大写</option>
+                                    <option value='input:md5'>md5</option>
+                                </optgroup>
+                                <optgroup label="通用">
+                                    <option value='rand'>生成随机数</option>
+                                </optgroup>
+                                <optgroup label="互转">
+                                    <option value='implode' data-args="" data-title="分隔字符">数组转字符串</option>
+                                    <option value='explode'>数组转字符串</option>
+                                    <option value='json_encode'>JSON编码</option>
+                                    <option value='json_decode'>JSON解码</option>
+                                    <option value='serialize'>序转列化编码</option>
+                                    <option value='unserialize'>序列化解码</option>
+                                    <option value='base64_encode'>base64编码</option>
+                                    <option value='base64_decode'>base64解码</option>
+                                    <option value='rawurlencode'>url编码</option>
+                                    <option value='rawurldecode'>url解码</option>
+                                </optgroup>
+                                <optgroup label="展示时">
+                                    <option value='output:md5'>md5</option>
+                                    <option value='output:redirect'>网址跳转</option>
+                                </optgroup>
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                    <div class="input-group hide">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="former-app">关联应用</label>
+                        <div class="col-sm-8">
+                            <input data-source='/apps/selectpage' name="app" id="former-app" class="form-control selectpicker" i="cms:ui:bs-selectpicker" placeholder="选择关联应用" />
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-3" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="holder">默认提示</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="holder" class="form-control" value="" />
+                        </div>
+                    </div>
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="error">错误提示</label>
+                        <div class="col-sm-8">
+                            <input type="text" name="error" class="form-control" value="" />
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-5" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="db">数据优化</label>
+                        <div class="col-sm-8">
+                            <select name="db" class="form-control" placeholder="请选择..." multiple="multiple">
+                            </select>
+                            <small class="form-text text-muted">选填</small>
+                        </div>
+                    </div>
+                </div>
+                <div id="field-tab-6" class="tab-pane">
+                    <div class="form-group row mb-1">
+                        <label class="col-sm-2 col-form-label text-sm-end" for="javascript">JS代码</label>
+                        <div class="col-sm-8">
+                            <textarea name="javascript" class="form-control" style="height:150px;"></textarea>
+                            <small class="form-text text-muted">可填写javascript代码</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>

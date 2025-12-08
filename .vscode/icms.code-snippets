@@ -1,0 +1,350 @@
+{
+	// Place your 全局 snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"jqExtend":{
+		"scope": "javascript",
+		"prefix": "jqExtend",
+		"body": "$.extend($1);"
+	},
+	"lang_html":{
+		"scope": "html",
+		"prefix": "lang",
+		"body": "<?=Lang($1)?>"
+	},
+	"lang_php":{
+		"scope": "php",
+		"prefix": "lang",
+		"body": "Lang($1)"
+	},
+	"iCMS.ui.alert":{
+		"scope": "javascript",
+		"prefix": "iCMS.ui.alert",
+		"body": "iCMS.ui.alert({$1});"
+	},
+	"iCMS.ui.success":{
+		"scope": "javascript",
+		"prefix": "iCMS.ui.success",
+		"body": "iCMS.ui.success({$1});"
+	},
+	"iCMS.ui.dialog":{
+		"scope": "javascript",
+		"prefix": "iCMS.ui.dialog",
+		"body": "iCMS.ui.dialog({$1});"
+	},
+	"iCMS.ui.modal":{
+		"scope": "javascript",
+		"prefix": "iCMS.ui.modal",
+		"body": "iCMS.ui.modal({$1});"
+	},
+	"iCMS.notify.success":{
+		"scope": "javascript",
+		"prefix": "iCMS.notify.success",
+		"body": "iCMS.notify.success($1);"
+	},
+	"iCMS.notify.error":{
+		"scope": "javascript",
+		"prefix": "iCMS.notify.error",
+		"body": "iCMS.notify.error($1);"
+	}
+	,
+	"iCMS.notify.alert":{
+		"scope": "javascript",
+		"prefix": "iCMS.notify.alert",
+		"body": "iCMS.notify.alert($1);"
+	},
+	"iCMS.notify.warning":{
+		"scope": "javascript",
+		"prefix": "iCMS.notify.warning",
+		"body": "iCMS.notify.warning($1);"
+	},
+	"iCMS.api.post":{
+		"scope": "javascript",
+		"prefix": "iCMS.api.post",
+		"body": [
+			"iCMS.api.post($1,{$2},function(json){",
+			"},function(json){)"
+			"});"
+		]
+	},
+	"iCMS.api.spost":{
+		"scope": "javascript",
+		"prefix": "iCMS.api.spost",
+		"body": [
+			"iCMS.api.spost($1,{$2});"
+		]
+	},
+	"iCMS.api.get":{
+		"scope": "javascript",
+		"prefix": "iCMS.api.get",
+		"body": [
+			"iCMS.api.get($1,{$2},function(json){",
+			"},function(json){)"
+			"});"
+		]
+	},
+	"iCMS.api.sget":{
+		"scope": "javascript",
+		"prefix": "iCMS.api.sget",
+		"body": [
+			"iCMS.api.sget($1,{$2});"
+		]
+	},
+	"iCMS.api.url":{
+		"scope": "javascript",
+		"prefix": "iCMS.api.url",
+		"body": [
+			"iCMS.api.url($1);"
+		]
+	},
+	"iCMS.api.submit":{
+		"scope": "javascript",
+		"prefix": "iCMS.api.submit",
+		"body": [
+			"iCMS.api.submit($1,{$2});"
+		]
+	},
+	"iCMS.utils.jumpto":{
+		"scope": "javascript",
+		"prefix": "iCMS.utils.jumpto",
+		"body": [
+			"iCMS.utils.jumpto($1);"
+		]
+	},
+	"iCMS.utils.display":{
+		"scope": "javascript",
+		"prefix": "iCMS.utils.display",
+		"body": [
+			"iCMS.utils.display($1,{$2});"
+		]
+	},
+	"iCMS.utils.sprintf":{
+		"scope": "javascript",
+		"prefix": "iCMS.utils.sprintf",
+		"body": [
+			"iCMS.utils.sprintf($1,$2);"
+		]
+	},
+	"iCMS.request.get":{
+		"scope": "javascript",
+		"prefix": "iCMS.request.get",
+		"body": [
+			"iCMS.request.get($1, {$2})",
+			".then(function (json) {",
+			"})",
+			".catch(function (error) {",
+			"});"
+		]
+	},
+	"iCMS.request.post":{
+		"scope": "javascript",
+		"prefix": "iCMS.request.post",
+		"body": [
+			"iCMS.request.get($1, {$2})",
+			".then(function (json) {",
+			"})",
+			".catch(function (error) {",
+			"});"
+		]
+	},
+	"cms:ui:rating":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:rating",
+		"body": "i=\"cms:ui:rating\" data-score=\"$1\"",
+	},
+	"cms:ui:popover":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:popover",
+		"body": "i=\"cms:ui:popover\" title=\"$1\"",
+	},
+	"cms:ui:tooltip":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:tooltip",
+		"body": "i=\"cms:ui:tooltip\" title=\"$1\"",
+	},
+	"cms:ui:slider":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:slider",
+		"body": "i=\"cms:ui:slider\"",
+	},
+	"cms:ui:gallery":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:gallery",
+		"body": "i=\"cms:ui:gallery\" data-delegate=\"$1\"",
+	},
+	"cms:ui:switch":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:switch",
+		"body": "i=\"cms:ui:switch\" data-on-text=\"$1\" data-off-text=\"$2\"",
+	},
+	"cms:ui:form-switch":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:form-switch",
+		"body": "i=\"cms:ui:form-switch\" data-url=\"$1\"",
+	},
+	"cms:ui:autocomplete":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:autocomplete",
+		"body": "i=\"cms:ui:autocomplete\" data-url=\"$1\" data-show=\"title\" data-size=\"100\"",
+	},
+	"cms:ui:daterangepicker":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:daterangepicker",
+		"body": "i=\"cms:ui:daterangepicker\"",
+	},
+	"cms:ui:datepicker":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:datepicker",
+		"body": "i=\"cms:ui:datepicker\"",
+	},
+	"cms:ui:citypicker":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:citypicker",
+		"body": "i=\"cms:ui:citypicker\"",
+	},
+	"cms:ui:form":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:form",
+		"body": "i=\"cms:ui:form\"",
+	},
+	"cms:ui:tabs":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:tabs",
+		"body": "i=\"cms:ui:tabs\"",
+	},
+	"cms:ui:rangeslider":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:rangeslider",
+		"body": "i=\"cms:ui:rangeslider\"",
+	},
+	"cms:ui:ajax":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:ajax",
+		"body": "i=\"cms:ui:ajax\" data-url=\"$1\"",
+	},
+	"cms:ui:insert":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:insert",
+		"body": "i=\"cms:ui:insert\" data-item=\"$1\" data-target=\"#$2\"",
+	},
+	"cms:ui:maxlength":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:maxlength",
+		"body": "i=\"cms:ui:maxlength\" maxlength=\"$1\"",
+	},
+	"cms:ui:file:btns":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:file:btns",
+		"body": "i=\"cms:ui:file:btns\" data-upload=\"true\" data-browse=\"true\" data-preview=\"true\"",
+	},
+	"cms:ui:file:btns:upload":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:file:btns:upload",
+		"body": "i=\"cms:ui:file:btns:upload\" data-preview=\"true\"",
+	},
+	"cms:ui:file:btns:browse":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:file:btns:browse",
+		"body": "i=\"cms:ui:file:btns:browse\" data-preview=\"true\"",
+	},
+	"cms:ui:file:upload":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:file:upload",
+		"body": "i=\"cms:ui:file:upload\" data-target=\"this\"",
+	},
+	"cms:ui:file:browse":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:file:browse",
+		"body": "i=\"cms:ui:file:browse\" data-target=\"this\"",
+	},
+	"cms:ui:random":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:random",
+		"body": "i=\"cms:ui:random\"",
+	},
+	"cms:ui:remove":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:remove",
+		"body": "i=\"cms:ui:remove\"",
+	},
+	"cms:ui:modal":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:modal",
+		"body": "i=\"cms:ui:modal\" href=\"$1\"",
+	},
+	"cms:ui:dialog":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:dialog",
+		"body": "i=\"cms:ui:dialog\" href=\"$1\"",
+	},
+	"cms:ui:checked":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:checked",
+		"body": "i=\"cms:ui:checked\" data-checked=\"$1\"",
+	},
+	"cms:ui:masked":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:masked",
+		"body": "i=\"cms:ui:masked\" data-format=\"$1\"",
+	},
+	"cms:ui:select":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:select",
+		"body": "i=\"cms:ui:select\" value=\"$1\"",
+	},
+	"cms:ui:selectpicker":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:selectpicker",
+		"body": "i=\"cms:ui:selectpicker\" data-source=\"$1\"",
+	},
+	"cms:ui:selectpage":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:selectpage",
+		"body": "i=\"cms:ui:selectpage\" data-source=\"$1\" data-show=\"title\" data-text=\"title\"",
+	},
+	"cms:ui:prop":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:prop",
+		"body": "i=\"cms:ui:prop\" data-source=\"./prop/$1\"",
+	},
+	"cms:ui:node":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:node",
+		"body": "i=\"cms:ui:node\" data-node-appid=\"$1\"",
+	},
+	"cms:ui:bs-selectpicker":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:bs-selectpicker:value",
+		"body": "i=\"cms:ui:bs-selectpicker\" value=\"$1\"",
+	},
+	"cms:ui:bs-selectpicker":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:bs-selectpicker:url",
+		"body": "i=\"cms:ui:bs-selectpicker\" data-source=\"$1\"",
+	},
+	"cms:ui:editor:ueditor":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:editor:ueditor",
+		"body": "<textarea type=\"text/plain\" id=\"$1-1\" i=\"cms:ui:editor\" data-boot=\"\" name=\"$1\" data-widget=\"ueditor\">$2</textarea>",
+		"body0": "i=\"cms:ui:editor\"  data-widget=\"ueditor\"",
+	},
+	"cms:ui:editor:vditor":{
+		"scope": "html,htm",
+		"prefix": "cms:ui:editor:vditor",
+		"body": "<textarea type=\"text/plain\" id=\"$1-1\" i=\"cms:ui:editor\" data-boot=\"\" name=\"$1\" data-widget=\"vditor\">$2</textarea>",
+		"body0": "i=\"cms:ui:editor\"  data-widget=\"vditor\"",
+	},
+}

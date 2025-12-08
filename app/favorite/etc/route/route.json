@@ -1,4 +1,5 @@
 {
-    "favorite": "api.php?app=favorite",
-    "favorite/{id}": "api.php?app=favorite&id={id}"
+    "favorite": "app=favorite",
+    "favorite/create": "app=favorite&do=create",
+    "favorite/{id}": "app=favorite&id={id}"
 }

@@ -9,7 +9,7 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 /**
- * 兼容v7模板标签
+ * 兼容v7模板标签
  */
 class CategoryFunc extends NodeFunc
 {

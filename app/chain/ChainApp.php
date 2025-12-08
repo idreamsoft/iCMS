@@ -12,10 +12,10 @@ class ChainApp
 {
     public $methods = array(iPHP_APP);
 
-    public function do_iCMS()
+    public function do_index()
     {
     }
-    public function API_iCMS()
+    public function api_index()
     {
     }
 }

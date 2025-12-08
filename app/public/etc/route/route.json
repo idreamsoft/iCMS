@@ -1,0 +1,6 @@
+{
+    "public/captcha": "app=public&do=captcha",
+    "public/privacy": "app=public&do=privacy",
+    "public/terms": "app=public&do=terms",
+    "public/license/charge": "app=public&do=license&s=charge"
+}

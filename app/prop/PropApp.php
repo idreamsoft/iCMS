@@ -10,53 +10,68 @@
  */
 class PropApp
 {
-    public $methods = array(iPHP_APP);
+    public $methods = [iPHP_APP];
 
     public static function value($field = null, $app = null, $sort = true)
     {
-        $app  && $pieces[] = $app;
+        $app && $pieces[] = $app;
         $field && $pieces[] = $field;
-        if (empty($pieces)) return false;
+        if (empty($pieces)) {
+            return false;
+        }
 
         $keys = implode('/', $pieces);
-        $propArray     = Cache::get("prop/{$keys}");
+        $propArray = Cache::get(sprintf('%s/%s', Prop::PREFIX, $keys));
         $propArray && $sort && sort($propArray);
         return $propArray;
     }
+
     public static function field($field, $app = null)
     {
         $variable = self::value($field, $app, false);
-        $propArray = array();
-        if ($variable) foreach ($variable as $key => $value) {
-            $propArray[$value['val']] = $value;
+        $propArray = [];
+        if ($variable) {
+            foreach ($variable as $key => $value) {
+                $propArray[$value['val']] = $value;
+            }
         }
         return $propArray;
     }
+
     public static function app($app)
     {
         return self::value(null, $app, false);
     }
+
     public static function url($value, $url = null)
     {
-        $query = array();
+        $query = [];
         $query[$value['field']] = $value['val'];
         return Route::make($query, $url);
     }
-    public static function items($vars, $variable)
+    
+    public static function item($vars, &$value)
     {
-        foreach ($variable as $key => $value) {
-            if ($vars['field']) {
-                $value['url'] = PropApp::url($value, $vars['url']);
-                $value['link'] = '<a href="' . $value['url'] . '" />' . $value['name'] . '</a>';
+        $value['url'] = PropApp::url($value, $vars['url']);
+        $value['link'] = sprintf('<a href="%s">%s</a>',$value['url'],$value['name']) ;
+        $value['hash'] = md5($value['name'] . $value['val']);
+        //兼容
+        $value['value'] = $value['val'];
+        $value['text'] = $value['name'];
+    }
+
+    public static function items($vars, &$resource = [])
+    {
+        !isset($vars['judge']) && $vars['judge'] = Request::get();
+        foreach ($resource as $key => &$value) {
+            if ($vars['field'] or isset($value['id'])) {
+                self::item($vars, $value);
             } else {
-                foreach ($value as $k => $v) {
-                    $v['url'] = PropApp::url($v, $vars['url']);
-                    $v['link'] = '<a href="' . $v['url'] . '" />' . $v['name'] . '</a>';
-                    $value[$k] = $v;
+                foreach ($value as $k => &$v) {
+                    self::item($vars, $v);
                 }
             }
-            $variable[$key] = $value;
         }
-        return $variable;
+        return $resource;
     }
 }

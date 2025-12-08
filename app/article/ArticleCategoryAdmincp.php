@@ -10,10 +10,11 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
+/**
+ * 文章栏目
+ */
 class ArticleCategoryAdmincp extends NodeAdmincp
 {
-    public $ACCESC_TITLE = '文章栏目'; //分类权限名
-
     public function __construct()
     {
         parent::__construct(iCMS_APP_ARTICLE);
@@ -23,7 +24,7 @@ class ArticleCategoryAdmincp extends NodeAdmincp
 
         $this->CONTENT_MODEL  = new ArticleModel();
         $this->NODE_NAME  = "栏目";
-        $this->loadRoute();
+  
         /**
          *  URL规则选项
          */

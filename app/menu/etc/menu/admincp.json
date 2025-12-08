@@ -4,9 +4,9 @@
         "id": "cache",
         "children": [{
             "caption": "更新菜单缓存",
-            "href": "menu&do=cache",
+            "href": "/menu/cache",
             "icon": "sync",
-            "target": "iPHP_FRAME"
+            "ui": "cms:ui:ajax"
         }]
     }]
 }]

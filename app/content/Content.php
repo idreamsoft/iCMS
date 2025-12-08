@@ -10,26 +10,26 @@
  */
 class Content
 {
-    public static $statusMap = array(
-        '0' => '草稿',
-        '1' => '正常',
-        '2' => '回收站',
-        '3' => '待审核',
-        '4' => '未通过'
-    );
+    const APP = 'content';
+    const APPID = iCMS_APP_CONTENT;
+
+    public static $MODEL = null;
+    public static $APP_DATA = [];
+    public static $APP = null;
+    public static $APPID = 0;
     public static $stypeMap = array(
         'inbox'   => '0', //草稿
         'normal'  => '1', //正常
         'trash'   => '2', //回收站
         'examine' => '3', //待审核
         'off'     => '4', //未通过
-    );
-    public static $postypeMap = array(
-        '0' => '用户',
-        '1' => '管理',
+        'delete'  => '5', //删除
+        'lock'    => '6', //锁定
+        'hidden'  => '7', //隐藏
     );
 
-    public static $primaryKey   = 'id';
+
+
     /**
      * 设置 ContentModel 模型表
      * 设置 ContentDataModel 模型表
@@ -37,26 +37,33 @@ class Content
      */
     public static function model($apps, $table = null)
     {
-        self::$primaryKey = AppsTable::getPrimaryKey();
         is_null($table) && $table = $apps['app'];
-        $model = ContentModel::setTable($table);
-        // self::$primaryKey = $model->getPrimaryKey();
+        ContentModel::setEventData($apps);
+        self::$MODEL = ContentModel::setTable($table);
         if (AppsTable::getDataTable($apps, $table)) {
             ContentDataModel::setUnionKey($apps['app']);
             ContentDataModel::setTable($table);
         }
-        return $model;
+        return  self::$MODEL;
+    }
+    /**
+     * 已在 nodeApp contentApp 设置数据回调,
+     * 在应用范围内可以不用设置 app="应用名/应用ID"
+     **/
+    public static function setAppData($data){
+        // echo iDebug::backtraceHtml();
+        self::$APP_DATA = $data;
     }
     /**
      * @return Array 新增返回空数组|更新返回旧数据
      */
     public static function save(&$id, &$content, $contentData)
     {
-        $pk = AppsTable::getPrimaryKey();
-        is_null($id) && $id = $content[$pk];
-        unset($content[$pk]);
+        is_null($id) && $id = $content['id'];
+        unset($content['id']);
         $unionKey = ContentDataModel::$unionKey;
-        $orig = array(); //旧数据
+        $orig = []; //旧数据
+
         if (empty($id)) {
             $flag = 0; //插入
             $id = ContentModel::create($content, true);
@@ -74,22 +81,22 @@ class Content
                 // ContentDataModel::updateOrCreate($contentData, $where, true);
                 $check = ContentDataModel::check($where);
                 //检测 附加表是否有数据，有就更新
-                if($check){
+                if ($check) {
                     ContentDataModel::update($contentData, $where);
-                }else{
+                } else {
                     $contentData[$unionKey] = $id;
                     ContentDataModel::create($contentData, true);
                 }
             }
-            // echo ContentDataModel::getQueryLog();
         }
-        $content[$pk] = $id;
+        $content['id'] = $id;
         return $orig;
     }
+
     public static function check($value, $id = 0, $field = 'title')
     {
-        $where = array($field => $value);
-        $id && $where['id'] = array('<>', $id);
+        $where = [$field => $value];
+        $id && $where['id'] = ['<>', $id];
         return ContentModel::field('id')->where($where)->value();
     }
 
@@ -100,36 +107,50 @@ class Content
         }
         return ContentModel::field($field)->where($id)->value();
     }
-    public static function get($id = 0, $field = '*', $where = array())
+
+    public static function get($id = 0, $field = '*', $where = [])
     {
         $where['id'] = $id;
         return ContentModel::field($field)->where($where)->get();
     }
+
     public static function data($id = 0, $dataId = 0, $userid = 0)
     {
-        $data = array();
-        if (empty($id)) return $data;
-
-        $userid && $where['userid'] = $userid;
-        $content = ContentModel::where($where)->get($id);
-        if ($content) {
-            $where[ContentDataModel::$unionKey] = $content['id'];
-            $dataId && $where['id'] = $dataId;
-            $d = ContentDataModel::getData($where);
-            is_array($d) && $content = array_merge($content, $d);
+        $data = [];
+        if (empty($id)) {
+            return $data;
         }
+
+        $where = [];
+        $id && $where['id'] = $id;
+        $userid && $where['userid'] = $userid;
+        $content = ContentModel::where($where)->get();
+        self::cdata($content, $dataId);
         return $content;
-        // return array_merge($content, $data);
+    }
+
+    public static function cdata(&$data, $dataId = 0)
+    {
+        $ukey = ContentDataModel::$unionKey;
+        if ($data && $ukey) {
+            $where[$ukey] = $data['id'];
+            $dataId && $where['id'] = $dataId;
+            $cdata = ContentDataModel::data($where);
+            is_array($cdata) && $data = array_merge($data, $cdata);
+        }
+        return $data;
     }
 
     public static function create($data)
     {
         return ContentModel::create($data, true);
     }
+
     public static function update($data, $where)
     {
         return ContentModel::update($data, $where);
     }
+
     public static function delete($id)
     {
         return ContentModel::delete($id);

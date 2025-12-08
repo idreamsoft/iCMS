@@ -15,7 +15,7 @@ class Manager
     /**
      * The database connection factory instance.
      *
-     * @var \Illuminate\Database\Connectors\ConnectionFactory
+     * @var ConnectionFactory
      */
     protected $factory;
 
@@ -36,20 +36,21 @@ class Manager
     /**
      * The callback to be executed to reconnect to a database.
      *
-     * @var callable
+     * @var Closure
      */
     protected $reconnector;
 
     /**
      * Create a new database manager instance.
      *
-     * @param  \Illuminate\Contracts\Foundation\Application  $app
-     * @param  \Illuminate\Database\Connectors\ConnectionFactory  $factory
      * @return void
      */
     public function __construct()
     {
-        $this->config = $GLOBALS['DATABASE'];
+        // $this->config = $GLOBALS['DATABASE'];
+        // if(empty($this->config)){
+        //     throw new Exception("DATABASE not configured.");
+        // }
         $this->factory = new ConnectionFactory();
 
         $this->reconnector = function ($connection) {
@@ -152,7 +153,7 @@ class Manager
      * @param  string  $name
      * @return array
      *
-     * @throws \InvalidArgumentException
+     * @throws \Exception
      */
     protected function configuration($name)
     {
@@ -164,7 +165,7 @@ class Manager
         $connections = $this->config['connections'];
 
         if (is_null($config = Arr::get($connections, $name))) {
-            throw new InvalidArgumentException("Database connection [{$name}] not configured.");
+            throw new Exception("Database connection [{$name}] not configured.");
         }
         $ConfigurationUrlParser = new ConfigurationUrlParser;
         return $ConfigurationUrlParser->parseConfiguration($config);
@@ -172,9 +173,9 @@ class Manager
     /**
      * Prepare the database connection instance.
      *
-     * @param  \Illuminate\Database\Connection  $connection
+     * @param  Connection  $connection
      * @param  string  $type
-     * @return \Illuminate\Database\Connection
+     * @return Connection
      */
     protected function configure(Connection $connection, $type)
     {
@@ -197,9 +198,9 @@ class Manager
     /**
      * Prepare the read / write mode for database connection instance.
      *
-     * @param  \Illuminate\Database\Connection  $connection
+     * @param  Connection  $connection
      * @param  string|null  $type
-     * @return \Illuminate\Database\Connection
+     * @return Connection
      */
     protected function setPdoForType(Connection $connection, $type = null)
     {
@@ -270,11 +271,27 @@ class Manager
 
         $this->setDefaultConnection($name);
 
-        return tap($callback(), function () use ($previousName) {
+        return $this->tap($callback(), function () use ($previousName) {
             $this->setDefaultConnection($previousName);
         });
     }
+    /**
+     * Call the given Closure with the given value then return the value.
+     *
+     * @param  mixed  $value
+     * @param  callable|null  $callback
+     * @return mixed
+     */
+    public function tap($value, $callback = null)
+    {
+        if (is_null($callback)) {
+            return $value;
+        }
 
+        $callback($value);
+
+        return $value;
+    }
     /**
      * Refresh the PDO connections on a given connection.
      *
@@ -310,7 +327,7 @@ class Manager
     {
         $this->config['default'] = $name;
     }
-    public function setConfig($config)
+    public  function setConfig($config)
     {
         $this->config = $config;
     }

@@ -9,12 +9,12 @@
             "icon": "database",
             "children": [{
                     "caption": "数据备份",
-                    "href": "database&do=backup",
+                    "href": "/database/backup",
                     "icon": "database"
                 },
                 {
                     "caption": "备份管理",
-                    "href": "database&do=recover",
+                    "href": "/database/recover",
                     "icon": "upload"
                 },
                 {
@@ -22,12 +22,12 @@
                 },
                 {
                     "caption": "修复优化",
-                    "href": "database&do=repair",
+                    "href": "/database/repair",
                     "icon": "gavel"
                 },
                 {
                     "caption": "性能优化",
-                    "href": "database&do=sharding",
+                    "href": "/database/sharding",
                     "icon": "puzzle-piece"
                 },
                 {
@@ -35,7 +35,7 @@
                 },
                 {
                     "caption": "数据替换",
-                    "href": "database&do=replace",
+                    "href": "/database/replace",
                     "icon": "retweet"
                 }
             ]

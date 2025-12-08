@@ -10,55 +10,83 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class ArticleEvent
+class ArticleEvent extends DBEvent
 {
-    public static function changed($response, $event, $model)
+    // public static function geted($response, $Builder, $event, $isMulti){
+    //     // throw new Exception("Error Processing Request", 1);
+
+    //     var_dump($response);
+    // }
+    // public static function updated($response, $Builder, $event, $isMulti)
+    // {
+    // }
+    public static $appid = iCMS_APP_ARTICLE;
+
+    public static function changed($response, $Builder, $event, $isMulti)
     {
-        $event == 'updated' && $model->field('id,cid,userid')->get();
-        $id = $model->getResponse('id');
-        $appid = iCMS_APP_ARTICLE;
-        if (isset($response['cid'])) {
-            /** 栏目变化 */
-            Node::change('cid', $response['cid'], $event, $id, $appid);
+        if ($event == 'updated') {
+            $idArr = $Builder->field('id')->pluck();
+        } else {
+            $idArr = [$response['id']];
         }
-        if (isset($response['scid'])) {
-            /** 副栏目变化 */
-            AppsMap::change('scid', $appid, $response['scid'], $event, $id, 'Node');
-        }
-        if (isset($response['pid'])) {
-            /** 属性变化 */
-            AppsMap::change('pid', $appid, $response['pid'], $event, $id, 'Prop');
-        }
-        if (isset($response['tags'])) {
-            /** 标签变化 */
-            Tag::$APPID = $appid;
-            if(!isset($response['tags']['raw'])){
-                Tag::change('tags', $response['tags'], $event, $model);
+        array_map(function ($id) use ($response, $Builder, $event, $isMulti) {
+            if (!$id) {
+                return;
             }
-        }
-        //缩略图变化
-        if (isset($response['pic']) || isset($response['bpic']) || isset($response['mpic']) || isset($response['spic'])) {
-            FilesPic::change($response, $appid, $event, $id);
-        }
-        if($event == 'updated'){
-            Archive::update($appid, $id, $response);
-        }else{
-            //内容归档
-            Archive::save($appid, $id, $response);
-        }
+            if (isset($response['cid'])) {
+                /** 栏目变化 */
+                Node::change('cid', $response['cid'], $event, $id, self::$appid);
+            }
+            if (isset($response['scid'])) {
+                /** 副栏目变化 */
+                AppsMap::change('scid', self::$appid, $response['scid'], $event, $id, 'Node');
+            }
+            if (isset($response['pid'])) {
+                /** 属性变化 */
+                AppsMap::change('pid', self::$appid, $response['pid'], $event, $id, 'Prop');
+            }
+            if (isset($response['tags'])) {
+                /** 标签变化 */
+                Tag::$APPID = self::$appid;
+                if (!isset($response['tags']['raw'])) {
+                    Tag::change('tags', $response['tags'], $event, $id, self::$appid, $Builder);
+                }
+            }
+            //缩略图变化
+            if (isset($response['pic']) || isset($response['bpic']) || isset($response['mpic']) || isset($response['spic'])) {
+                FilesPic::change($response, self::$appid, $event, $id);
+            }
+            if ($event == 'updated') {
+                Archive::update(self::$appid, $id, $response);
+            } else {
+                //内容归档
+                Archive::save(self::$appid, $id, $response);
+            }
+        }, $idArr);
     }
-    public static function deleted($response, $model)
+
+    /**
+     * 删除前
+     *
+     * @param [type] $response
+     * @param [type] $Builder
+     * @param [type] $event
+     * @param [type] $isMulti
+     * @return void
+     */
+    public static function delete($response, $Builder, $event, $isMulti)
     {
-        $row = $model->field('id,cid,userid,tags,pic,bpic,mpic,spic')->get();
-        $iid = $row['id'];
-        $appid = iCMS_APP_ARTICLE;
-        if ($iid) {
-            AppsMap::delete($appid, $iid, 'Node');
-            AppsMap::delete($appid, $iid, 'Tag');
-            AppsMap::delete($appid, $iid, 'Prop');
-            Files::delete($appid, $iid);
-            Comment::delete($appid, $iid);
-            Archive::delete($appid, $iid);
-        }
+        $idArr = $Builder->field('id')->pluck();
+        array_map(function ($id) {
+            if (!$id) {
+                return;
+            }
+            AppsMap::delete(self::$appid, $id, 'Node');
+            AppsMap::delete(self::$appid, $id, 'Tag');
+            AppsMap::delete(self::$appid, $id, 'Prop');
+            Files::delete(self::$appid, $id);
+            Comment::delete(self::$appid, $id);
+            Archive::delete(self::$appid, $id);
+        }, $idArr);
     }
 }

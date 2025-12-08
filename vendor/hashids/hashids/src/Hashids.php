@@ -189,8 +189,9 @@ class Hashids implements HashidsInterface
             $ret = substr($alphabet, $halfLength).$ret.substr($alphabet, 0, $halfLength);
 
             $excess = strlen($ret) - $this->minHashLength;
+
             if ($excess > 0) {
-                $ret = substr($ret, $excess / 2, $this->minHashLength);
+                $ret = substr($ret, round($excess / 2), $this->minHashLength);
             }
         }
 

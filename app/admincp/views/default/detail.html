@@ -1,0 +1,57 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content p-0">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">详情</h3>
+        </div>
+        <div class="block-content p-0">
+            <table class="table table-hover table-striped table-bordered table-sm table-vcenter fs-sm mb-0">
+                <thead>
+                    <tr>
+                        <th style="width: 150px">字段名</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($rs as $key => $value) { ?>
+                        <tr>
+                            <td><?php echo $fields[$key]['comment']; ?>(<?php echo $fields[$key]['field']; ?>)</td>
+                            <?php
+                            $type = $fields[$key]['type'];
+                            if (in_array($key, array('create_time', 'update_time'))) {
+                                $value && $value = get_date($value, 'Y-m-d H:i:s');
+                            }
+                            ?>
+                            <td class="text-wrap text-break">
+                                <?php if (is_array($value)) {
+                                    echo '<pre>';
+                                    echo var_export($value, true);
+                                    echo '</pre>';
+                                } else {
+                                    if ($type == 'MEDIUMTEXT') {
+                                        echo nl2br($value);
+                                    } else {
+                                        echo $value;
+                                    }
+                                } ?>
+                            </td>
+                        </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

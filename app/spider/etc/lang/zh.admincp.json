@@ -1,0 +1,15 @@
+{
+    "fields":{
+        "rid":"规则ID",
+        "pid":"方案ID",
+        "project":"方案",
+        "crawl":"采集",
+        "test":"测试",
+        "auto":"自动采集",
+        "lastupdate":"最后采集",
+        "postName":"发布模块",
+        "ruleName":"规则名称",
+        "publish":"发布"
+    }
+    
+}

@@ -4,14 +4,14 @@
         "id": "cache",
         "children": [{
             "caption": "更新文章栏目缓存",
-            "href": "articleCategory&do=cache",
+            "href": "/articleCategory/cache",
             "icon": "sync",
-            "target": "iPHP_FRAME"
+            "ui": "cms:ui:ajax"
         }, {
             "caption": "更新文章栏目统计",
-            "href": "articleCategory&do=recount",
+            "href": "/articleCategory/recount",
             "icon": "sync",
-            "target": "iPHP_FRAME"
+            "ui": "cms:ui:ajax"
         }]
     }]
 }]

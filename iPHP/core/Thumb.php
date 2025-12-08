@@ -1,4 +1,7 @@
 <?php
+
+// namespace iPHP\core;
+
 /**
  * iPHP - i PHP Framework
  * Copyright (c) iiiPHP.com. All rights reserved.
@@ -11,26 +14,30 @@
 /**
  * 缩略图生成程序
  */
-class Thumb {
-    public static $RES_PATH       = null;
+class Thumb
+{
+    public static $RES_PATH = null;
     public static $RES_CACHE_TIME = null;
-    public static $RES_CACHE_DIR  = null;
+    public static $RES_CACHE_DIR = null;
 
-    public static $src_data     = null;
-    public static $thumb_path   = null;
+    public static $src_data = null;
+    public static $thumb_path = null;
     protected static $cache_dir = null;
+
     /**
      * 显示缩略图
      */
-    public static function create(){
+    public static function create()
+    {
         $expires = 31536000;
-        header("Cache-Control: maxage=".$expires);
-        header('Last-Modified: '.gmdate('D, d M Y H:i:s',$_SERVER['REQUEST_TIME']).' GMT');
-        header('Expires: '.gmdate('D, d M Y H:i:s',$_SERVER['REQUEST_TIME']+$expires).' GMT');
+        header('Cache-Control: maxage=' . $expires);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME']) . ' GMT');
+        header('Expires: ' . gmdate('D, d M Y H:i:s', $_SERVER['REQUEST_TIME'] + $expires) . ' GMT');
         header('Content-type: image/jpeg');
         echo self::$src_data;
         self::finish();
     }
+
     /**
      * 生成缩略图
      * @param  [type]  $path [原图路径]
@@ -38,48 +45,52 @@ class Thumb {
      * @param  integer $th   [缩略图高度]
      * @return [image]        [缩略图资源]
      */
-    public static function make($path,$tw=1,$th=1){
-        strpos($path,'..') === false OR trigger_error('What are you doing?',E_USER_ERROR);
+    public static function make($path, $tw = 1, $th = 1)
+    {
+        strpos($path, '..') === false or trigger_error('What are you doing?', E_USER_ERROR);
 
-        $srcPath   = self::$RES_PATH.$path;
-        $thumb_path = $srcPath.'_'.$tw.'x'.$th.'.jpg';
+        $srcPath = self::$RES_PATH . $path;
+        $thumb_path = $srcPath . '_' . $tw . 'x' . $th . '.jpg';
 
-        if (empty($path)||!self::exists($srcPath))
+        if (empty($path) || !self::exists($srcPath)) {
             return self::blank();
+        }
 
-        iPHP_RES_CACHE && self::$src_data = self::cache($thumb_path,'get');
+        iPHP_RES_CACHE && self::$src_data = self::cache($thumb_path, 'get');
 
-        if(empty(self::$src_data)){
+        if (empty(self::$src_data)) {
             $gmagick = new Gmagick();
             $gmagick->readImage($srcPath);
-            $scale = array(
-                    "tw" => $tw,
-                    "th" => $th,
-                    "w"  => $gmagick->getImageWidth(),
-                    "h"  => $gmagick->getImageHeight()
-            );
-            if($tw>0 && $th>0){
+            $scale = [
+                'tw' => $tw,
+                'th' => $th,
+                'w'  => $gmagick->getImageWidth(),
+                'h'  => $gmagick->getImageHeight()
+            ];
+            if ($tw > 0 && $th > 0) {
                 $im = self::scale($scale);
-                $gmagick->resizeImage($im['w'],$im['h'], null, 1);
+                $gmagick->resizeImage($im['w'], $im['h'], null, 1);
                 $x = $y = 0;
-                $im['w']>$im['tw'] && $x = ceil(($im['w']-$im['tw'])/3);
-                $im['h']>$im['th'] && $y = ceil(($im['h']-$im['th'])/3);
-                $gmagick->cropImage($tw,$th,$x,$y);
-            }else{
-                empty($scale['th']) && $scale['th']=9999999;
+                $im['w'] > $im['tw'] && $x = ceil(($im['w'] - $im['tw']) / 3);
+                $im['h'] > $im['th'] && $y = ceil(($im['h'] - $im['th']) / 3);
+                $gmagick->cropImage($tw, $th, $x, $y);
+            } else {
+                empty($scale['th']) && $scale['th'] = 9999999;
                 $im = self::bitScale($scale);
-                $gmagick->resizeImage($im['w'],$im['h'], null, 1);
+                $gmagick->resizeImage($im['w'], $im['h'], null, 1);
             }
-            header('X-Thumb-Cache: MAKE-'.$_SERVER['REQUEST_TIME']);
+            header('X-Thumb-Cache: MAKE-' . $_SERVER['REQUEST_TIME']);
             self::$src_data = $gmagick->current();
-            iPHP_RES_CACHE && self::cache($thumb_path,self::$src_data);
+            iPHP_RES_CACHE && self::cache($thumb_path, self::$src_data);
         }
     }
+
     /**
      * 生成无图标志
-     * @return [type] [description]
+     * @return void
      */
-    private static function blank(){
+    private static function blank()
+    {
         //1x1.gif
         $src_data = 'R0lGODlhAQABAIAAAAAAAP///yH5BAEHAAEALAAAAAABAAEAAAICTAEAOw==';
         //nopic.gif
@@ -110,73 +121,86 @@ class Thumb {
         FxLJ9EJ0oH0YpaVAMJAAA7';
         // header('HTTP/1.1 404 Not Found');
         header('Content-type: image/gif');
-        header('X-Thumb-Cache: BLANK-'.$_SERVER['REQUEST_TIME']);
+        header('X-Thumb-Cache: BLANK-' . $_SERVER['REQUEST_TIME']);
         echo base64_decode($src_data);
         exit;
     }
-    private static function exists($file) {
-        return @stat($file)===false?false:true;
+
+    private static function exists($file)
+    {
+        return @stat($file) === false ? false : true;
     }
+
     /**
      * 等高/宽缩放
      * @param  [type]  $a      [description]
      * @param  boolean $reSize [description]
-     * @return [type]          [description]
+     * @return void
      */
-    private static function scale($a,$reSize=true) {
-        if($reSize){
-            if($a['w'] > $a['h'] ||$a['w'] == $a['h']){
-                $s = ($a['h'] > $a['th'])? $a['th']/$a['h'] : $a['h']/$a['th'];
+    private static function scale($a, $reSize = true)
+    {
+        if ($reSize) {
+            if ($a['w'] > $a['h'] || $a['w'] == $a['h']) {
+                $s = ($a['h'] > $a['th']) ? $a['th'] / $a['h'] : $a['h'] / $a['th'];
                 $a['w'] = ceil($s * $a['w']);
-                $a['h'] = ($a['h'] > $a['th'])? $a['th'] : $a['h'];
-            }else if($a['h'] > $a['w']){
-                $s = ($a['w'] > $a['tw']) ? $a['tw']/$a['w'] : $a['w']/$a['tw'];
+                $a['h'] = ($a['h'] > $a['th']) ? $a['th'] : $a['h'];
+            } elseif ($a['h'] > $a['w']) {
+                $s = ($a['w'] > $a['tw']) ? $a['tw'] / $a['w'] : $a['w'] / $a['tw'];
                 $a['h'] = ceil($s * $a['h']);
                 $a['w'] = ($a['w'] > $a['tw']) ? $a['tw'] : $a['w'];
             }
         }
         return $a;
     }
+
     /**
      * 等比缩放
      * @param  [type]  $a      [description]
      * @param  boolean $reSize [description]
-     * @return [type]          [description]
+     * @return void
      */
-    private static function bitScale($a,$reSize=true) {
-        if($reSize){
-            if( $a['w']/$a['h'] > $a['tw']/$a['th']  && $a['w'] >$a['tw'] ){
-                $a['h'] = ceil($a['h'] * ($a['tw']/$a['w']));
+    private static function bitScale($a, $reSize = true)
+    {
+        if ($reSize) {
+            if ($a['w'] / $a['h'] > $a['tw'] / $a['th'] && $a['w'] > $a['tw']) {
+                $a['h'] = ceil($a['h'] * ($a['tw'] / $a['w']));
                 $a['w'] = $a['tw'];
-            }else if( $a['w']/$a['h'] <= $a['tw']/$a['th'] && $a['h'] >$a['th']){
-                $a['w'] = ceil($a['w'] * ($a['th']/$a['h']));
+            } elseif ($a['w'] / $a['h'] <= $a['tw'] / $a['th'] && $a['h'] > $a['th']) {
+                $a['w'] = ceil($a['w'] * ($a['th'] / $a['h']));
                 $a['h'] = $a['th'];
             }
         }
         return $a;
     }
-    private static function finish() {
+
+    private static function finish()
+    {
         function_exists('fastcgi_finish_request') && fastcgi_finish_request();
     }
 
-    public static function cache($path,$data=null){
-        self::$cache_dir = rtrim(self::$RES_PATH,'/').'/'.trim(self::$RES_CACHE_DIR,'/').'/';
-        $cachePath = self::cacheFilePath($path,($data==='get'?null:'add'));
+    public static function cache($path, $data = null)
+    {
+        self::$cache_dir = rtrim(self::$RES_PATH, '/') . '/' . trim(self::$RES_CACHE_DIR, '/') . '/';
+        $cachePath = self::cacheFilePath($path, ($data === 'get' ? null : 'add'));
         $cacheTime = @filemtime($cachePath);
-        if($cacheTime===false ||(
-            self::$RES_CACHE_TIME>0 &&
-            $_SERVER['REQUEST_TIME']-(int)$cacheTime>self::$RES_CACHE_TIME))
-        {
-            if($data==='get') return null;
+        if ($cacheTime === false || (
+            self::$RES_CACHE_TIME > 0 &&
+            $_SERVER['REQUEST_TIME'] - (int)$cacheTime > self::$RES_CACHE_TIME
+        )) {
+            if ($data === 'get') {
+                return null;
+            }
 
-            self::write($cachePath,$data);
-            header('X-Thumb-Cache: SET-'.$_SERVER['REQUEST_TIME']);
+            self::write($cachePath, $data);
+            header('X-Thumb-Cache: SET-' . $_SERVER['REQUEST_TIME']);
             return true;
         }
-        header('X-Thumb-Cache: HIT-'.$_SERVER['REQUEST_TIME']);
+        header('X-Thumb-Cache: HIT-' . $_SERVER['REQUEST_TIME']);
         return file_get_contents($cachePath);
     }
-    public static function cacheUrl($path,$xxx){
+
+    public static function cacheUrl($path, $xxx)
+    {
         // var_dump($xxx);
         // if(iPHP_RES_HOST){
         //  $url = str_replace(self::$cache_dir, iPHP_RES_HOST, $path);
@@ -184,59 +208,72 @@ class Thumb {
         //  exit();
         // }
     }
-    public static function cacheFilePath($path,$method=null){
-        $md5      = md5($path);
-        $dirPath  = self::$cache_dir.substr($md5,-1).'/'.substr($md5,-3,2).'/';
+
+    public static function cacheFilePath($path, $method = null)
+    {
+        $md5 = md5($path);
+        $dirPath = self::$cache_dir . substr($md5, -1) . '/' . substr($md5, -3, 2) . '/';
         $fileName = pathinfo($path, PATHINFO_FILENAME);
 
-        if (!file_exists($dirPath) && $method=='add'){
+        if (!file_exists($dirPath) && $method == 'add') {
             self::mkdir($dirPath);
         }
-        return $dirPath.$fileName.'.jpg';
+        return $dirPath . $fileName . '.jpg';
     }
-    private static function check($fn) {
-        strpos($fn,'..')!==false && trigger_error('What are you doing?',E_USER_ERROR);
+
+    private static function check($fn)
+    {
+        strpos($fn, '..') !== false && trigger_error('What are you doing?', E_USER_ERROR);
     }
-    private function delete($fn) {
+
+    private function delete($fn)
+    {
         self::check($fn);
-        @chmod ($fn, 0777);
+        @chmod($fn, 0777);
         return @unlink($fn);
     }
-    private static function write($fn,$data,$method="wb+",$iflock=1,$chmod=1) {
+
+    private static function write($fn, $data, $method = 'wb+', $iflock = 1, $chmod = 1)
+    {
         self::check($fn);
         // @touch($fn);
-        $handle = fopen($fn,$method);
-        $iflock && flock($handle,LOCK_EX);
-        fwrite($handle,$data);
+        $handle = fopen($fn, $method);
+        $iflock && flock($handle, LOCK_EX);
+        fwrite($handle, $data);
         // $method=="rb+" && ftruncate($handle,strlen($data));
         fclose($handle);
-        $chmod && @chmod($fn,0777);
+        $chmod && @chmod($fn, 0777);
     }
-    private static function escapeDir($dir) {
-        $dir = str_replace(array("'",'#','=','`','$','%','&',';'), '', $dir);
+
+    private static function escapeDir($dir)
+    {
+        $dir = str_replace(["'", '#', '=', '`', '$', '%', '&', ';'], '', $dir);
         return rtrim(preg_replace('/(\/){2,}|(\\\){1,}/', '/', $dir), '/');
     }
-    private static function mkdir($d) {
+
+    private static function mkdir($d)
+    {
         $d = self::escapeDir($d) ;
-        $d = str_replace( '//', '/', $d );
-        if ( file_exists($d) )
+        $d = str_replace('//', '/', $d);
+        if (file_exists($d)) {
             return @is_dir($d);
+        }
 
         // Attempting to create the directory may clutter up our display.
-        if ( @mkdir($d) ) {
+        if (@mkdir($d)) {
             $stat = @stat(dirname($d));
             $dir_perms = $stat['mode'] & 0007777;  // Get the permission bits.
-            @chmod($d, $dir_perms );
+            @chmod($d, $dir_perms);
             return true;
         } elseif (is_dir(dirname($d))) {
             return false;
         }
 
         // If the above failed, attempt to create the parent node, then try again.
-        if ( ( $d != '/' ) && ( self::mkdir(dirname($d))))
-            return self::mkdir( $d );
+        if (($d != '/') && (self::mkdir(dirname($d)))) {
+            return self::mkdir($d);
+        }
 
         return false;
     }
-
 }

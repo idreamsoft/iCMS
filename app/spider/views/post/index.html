@@ -1,0 +1,27 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+    <div class="content" id="{{APP_MAINID}}">
+        <?php AdmincpForm::tableSearch(); ?>
+        <div class="block">
+            <div class="block-header">
+                <h3 class="block-title">采集列表</h3>
+                <div class="block-options" id="buttonsToolbar"></div>
+            </div>
+            <div class="block-content p-0">
+                <table id="table" width="100%"></table>
+            </div>
+        </div>
+    </div>
+    <?php self::foot(); ?>

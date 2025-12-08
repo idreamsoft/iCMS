@@ -12,5 +12,4 @@ defined('iPHP') or exit('What are you doing?');
 
 class AdmincpLogModel extends Model
 {
-
 }

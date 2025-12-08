@@ -6,7 +6,7 @@
         "icon": "check-circle",
         "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;1",
         "a:class": "btn btn-alt-light",
-        "target": "iPHP_FRAME",
+        "ui":"cms:ui:ajax",
         "show": {
             "postype": ["=", "0"]
         }
@@ -18,7 +18,7 @@
         "icon": "clock",
         "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;3",
         "a:class": "btn btn-alt-light",
-        "target": "iPHP_FRAME",
+        "ui":"cms:ui:ajax",
         "show": {
             "postype": ["=", "0"],
             "status": ["!=", "3"]
@@ -31,7 +31,7 @@
         "icon": "ban",
         "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;4",
         "a:class": "btn btn-alt-light",
-        "target": "iPHP_FRAME",
+        "ui":"cms:ui:ajax",
         "show": {
             "postype": ["=", "0"]
         }
@@ -43,7 +43,7 @@
         "icon": "inbox",
         "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;0",
         "a:class": "btn btn-alt-light",
-        "target": "iPHP_FRAME",
+        "ui":"cms:ui:ajax",
         "show": {
             "status": ["=", "1"]
         }
@@ -64,7 +64,7 @@
         "icon": "paper-plane",
         "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;1",
         "a:class": "btn btn-alt-light",
-        "target": "iPHP_FRAME",
+        "ui":"cms:ui:ajax",
         "show": {
             "status": ["!=", "1"]
         }
@@ -76,7 +76,7 @@
         "icon": "reply-all",
         "url": "{$c.APP_URL}&do=update&id={$v.id}&_args=status;1",
         "a:class": "btn btn-alt-light",
-        "target": "iPHP_FRAME",
+        "ui":"cms:ui:ajax",
         "show": {
             "status": ["=", "2"]
         }

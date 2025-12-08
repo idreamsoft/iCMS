@@ -1,0 +1,10 @@
+[
+    {
+        "id": "message",
+        "sort": 9999995,
+        "caption": "我的消息",
+        "url": "user/manage/message",
+        "icon": "fa fa-cog",
+        "template": "iCMS://user/manage/message.htm"
+    }
+]

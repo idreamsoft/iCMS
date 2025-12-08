@@ -10,14 +10,10 @@
  */
 defined('iPHP') or exit('What are you doing?');
 
-class ContentWidgetAdmincp extends AdmincpBase
+class ContentWidgetAdmincp extends AdmincpCommon
 {
     public $ACCESC_TITLE = '{app.name}小工具';
 
-    public function __construct()
-    {
-        parent::__construct();
-    }
     public static function do_deck()
     {
         include self::view("content.deck");
@@ -30,7 +26,7 @@ class ContentWidgetAdmincp extends AdmincpBase
         $total = $model->count();
         $widget['title'] = $apps['title'];
         $widget['total'] = array($total, '全部');
-        foreach (Content::$statusMap as $status => $text) {
+        foreach (ContentModel::$statusMap as $status => $text) {
             $count = $model->where('status', $status)->count();
             $widget['datas'][] = array($count, $text);
         }

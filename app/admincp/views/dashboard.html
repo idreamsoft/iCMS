@@ -1,0 +1,33 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+$frame = Config::get('admincp.frame');
+if($frame){
+    self::head([['breadcrumb','sidebar', 'page.header'], null]);
+}else{
+    self::head([['breadcrumb'], null]);
+}
+$this->headView();
+?>
+<!-- Page Content -->
+<div class="content">
+    <div class="row">
+        <div class="col-md-8">
+            <?php $this->statsView(); ?>
+        </div>
+        <div class="col-md-4">
+            <?php $this->quickView(); ?>
+        </div>
+    </div>
+    <?php self::plugin("home/content.*"); ?>
+</div>
+<!-- END Page Content -->
+<?php self::foot(); ?>

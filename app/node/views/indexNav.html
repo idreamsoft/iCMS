@@ -1,0 +1,22 @@
+<?php Cookie::set(Admincp::$APP_NAME . '_tabs', $this->active_nav); ?>
+
+<ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+    <li class="nav-item"><a class="nav-link <?php echo Admincp::$APP_DO == 'tree' ? 'active' : 'js-tabs-link' ?>" href="./tree"><i class="fa fa-fw fa-tasks"></i><?php echo $this->NODE_NAME; ?>树</a></li>
+    <li class="nav-item"><a class="nav-link <?php echo Admincp::$APP_DO == 'list' ? 'active' : 'js-tabs-link' ?>" href="./list"><i class="fa fa-fw fa-list"></i><?php echo $this->NODE_NAME; ?>列表</a></li>
+    <li class="nav-item dropdown">
+        <a class="nav-btn dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">快捷链接</a>
+        <div class="dropdown-menu">
+            <a class="dropdown-item" href="./add"><i class="si si-plus text-success"></i> 添加顶级<?php echo $this->NODE_NAME; ?></a>
+            <div class="dropdown-divider"></div>
+            <a class="dropdown-item" i="cms:ui:ajax" href="./cache"><i class="si si-refresh text-info"></i> 更新缓存</a>
+            <a class="dropdown-item" i="cms:ui:ajax" href="./recount"><i class="si si-refresh text-info"></i> 更新记录数</a>
+            <!-- <div class="dropdown-divider"></div> -->
+            <!-- <a class="dropdown-item" href="#">Separated link</a> -->
+        </div>
+    </li>
+    <li class="nav-item ms-auto">
+        <div class="block-options ps-3 pe-2">
+            <a class="btn-block-option" href="https://www.icmsdev.com/docs/rewrite.html" target="_blank"><i class="fa fa-fw fa-question-circle"></i> 伪静态规则</a>
+        </div>
+    </li>
+</ul>

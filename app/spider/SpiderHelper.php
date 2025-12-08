@@ -13,11 +13,13 @@ defined('iPHP') or exit('What are you doing?');
 class SpiderHelper
 {
     public static $MAP = [];
+
     public static function test($content, $rule, $responses, $data)
     {
         var_dump($content, $rule, $responses, $data);
         exit;
     }
+
     public static function getTitles($key = null)
     {
         if (empty(self::$MAP)) {
@@ -28,17 +30,20 @@ class SpiderHelper
         }
         return $key ? self::$MAP[$key] : self::$MAP;
     }
+
     public static function getArray()
     {
         $helper = [];
-        $many = Etc::many('spider', 'spider.helper*');
-        Etc::mergeRecursive($many, $helper, false);
+        $many = Etc::many('*', 'spider/helper*');
+        Etc::mergeRecursive($many, $helper);
+
         return $helper;
     }
+
     public static function run($content, $data, $rule, $responses)
     {
         if ($data['process']) {
-            Spider::$isTest && print "<b>数据处理:</b><br />";
+            Spider::$isTest && print '<b>数据处理:</b><br />';
             foreach ($data['process'] as $key => $value) {
                 if (!is_array($value)) {
                     continue;
@@ -48,7 +53,7 @@ class SpiderHelper
                 //@check_urls
                 if (substr($value['helper'], 0, 1) == '@') {
                     $sk = substr($value['helper'], 1);
-                    $value[$sk]   = true;
+                    $value[$sk] = true;
                     $sfuncArray[] = $value;
                     continue;
                 }
@@ -72,12 +77,15 @@ class SpiderHelper
         }
         is_array($content) && $content = array_filter($content);
 
-        if ($sfuncArray) foreach ($sfuncArray as $key => $value) {
-            Spider::$isTest && print ($hNo + 1) . '# ' . $value['helper'] . '<br />';
-            $content = self::helper_func($content, $value, $rule);
+        if ($sfuncArray) {
+            foreach ($sfuncArray as $key => $value) {
+                Spider::$isTest && print ($hNo + 1) . '# ' . $value['helper'] . '<br />';
+                $content = self::helper_func($content, $value, $rule);
+            }
         }
         return $content;
     }
+
     public static function helper(&$content, $process, $rule, $responses, $data)
     {
         $helper_callback = Spider::$callback['helper'];
@@ -85,10 +93,9 @@ class SpiderHelper
         if ($helper_callback && isset($helper_callback[$process['helper']])) {
             $process_helper = $helper_callback[$process['helper']];
             if ($process_helper && is_callable($process_helper)) {
-                return call_user_func_array($process_helper, array($content, $process, $rule, $responses, $data));
+                return call_user_func_array($process_helper, [$content, $process, $rule, $responses, $data]);
             }
         }
-
         switch ($process['helper']) {
             case 'dataclean':
                 $content = SpiderTools::dataClean($process['rule'], $content);
@@ -197,7 +204,7 @@ class SpiderHelper
                 }
                 break;
             case 'filter':
-                $fwd = iPHP::callback('Filter::run', array(&$content), false);
+                $fwd = iPHP::callback('Filter::run', [&$content], false);
                 if ($fwd) {
                     $msg = '数据项[%s]:中包含【%s】被系统屏蔽的字符!';
                     $msg = sprintf($msg, $data['name'], $fwd);
@@ -236,7 +243,7 @@ class SpiderHelper
                 break;
             case 'clean_cn_blank':
                 $_content = htmlentities($content);
-                $content  = str_replace(array('&#12288;', '&amp;#12288;'), '', $_content);
+                $content = str_replace(['&#12288;', '&amp;#12288;'], '', $_content);
                 unset($_content);
                 break;
             case 'array_filter_empty':
@@ -277,15 +284,16 @@ class SpiderHelper
                         false
                     );
                 } else {
-                    $content = call_user_func_array($process['helper'], [$content, $data, $responses, $rule]);
+                    $content = call_user_func_array($process['helper'], [$content, $process, $data, $responses, $rule]);
                 }
                 break;
         }
         if (Spider::$callback['helper:end'] && is_callable(Spider::$callback['helper:end'])) {
-            $content = call_user_func_array(Spider::$callback['helper:end'], array($content, $process, $rule, $responses, $data));
+            $content = call_user_func_array(Spider::$callback['helper:end'], [$content, $process, $rule, $responses, $data]);
         }
         return $content;
     }
+
     public static function helper_func($content, $process, $rule)
     {
         //@check_urls

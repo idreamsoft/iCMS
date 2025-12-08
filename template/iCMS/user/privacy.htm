@@ -2,10 +2,11 @@
     <!--{$site.title}-->
     用户隐私政策
 </h3>
+<!--{iCMS:user:config}-->
 
-<!--{if $USER_CONFIG.privacy }-->
+<!--{if $user_config.privacy }-->
 <pre style="white-space: break-spaces">
-<!--{$USER_CONFIG.privacy}-->
+<!--{$user_config.privacy}-->
 </pre>
 <!--{else}-->
 <div class="privacy">

@@ -8,7 +8,7 @@ class Chain
 
     public static function cache()
     {
-        $result = ChainModel::orderBy('CHAR_LENGTH(`keyword`)', 'DESC')->select();
+        $result = ChainModel::orderBy('length(`keyword`)', 'DESC')->select();
         $array = array();
         foreach ((array) $result as $i => $val) {
             $a = array($val['keyword']);
@@ -36,6 +36,7 @@ class Chain
         preg_match_all("/<a[^>]*?>(.*?)<\/a>/si", $content, $matches); //链接不替换
         $linkArray  = array_unique($matches[0]);
         $linkArray && $linkflip = array_flip($linkArray);
+        $linkA = [];
         foreach ((array) $linkflip as $linkHtml => $linkkey) {
             $linkA[$linkkey] = '@L_' . rand(1, 1000) . '_' . $linkkey . '@';
         }
@@ -44,6 +45,7 @@ class Chain
         preg_match_all("/<[\/\!]*?[^<>]*?>/si", $content, $matches);
         $htmArray   = (array) array_unique($matches[0]);
         $htmArray && $htmflip = array_flip($htmArray);
+        $htmA = [];
         foreach ((array) $htmflip as $kHtml => $vkey) {
             $htmA[$vkey] = "@H_" . rand(1, 1000) . '_' . $vkey . '@';
         }

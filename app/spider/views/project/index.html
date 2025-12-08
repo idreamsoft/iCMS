@@ -1,0 +1,102 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">搜索</h3>
+        </div>
+        <div class="block-content block-content-full">
+            <form action="{{APP_DOURL}}" method="get" class="table-search">
+                <input type="hidden" name="rid" value="<?php echo $_GET['rid']; ?>" />
+                <div class="row">
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="cid">栏目</label>
+                            <input type="text" class="form-control" i="cms:ui:node" data-node-access="cm" name="cid" value="">
+                            <div class="input-group-text">
+                                <input type="checkbox" class="form-check-input" name="sub" value="1">
+                                <label class="form-check-label" for="sub">子栏目</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="rid">采集规则</label>
+                            <input type="text" data-source='/spiderRule/selectpage' class="form-control" i="cms:ui:selectpicker" name="rid" value="">
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="poid">发布规则</label>
+                            <input type="text" data-source='/spiderPost/selectpage' class="form-control" i="cms:ui:selectpicker" name="poid" value="">
+                            <label class="input-group-text" for="poid">自动采集</label>
+                            <div class="input-group-text">
+                                <label class="form-check-label" for="自动采集"></label>
+                                <input type="checkbox" class="form-check-input" name="sub" value="1">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">发布时间</span>
+                            <input type="text" class="form-control" i="cms:ui:datepicker" name="starttime" value="" placeholder="开始时间" />
+                            <span class="input-group-text">-</span>
+                            <input type="text" class="form-control" i="cms:ui:datepicker" name="endtime" value="" placeholder="结束时间" />
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="orderby">排序</label>
+                            <select data-source='./orderby' class="form-control" i="cms:ui:bs-selectpicker" name="orderby">
+                                <option value="">默认排序</option>
+                            </select>
+                            <label class="input-group-text" for="pageSize">每页</label>
+                            <input class="form-control" style="max-width:56px ;" type="text" name="pageSize" id="pageSize" value="<?php echo Paging::$pageSize; ?>" />
+                            <label class="input-group-text" for="pageSize">条记录</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6 col-lg-4 mt-1">
+                        <div class="input-group input-group-sm">
+                            <label class="input-group-text" for="keywords">关键字</label>
+                            <input type="text" name="keywords" class="form-control" id="keywords" value="<?php echo $_GET['keywords']; ?>" />
+                        </div>
+                    </div>
+                    <div class="col-sm-12 d-flex justify-content-end mt-2">
+                        <button class="btn btn-sm btn-alt-primary table-btn-search me-2" type="submit"><i class="fa fa-fw fa-search"></i> 搜 索</button>
+                        <button class="btn btn-sm btn-alt-secondary table-btn-reset" type="reset"><i class="fa fa-fw fa-repeat"></i> 重 置</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="block block-rounded">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">采集方案列表</h3>
+            <div class="block-options" id="buttonsToolbar"></div>
+        </div>
+        <div class="block-content p-0">
+            <div id="toolbar" class="toolbar row">
+                <div class="input-group input-group-sm" role="group">
+                    <a href="{{spiderProject/delete}}" id="delete" class="btn btn-alt-primary table-btn-delete disabled" disabled>
+                        <i class="fa fa-fw fa-trash"></i> {{#Lang('Delete')}}
+                    </a>
+                    <?php AdmincpBatch::group(); ?>
+                </div>
+            </div>
+            <table id="table" width="100%"></table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

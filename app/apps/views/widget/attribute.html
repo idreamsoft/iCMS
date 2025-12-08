@@ -1,0 +1,46 @@
+<div i="cms:apps:vAttr" class="hide" data-items="<?=json_param($data);?>">
+    <div class="alert bg-info-light">
+        需要填写时内容设置为空<br />
+        需要选择时内容设置为选项，多个选项每行一个<br />
+    </div>
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">属性配置</h3>
+            <div class="block-options">
+                <button @click="add" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-plus-circle"></i> 增加</button>
+            </div>
+        </div>
+        <div class="block-content p-0">
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th>名称/字段</th>
+                        <th>内容</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(item, index) in items">
+                        <td>
+                            <div class="input-group mb-2">
+                                <span class="input-group-text">名称</span>
+                                <input class="form-control" :name="'<?=$name;?>['+index+'][name]'" type="text" v-model="item.name"  />
+                            </div>
+                            <div class="input-group">
+                                <span class="input-group-text">字段</span>
+                                <input class="form-control" :name="'<?=$name;?>['+index+'][key]'" type="text" v-model="item.key"  />
+                            </div>
+                        </td>
+                        <td>
+                            <div class="input-group">
+                                <textarea class="form-control" :name="'<?=$name;?>['+index+'][value]'" type="text" style="height:85px;" v-model="item.value" ></textarea>
+                                <button class="btn btn-secondary" type="button" @click="remove(index)">
+                                    <i class="fa fa-fw fa-times" @click.stop="remove(index)"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

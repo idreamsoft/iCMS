@@ -7,7 +7,7 @@
             "id": "filter",
             "caption": "过滤系统",
             "sort": "9999999",
-            "href": "filter&do=config",
+            "href": "/filter/config",
             "icon": "filter"
         }
     ]

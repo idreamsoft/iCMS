@@ -8,70 +8,52 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class FilesApp
+class FilesApp extends AppsBase
 {
-    public $methods = array(iPHP_APP, 'download', 'remote_save', 'remote_delete');
-    public function do_iCMS()
+    public static $LOGIN = ['upload'];
+
+    /**
+     * 上传文件
+     * @return array
+     */
+    public function api_upload()
     {
+        $file = FilesClient::upload('upfile');
+        empty($file) && self::alert('上传文件出错');
+        $file['path'] && $url = FilesClient::getUrl($file['path']);
+        $data = [
+            'url'      => $url,
+            'path'     => $file['path'],
+            'value'    => $file['path'],
+            'ext'      => $file['ext'],
+            'image'    => in_array($file['ext'], FilesPic::$EXTS) ? 1 : 0,
+            'original' => $file['source']
+        ];
+        return compact('data');
     }
-    public function API_iCMS()
-    {
-    }
-    // public function ACTION_remote_save()
-    // {
-    //     if (!Files::remoteAuth()) {
-    //         return false;
-    //     }
-    //     $key  = Request::post('key');
-    //     $path = Request::post('path');
-    //     $info = pathinfo($path);
-    //     $dir  = $info['dirname'];
-    //     $name = $info['filename'];
-    //     $ext  = $info['extension'];
-    //     $F = FilesClient::upload($key, $dir, $name, $ext);
-    //     if ($F === false) {
-    //         $array = array(
-    //             'error' => 1,
-    //             'msg' => FilesClient::$ERROR
-    //         );
-    //     } else {
-    //         $array = array(
-    //             'error' => 0,
-    //             'msg' => $F
-    //         );
-    //     }
-    //     echo json_encode($array);
-    // }
-    // public function ACTION_remote_delete()
-    // {
-    //     if (!Files::remoteAuth()) {
-    //         return false;
-    //     }
-    //     $path = Request::post('path');
-    //     $FileRootPath = FilesClient::getRoot($path);
-    //     $array = array('error' => '1', 'msg' => 'delete error');
-    //     if (File::rm($FileRootPath)) {
-    //         $array = array('error' => '0', 'msg' => 'delete success');
-    //     }
-    //     echo json_encode($array);
-    // }
+
     public function do_download()
     {
-        $t = Request::get('t');
-        $auth = Request::get('file');
-        $sign = Request::get('sign'); 
-        $auth = auth_decode($auth);
-        list($file, $once, $time) = explode('@@', $auth);
+        $time = Request::get('time');
+        $file = Request::get('file');
+        $once = Request::get('once');
+        $sign = Request::get('sign');
+        // $auth = auth_decode($auth);
+        // var_dump($auth);
+        // list($file, $once, $time) = explode('@@', $auth);
         $type = 'download';
         $_sign = Utils::sign(compact('file', 'once', 'time'));
         if ($_sign !== $sign) {
-            exit("非法请求!");
+            exit('非法请求!');
         }
         $data = Files::get('name', $file);
-        $url  = FilesClient::getUrl($data['path']);
+        if (!$data) {
+            exit('文件不存在!');
+        }
+        $url = FilesClient::getUrl($data['path']);
         $path = FilesClient::getRoot($data['path']);
         if (!is_file($path)) {
-            exit("文件不存在!");
+            exit('文件不存在!');
         }
         $name = sprintf('%s.%s', random(6), $data['ext']);
         FilesClient::attachment($path, $name);
@@ -81,21 +63,43 @@ class FilesApp
     {
         $this->do_download();
     }
+
+    public static function getArray($value)
+    {
+        $ret = [];
+        if (substr($value, 0, 2) == 'a:') {
+            $valArray = unserialize($value);
+        } else {
+            $valArray = json_decode($value, true);
+        }
+        if ($value && empty($valArray)) {
+            $valArray = explode(',', $value);
+        }
+        if (is_array($valArray)) {
+            foreach ($valArray as $i => $val) {
+                if ($val) {
+                    $pi = pathinfo($val);
+                    $ret[$i] = [
+                        'name' => $pi['filename'],
+                        'ext'  => $pi['extension'],
+                        'dir'  => $pi['dirname'],
+                        'url'  => FilesApp::getUrl($pi['filename'])
+                    ];
+                }
+            }
+        }
+        return $ret;
+    }
+
     public static function getUrl($file, $type = 'download')
     {
         $time = $_SERVER['REQUEST_TIME'];
         $once = random(6);
-        $auth = auth_encode($file . '@@' . $once . '@@' . $time);
-        $sign = Utils::sign(compact('file', 'once', 'time'));
-        $url = sprintf(
-            '%s?app=files&do=%s&file=%s&sign=%s&t=%s',
-            iCMS_API,
-            $type,
-            urlencode($auth),
-            $sign,
-            $time
-        );
-
+        // $auth = Crypt::encrypt($file);
+        $param = compact('file', 'once', 'time');
+        $sign = Utils::sign($param);
+        $param['sign'] = $sign;
+        $url = Route::url('files/' . $type, $param);
         return $url;
     }
 }

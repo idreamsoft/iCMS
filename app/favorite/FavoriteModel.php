@@ -12,5 +12,9 @@ defined('iPHP') or exit('What are you doing?');
 
 class FavoriteModel extends Model
 {
-
+    public static $statusMap = array(
+        '0' => '草稿',
+        '1' => '正常',
+        '2' => '回收站',
+    );
 }

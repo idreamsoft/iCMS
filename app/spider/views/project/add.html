@@ -1,0 +1,243 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+
+<style>
+    #urls {
+        height: 90px;
+        font-size: 16px;
+        font-family: "Consolas", "Courier New", Courier, monospace
+    }
+</style>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <div class="block-header block-header-default">
+            <h3 class="block-title">
+                <?php echo empty($this->id) ? '添加' : '修改'; ?>方案
+            </h3>
+        </div>
+        <div class="block-content">
+            <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">方案名称</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-rule="required" name="rs[name]" class="form-control" id="name"
+                            value="<?php echo $rs['name']; ?>" />
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">列表网址</label>
+                    <div class="col-sm-8">
+                        <textarea name="rs[urls]" id="urls" class="form-control"><?php echo $rs['urls']; ?></textarea>
+                        <a class="btn btn-alt-primary mt-1" id="makeurls">生成采集地址</a>
+                        <small class="form-text text-muted">可用简单方法<br />
+                            &lt;EACH:1,2,3,4&gt;
+                            <br />
+                            &lt;FOR:1-100&gt;
+                            <br />
+                            &lt;FOR:100-1&gt;
+                            <br />
+                            &lt;DATE:Y-M-D&gt;</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">网址合成</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" name="rs[config][list_url]" class="form-control" id="list_url"
+                                value="<?php echo $rs['config']['list_url']; ?>" />
+                            <a class="btn btn-alt-primary" href="javascript:;" i="cms:ui:insert" data-insert="<%url%>">网址</a>
+                        </div>
+                        <small class="form-text text-muted">一般不用填写</small>
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">绑定栏目</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-rule="required" class="form-control" 
+                        i="cms:ui:node" 
+                        data-url="/node/selectpage/access/cm" 
+                        data-node-access="cm" 
+                        name="rs[cid]"
+                            value="<?php echo $rs['cid']; ?>" placeholder="== 请选择采集绑定的栏目 == ">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">采集规则</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-rule="required" data-source='/spiderRule/selectpage'
+                            class="form-control" i="cms:ui:selectpage" name="rs[rid]" value="<?php echo $rs['rid']; ?>"
+                            placeholder=" == 请选择采集规则 == ">
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">发布模块</label>
+                    <div class="col-sm-8">
+                        <input type="text" data-rule="required" data-source='/spiderPost/selectpage'
+                            class="form-control" i="cms:ui:selectpage" name="rs[poid]" value="<?php echo $rs['poid']; ?>"
+                            placeholder="== 请选择发布模块 == ">
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">检查模式</label>
+                    <div class="col-sm-8">
+                        <select id="checker" name="rs[config][checker]" placeholder="== 请选择检查模式 == "
+                            class="form-control" i="cms:ui:bs-selectpicker" value="<?php echo $rs['config']['checker'] ;?>">
+                            <option value="0">不检查重复</option>
+                            <option value="1">按[网址]检查</option>
+                            <option value="2">按[标题]检查</option>
+                            <option value="3">按[网址]和[标题]检查</option>
+                            <option value="4">按[网址]检查更新</option>
+                            <option value="5">按[标题]检查更新</option>
+                            <option value="6">按[网址]和[标题]检查更新</option>
+                            <option value="7">按[网址]检查,只更新[子采集]</option>
+                            <option value="8">按[hash]检查</option>
+                        </select>
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">检查范围</label>
+                    <div class="col-sm-8">
+                        <select id="self" name="rs[config][self]" placeholder="== 请选择检查范围 == "
+                            class="form-control" i="cms:ui:bs-selectpicker" value="<?php echo $rs['config']['self'] ;?>">
+                            <option value="0">全部</option>
+                            <option value="1">仅限本方案</option>
+                            <option value="2">仅限本规则</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">自动采集</label>
+                    <div class="col-sm-8">
+                        <input type="checkbox" i="cms:ui:switch" data-on-text="是" data-off-text="否" name="rs[auto]"
+                            id="auto" value="<?php echo $rs['auto'] ;?>" />
+                        <small class="form-text text-muted">此选项只作标识,如果要实现自动采集功能 需要在服务器上部署计划任务</small>
+                    </div>
+
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">单条间隔</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" name="rs[config][sleep]" class="form-control" id="sleep"
+                                value="<?php echo $rs['config']['sleep']; ?>" />
+                            <span class="input-group-text">毫秒</span>
+                        </div>
+                        <small class="form-text text-muted">单条数据采集的间隔 (自动采集)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">方案间隔</label>
+                    <div class="col-sm-8">
+                        <div class="input-group">
+                            <input type="text" name="rs[config][psleep]" class="form-control" id="psleep"
+                                value="<?php echo $rs['config']['psleep']; ?>" />
+                            <span class="input-group-text">秒</span>
+                        </div>
+                        <small class="form-text text-muted">本方案下次采集的间隔 (自动采集)</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="">完成时间</label>
+                    <div class="col-sm-8">
+                        <input id="lastupdate" class="form-control"
+                            value="<?php echo $rs['lastupdate'] ? get_date($rs['lastupdate'], 'Y-m-d H:i:s') : ''; ?>"
+                            name="rs[lastupdate]" type="text" />
+                        <small class="form-text text-muted">本方案上次采集完成时间 (自动采集)</small>
+                    </div>
+                </div>
+                <?php if ($this->id) { ?>
+                <a href="{{spiderRule/test/pid}}/<?php echo $this->id; ?>" class="btn btn-success " i="cms:ui:modal"
+                    title="测试方案"><i class="fa fa-fw fa-bug"></i> 测试</a>
+                <?php } ?>
+                <?php self::form()->submit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+<div id="mkurls" class="hide">
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label" for="">地址格式</label>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <input type="text" class="form-control" id="url_pattern" value="" />
+                <input type="hidden" id="urls_rs" value="" />
+                <a class="btn btn-primary" i="cms:ui:insert" href="(*)">(*)</a>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-2 col-form-label" for="">
+            <div class="form-check">
+                <input type="radio" name="format" id="format0" class="form-check-input" value="0" />
+                <label class="form-check-label" for="format0">等差数列</label>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-text">初始值</span>
+                <input type="text" class="form-control" name="begin" value="1" />
+                <span class="input-group-text">项数</span>
+                <input type="text" class="form-control" name="num" value="5" />
+                <span class="input-group-text">步长</span>
+                <input type="text" class="form-control" name="step" value="1" />
+                <span class="input-group-text"><input type="checkbox" class="form-check-input" name="zeroize" />补零</span>
+                <span class="input-group-text"><input type="checkbox" class="form-check-input" name="reverse" />倒序</span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-2 col-form-label" for="">
+            <div class="form-check">
+                <input type="radio" name="format" id="format1" class="form-check-input" value="1" />
+                <label class="form-check-label" for="format1">等比数列</label>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-text">初始值</span>
+                <input type="text" class="form-control" name="begin" value="1" />
+                <span class="input-group-text">项数</span>
+                <input type="text" class="form-control" name="num" value="5" />
+                <span class="input-group-text">比值</span>
+                <input type="text" class="form-control" name="step" value="2" />
+                <span class="input-group-text"><input type="checkbox" class="form-check-input" name="zeroize" />补零</span>
+                <span class="input-group-text"><input type="checkbox" class="form-check-input" name="reverse" />倒序</span>
+            </div>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-2 col-form-label" for="">
+            <div class="form-check">
+                <input type="radio" name="format" id="format2" class="form-check-input" value="2" />
+                <label class="form-check-label" for="format2">字母变化</label>
+            </div>
+        </div>
+        <div class="col-sm-10">
+            <div class="input-group">
+                <span class="input-group-text">从</span>
+                <input type="text" class="form-control" name="begin" value="a" maxlength="1" />
+                <span class="input-group-text">到</span>
+                <input type="text" class="form-control" name="num" value="z" maxlength="1" />
+                <span class="input-group-text"><input type="checkbox" class="form-check-input" name="reverse" />倒序</span>
+            </div>
+        </div>
+    </div>
+    <div class="jumbotron" role="alert" id="preview"></div>
+</div>
+<?php self::foot(); ?>

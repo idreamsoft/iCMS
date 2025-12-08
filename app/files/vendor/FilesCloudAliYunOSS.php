@@ -3,76 +3,67 @@
 /**
  * 阿里云oss iPHP接口 统一
  */
-// define('ALI_DISPLAY_LOG', 1);
+
 defined('iPHP') or exit('What are you doing?');
 
-require dirname(__FILE__) . '/library/AliYunOSS.class.php';
 
-class FilesCloudAliYunOSS extends ALIOSS
+class FilesCloudAliYunOSS
 {
     public $conf;
+    public $client;
+    public $response;
     public function __construct($conf)
     {
         $this->conf = $conf;
-        parent::__construct($conf['AccessKey'], $conf['SecretKey'], $conf['BucketDomain']);
-        $this->set_debug_mode(FALSE);
+        $this->client = new OSS\OssClient(
+            $conf['AccessKey'],
+            $conf['SecretKey'],
+            $conf['Endpoint']
+        );
     }
     /**
-     * [_upload_file 上传文件接口]
-     * @param  [type] $fileRootPath [文件绝对路径]
-     * @param  [type] $filePath [文件路径]
-     * @return [type]           [description]
+     * 上传文件接口
+     * @param  [type] $rootPath [文件绝对路径]
+     * @param  [type] $path [文件路径]
+     * @return void
      */
-    public function _upload_file($fileRootPath, $filePath)
+    public function upload($rootPath, $path)
     {
-        $options = array(
-            ALIOSS::OSS_HEADERS => array(
-                'Cache-control' => 'max-age=864000',
-            )
-        );
-        $this->path($filePath);
-        $response = $this->upload_file_by_file(
+        $this->response = $this->client->uploadFile(
             $this->conf['Bucket'],
-            $filePath,
-            $fileRootPath,
-            $options
+            $this->path($path),
+            $rootPath
         );
-        unset($response->header);
-        $response->body && $response->body = simplexml_load_string($response->body, 'SimpleXMLElement', LIBXML_NOCDATA);
-        return json_encode(array(
-            'error' => !$response->isOk(),
-            'url'   => $this->url($filePath, false),
-            'msg'   => $response
-        ));
+
+        return [
+            "url" => $this->url($path)
+        ];
     }
     /**
-     * [_delete_file 删除文件接口]
-     * @param  [type] $filePath [文件路径]
-     * @return [type]           [description]
+     * 删除文件接口
+     * @param  [type] $path [文件路径]
+     * @return void
      */
-    public function _delete_file($filePath)
+    public function delete($path)
     {
-        $this->path($filePath);
-        $response = $this->delete_object(
+        $this->response = $this->client->deleteObject(
             $this->conf['Bucket'],
-            $filePath
+            $this->path($path)
         );
-        unset($response->header);
-        $response->body && $response->body = simplexml_load_string($response->body, 'SimpleXMLElement', LIBXML_NOCDATA);
-        return json_encode(array(
-            'error' => !$response->isOk(),
-            'msg'   => $response
-        ));
+        return true;
     }
-    public function url($filePath, $flag = true)
+    public function url($path)
     {
-        $flag && $this->path($filePath);
-        $domain = $this->conf['domain'] ?: str_replace('-internal', '', $this->conf['BucketDomain']);
-        $url = sprintf(
-            '%s/%s',
-            rtrim($domain, '/'),
-            ltrim($filePath, '/')
-        );
+        $path = $this->path($path);
+        $domain = $this->conf['Domain'];
+        if (empty($domain)) {
+            $domain = sprintf(
+                '%s.%s',
+                $this->conf['Bucket'],
+                str_replace('-internal', '', $this->conf['Endpoint'])
+            );
+        }
+        $url = sprintf('%s/%s', rtrim($domain, '/'), ltrim($path, '/'));
         Request::isUrl($url) or $url = sprintf(
             '%s://%s',
             parse_url(iCMS_URL, PHP_URL_SCHEME),
@@ -80,16 +71,17 @@ class FilesCloudAliYunOSS extends ALIOSS
         );
         return $url;
     }
-    public function path(&$filePath)
+    public function path($path)
     {
-        $this->conf['Dir'] && $filePath = sprintf('%s/%s', $this->conf['Dir'], $filePath);
+        $this->conf['Dir'] && $path = sprintf('%s/%s', $this->conf['Dir'], $path);
+        return $path;
     }
 }
 // require dirname(__FILE__).'/../../iCMS.php';
 // $conf = Config::get('cloud.vendor.AliYunOSS');
-// $cloud = new files_cloud_AliYunOSS($conf);
+// $cloud = new FilesCloudAliYunOSS($conf);
 // $filePath = '2017/02-08/23/01b71d15d5bc0de1c15e1beb4be128ea.jpg';
 // $fileRootPath= FilesClient::getPath($filePath,'+root');
-// $response = $cloud->_upload_file($fileRootPath,$filePath);
-// // $response = $cloud->_delete_file($filePath);
+// $response = $cloud->upload($fileRootPath,$filePath);
+// // $response = $cloud->delete($filePath);
 // print_r($response);

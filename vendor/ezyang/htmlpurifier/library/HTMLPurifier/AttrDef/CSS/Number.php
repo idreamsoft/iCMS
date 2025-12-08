@@ -50,7 +50,7 @@ class HTMLPurifier_AttrDef_CSS_Number extends HTMLPurifier_AttrDef
                 $number = substr($number, 1);
         }
 
-        if (ctype_digit($number)) {
+        if (ctype_digit((string)$number)) {
             $number = ltrim($number, '0');
             return $number ? $sign . $number : '0';
         }
@@ -65,7 +65,7 @@ class HTMLPurifier_AttrDef_CSS_Number extends HTMLPurifier_AttrDef
         if ($left === '' && $right === '') {
             return false;
         }
-        if ($left !== '' && !ctype_digit($left)) {
+        if ($left !== '' && !ctype_digit((string)$left)) {
             return false;
         }
 
@@ -80,7 +80,7 @@ class HTMLPurifier_AttrDef_CSS_Number extends HTMLPurifier_AttrDef
 
         if ($right === '') {
             return $left ? $sign . $left : '0';
-        } elseif (!ctype_digit($right)) {
+        } elseif (!ctype_digit((string)$right)) {
             return false;
         }
         return $sign . $left . '.' . $right;

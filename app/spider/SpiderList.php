@@ -58,7 +58,7 @@ class SpiderList
         if ($_rid !== NULL) $rid = $_rid;
 
         if (Spider::$isShell) {
-            Helper::buffer();
+            Utils::buffer();
             $lastupdate = $project['lastupdate'];
             if ($project['psleep']) {
                 if (time() - $lastupdate < $project['psleep']) {
@@ -355,7 +355,7 @@ class SpiderList
         unset($value['title'], $value['url']);
         if (Spider::$isTest) {
             echo '<b>列表抓取结果:</b>' . $key . '<br />';
-            echo $title . ' (<a href="' . ADMINCP_URL . '=spiderProject&do=test' .
+            echo $title . ' (<a href="' . ADMINCP_URL . '?app=spiderProject&do=test' .
                 '&url=' . urlencode($url) .
                 '&rid=' . $rid .
                 '&pid=' . $pid .
@@ -412,7 +412,6 @@ class SpiderList
     }
     public static function handleShell($urlsData, $url, $params, $rule, $project, $key)
     {
-
         extract($params);
         $work = 'shell';
         $urlsDataCount = count($urlsData);
@@ -469,7 +468,11 @@ class SpiderList
                 }
                 continue;
             } catch (\sException $ex) {
-                throw $ex;
+                // throw $ex;
+                $msg = $ex->getMessage();
+                $msg = html2text($msg);
+                SpiderTools::prints('采集出错跳过：%s', [$msg], 'r');
+                continue;
             }
         }
     }
@@ -498,7 +501,7 @@ class SpiderList
     /**
      * 列表生成
      * @param  [type] $urls [description]
-     * @return [type]       [description]
+     * @return void
      */
     public static function makeListUrls($urls, $work)
     {
@@ -653,8 +656,11 @@ class SpiderList
         } elseif (strpos($rule['list_url_rule'], '<%url%>') !== false) {
             $responses = $data;
         }
-        $title = trim($responses['title']);
-        $url   = trim($responses['url']);
+        if(empty($responses)){
+            return [];
+        }
+        $title = isset($responses['title'])?trim($responses['title']):'';
+        $url   = isset($responses['url'])?trim($responses['url']):'';
         $url   = str_replace('<%url%>', $url, htmlspecialchars_decode($rule['list_url']));
 
         preg_match_all('#<%(\w{3,20})%>#is', $url, $f_match);
@@ -685,7 +691,7 @@ class SpiderList
     /**
      * 列表网址生成
      * @param  [type] $_url [description]
-     * @return [type]       [description]
+     * @return array
      */
     public static function urls_match($url)
     {

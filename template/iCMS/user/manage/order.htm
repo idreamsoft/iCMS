@@ -1,31 +1,50 @@
 <!--{iCMS:config name="payment"}-->
-<table class="table table-vcenter">
-    <thead>
-        <tr>
-            <th style="width: 90px;">订单号</th>
-            <th>项目</th>
-            <th><!--{$config.name|default:'积分'}--></th>
-            <th>时间</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!--{iCMS:user:order loop="true" userid="$ME.uid" by="DESC" status="2"}-->
-        <tr>
-            <td class="text-nowrap"><!--{$user_order.order_no}--></td>
-            <td>
-                <!--{$user_order.subject}-->
-            </td>
-            <td>
-                <!--{if $user_order.value>0}-->
-                <span class="text-success">+<!--{$user_order.value}--></span>
-                <!--{else}-->
-                <span class="text-danger"><!--{$user_order.value}--></span>
-                <!--{/if}-->
-            </td>
-            <td>
-                <!--{$user_order.pay_time|date:'Y-m-d H:i:s'}-->
-            </td>
-        </tr>
-        <!--{/iCMS}-->
-    </tbody>
-</table>
+<div class="table-responsive">
+    <table class="table table-hover align-middle text-nowrap">
+        <thead>
+            <tr>
+                <th style="width: 90px;">订单号</th>
+                <th>订单类型</th>
+                <th>项目</th>
+                <th>支付时间</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!--{iCMS:user:order loop="true" userid="$ME.id" by="DESC" status=[1,2]}-->
+            <tr>
+                <td class="text-nowrap">
+                    <span class="fw-semibold"><!--{$user_order.order_no}--></span>
+                </td>
+                <td>
+                    <!--{$user_order.subject}-->
+                </td>
+                <td>
+                    <!--{if $user_order.value>0}-->
+                    <span class="text-success">
+                        <!--{if $user_order.product_type=='vip'}-->
+                        <!--{$user_order.name}--><br />
+                        <!--{$user_order.expire_time|date:'Y-m-d H:i:s'}-->
+                        <!--{elseif $user_order.name=='time'}-->
+                        <!--{$user_order.name_text}-->
+                        <!--{else}-->
+                        <!--{$user_order.value}--> <!--{$user_order.name_text}-->
+                        <!--{/if}-->
+                    </span>
+                    <!--{else}-->
+                    <span class="text-danger"><!--{$user_order.value}--> <!--{$user_order.name_text}--></span>
+                    <!--{/if}-->
+                    <br />
+                    <small class="text-muted"><!--{$user_order.remark}--></small>
+                </td>
+                <td>
+                    <!--{$user_order.pay_time|date:'Y-m-d H:i:s'}-->
+                </td>
+                <td class="text-center">
+
+                </td>
+            </tr>
+            <!--{/iCMS}-->
+        </tbody>
+    </table>
+</div>

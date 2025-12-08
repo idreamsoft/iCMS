@@ -132,7 +132,7 @@ class RedisClient
 
     public function select($name)
     {
-        if (!ctype_digit($name) && isset($this->schema[$name])) {
+        if (!ctype_digit((string)$name) && isset($this->schema[$name])) {
             $name = $this->schema[$name];
         }
         $this->history[] = (int)$name;
@@ -168,8 +168,13 @@ class RedisClient
 
     public function add($name, $value, $exp = 0)
     {
-        $value = is_scalar($value) ? (string) $value : serialize($value);
-        if ($this->_have_zlib && $this->compress) {
+        $type = gettype($value);
+        $data = [
+            'Type'=>$type,
+            'Data'=>$type ==='object'?serialize($value):$value,
+        ];
+        $value = json_encode($data);
+        if ($value && $this->_have_zlib && $this->compress) {
             $value = gzcompress($value, 9);
         }
         $this->write('SET', $name, $value);
@@ -179,38 +184,38 @@ class RedisClient
     public function get($name)
     {
         $this->write('GET', $name);
-        $response = $this->get_response();
-        if ($this->_have_zlib && $this->compress) {
-            $response = @gzuncompress($response);
+        $value = $this->get_response();
+        if ($value && $this->_have_zlib && $this->compress) {
+            $value = gzuncompress($value);
         }
-        $unresponse = unserialize($response);
-        if (is_array($unresponse) && $response) {
-            $response = $unresponse;
+        $response = $value?json_decode($value,true):[];
+        if($response['Type']==='object'){
+            $response['Data'] = unserialize($response['Data']);
         }
-        return $response;
+        return $response['Data'];
     }
     public function get_multi($keys)
     {
         $this->write('MGET', $keys);
         $response = $this->get_response();
-        $unresponse = array_map('unserialize', $response);
-        if (is_array($unresponse) && $response) {
-            $response = $unresponse;
-        }
-        foreach ($keys as $i => $key) {
+        $response = array_map(function($json){
             if ($this->_have_zlib && $this->compress) {
-                $response[$i] = @gzuncompress($response[$i]);
+                $json = @gzuncompress($json);
             }
-            $value[$key] = $response[$i];
-        }
-        return $value;
+            $value = json_decode($json,true);
+            if($value['Type']==='object'){
+                $value['Data'] = unserialize($value['Data']);
+            }
+            return $value['Data'];
+        }, $response);
+        return $response;
     }
     /*
       Commands operating on string values
     */
     public function set($name, $value, $preserve = false)
     {
-        $value = is_scalar($value) ? (string) $value : serialize($value);
+        $value = is_scalar($value) ? (string) $value : json_encode($value);
         $this->write(($preserve ? 'SETNX' : 'SET'), $name, $value);
         return $this->get_response();
     }
@@ -222,16 +227,13 @@ class RedisClient
         if ($this->_have_zlib && $this->compress) {
             $response = @gzuncompress($response);
         }
-        $unresponse = unserialize($response);
-        if (is_array($unresponse) && $response) {
-            $response = $unresponse;
-        }
+        $response = json_decode($response,true);
         return $response;
     }
 
     public function getset($name, $value)
     {
-        $this->write('GETSET', $name, is_scalar($value) ? (string) $value : serialize($value));
+        $this->write('GETSET', $name, json_encode($value));
         return $this->get_response();
     }
 
@@ -244,10 +246,6 @@ class RedisClient
         }
         $this->write('MGET', $keys);
         $response = $this->get_response();
-        $unresponse = array_map('unserialize', $response);
-        if (is_array($unresponse) && $response) {
-            $response = $unresponse;
-        }
         return $response;
     }
 

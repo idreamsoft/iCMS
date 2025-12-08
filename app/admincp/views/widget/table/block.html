@@ -1,0 +1,13 @@
+<div class="block block-rounded">
+    <div class="block-header block-header-default">
+        <h3 class="block-title">搜索</h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle"><i class="si si-arrow-up"></i></button>
+        </div>
+    </div>
+    <div class="block-content block-content-full">
+        <form action="{{APP_DOURL}}" method="get" class="table-search">
+            <?php self::tableSearchDefault(); ?>
+        </form>
+    </div>
+</div>

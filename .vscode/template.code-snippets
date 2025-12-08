@@ -1,0 +1,324 @@
+{
+	// Place your 全局 snippets here. Each snippet is defined under a snippet name and has a scope, prefix, body and 
+	// description. Add comma separated ids of the languages where the snippet is applicable in the scope field. If scope 
+	// is left empty or omitted, the snippet gets applied to all languages. The prefix is what is 
+	// used to trigger the snippet and the body will be expanded and inserted. Possible variables are: 
+	// $1, $2 for tab stops, $0 for the final cursor position, and ${1:label}, ${2:another} for placeholders. 
+	// Placeholders with the same ids are connected.
+	// Example:
+	// "Print to console": {
+	// 	"scope": "javascript,typescript",
+	// 	"prefix": "log",
+	// 	"body": [
+	// 		"console.log('$1');",
+	// 		"$2"
+	// 	],
+	// 	"description": "Log output to console"
+	// }
+	"js:;":{
+		"scope": "html,htm",
+		"prefix": "js:;",
+		"body": "javascript:;"
+	},	
+	"icms.template.tag":{
+		"scope": "html,htm",
+		"prefix": "<!--",
+		"body": "<!--{$1}-->"
+	},
+	"icms.template.tag2":{
+		"scope": "html,htm",
+		"prefix": "<!--{}-->",
+		"body": "<!--{$1}-->"
+	},
+	"icms.template.lang":{
+		"scope": "html,htm",
+		"prefix": "lang",
+		"body": "<!--{'$1'|lang}-->"
+	},
+	"icms.template.include":{
+		"scope": "html,htm",
+		"prefix": "include",
+		"body": "<!--{include file=\"$1\"}-->"
+	},
+	"icms.template.foreach":{
+		"scope": "html,htm",
+		"prefix": "icms.foreach",
+		"body": [
+			"<!--{foreach key=\"key\" value=\"value\" from=\"$1\"}-->",
+			"$2",
+			"<!--{/foreach}-->"
+		]
+	},
+	"icms.template.if":{
+		"scope": "html,htm",
+		"prefix": "icms.if",
+		"body": [
+			"<!--{if $1}-->",
+			"$2",
+			"<!--{/if}-->"
+		]
+	},
+	"icms.template.elseif":{
+		"scope": "html,htm",
+		"prefix": "icms.elseif",
+		"body": [
+			"<!--{elseif $1}-->",
+		]
+	},
+	"icms.template.ifelse":{
+		"scope": "html,htm",
+		"prefix": "icms.ifelse",
+		"body": [
+			"<!--{if $1}-->",
+			"$2",
+			"<!--{else}-->",
+			"$3",
+			"<!--{/if}-->"
+		]
+	},
+	"icms.template.for":{
+		"scope": "html,htm",
+		"prefix": "icms.for",
+		"body": [
+			"<!--{for start=\"0\" stop=\"$1\" value=\"i\"}-->",
+			"$2",
+			"<!--{/for}-->"
+		]
+	},
+	"icms.template.function.cycle":{
+		"scope": "html,htm",
+		"prefix": "icms.fun.cycle",
+		"body": [
+			"<!--{cycle values='$1,$2'}-->"
+		]
+	},
+	"icms.template.function.array":{
+		"scope": "html,htm",
+		"prefix": "icms.fun.array",
+		"body": "<!--{array key=\"$1\" key1=\"$2\"}-->"
+	},
+	"icms.template.modifiers.var_dump":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.var_dump",
+		"body": [
+			"<!--{$1|var_dump}-->"
+		]
+	},
+	"icms.template.modifiers.print_r":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.print_r",
+		"body": [
+			"<!--{$1|print_r}-->"
+		]
+	},
+	"icms.template.modifiers.default":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.default",
+		"body": [
+			"<!--{$1|default:'$2'}-->"
+		]
+	},
+	"icms.template.modifiers.cut":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.cut",
+		"body": [
+			"<!--{$1|cut:'$2'}-->"
+		]
+	},
+	"icms.template.modifiers.thumb":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.thumb",
+		"body": [
+			"<!--{$1|thumb:'$2':'$3'}-->"
+		]
+	},
+	"icms.template.modifiers.date":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.date",
+		"body": [
+			"<!--{$1|date::'Y-m-d H:i:s'}-->"
+		]
+    },
+    "icms.template.modifiers.as":{
+		"scope": "html,htm",
+		"prefix": "icms.mod.as",
+		"body": [
+			"<!--{$1|as::'$2'}-->"
+		]
+	},
+	"icms.vars.site":{
+		"scope": "html,htm",
+		"prefix": "$site.",
+		"body": "<!--{\\$site.$1}-->"
+	},	
+	"icms.vars.site.keywords":{
+		"scope": "html,htm",
+		"prefix": "$site.keywords",
+		"body": "<!--{\\$site.keywords}-->"
+    },	
+	"icms.vars.site.description":{
+		"scope": "html,htm",
+		"prefix": "$site.description",
+		"body": "<!--{\\$site.description}-->"
+	},
+	"icms.vars.iCMS":{
+		"scope": "html,htm",
+		"prefix": "$iCMS.",
+		"body": "<!--{\\$iCMS.$1}-->"
+	},
+	"icms.vars.iCMS.CONST":{
+		"scope": "html,htm",
+		"prefix": "$iCMS.CONST.",
+		"body": "<!--{\\$iCMS.CONST.$1}-->"
+	},
+	"icms.vars.article":{
+		"scope": "html,htm",
+		"prefix": "$article.",
+		"body": "<!--{\\$article.$1}-->"
+	},	
+	"icms.vars.article.title":{
+		"scope": "html,htm",
+		"prefix": "$article.title",
+		"body": "<!--{\\$article.title}-->"
+	},	
+	"icms.vars.article.url":{
+		"scope": "html,htm",
+		"prefix": "$article.url",
+		"body": "<!--{\\$article.url}-->"
+	},	
+	"icms.vars.article.description":{
+		"scope": "html,htm",
+		"prefix": "$article.description",
+		"body": "<!--{\\$article.description}-->"
+	},	
+	"icms.vars.node":{
+		"scope": "html,htm",
+		"prefix": "$node",
+		"body": "<!--{\\$node.$1}-->"
+	},	
+	"icms.vars.category":{
+		"scope": "html,htm",
+		"prefix": "$category",
+		"body": "<!--{\\$category.$1}-->"
+	},	
+	"icms.vars.tag":{
+		"scope": "html,htm",
+		"prefix": "$tag",
+		"body": "<!--{\\$tag.$1}-->"
+	},	
+	"icms.vars.user":{
+		"scope": "html,htm",
+		"prefix": "$user.",
+		"body": "<!--{\\$user.$1}-->"
+	},	
+
+	"icms.iCMS:article:list.loop":{
+		"scope": "html,htm",
+		"prefix": "iCMS:article:list loop",
+		"body": [
+			"<!--{iCMS:article:list loop=\"true\" row=\"10\" $1}-->",
+			"<a href=\"<!--{\\$article_list.url}-->\"><!--{\\$article_list.title}--></a>",
+			"$2",
+			"<!--{/iCMS}-->"
+		]
+	},	
+	"icms.iCMS:article:list":{
+		"scope": "html,htm",
+		"prefix": "iCMS:article:list",
+		"body": [
+			"<!--{iCMS:article:list row=\"10\" $1}-->",
+			"<a href=\"<!--{\\$article_list[0].url}-->\"><!--{\\$article_list[0].name}--></a>",
+		]
+	},	
+	"icms.iCMS:node:list.loop":{
+		"scope": "html,htm",
+		"prefix": "iCMS:node:list loop",
+		"body": [
+			"<!--{iCMS:node:list loop=\"true\" row=\"10\" $1}-->",
+			"<a href=\"<!--{\\$node_list.url}-->\"><!--{\\$node_list.name}--></a>",
+			"$2",
+			"<!--{/iCMS}-->"
+		]
+	},
+	"icms.iCMS:node:list":{
+		"scope": "html,htm",
+		"prefix": "iCMS:node:list",
+		"body": [
+			"<!--{iCMS:node:list row=\"10\" $1}-->",
+			"<a href=\"<!--{\\$node_list[0].url}-->\"><!--{\\$node_list[0].name}--></a>",
+		]
+	},
+	"icms.iCMS:tag:list.loop":{
+		"scope": "html,htm",
+		"prefix": "iCMS:tag:list loop",
+		"body": [
+			"<!--{iCMS:tag:list loop=\"true\" row=\"10\" $1}-->",
+			"<a href=\"<!--{\\$tag_list.url}-->\"><!--{\\$tag_list.name}--></a>",
+			"$2",
+			"<!--{/iCMS}-->"
+		]
+	},		
+	"icms.iCMS:comment:list.loop":{
+		"scope": "html,htm",
+		"prefix": "iCMS:comment:list loop",
+		"body": [
+			"<!--{iCMS:comment:list loop=\"true\" row=\"10\" $1}-->",
+			"<a href=\"<!--{\\$comment_list.url}-->\"><!--{\\$comment_list.name}--></a>",
+			"$2",
+			"<!--{/iCMS}-->"
+		]
+	},	
+	"icms.iCMS:app:method.loop":{
+		"scope": "html,htm",
+		"prefix": "iCMS:app:method loop",
+		"body": [
+			"<!--{iCMS:$1:$2 loop=\"true\" row=\"10\" $3}-->",
+			"<a href=\"<!--{\\$$1_$2.url}-->\"><!--{\\$$1_$2.name}--></a>",
+			"<!--{/iCMS}-->"
+		]
+	},	
+	"icms.iCMS:app:method":{
+		"scope": "html,htm",
+		"prefix": "iCMS:app:method",
+		"body": [
+			"<!--{iCMS:$1:$2}-->"
+		]
+	},
+	"icms.iCMS:func":{
+		"scope": "html,htm",
+		"prefix": "iCMS:*",
+		"body": [
+			"<!--{iCMS:$1 row=\"10\" $3}-->",
+			"<a href=\"<!--{\\$$1.url}-->\"><!--{\\$$1.name}--></a>",
+		]
+    },	
+	"icms.iCMS:route":{
+		"scope": "html,htm",
+		"prefix": "iCMS:route",
+		"body": [
+			"<!--{iCMS:route url='$1'}-->",
+		]
+    },	
+	"icms.iCMS:config":{
+		"scope": "html,htm",
+		"prefix": "iCMS:config",
+		"body": [
+			"<!--{iCMS:config name='$1'}-->",
+		]
+    },	
+	"icms.vars.title":{
+		"scope": "html,htm",
+		"prefix": "$.title",
+		"body": "<!--{\\$$1.title}-->"
+	},	
+	"icms.vars.url":{
+		"scope": "html,htm",
+		"prefix": "$.url",
+		"body": "<!--{\\$$1.url}-->"
+	},	
+	"icms.vars.description":{
+		"scope": "html,htm",
+		"prefix": "$.description",
+		"body": "<!--{\\$$1.description}-->"
+	},
+}

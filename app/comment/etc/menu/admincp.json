@@ -6,7 +6,7 @@
         "icon": "comments",
         "children": [{
                 "caption": "评论配置",
-                "href": "comment&do=config",
+                "href": "/comment/config",
                 "icon": "cog"
             },
             {
@@ -14,7 +14,12 @@
             },
             {
                 "caption": "评论管理",
-                "href": "comment",
+                "href": "/comment/index",
+                "icon": "comments"
+            },
+            {
+                "caption": "评论回复管理",
+                "href": "/comment/reply",
                 "icon": "comments"
             }
         ]

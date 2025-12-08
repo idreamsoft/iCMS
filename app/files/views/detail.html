@@ -1,0 +1,48 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html 
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content p-0" id="{{APP_MAINID}}">
+    <div class="block">
+        <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-block align-items-center" data-toggle="tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" href="#local">本地</a>
+            </li>
+            <?php if ($cloudMap) foreach ($cloudMap as $vendor => $cloud) { ?><li class="nav-item">
+                    <a class="nav-link" href="#t<?php echo md5($vendor); ?>">
+                        <?php echo $vendor; ?>
+                    </a>
+                </li>
+            <?php } ?>
+        </ul>
+        <div class="block-content block-content-full">
+            <div class="tab-content">
+                <div id="local" class="tab-pane active">
+                    <input type="text" class="form-control mb-1" value="<?php echo $url; ?>">
+                    <img src="<?php echo $url; ?>" class="img-thumbnail" style="height:80vh;">
+                </div>
+                <?php
+                if ($cloudMap) foreach ($cloudMap as $vendor => $cloud) {
+                    $cloud_href = $cloud->url($rs['path']);
+                ?>
+                    <div id="t<?php echo md5($vendor); ?>" class="tab-pane">
+                        <img src="<?php echo $cloud_href; ?>" class="img-thumbnail" style="height:80vh;">
+                        <input type="text" class="form-control mt-1" value="<?php echo $cloud_href; ?>">
+
+                    </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php self::foot(); ?>

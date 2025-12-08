@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>
+        <!--{$node.title?$node.title.'_':''}-->
+        <!--{$node.name}-->_
+        <!--{$site.title}-->_
+        <!--{$site.seotitle}-->
+    </title>
+    <meta name="keywords" content="<!--{$site.keywords}-->" />
+    <meta name="description" content="<!--{$site.description}-->" />
+    <!--{iCMS:public:ui}-->
+</head>
+
+<body>
+    <div id="page-container">
+        <main id="main-container">
+            <!--{include file="./widget/top.htm"}-->
+            <!--{include file="./widget/hero.htm"}-->
+            <!--{include file="./widget/nav.htm"}-->
+
+            <!-- Page Content -->
+            <div class="content content-boxed mb-1">
+                <div class="row">
+                    <div class="col-md-8 p-0">
+                        <div class="block block-rounded">
+                            <div class="block-header block-header-default">
+                                <h3 class="block-title">
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb breadcrumb-alt">
+                                            <li class="breadcrumb-item">
+                                                <a href="<!--{$site.url}-->">首页</a>
+                                            </li>
+                                            <!--{foreach value="breadcrumb" from="$node.navArray"}-->
+                                            <li class="breadcrumb-item">
+                                                <a href="<!--{$breadcrumb.url}-->">
+                                                    <!--{$breadcrumb.name}-->
+                                                </a>
+                                            </li>
+                                            <!--{/foreach}-->
+                                        </ol>
+                                    </nav>
+                                </h3>
+                            </div>
+                            <div class="block-content block-content-full">
+                                <div class="push text-center p-6">
+                                    <h4 class="my-2">禁止访问</h4>
+                                    <h6 class="fw-normal text-muted my-3">
+                                        您当前为<span class="text-warning"><!--{$ME.role.name|default:'游客'}--></span>，暂无权限访问此内容。<br>
+                                        如需获取访问权限，请升级会员或联系客服以获取更多帮助。
+                                    </h6>
+                                    <a class="btn btn-primary" href="javascript:history.back(-1);">
+                                        <i class="fa fa-fw fa-circle-arrow-left"></i>
+                                        返回上一页
+                                    </a>
+                                    <!--{if $iCMS.CONFIG.apps.payment}-->
+                                    <a class="btn btn-vip ml-2" href="<!--{iCMS:route url='user/manage/vip'}-->">
+                                        <i class="fa fa-fw fa-gem"></i>
+                                        升级会员
+                                    </a>
+                                    <!--{/if}-->
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="col-md-4 mt-2 mt-md-0">
+                        <!--{include file="./right.search.htm"}-->
+                        <!--{iCMS:article:list row="10" cid="$node.id"}-->
+                        <!--{include file="./right.hots.htm" hotsList="$article_list"}-->
+                        <!--{include file="./right.comments.htm"}-->
+                        <!--{include file="./right.social.htm"}-->
+                    </div>
+                </div>
+            </div>
+            <!-- END Page Content -->
+
+            <!--{include file="./widget/footer.htm"}-->
+        </main>
+    </div>
+</body>
+
+</html>

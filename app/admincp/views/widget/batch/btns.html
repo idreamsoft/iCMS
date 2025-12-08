@@ -1,0 +1,33 @@
+<?php
+
+if ($enable) {
+    if ($actions) {
+        foreach ($actions as $action => $item) {
+            // var_dump($item);
+            if ($item['name'] == 'divider') {
+                echo '<div class="dropdown-divider"></div>';
+            } else {
+                $item['action'] && $action = $item['action'];
+                $text = isset($item['name']) ? $item['name'] : '设置 ' . $action;
+                // $title = $item['title'] ? : '设置 ' . $action;
+                if (isset($value) && !AdmincpBatch::showed($value['show'], AdmincpBatch::$config)) {
+                    continue;
+                }
+                empty($item['icon']) && $item['icon'] = 'cog';
+                if ($item['icon'] && strpos($item['icon'], ' ') === false) {
+                    $item['icon'] = 'fa fa-' . $item['icon'];
+                }
+                $item['icon'] .= ' fa-fw';
+
+                printf(
+                    '<button type="button" class="%s" i="cms:ui:batch" data-action="%s" data-from="%s"><i class="%s"></i> %s</button>',
+                    $class,
+                    $action,
+                    $item['from'],
+                    $item['icon'],
+                    $text
+                );
+            }
+        }
+    }
+}

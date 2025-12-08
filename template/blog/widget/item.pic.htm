@@ -1,0 +1,17 @@
+<!-- Story -->
+<a class="block block-rounded block-link-pop overflow-hidden" href="<!--{$item.url}-->">
+    <!--{if $item.pic}-->
+    <img class="img-fluid" src="<!--{$item.pic.url}-->" alt="">
+    <!--{/if}-->
+    <div class="block-content">
+        <h4 class="mb-1">
+            <!--{$item.title}-->
+        </h4>
+        <p class="fs-sm fw-medium mb-2">
+            <span class="text-primary"><!--{$item.user.name}--></span> <!--{$item.pubdate|date:"Y-m-d H:i"}--> · <span class="text-muted"><!--{$item.pubdate|format_date:false}--></span>
+        </p>
+        <p class="fs-sm text-muted">
+            <!--{$item.description|cut:80:'...'}-->
+        </p>
+    </div>
+</a>

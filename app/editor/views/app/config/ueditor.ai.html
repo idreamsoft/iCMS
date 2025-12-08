@@ -1,0 +1,40 @@
+<input type="hidden" name="config_name" value="ueditor.ai">
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="url">AI模型URL</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[url]" class="form-control" id="url" value="<?php echo $config['url'] ; ?>" />
+        <small class="form-text text-muted">
+            设置AI模型URL
+            <br>
+            例如：https://api.openai.com/v1/chat/completions<br>
+            https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions<br>
+            https://api.deepseek.com/chat/completions
+            <br>
+            请确保URL正确，否则会导致AI模型调用失败。
+        </small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="key">大模型平台Key</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[key]" class="form-control" id="key" value="<?php echo $config['key'] ; ?>" />
+        <small class="form-text text-muted">
+            设置大模型平台Key
+            <br>
+            例如：sk-1234567890abcdef1234567890abcdef
+        </small>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="model">平台模型</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[model]" class="form-control" id="model" value="<?php echo $config['model'] ; ?>" />
+        <small class="form-text text-muted">
+            设置平台模型
+            <br>
+            例如：gpt-3.5-turbo<br>
+            qwen-plus、qwen-max<br>
+            deepseek-chat
+        </small>
+    </div>
+</div>

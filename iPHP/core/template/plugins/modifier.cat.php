@@ -6,7 +6,6 @@
  * @subpackage plugins
  */
 
-
 /**
  * Smarty cat modifier plugin
  *
@@ -29,5 +28,5 @@ function tpl_modifier_cat($string)
     $arg_list = func_get_args();
     //{'字符'|cat:'字符1':'字符2':'字符3'}
     $pieces = array_slice($arg_list, 1);
-    return $string . implode('', $pieces);
+    return $string ? $string . implode('', $pieces) : '';
 }

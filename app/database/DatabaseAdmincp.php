@@ -8,13 +8,30 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
+/**
+ * 数据库管理
+ * 
+ * @role 1
+ */
 class DatabaseAdmincp extends AdmincpBase
 {
+	public $tableid = 0;
+	public $volume = 1024;
+	public $stop = 0;
+	public $rows = 0;
+	public $start = 0;
+
+	public $bakdir;
+	public $noCommit = true; //不提交事务
 	public function __construct()
 	{
 		parent::__construct();
 		$this->bakdir = Request::get('dir');
 		File::check($this->bakdir);
+		$driver = DB::getDriverName();
+		if($driver!='mysql'){
+			self::alert('仅支持mysql数据库，Sqlite请直接备份数据库文件');
+		}
 	}
 	public static function getData()
 	{
@@ -40,99 +57,141 @@ class DatabaseAdmincp extends AdmincpBase
 		return compact('rows', 'dataSize', 'indexSize', 'tables', 'oTables');
 	}
 	/**
-	 * [数据库恢复页]
-	 * @return [type] [description]
+	 * 数据库恢复页
+	 * @return void
 	 */
 	public function do_recover()
 	{
-		$res = FilesClient::folder('cache/backup', array('sql'));
-		$dirRs = $res['DirArray'];
-		$fileRs = $res['FileArray'];
+		$res = FilesClient::folder('cache', 'backup');
+		$dirRs = $res['dirList'];
+		$fileRs = $res['fileList'];
 		$pwd = $res['pwd'];
 		$parent = $res['parent'];
 		$URI = $res['URI'];
-		include self::view("database.recover");
+		include self::view();
 	}
 	/**
-	 * [修复数据库]
-	 * @return [type] [description]
+	 * 修复数据库
+	 * @return void
 	 */
 	public function do_repair()
 	{
 		$this->do_backup();
 	}
 	/**
-	 * [数据库备份页]
-	 * @return [type] [description]
+	 * 数据库备份页
+	 * @return void
 	 */
 	public function do_backup()
 	{
+		self::setJsPath('database/assets/js/backup');
+		include self::view('backup');
+	}
+	public function do_getTables()
+	{
 		$database = DB::getDatabaseName();
-		$result = DB::select("SHOW TABLE STATUS FROM `{$database}` WHERE ENGINE IS NOT NULL;");
-		$_count = count($result);
-		//		for($i=0;$i<$_count;$i++){
-		//			if (preg_match ("/^".preg_quote(iPHP_DB_PREFIX,'/')."/i" ,$rs[$i]['Name'])){
-		//				$iTable[] = $rs[$i];
-		//			}else{
-		//				$oTable[] = $rs[$i];
-		//			}
-		//		}
-		include self::view("database.backup");
+		$rows = DB::select("SHOW TABLE STATUS FROM `{$database}` WHERE ENGINE IS NOT NULL;");
+		foreach ($rows as $key => &$value) {
+			$value['Length'] = File::sizeUnit($value['Data_length'] + $value['Index_length']);
+			$value['Data_length_text'] = File::sizeUnit($value['Data_length']);
+			$value['Index_length_text'] = File::sizeUnit($value['Index_length']);
+			$value['id'] = $key;
+		}
+		return [
+			"total" => 1,
+			"rows" => $rows,
+		];
 	}
 	/**
-	 * [数据替换页]
-	 * @return [type] [description]
+	 * 数据替换页
+	 * @return void
 	 */
 	public function do_replace()
 	{
-		include self::view("database.replace");
+		include self::view();
 	}
-	public function do_batch()
+    /**
+     * 批处理{title}
+     */
+    public function done_batch()
+    {
+        $model = self::$MODEL; //兼容php5
+        $actions = [
+            'default' => function ($ids, $data, $batch) use ($model) {
+                $data && $model::update($data, $ids);
+            }
+        ];
+        $actions2 = (array)$this->batching();
+        $actions = array_merge($actions, $actions2);
+        $result = AdmincpBatch::run($actions);
+
+        return $result;
+    }
+	public function batching()
 	{
-		$stype = AdmincpBatch::$config['stype'];
-		$actions = array(
-			'backup' => function ($idArray, $ids, $batch) {
-				return $this->do_savebackup();
+		return array(
+			'backup' => function ($ids, $data, $batch) {
+				return $this->done_backup();
 			},
-			'optimize' => function ($idArray, $ids, $batch) {
-				$msg = $this->optimize($ids);
+			'optimize' => function ($ids, $data, $batch) {
+				$tableArr = Request::param('tables');
+				$msg = [];
+				foreach ($ids as $key => $id) {
+					$tables[] = $tableArr[$id];
+					if ($table = $tableArr[$id]) {
+						$_msg = $this->optimize($table);
+						$msg[] = implode('<br />', $_msg);
+					}
+				}
 				return $msg ? implode('<br />', $msg) : true;
 			},
-			'repair' => function ($idArray, $ids, $batch) {
-				$msg = $this->repair($ids);
+			'repair' => function ($ids, $data, $batch) {
+				$tableArr = Request::param('tables');
+				$msg = [];
+				foreach ($ids as $key => $id) {
+					$tables[] = $tableArr[$id];
+					if ($table = $tableArr[$id]) {
+						$_msg = $this->repair($table);
+						$msg[] = implode('<br />', $_msg);
+					}
+				}
 				return $msg ? implode('<br />', $msg) : true;
 			},
 		);
-		return AdmincpBatch::run($actions, "表", "table", null);
 	}
 	/**
-	 * [数据备份]
-	 * @return [type] [description]
+	 * 数据备份
+	 * @return void
 	 */
-	public function do_savebackup()
-	{
 
-		$tables = Request::sparam('table');
-		$step = (int) Request::sparam('step');
+	public function done_backup()
+	{
 		$ckey = Request::sparam('ckey');
 		if ($ckey) {
 			$data = Cache::get($ckey);
 			$tables = $data['tables'];
 			$bdir = $data['bdir'];
 			$random = $data['random'];
+		} else {
+			$ids = Request::param('ids');
+			$tableArr = Request::param('tables');
+			$tables = [];
+			foreach ($ids as $key => $id) {
+				$tables[] = $tableArr[$id];
+			}
 		}
-
+		$step = (int) Request::sparam('step', 0);
 		$this->volume = (int) Request::sparam('volume');
-		$this->tableid = (int) Request::sparam('tableid');
-		$this->start = (int) Request::sparam('start') ?: 0;
-		$this->rows = Request::sparam('rows');
+		$this->tableid = (int) Request::sparam('tableid', 0);
+		$this->start = (int) Request::sparam('start', 0);
+		$this->rows = (int) Request::sparam('rows', 0);
 
 		empty($tables) && self::alert('没有选择操作对象');
 		// !$step && $this->sizelimit /= 2;
-		File::check($bdir);
+		$bdir && File::check($bdir);
 
 		DB::query("SET SQL_QUOTE_SHOW_CREATE = 0");
-		$bakupdata = $this->bakupdata($tables, $this->start);
+
 		$bakTag = sprintf(
 			"# iCMS Backup SQL File\n# Version:iCMS %s\n# Time: %s\n# iCMS: https://www.icmsdev.com\n# %s\n\n\n",
 			iCMS_VERSION,
@@ -140,9 +199,8 @@ class DatabaseAdmincp extends AdmincpBase
 			str_repeat('-', 32)
 		);
 		if (empty($step)) {
-			$step = 1;
 			$random = random(10);
-			$bakuptable = $this->bakuptable($tables);
+			$sql = $this->bakuptable($tables);
 			$bdir = get_date(0, "Y-m-d-His") . '~' . random(10);
 			empty($ckey) && $ckey = 'database_backup';
 			Cache::set($ckey, [
@@ -150,72 +208,87 @@ class DatabaseAdmincp extends AdmincpBase
 				"bdir" => $bdir,
 				"random" => $random
 			]);
+			$this->stop = 1;
+		} else {
+			$sql = $this->bakupdata($tables, $this->start);
 		}
-		$updateMsg = ($step == 1 ? false : 'FRAME');
-		$f_num = ceil($step / 2);
-		$filename = 'iCMS_' . $random . '_' . $f_num . '.sql';
-		$step++;
-		$writedata = $bakuptable ? $bakuptable . $bakupdata : $bakupdata;
 
+		$f_num = ceil($step / 2) ?: 1;
+		$filename = 'iCMS_' . $random . '_' . $f_num . '.sql';
+		// $sql = $bakuptable ? $bakuptable . $bakupdata : $bakupdata;
 		$t_name = $tables[$this->tableid];
+
 		$backupdir = iPHP_APP_CACHE . '/backup/' . $bdir . '/';
 		$sqlpath = $backupdir . $filename;
 		File::mkdir($backupdir);
-		trim($writedata) && File::put($sqlpath, $bakTag . $writedata, true, 'ab');
+		trim($sql) && File::put($sqlpath, $bakTag . $sql, true, 'ab');
+		$step++;
 		if ($this->stop == 1) {
-			// $loopurl = APP_URL . "&do=savebackup&start={$this->start}&tableid={$this->tableid}&sizelimit={$this->sizelimit}&step={$step}&rows={$this->rows}";
-			$loopurl = sprintf(
-				'%s&do=savebackup&start=%d&tableid=%d&step=%d&rows=%d&volume=%d&ckey=%s&CSRF_TOKEN=%s',
-				APP_URL,
-				$this->start,
-				$this->tableid,
-				$step,
-				$this->rows,
-				$this->volume,
-				$ckey,
-				Security::$CSRF_TOKEN
-			);
-			$moreBtn = array(
-				array("id" => "btn_stop", "text" => "停止", "url" => APP_URL . "&do=backup"),
-				array("id" => "btn_next", "text" => "继续", "src" => $loopurl, "next" => true),
-			);
-			$dtime = 1;
 			$msg = sprintf(
-				"正在备份数据库,
-				表<span class='label label-success'>%s</span>
-				共有<span class='label label-info'>%d</span>条记录
-				<hr />
-				已备份至<span class='label label-info'>%d</span>条记录,
-				生成第<span class='label label-info'>%d</span>个备份文件，
-				<hr />
-				程序将自动备份余下部分",
+				'<div class="alert alert-primary" role="alert">
+				正在备份数据库,
+				表<span class="badge bg-success">%s</span>
+				共有<span class="badge bg-info">%d</span>条记录
+				<br />
+				已备份至<span class="badge bg-info">%d</span>条记录,
+				生成第<span class="badge bg-info">%d</span>个备份文件，
+				<br />
+				程序将自动备份余下部分
+				</div>
+				',
 				$t_name,
 				$this->rows,
 				$this->start,
 				$f_num
 			);
+			$data = [
+				'loop' => true,
+				'btn' => [[
+					"id" => "btn_stop",
+					"text" => "停止",
+					"url" => "./backup"
+				], [
+					"id" => "btn_next",
+					"text" => "继续",
+					"url" => Admincp::url('database/backup'),
+					"params" => [
+						'CSRF_TOKEN' => Security::$CSRF_TOKEN,
+						'step' => $step,
+						'start' => $this->start,
+						'tableid' => $this->tableid,
+						'rows' => $this->rows,
+						'volume' => $this->volume,
+						'ckey' => $ckey,
+					],
+					"next" => true,
+					"time" => 1000
+				]]
+			];
 		} else {
-			$msg = "success:#:check:#:已全部备份完成,备份文件保存在backup目录下!";
-			$moreBtn = array(
-				array("id" => "btn_next", "text" => "完成", "url" => APP_URL . "&do=backup"),
-			);
-			$dtime = 5;
+			$msg = '<div class="alert alert-success" role="alert">';
+			$msg .= '已全部备份完成,备份文件保存在backup目录下!';
+			$msg .= '</div>';
+			$data = [
+				'loop' => 'end',
+				'btn' => [[
+					"id" => "btn_next",
+					"text" => "完成",
+					"url" => "./backup"
+				]]
+			];
 		}
-
-		Script::dialog(
-			$msg,
-			$loopurl ? "src:" . $loopurl : 'js:1',
-			$dtime,
-			$moreBtn,
-			$updateMsg
-		);
+		return [
+			'code' => 1,
+			'message' => $msg,
+			"data" => $data
+		];
 	}
 	/**
 	 * 删除备份卷
 	 *
 	 * @return void
 	 */
-	public function do_delete($id = null)
+	public function done_delete($id = null)
 	{
 		$this->bakdir or self::alert('请选择要删除的备份卷');
 		$backupdir = iPHP_APP_CACHE . '/backup/' . $this->bakdir;
@@ -225,13 +298,13 @@ class DatabaseAdmincp extends AdmincpBase
 		}
 	}
 	/**
-	 * [下载备份]
-	 * @return [type] [description]
+	 * 下载备份
+	 * @return void
 	 */
 	public function do_download()
 	{
 		$this->bakdir or self::alert('请选择要下载的备份卷');
-		Vendor::run('PclZip'); //加载zip操作类
+		// Vendor::run('PclZip'); //加载zip操作类
 		$zipname = $this->bakdir . ".zip"; //压缩包的名称
 		$zipFile = iPHP_APP_CACHE . '/backup/' . $zipname; //压缩包所在路径
 		$zip = new PclZip($zipFile);
@@ -251,8 +324,8 @@ class DatabaseAdmincp extends AdmincpBase
 		ob_flush();
 	}
 	/**
-	 * [备份恢复]
-	 * @return [type] [description]
+	 * 备份恢复
+	 * @return void
 	 */
 	public function do_recovery()
 	{
@@ -285,62 +358,76 @@ class DatabaseAdmincp extends AdmincpBase
 			$dtime = 5;
 		}
 		$updateMsg = ($i == 1 ? false : 'FRAME');
-		Script::dialog(
-			$msg,
-			$loopurl ? "src:" . $loopurl : 'js:1',
-			$dtime,
-			$moreBtn,
-			$updateMsg
-		);
+		// Script::dialog(
+		// 	$msg,
+		// 	$loopurl ? "src:" . $loopurl : 'js:1',
+		// 	$dtime,
+		// 	$moreBtn,
+		// 	$updateMsg
+		// );
 	}
 	/**
-	 * [执行查询]
-	 * @return [type] [description]
+	 * 执行查询
+	 * @return void
 	 */
-	public function do_query()
+	public function done_query()
 	{
-		$field = $_POST["field"];
-		$pattern = $_POST["pattern"];
-		$replacement = $_POST["replacement"];
-		$where = $_POST["where"];
+		$field = Request::spost('field');
+		$pattern = Request::post("pattern");
+		$replacement = Request::post("replacement");
+		$where = Request::post("where");
 		$pattern or self::alert("查找项不能为空~");
+		$params = [$pattern, $replacement];
 		if ($field == "body") {
-			$rows_affected = DB::query("UPDATE `#iCMS@__article_data` SET `body` = REPLACE(`body`, '$pattern', '$replacement') {$where}");
+			ArticleDataModel::where($where)->update([
+				"body" => [
+					'raw' => 'REPLACE(body,?,?)', $params
+				]
+			]);
 		} else {
 			if ($field == "tkd") {
-				$rows_affected = DB::query("UPDATE `#iCMS@__article` SET `title` = REPLACE(`title`, '$pattern', '$replacement'),
-		    	`keywords` = REPLACE(`keywords`, '$pattern', '$replacement'),
-		    	`description` = REPLACE(`description`, '$pattern', '$replacement'){$where}");
+				$rows_affected = ArticleModel::where($where)->update([
+					"title" => [
+						'raw' => 'REPLACE(`title`,?,?)', $params
+					],
+					"keywords" => [
+						'raw' => 'REPLACE(`keywords`,?,?)', $params
+					],
+					"description" => [
+						'raw' => 'REPLACE(`description`,?,?)', $params
+					]
+				]);
 			} else {
-				$rows_affected = DB::query("UPDATE `#iCMS@__article` SET `$field` = REPLACE(`$field`, '$pattern', '$replacement'){$where}");
+				$rows_affected = ArticleModel::where($where)->update([
+					$field => [
+						'raw' => 'REPLACE(`' . $field . '`,?,?)', $params
+					]
+				]);
 			}
 		}
 		return $rows_affected . "条记录被替换完成";
-		// self::success($rows_affected . "条记录被替换完成");
 	}
 	/**
-	 * [优化分表]
-	 * @return [type] [description]
+	 * 优化分表
+	 * @return void
 	 */
 	public function do_sharding()
 	{
-		self::head();
-		print("暂无");
-		self::foot();
+		include self::view();
 	}
 	public static function bakuptable($tables, $exists = true)
 	{
 		return AppsTable::makeDDL($tables, $exists);
 	}
-	public function bakupdata($tabledb, $start = 0)
+	public function bakupdata($tableArr, $start = 0)
 	{
-		$this->tableid = $this->tableid ? $this->tableid - 1 : 0;
 		$this->stop = 0;
-		$t_count = count($tabledb);
+		$t_count = count($tableArr);
 		$bakupdata = '';
+		$volume = $this->volume * 1024;
 
 		for ($i = $this->tableid; $i < $t_count; $i++) {
-			$table = $tabledb[$i];
+			$table = $tableArr[$i];
 			$ts = DB::row("SHOW TABLE STATUS LIKE '$table'");
 			$this->rows = $ts['Rows'];
 			$pageSize = 10000;
@@ -349,17 +436,17 @@ class DatabaseAdmincp extends AdmincpBase
 				$option = array(PDO::ATTR_CURSOR => PDO::CURSOR_SCROLL);
 				$stmt = DB::execute($query, [], null, $option);
 				while ($row = $stmt->fetch(PDO::FETCH_ASSOC, PDO::FETCH_ORI_NEXT)) {
-					$start++;
 					$keys   = array_keys($row);
 					$values = array_values($row);
 					$values = array_map('addslashes', $values);
 					$bakupdata .= sprintf(
-						"INSERT INTO %s (`%s`)VALUES('%s');\n",
+						"INSERT INTO %s (`%s`) VALUES ('%s');\n",
 						$table,
 						implode('`,`', $keys),
 						implode("','", $values)
 					);
-					if ($this->volume && strlen($bakupdata) > $this->volume * 1024) {
+					$start++;
+					if ($volume && strlen($bakupdata) > $volume) {
 						break;
 					}
 				}
@@ -367,7 +454,7 @@ class DatabaseAdmincp extends AdmincpBase
 					$start = 0;
 					$this->rows = 0;
 				}
-				if ($this->volume && strlen($bakupdata) > $this->volume * 1024) {
+				if ($volume && strlen($bakupdata) > $volume) {
 					$start == 0 && $i++;
 					$this->stop = 1;
 					break;
@@ -378,21 +465,19 @@ class DatabaseAdmincp extends AdmincpBase
 			$start = 0;
 		}
 		if ($this->stop == 1) {
-			$i++;
 			$this->tableid = $i;
 			$this->start = $start;
 			$start = 0;
 		}
 		return $bakupdata;
 	}
-	public function repair($tables)
+	public function repair($table)
 	{
-		$tableA = (array) $_POST['table'];
-		$rs = DB::select("REPAIR TABLE $tables");
+		$rs = DB::select("REPAIR TABLE `$table`");
 		$_count = count($rs);
 		for ($i = 0; $i < $_count; $i++) {
 			$msg[] = sprintf(
-				'表：%s 操作：%s 状态：%s<hr />',
+				'表：%s 操作：%s 状态：%s<br />',
 				substr(strrchr($rs[$i]['Table'], '.'), 1),
 				$rs[$i]['Op'],
 				$rs[$i]['Msg_text']
@@ -400,13 +485,13 @@ class DatabaseAdmincp extends AdmincpBase
 		}
 		return $msg;
 	}
-	public function optimize($tables)
+	public function optimize($table)
 	{
-		$rs = DB::select("OPTIMIZE TABLE $tables");
+		$rs = DB::select("OPTIMIZE TABLE `$table`");
 		$_count = count($rs);
 		for ($i = 0; $i < $_count; $i++) {
 			$msg[] = sprintf(
-				'表：%s 操作：%s 状态：%s<hr />',
+				'表：%s 操作：%s 状态：%s<br />',
 				substr(strrchr($rs[$i]['Table'], '.'), 1),
 				$rs[$i]['Op'],
 				$rs[$i]['Msg_text']

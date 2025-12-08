@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <title>找回密码 | <!--{$site.title}--></title>
+    <meta name="keywords" content="<!--{$site.keywords}-->" />
+    <meta name="description" content="<!--{$site.description}-->" />
+    <!--{iCMS:public:ui}-->
+</head>
+
+<body>
+    <div id="page-container">
+        <!-- Main Container -->
+        <!--{"1"|rand:"39"|as:"bgNum"}-->
+        <main id="main-container" style="background: url(<!--{$site.urls.assets}-->/img/bg/photo17.jpg) top center no-repeat; background-size: cover">
+            <!-- Page Content -->
+            <div class="hero-static d-flex align-items-center">
+                <div class="container">
+                    <!-- Sign In Section -->
+                    <div class="bg-black-50 rounded mt-5">
+                        <div class="content content-full">
+                            <div class="row justify-content-center">
+                                <div class="col-md-6 d-flex align-items-center">
+                                    <div class="content content-full">
+                                        <div class="text-center">
+                                            <h1 class="h1 text-white mb-2" data-toggle="appear" data-class="animated fadeInDown">
+                                                欢迎使用
+                                                <!--{$site.name}-->
+                                            </h1>
+                                            <h2 class="h4 fw-light text-white-75" data-toggle="appear" data-class="animated fadeInDown"><!--{$site.seotitle}--></h2>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 py-3 bg-white-90 rounded">
+                                    <!-- Header -->
+                                    <div class="text-center">
+                                        <p class="mb-2">
+                                            <i class="fa fa-2x fa-info-circle text-primary"></i>
+                                        </p>
+                                        <h1 class="h4 mb-1">
+                                            找回密码
+                                        </h1>
+                                        <h2 class="h6 fw-light text-muted mb-3">只需简单的步骤就可以找回密码</h2>
+                                    </div>
+                                    <!-- END Header -->
+
+                                    <!--{iCMS:user:config}-->
+                                    <div class="block block-transparent" i="cms:user:findpwd">
+                                        <div class="block-content p-0">
+                                            <!-- Validation Wizard -->
+                                            <div class="js-wizard-validation block block-transparent">
+                                                <!-- Step Tabs -->
+                                                <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt nav-justified" role="tablist">
+                                                    <li class="nav-item">
+                                                        <a class="nav-link active" href="#wizard-validation-step1" data-toggle="tab">1. 验证身份</a>
+                                                    </li>
+                                                    <li class="nav-item">
+                                                        <a class="nav-link" href="#wizard-validation-step2" data-toggle="tab">2. 设置密码</a>
+                                                    </li>
+                                                </ul>
+                                                <!-- END Step Tabs -->
+
+                                                <!-- Form -->
+                                                <form class="js-wizard-validation-form" action="<!--{iCMS:route url='UserPassport'}-->" method="POST">
+                                                    <input type="hidden" name="action" value="findpwd" />
+                                                    <!-- Steps Content -->
+                                                    <div class="block-content block-content-full tab-content px-md-5">
+                                                        <!-- Step 1 -->
+                                                        <div class="tab-pane active" id="wizard-validation-step1" role="tabpanel">
+                                                            <div class="form-group">
+                                                                <label for="email">邮箱</label>
+                                                                <input type="text" class="form-control" id="email" name="email" value="" />
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="captcha">图形验证码</label>
+                                                                <div class="input-group">
+                                                                    <input type="text" maxlength="4" class="form-control" id="captcha" name="captcha" placeholder="图形验证码" />
+                                                                    <!--{iCMS:public:captcha class="rounded-right"}-->
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="emailcode">邮箱验证码</label>
+                                                                <div class="input-group">
+                                                                    <input maxlength="6" type="text" class="form-control" id="emailcode" name="emailcode" placeholder="请输入6位邮箱验证码" />
+                                                                    <button i="event:public:emailcode:1" type="button" class="btn btn-alt-primary">获取邮箱验证码</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- END Step 1 -->
+
+                                                        <!-- Step 2 -->
+                                                        <div class="tab-pane" id="wizard-validation-step2" role="tabpanel">
+                                                            <div class="form-group">
+                                                                <label for="pwd">新密码</label>
+                                                                <div class="input-group">
+                                                                    <input type="password" class="form-control" id="passwd" name="passwd" value="" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="passwd-confirm">确认新密码</label>
+                                                                <div class="input-group">
+                                                                    <input type="password" class="form-control" id="passwd-confirm" name="passwd-confirm" value="" />
+                                                                </div>
+                                                            </div>
+                                                            <div class="form-group">
+                                                                <label for="captcha2">图形验证码</label>
+                                                                <div class="input-group">
+                                                                    <input type="text" maxlength="4" class="form-control" id="captcha2" name="captcha2" placeholder="图形验证码" />
+                                                                    <!--{iCMS:public:captcha class="rounded-right"}-->
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- END Step 2 -->
+                                                    </div>
+                                                    <!-- END Steps Content -->
+
+                                                    <!-- Steps Navigation -->
+                                                    <div class="block-content block-content-sm block-content-full">
+                                                        <div class="row">
+                                                            <div class="col-12 text-center">
+                                                                <button type="button" class="btn btn-block btn-alt-primary" data-wizard="next">
+                                                                    下一步
+                                                                    <i class="fa fa-angle-right ml-1"></i>
+                                                                </button>
+                                                                <button type="submit" class="btn btn-block btn-primary d-none" data-wizard="finish">
+                                                                    <i class="fa fa-check mr-1"></i>
+                                                                    确认修改
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <!-- END Steps Navigation -->
+                                                </form>
+                                                <!-- END Form -->
+                                            </div>
+                                            <!-- END Validation Wizard Classic -->
+                                        </div>
+                                    </div>
+                                    <!-- END Sign Up Form -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- END Sign In Section -->
+
+                    <!--{include file="iCMS://user/footer.htm"}-->
+                </div>
+            </div>
+            <!-- END Page Content -->
+        </main>
+        <!-- END Main Container -->
+    </div>
+    <!-- END Page Container -->
+    <!-- Terms Modal -->
+    <div class="modal fade" id="icmsdev-signup-terms" tabindex="-1" role="dialog" aria-labelledby="icmsdev-signup-terms" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-popout" role="document">
+            <div class="modal-content">
+                <div class="block block-rounded block-themed block-transparent mb-0">
+                    <div class="block-header bg-primary-dark">
+                        <h3 class="block-title">
+                            <!--{$site.name}-->
+                            网站服务条款
+                        </h3>
+                        <div class="block-options">
+                            <button type="button" class="btn-block-option" data-dismiss="modal" aria-label="Close">
+                                <i class="fa fa-fw fa-times"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="block-content" style="max-height: 500px; overflow-y: scroll">
+                        <!--{include file="./terms.htm"}-->
+                    </div>
+                    <div class="block-content block-content-full text-right border-top">
+                        <button type="button" class="btn btn-alt-primary mr-1" data-dismiss="modal">关闭</button>
+                        <button type="button" class="btn btn-primary" data-dismiss="modal">我同意</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

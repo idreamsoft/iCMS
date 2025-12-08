@@ -9,8 +9,10 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 defined('iPHP') or exit('What are you doing?');
-
-class AdmincpWidgetAdmincp extends AdmincpBase
+/**
+ * 后台小工具
+ */
+class AdmincpWidgetAdmincp extends AdmincpWidget
 {
     public $ACCESC_TITLE = '后台小工具';
 
@@ -18,24 +20,25 @@ class AdmincpWidgetAdmincp extends AdmincpBase
     {
         parent::__construct();
     }
+
     public static function do_stats()
     {
-        $ul = '<ul class="nav nav-pills flex-row font-size-sm">%s</ul>';
+        $ul = '<ul class="nav nav-pills flex-row fs-sm">%s</ul>';
         $li = '<li class="nav-item">
                     <a class="nav-link d-flex justify-content-between align-items-center %s" href="javascript:;">
                         <span>
-                            <i class="%s mr-1"></i> %s
+                            <i class="%s me-1"></i> %s
                         </span>
-                        <span class="badge badge-pill badge-secondary">%s</span>
+                        <span class="badge rounded-pill bg-secondary">%s</span>
                     </a>
                 </li>';
 
-        $counts['comment'] = iPHP::callback(array("CommentAdmincp",   "widget_count"));
-        $counts['files']   = iPHP::callback(array("FilesAdmincp",   "widget_count"));
-        $counts['apps']    = iPHP::callback(array("AppsAdmincp",   "widget_count"));
-        $counts['chain']   = iPHP::callback(array("ChainAdmincp",   "widget_count"));
-        $counts['links']   = iPHP::callback(array("LinksAdmincp",   "widget_count"));
-        $counts['prop']    = iPHP::callback(array("PropAdmincp",   "widget_count"));
+        $counts['comment'] = iPHP::callback(['CommentAdmincp',   'widget_count']);
+        $counts['files'] = iPHP::callback(['FilesAdmincp',   'widget_count']);
+        $counts['apps'] = iPHP::callback(['AppsAdmincp',   'widget_count']);
+        $counts['chain'] = iPHP::callback(['ChainAdmincp',   'widget_count']);
+        $counts['links'] = iPHP::callback(['LinksAdmincp',   'widget_count']);
+        $counts['prop'] = iPHP::callback(['PropAdmincp',   'widget_count']);
         $list = '';
         foreach ($counts as $app => $values) {
             $apps = Apps::getData($app);
@@ -47,7 +50,7 @@ class AdmincpWidgetAdmincp extends AdmincpBase
         }
 
         return [
-            "html" => sprintf($ul, $list)
+            'html' => sprintf($ul, $list)
         ];
     }
 }

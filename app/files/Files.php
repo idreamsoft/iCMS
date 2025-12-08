@@ -41,23 +41,18 @@
 
 class Files
 {
-    const APP = 'fiels';
+    const APP = 'files';
     const APPID = iCMS_APP_FILES;
 
     public static $check_data = true; //检测文件数据是否存在
     public static $check_md5 = false; //检测文件md5是否存在
-    public static $userid  = false;
+    public static $userid = false;
 
-    public static function config()
+    public static function init($params = null)
     {
-        self::$check_md5 = Config::get('FS.check_md5');
-    }
+        self::$check_md5 = FilesClient::getConfig('check_md5');
 
-    public static function init($vars = null)
-    {
-        Files::config();
-
-        isset($vars['userid']) && Files::$userid = $vars['userid'];
+        isset($params['userid']) && self::$userid = $params['userid'];
         FilesCloud::$enable && FilesCloud::init(Config::get('cloud'));
         if (FilesMark::$enable) {
             FilesMark::$config = Config::get('watermark');
@@ -69,39 +64,82 @@ class Files
     {
         FilesModel::update(compact('size'), $id);
     }
+
     public static function getFileid($indexid, $appid = '1')
     {
         $fileid0 = FilesMapModel::field('fileid')->where(compact('indexid', 'appid'))->pluck();
-        $result  = array();
+        $result = [];
         if ($fileid0) {
             $fileid1 = FilesMapModel::field('fileid')
                 ->where('fileid', $fileid0)
                 ->where('indexid', '<>', $indexid)
                 ->pluck();
             if ($fileid1) {
-                $result  = array_diff((array) $fileid0, (array) $fileid1);
+                $result = array_diff((array) $fileid0, (array) $fileid1);
             } else {
-                $result  = $fileid0;
+                $result = $fileid0;
             }
         }
         return $result;
     }
-    public static function deleteFile($where)
+
+    public static function deleteFiles($where)
     {
-        if (empty($where)) return array();
-        $result = FilesModel::field("*")->where($where)->select();
-        $ret  = array();
+        if (empty($where)) {
+            return [];
+        }
+        $result = FilesModel::field('*')->where($where)->select();
+        $ret = [];
         foreach ((array) $result as $value) {
-            $path = self::path($value);
-            $filepath = FilesClient::getRoot($path);
+            $filepath = FilesClient::getRoot($value['path']);
             File::rm($filepath);
-            $ret[] = $path;
+            $ret[] = $value['path'];
         }
         return $ret;
     }
+
+    public static function rmEmptyDir($path)
+    {
+        $dir = dirname($path);
+        if ($dir == '.') {
+            return false;
+        }
+        $path = FilesClient::getRoot($path);
+        $rootDir = dirname($path);
+        $rootDir = str_replace('\\', '/', $rootDir);
+        if (iPHP_APP_PATH == rtrim($rootDir, '/') . '/') {
+            return false;
+        }
+        $files = glob($rootDir . '/*');
+        if (empty($files)) {
+            File::rmdir($rootDir, false);
+            self::rmEmptyDir($dir);
+        }
+    }
+
+    public static function deleteFile($where)
+    {
+        $row = FilesModel::field('*')->where($where)->get();
+        if (empty($row)) {
+            return false;
+        }
+        $filepath = FilesClient::getRoot($row['path']);
+        if ($row['count'] < 2) {
+            File::rm($filepath);
+            Files::deleteData($row['id']);
+        } else {
+            $count = $row['count'] - 1;
+            $count = $count < 0 ? 0 : $count;
+            files::update(compact('count'), $row['id']);
+        }
+        return $row;
+    }
+
     public static function deleteData($ids, $indexid = 0, $appid = '1')
     {
-        if (empty($ids)) return array();
+        if (empty($ids)) {
+            return [];
+        }
 
         FilesModel::where($ids)->delete();
         $appid && $where['appid'] = $appid;
@@ -109,12 +147,7 @@ class Files
         $where['fileid'] = $ids;
         FilesMapModel::where($where)->delete();
     }
-    public static function path($F, $root = false)
-    {
-        $path = $F['path'] . $F['name'] . '.' . $F['ext'];
-        $root && $path = FilesClient::getRoot($path);
-        return $path;
-    }
+
     public static function delete($appid, $indexid = null)
     {
         $where['appid'] = $appid;
@@ -132,12 +165,13 @@ class Files
         }
         $userid = self::$userid === false ? 0 : self::$userid;
         $data['userid'] = $userid;
-        $data['time']   = time();
-        $data['type']   = $type;
+        $data['time'] = time();
+        $data['type'] = $type;
         $data['status'] = $status;
-        $data['count']  = 0;
+        $data['count'] = 1;
         return FilesModel::create($data, true);
     }
+
     public static function update($data, $fid = 0)
     {
         if (!self::$check_data) {
@@ -151,6 +185,7 @@ class Files
         $data['time'] = time();
         return FilesModel::update($data, $fid);
     }
+
     //需要检测是否存在
     public static function getData($key, $value, $field = '*')
     {
@@ -162,84 +197,145 @@ class Files
         }
         return self::get($key, $value, $field);
     }
+
     public static function get($key, $value, $field = '*')
     {
+        $where = [];
         self::$userid && $where['userid'] = self::$userid;
-        $result = FilesModel::field($field)->where($key, $value)->where($where)->get();
-
-        if ($result && $field == '*') {
-            if ($key == 'source') {
-                $filepath = FilesClient::getRoot($result['path']);
-                if (is_file($filepath)) {
-                    return $result;
-                } else {
-                    return false;
-                }
-            }
+        $where[$key] = $value;
+        $result = FilesModel::field($field)->where($where)->get();
+        if ($result) {
+            // $filepath = FilesClient::getRoot($result['path']);
+            // $result['exist'] = @is_file($filepath);
         }
-        return $result;
+        return (array)$result;
     }
 
-    public static function icon($ext, $dir = null)
+    public static function icon($ext, $flag = true)
     {
-        if (strpos($ext, '/') !== false) {
+        if (strpos($ext, '.') !== false) {
             $ext = File::getExt($ext);
         }
         $ext = strtolower($ext);
-        $rootdir = __DIR__ . '/assets/icon/';
-        $iconArray = glob($rootdir . '*.gif');
-        $icons = implode(',', str_replace($rootdir, '', $iconArray));
-        $icon = $ext . '.gif';
-        strpos($icons, $icon) === false && $icon = "common.gif";
-        $dir or $dir = "./app/files/assets";
-        return sprintf(
-            '<img border="0" src="%s/icon/%s" align="absmiddle" class="icon">',
-            $dir,
-            $icon
-        );
+        $dir = '/assets/libs/file-icons/svg/';
+        $rootdir = iPHP_PUBLIC . $dir;
+        $iconMap = Etc::get('files', 'file-icons');
+        $name = 'file_type_%s.svg';
+        $icon = sprintf($name, $ext);
+        if ($fext = $iconMap[$ext]) {
+            $icon = sprintf($name, $fext);
+        }
+        // var_dump($rootdir.$icon);
+        if ($ext == 'folder') {
+            $icon = 'default_folder.svg';
+        } elseif (!is_file($rootdir . $icon)) {
+            $icon = 'default_file.svg';
+        }
+        $format = $flag ? '<img border="0" src="%s%s" align="absmiddle" class="svg_icon" style="height:24px;width:24px;">' : '%s%s';
+        return sprintf($format, $dir, $icon);
     }
 
-    public static function remoteAuth()
-    {
-        $conf = FilesClient::$config['remote'];
-        if (
-            $conf['enable'] &&
-            $_POST['AccessKey'] == $conf['AccessKey'] &&
-            $_POST['SecretKey'] == $conf['SecretKey']
-        ) {
-            return true;
-        } else {
-            iJson::error();
-        }
-    }
+    // public static function remoteAuth()
+    // {
+    //     $conf = FilesClient::$config['remote'];
+    //     if (
+    //         $conf['enable'] &&
+    //         $_POST['AccessKey'] == $conf['AccessKey'] &&
+    //         $_POST['SecretKey'] == $conf['SecretKey']
+    //     ) {
+    //         return true;
+    //     } else {
+    //         iJson::error();
+    //     }
+    // }
     public static function change($field, $appid, $paths, $event, $indexid)
     {
         $name = array_map(['FilesClient', 'name'], $paths);
         $where = compact('name');
+
         // $FilesModel = FilesModel::field('id')->where($where);
         // $FilesModel->inc('count');
         $fileids = FilesModel::field('id')->where($where)->pluck();
         if (empty($fileids)) { //files表无相关数据
-
         }
         $mWhere = compact('appid', 'indexid', 'field');
         $_fileids = FilesMapModel::field('fileid')->where($mWhere)->pluck();
-
         $diff = array_diff_values($fileids, $_fileids);
-
         if ($diff['+']) {
-            $userid  = (int)Files::$userid;
+            $userid = (int)self::$userid;
             $addtime = time();
-            FilesModel::where($diff['+'])->inc('count');
+            FilesModel::where('id', $diff['+'])->inc('count');
             foreach ($diff['+'] as $fileid) {
                 FilesMapModel::create(compact('fileid', 'userid', 'appid', 'indexid', 'addtime', 'field'));
             }
         }
         if ($diff['-']) {
-            FilesModel::where(array('id' => $diff['-']))->where('count', '>', '0')->dec('count');
+            FilesModel::where('id', $diff['-'])->where('count', '>', '0')->dec('count');
             FilesModel::where('count', '<', '1')->delete();
             $mWhere['fileid'] = $diff['-'];
             FilesMapModel::where($mWhere)->delete();
+        }
+    }
+
+    public static function cacheControl($expires = 86400, $control = 'public')
+    {
+        header('Cache-Control: ' . $control . ', max-age=' . $expires);
+        header('Pragma: ' . $control);
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s', time()) . ' GMT');
+        header('Expires: ' . gmdate('D, d M Y H:i:s', time() + $expires) . ' GMT');
+    }
+
+    public static function readfile($paths)
+    {
+        $path = implode('/', $paths);
+        Security::safePath($path) or Application::error('errors:invalid_path');
+        $assets = sprintf('%s/%s', iPHP_APP_DIR, $path);
+        $ext = File::getExt($path);
+        if (in_array($ext, ['js', 'css', 'woff2', 'ttf']) && file_exists($assets)) {
+            $expires = 86400 * 30;
+            self::cacheControl($expires);
+            header('Content-Type: ' . FilesMime::get($ext) . '; charset=UTF-8');
+            header('Content-Length:' . filesize($assets));
+            readfile($assets);
+            exit;
+        }
+        return true;
+    }
+
+    public static function getAssets()
+    {
+        if ($paths = Request::getPaths()) {
+            $app = Request::sget('app');
+            empty($app) && $app = $paths[0];
+            $app = Application::get($app, $sub);
+            unset($paths[0]);
+            if ($sub) {
+                $sub = strtolower($sub);
+                array_unshift($paths, $sub);
+            }
+            array_unshift($paths, $app);
+            if (self::readfile($paths)) {
+                $paths = array_map(function ($item) {
+                    return $item === 'assets' ? 'views' : $item;
+                }, $paths);
+                $dist = ['dist', 'assets'];
+                if ($sub) {
+                    $sub = strtolower($sub);
+                    $paths = array_filter($paths, function ($item) use ($sub) {
+                        return $item !== $sub;
+                    });
+                    array_unshift($dist, $sub);
+                }
+                array_splice($paths, -1, 0, $dist);
+                // $path = implode('/', $paths);
+                // $assets = sprintf('%s/%s', iPHP_APP_DIR, $path);
+                // var_dump($paths,$path ,$assets);
+                ///admincp.php/testXxx/assets/aa.js
+                ///app/test/views/xxx/dist/assets/aa.js
+                if (self::readfile($paths)) {
+                    Request::status(404);
+                }
+            }
         }
     }
 }

@@ -10,28 +10,30 @@
  */
 class CommentUserApp extends UserContentApp
 {
-
-    public function __construct()
-    {
-        parent::__construct();
-    }
     public function API_manage()
     {
         return $this->display();
     }
-    public function do_delete(){
+    /**
+     * 删除回复
+     *
+     * @return void
+     */
+    public function api_reply_delete()
+    {
         $id = (int) Request::post('id');
         $where = ['id' => $id, 'userid' => User::$id];
-        
-        DB::beginTransaction();
-        try {
-            CommentModel::update(['status'=>2],$where);
-            DB::commit();
-        } catch (\sException $ex) {
-            DB::rollBack();
-            $msg = $ex->getMessage();
-            iJson::error($msg);
-        }
-        iJson::success();
+        return (bool)CommentReplyModel::update(['status'=>CommentModel::USER_DELETE], $where);
+    }
+    /**
+     * 删除评论
+     *
+     * @return void
+     */
+    public function api_delete()
+    {
+        $id = (int) Request::post('id');
+        $where = ['id' => $id, 'userid' => User::$id];
+        return (bool)CommentModel::update(['status'=>CommentModel::USER_DELETE], $where);
     }
 }

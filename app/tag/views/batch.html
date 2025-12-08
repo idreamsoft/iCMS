@@ -1,0 +1,27 @@
+<div batch="mvtcid">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="mvtcid">分类</label>
+        <input name="BatchData[tcid]" id="mvtcid" class="form-control" i="cms:ui:node" data-node-appid="<?php echo Node::$APPID; ?>" placeholder="请选择分类" value="">
+    </div>
+</div>
+
+<div batch="rootid">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="rootid">父标签ID</label>
+        <input type="text" name="BatchData[rootid]" class="form-control" i="cms:ui:selectpage" 
+        data-source="/tag/selectpage" 
+        data-search="tkey,name"
+        id="rootid" value="" />
+    </div>
+</div>
+<div batch="related">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="related">相关标签</label>
+        <input type="text" name="BatchData[related]" class="form-control" i="cms:ui:selectpage" 
+        data-source="/tag/selectpage" 
+        data-search="tkey,name"
+        data-max="5" multiple="multiple"
+        id="related" value="" />
+    </div>
+</div>
+

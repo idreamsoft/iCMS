@@ -34,7 +34,7 @@ class HTMLPurifier_AttrTransform_Length extends HTMLPurifier_AttrTransform
             return $attr;
         }
         $length = $this->confiscateAttr($attr, $this->name);
-        if (ctype_digit($length)) {
+        if (ctype_digit((string)$length)) {
             $length .= 'px';
         }
         $this->prependCSS($attr, $this->cssName . ":$length;");

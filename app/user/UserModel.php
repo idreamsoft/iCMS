@@ -12,9 +12,16 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserModel extends Model
 {
-    protected $primaryKey = 'uid';
+	public static $statusMap = array(
+		'0' => '禁用',
+		'1' => '正常',
+		'2' => '黑名单',
+		'3' => '登录封禁',
+		'4' => '邮箱验证',
+	);
+
     protected $casts = [
-        'pid' => 'array',
+        // 'pid' => 'array',
         'setting' => 'array'
     ];
 }

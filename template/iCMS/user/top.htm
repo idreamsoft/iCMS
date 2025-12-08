@@ -1,34 +1,50 @@
-<div class="bg-white">
-    <div class="d-flex justify-content-between p-2">
-        <div class="d-flex align-items-center">
-            <a style="font-size: 26px;" class="font-w600 font-size-h5 tracking-wider text-dual" href="<!--{$site.url}-->"><!--{$site.title}--></a>
-        </div>
-        <div class="d-flex align-items-center">
-            <!-- Search Form (visible on larger screens) -->
-            <form i="event:search:form" class="d-none d-sm-inline-block mr-2" action="<!--{iCMS:route url='api'}-->" method="get" target="_blank">
-                <div class="input-group input-group-sm">
-                    <select name="app" class="form-control form-control-alt" style="max-width: 90px">
-                        <option value="article">文章</option>
-                    </select>
-                    <input name="do" type="hidden" value="search" />
-                    <input type="text" name="keyword" class="form-control form-control-alt" placeholder="请输入关键词..." value="<!--{$search.keyword}-->"/>
-                    <div class="input-group-append">
-                        <button class="input-group-text bg-body border-0">
-                            <i class="si si-magnifier"></i>
-                        </button>
-                    </div>
+<header class="bg-white-70 border-bottom shadow-sm sticky-top">
+    <div class="container-fluid">
+        <nav class="navbar navbar-expand-lg navbar-light py-3">
+            <div class="d-flex justify-content-between align-items-center w-100">
+                <!-- Brand/Logo Section -->
+                <div class="navbar-brand-wrapper">
+                    <a class="navbar-brand fw-bold display-5 text-primary text-decoration-none mb-0" href="<!--{$site.url}-->">
+                        <img src="/assets/img/iCMS.png" alt="iCMS" style="height: 35px;">
+                    </a>
                 </div>
-            </form>
-            <!-- END Search Form -->
-            <div i="user:status:0">
-                <a i="event:user:login" class="btn btn-sm btn-alt-primary mr-2" href="<!--{iCMS:route url='user:login'}-->" title="登录">登录</a>
-                <a i="event::user:register" class="btn btn-sm btn-alt-danger mr-2" href="<!--{iCMS:route url='user:register'}-->" title="注册">注册</a>
-                <a class="btn btn-sm btn-alt-secondary" href="<!--{iCMS:route url='user:content:home'}-->" title="用户投稿">投稿</a>
+
+                <!-- Right Section: Search + User Actions -->
+                <div class="d-flex align-items-center gap-2">
+                    <!-- Search Form (visible on medium+ screens) -->
+                    <div class="d-none d-md-block">
+                        <!--{include file="iCMS://search/form.htm" class="input-group input-group-sm"}-->
+                    </div>
+                    
+                    <!-- Mobile Search Toggle (visible on small screens) -->
+                    <button class="btn btn-outline-secondary btn-sm d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#mobileSearch" aria-expanded="false" aria-controls="mobileSearch">
+                        <i class="fas fa-search"></i>
+                    </button>
+                    
+                    <!-- User Status Widget -->
+                    <div class="user-status-wrapper">
+                        <!--{include file="/iCMS/user/widget/status.htm"}-->
+                    </div>
+                    
+                    <!-- Submit Content Button -->
+                    <a class="btn btn-outline-primary btn-sm d-none d-sm-inline-flex align-items-center gap-1" href="<!--{iCMS:route url='user/content/home'}-->" title="用户投稿">
+                        <i class="fas fa-plus-circle"></i>
+                        <span class="d-none d-lg-inline">投稿</span>
+                    </a>
+                    
+                    <!-- Mobile Submit Button -->
+                    <a class="btn btn-outline-primary btn-sm d-sm-none" href="<!--{iCMS:route url='user/content/home'}-->" title="用户投稿">
+                        <i class="fas fa-plus"></i>
+                    </a>
+                </div>
             </div>
-            <div i="user:status:1" style="display: none;">
-                <!--{include file="iCMS://user/widget.dropdown.htm"}-->
-                <a class="btn btn-sm btn-alt-secondary" href="<!--{iCMS:route url='user:content:home'}-->" title="用户投稿">投稿</a>
+            
+            <!-- Mobile Search Collapse -->
+            <div class="collapse w-100 mt-3 d-md-none" id="mobileSearch">
+                <div class="card card-body border-0 bg-light">
+                    <!--{include file="iCMS://search/form.htm" class="input-group"}-->
+                </div>
             </div>
-        </div>
+        </nav>
     </div>
-</div>
+</header>

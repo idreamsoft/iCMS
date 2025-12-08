@@ -11,11 +11,11 @@
 class PluginTaokeHook
 {
     /**
-     * [插件:转换淘宝客链接]
+     * 插件:转换淘宝客链接
      * @param string $content  [参数]
      * @param [type] $resource [返回替换过的内容]
      */
-    public static function run($content, &$resource = null)
+    public static function field_hook($content, &$resource = null)
     {
         Plugin::init(__CLASS__);
         preg_match_all('@<[^>]+>((http|https)://.*(item|detail)\.(taobao|tmall)\.com/.+)</[^>]+>@isU', $content, $taoke_array);

@@ -11,42 +11,31 @@
 
 class Apps
 {
+    const APP = 'APPS';
     const APPID = '1';
-    const CONTENT_TYPE = '2';
+    const CONTENT_TYPE = '3';
 
-    public static $table   = 'article';
+    public static $table = 'article';
     public static $primary = 'id';
-    public static $etc     = 'etc';
-    public static $array   = array();
-    public static $appTypeMap = array(
-        '2' => '自定义应用',
-        '1' => '可自定义应用',
-        '0' => '系统级应用',
-    );
-    public static $typeMap = array(
-        '2' => '自定义应用',
-        '4' => '第三方应用',
-        '3' => '官方应用',
-        '1' => '系统应用',
-        '0' => '系统组件',
-    );
+    public static $etc = 'etc';
+    public static $array = [];
 
     public static function uninstall($apps)
     {
-
         if ($apps) {
             // DB::beginTransaction();
             //test::__uninstall($data)
-            iPHP::callback(array($apps['app'], '__uninstall'), array($apps));
+            iPHP::callback([$apps['app'], '__uninstall'], [$apps]);
             //testAdmincp::__uninstall($app)
-            iPHP::callback(array($apps['app'] . 'Admincp', '__uninstall'), array($apps));
+            iPHP::callback([$apps['app'] . 'Admincp', '__uninstall'], [$apps]);
             self::deleteAll($apps);
             // DB::commit();
             Apps::cache();
             Menu::cache();
         }
     }
-    private  static function deleteAll($app)
+
+    private static function deleteAll($app)
     {
         //删除分类
         Node::deleteAppData($app['id']);
@@ -65,76 +54,93 @@ class Apps
             $menu = sprintf('menu/admincp.%s*', $app['app']);
             //content/etc/menu/admincp.%s*
             $paths = Etc::path('content', $menu);
-            $paths && array_map(["File", "rm"], $paths);
+            $paths && array_map(['File', 'rm'], $paths);
 
             $stats = sprintf('admincp/home.stats.%s*', $app['app']);
             //content/etc/admincp/home.stats.%s*
             $paths = Etc::path('content', $stats);
-            $paths && array_map(["File", "rm"], $paths);
+            $paths && array_map(['File', 'rm'], $paths);
         }
 
         File::check($app['app']);
-        //查找app目录
-        $appdir = iAPP::path($app['app']);
-        // 删除应用
-        file_exists($appdir) && File::rmdir($appdir);
+        if ($app['app']) {
+            //查找app目录
+            $appdir = Application::path($app['app']);
+            // 删除应用
+            file_exists($appdir) && File::rmdir($appdir);
+        }
 
         //最后 删除表
         self::dropTable($app['table']);
     }
+
     public static function installed($app, $r = false)
     {
-        $path = iAPP::path($app);
+        $path = Application::path($app);
         $path .= 'etc/install.lock';
         return $r ? $path : file_exists($path);
     }
 
     public static function dropTable($table)
     {
-        if ($table) foreach ((array) $table as $key => $value) {
-            $value['table'] && DB::table($value['table'])->drop();
+        if ($table) {
+            foreach ((array) $table as $key => $value) {
+                $value['table'] && DB::table($value['table'])->drop();
+            }
         }
     }
 
     public static function item(&$value)
     {
-        if ($value) {
-            $value = (array) $value;
-            $value['table'] && $value['table']  = AppsTable::items($value['table']);
-            is_string($value['config']) && $value['config']  = json_decode($value['config'], true);
-            is_string($value['fields']) && $value['fields']  = json_decode($value['fields'], true);
-        }
+        // if ($value) {
+        //     $value = (array) $value;
+        //     is_string($value['table']) && $value['table']  = json_decode($value['table'], true);
+        //     is_string($value['config']) && $value['config']  = json_decode($value['config'], true);
+        //     is_string($value['fields']) && $value['fields']  = json_decode($value['fields'], true);
+        // }
         return $value;
     }
+
     public static function id($app = null, $trans = false)
     {
         if (strpos($app, 'App') !== false) {
-            $app  = substr($app, 0, -3);
-        } else if (strpos($app, 'Admincp') !== false) {
-            $app  = substr($app, 0, -7);
+            $app = substr($app, 0, -3);
+        } elseif (strpos($app, 'Admincp') !== false) {
+            $app = substr($app, 0, -7);
         }
 
-        $array = iAPP::$LISTS;
+        $array = Config::get('apps');
         $trans && $array = array_flip($array);
         if ($array[$app]) {
             return $array[$app];
         }
         return '0';
     }
+
     /**
+     * 获取应用模型
+     *
+     * @param array|string|int $param 应用数据|应用名|应用ID
      * @return Model
      */
-    public static function model($apps)
+    public static function model($param)
     {
-        is_array($apps) or $apps = self::get($apps);
+        $apps = is_array($param) ? $param : self::get($param);
         $app = $apps['app'];
         $modelName = $app . 'Model';
-        $model = new $modelName;
+        if (class_exists($modelName)) {
+            $model = new $modelName();
+        } else {
+            $model = ContentModel::setTable($app);
+        }
         return $model;
     }
+
     public static function get($vars = 0, $field = 'id')
     {
-        if (empty($vars)) return array();
+        if (empty($vars)) {
+            return [];
+        }
         if (is_array($vars)) {
             $vars = array_unique($vars);
         } else {
@@ -143,32 +149,22 @@ class Apps
 
         $where[$field] = $vars;
 
-        $hash = md5(json_encode($where));
-        $result = Cache::$DATA[$hash];
-        if (empty($result)) {
-            iDebug::$DATA[__METHOD__][] = $where;
+        $key = md5(json_encode($where));
+        return Cache::temp($key, function () use ($where, $vars, $field) {
             $model = AppsModel::where($where);
             if (is_array($vars)) {
-                $array  = $model->select();
-                $result = array();
-                foreach ($array as $key => $value) {
-                    $result[$value[$field]] = self::item($value);
-                }
+                $array = $model->select();
+                $result = array_column($array, null, $field);
             } else {
                 $result = $model->find();
-                self::item($result);
-
-                // $hashId = md5(json_encode(array('id'=> $result['id'])));
-                // Cache::$DATA[$hashId] = $result;
             }
-            Cache::$DATA[$hash] = $result;
-        }
-
-        return $result;
+            return $result;
+        });
     }
 
     public static function check($app)
     {
+        $app = strtolower($app);
         $apps = Config::get('apps');
         if (is_numeric($app)) {
             return array_search($app, $apps);
@@ -179,54 +175,69 @@ class Apps
 
     public static function getTableArray()
     {
-        return self::getArray(array(
-            'table' => array('<>', '')
-        ));
+        return self::getArray([
+            'table' => ['<>', '']
+        ]);
     }
+
     public static function getMenuArray()
     {
-        return self::getArray(array(
-            'menu' => ['<>', ''],
+        return self::getArray([
+            'menu'   => ['<>', ''],
             'status' => '1'
-        ), 'id,app,name,title,config,menu,apptype', 'id ASC');
+        ], 'id,app,name,title,config,menu,apptype,type', 'id ASC');
     }
-    public static function getArray($where = null, $field = "*", $orderby = '')
+
+    public static function getArray($where = null, $field = '*', $orderby = '')
     {
-        is_null($where) && $where = array('status' => '1');
+        is_null($where) && $where = ['status' => '1'];
         empty($orderby) && $orderby = 'id ASC';
-        $result = AppsModel::field($field)->where($where)->orderBy($orderby)->select();
-        foreach ($result as $key => $value) {
-            $data[$value['id']] = Apps::item($value);
-        }
-        return $data;
+        $array = AppsModel::field($field)
+            ->where($where)
+            ->orderBy($orderby)
+            ->select();
+        $result = array_column($array, null, 'id');
+        return $result;
     }
+
     public static function getUrlRules()
+    {
+        return Etc::many('*', 'route/iurl*', true);
+    }
+    /**
+     * 获取应用内容链接规则
+     *
+     * @return void
+     */
+    public static function getAppRules()
     {
         $rs = Apps::getArray();
         foreach ((array) $rs as $key => $value) {
-            $rule = self::getUrlRule($value);
+            $rule = self::getUrlType($value);
             $rule && $array[$value['app']] = $rule;
         }
         return $array;
     }
-    public static function getUrlRule($rs)
+
+    public static function getUrlType($rs)
     {
         //apps/etc/urlType*
-        empty($GLOBALS['urlTypeMap']) && $GLOBALS['urlTypeMap'] = Etc::many('apps', 'urlType*', true);
+        empty($GLOBALS['urlTypeMap']) && $GLOBALS['urlTypeMap'] = Etc::many('*', 'route/urlType*', true);
         $urlTypeMap = $GLOBALS['urlTypeMap'];
-
-        if ($rs['table'] && $rs['apptype'] == Apps::CONTENT_TYPE) {
+        if ($rs['table'] && $rs['apptype'] == Apps::CONTENT_TYPE && $rs['type'] > 1) {
             $rule = $urlTypeMap['content'];
-            $table  = reset($rs['table']);
+            $table = reset($rs['table']);
             $rule['primary'] = $table['primary'] ?: 'id';
         } else {
             $rule = $urlTypeMap[$rs['app']];
+            empty($rule) && $rule = $urlTypeMap['content'];//单入口
             if (empty($rule) && $rs['config']['iurl']) {
                 $rule = $rs['config']['iurl'];
             }
         }
         return $rule;
     }
+
     public static function getIds()
     {
         $array = [];
@@ -236,52 +247,56 @@ class Apps
         }
         return $array;
     }
+
+    public static function constName($app)
+    {
+        return sprintf(
+            '%s_APP_%s',
+            iPHP_APP,
+            is_numeric($app) ? $app : Security::safeStr(strtoupper($app))
+        );
+    }
+
     public static function makeDefine($array)
     {
         foreach ($array as $_app => $_appid) {
-            $_app && $define[] = sprintf(
-                'define("%s_APP_%s",%d);',
-                iPHP_APP,
-                Security::safeStr(strtoupper($_app)),
-                $_appid
-            );
+            if ($_app) {
+                ////define("iCMS_APP_ARTICLE",1);
+                $define[] = sprintf(
+                    'define("%s",%d);',
+                    self::constName($_app),
+                    $_appid
+                );
+                //define("iCMS_APP_1","article");
+                $define[] = sprintf(
+                    'define("%s","%s");',
+                    self::constName($_appid),
+                    Security::safeStr(strtolower($_app))
+                );
+            }
         }
         Config::put(implode(PHP_EOL, $define), 'app.define');
     }
-    public static function getRoute()
+
+    public static function getRouting()
     {
-        //route/route.json
-        $route = Etc::many('*', 'route/*', true, null);
+        //route/route*.json
+        $route = Etc::many('*', 'route/route*', true, null);
         ksort($route);
         // Config::put($route, 'app.route');
         return $route;
     }
-    public static function getTypeSelect($sid = null)
-    {
-        $option = '';
-        $format = '<option value="%s" %s>%s[type="%s"]</option>';
-        $maps = self::$typeMap;
-        if ($typeArray = Prop::get("type")) {
-            $maps = array_merge($maps, $typeArray);
-        }
-        foreach ($maps as $key => $type) {
-            $selected = $sid == $key ? 'selected' : '';
-            $option .= sprintf($format, $key, $selected, $type, $key);
-        }
-        return $option;
-    }
-
 
     public static function cache()
     {
         $rs = AppsModel::select();
 
-        Cache::clean("app/*");
+        Cache::clean('app/*');
 
         foreach ((array) $rs as $a) {
             Apps::item($a);
             $appid_array[$a['id']] = $a;
-            $app_array[$a['app']]  = $a;
+            $app_array[$a['app']] = $a;
 
             Cache::set('app/' . $a['id'], $a, 0);
             Cache::set('app/' . $a['app'], $a, 0);
@@ -290,7 +305,7 @@ class Apps
             //     empty($menu) && Apps::menuData($a, $a['menu']);
             // }
         }
-        Cache::set('app/idarray',  $appid_array, 0);
+        Cache::set('app/idarray', $appid_array, 0);
         Cache::set('app/array', $app_array, 0);
         AppsMeta::cache();
         Config::cache();
@@ -300,21 +315,19 @@ class Apps
     public static function getPathArr($app, $type = 'app')
     {
         //test/TestApp
-        $obj  = ucfirst($app) . ucfirst($type);
-        $path = iAPP::path($app, $obj);
-        return array($path, $obj);
+        $obj = ucfirst($app) . ucfirst($type);
+        $path = Application::path($app, $obj);
+        return [$path, $obj];
     }
 
     public static function getData($appid = 1)
     {
         try {
             $key = sprintf('app/%s', $appid);
-            $data = Cache::get($key);
             //后台 空数据时直接从数据库获取
-            if (defined('ADMINCP') && empty($data)) {
-                $data = self::get($appid);
-                Cache::set($key, $data, 0);
-            }
+            $data = Cache::KV($key, function () use ($appid) {
+                return defined('ADMINCP') ? self::get($appid) : [];
+            }, 0);
         } catch (\CacheException $ex) {
             //后台缓存报错的时，直接从数据库获取
             if (defined('ADMINCP')) {
@@ -323,7 +336,7 @@ class Apps
                 throw $ex;
             }
         }
-        empty($data) && throwFalse('[appid:' . $appid . '] application no exist', '0005');
+        empty($data) && Application::nil('[appid:' . $appid . '] application no exist', '0005');
         return (array)$data;
     }
 
@@ -333,12 +346,13 @@ class Apps
         unset($data['table'], $data['config'], $data['fields'], $data['menu']);
         return $data;
     }
-    public static function get_url($appid = 1, $primary = '')
+
+    public static function getUrl($appid = 1, $primary = '')
     {
         $data = self::getData($appid);
         if ($data['table']) {
             $table = reset($data['table']);
-            $key   = $table['primary'];
+            $key = $table['primary'];
         }
         empty($key) && $key = 'id';
 
@@ -347,6 +361,9 @@ class Apps
 
     public static function getTable($app = 1, $master = true)
     {
+        if(empty($app)){
+            return;
+        }
         if (is_array($app)) {
             $rs = $app;
         } else {
@@ -357,43 +374,34 @@ class Apps
         $master && is_array($rs['table']) && $table = reset($rs['table']);
         return (array) $table;
     }
-    public static function get_label($appid = 0)
-    {
-        $rs = self::getData($appid);
-        $table = reset($rs['table']);
 
-        if ($table['label']) {
-            return $table['label'];
-        } else {
-            return $rs['name'];
-        }
-    }
-
-    public static function get_git_version($app)
+    public static function getGitVersion($app)
     {
-        $verArray = array();
-        $ver_file = iAPP::path($app, 'version');
+        $verArray = [];
+        $ver_file = Application::path($app, 'version');
         if (@is_file($ver_file)) {
             $verArray = include $ver_file;
         }
         return $verArray;
     }
+
     public static function updateInc($field, $id, $appid = 1, $step = 1)
     {
         return self::updateCount($field, $id, $appid, $step, 'inc');
     }
+
     public static function updateDec($field, $id, $appid = 1, $step = 1)
     {
         return self::updateCount($field, $id, $appid, $step, 'dec');
     }
+
     public static function updateCount($field, $id, $appid = 1, $step = 1, $func = 'inc')
     {
         $data = self::getData($appid);
         $app = $data['app'];
         $where = ['id' => $id];
         try {
-            $modelName = $app . 'Model';
-            $model = new $modelName;
+            $model = Apps::model($app);
             $model->where($where)->$func($field, $step);
         } catch (\Exception $ex) {
             if ($tables = $data['table']) {
@@ -407,8 +415,7 @@ class Apps
         }
     }
 
-
-    public static function update_field_count($id, $table, $primary = 'id', $field = 'count', $math = '+', $count = 1)
+    public static function updateFieldCount($id, $table, $primary = 'id', $field = 'count', $math = '+', $count = 1)
     {
         $where[] = [$primary => $id];
         $math == '-' && $where = [$field, '>', '0'];
@@ -432,6 +439,7 @@ class Apps
             }
         }
     }
+
     public static function getTplTag($apps, $flag = false)
     {
         //模板标签
@@ -454,8 +462,8 @@ class Apps
         if ($apps['apptype'] == Apps::CONTENT_TYPE) {
             foreach ((array) $template as $key => $value) {
                 $template[$key] = str_replace(
-                    array(':content:', '$content'),
-                    array(':' . $apps['app'] . ':', '$' . $apps['app']),
+                    [':content:', '$content'],
+                    [':' . $apps['app'] . ':', '$' . $apps['app']],
                     $value
                 );
             }

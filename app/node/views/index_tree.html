@@ -1,0 +1,122 @@
+<?php self::head(); ?>
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <?php include self::view($this->VIEW_INDEX . 'Nav', $this->VIEW_DIR); ?>
+        <div class="block-content">
+            <form action="./update_tree" method="POST" i="cms:ui:form">
+                <div class="tab-content w-100">
+                    <div class="input-group" id="tree_control">
+                        <label class="form-control" style="font-weight:bold">/根
+                            <?php echo $this->NODE_NAME; ?>
+                        </label>
+                        <a class="input-group-text collapsable" href="javascript:;"><i class="si si-arrow-up"></i></a>
+                        <a class="input-group-text expandable" href="javascript:;"><i class="si si-arrow-down"></i></a>
+                    </div>
+                    <ul id="nodeTree">
+                        <img id="tree-loading" src="/assets/img/ajax_loader.gif" />
+                    </ul>
+                </div>
+                <?php self::form()->submit(); ?>
+            </form>
+        </div>
+    </div>
+</div>
+
+<style type="text/css">
+    input.sortnum {
+        flex: none !important;
+        width: 45px !important;
+    }
+    input.dir {
+        flex: none !important;
+        width: 120px !important;
+    }
+    input.name {
+        flex: none !important;
+        width: 150px !important;
+    }
+
+    #nodeTree .row {
+        margin-left: 0px;
+    }
+
+    #nodeTree .treeCol1 {
+        padding-left: 0px;
+    }
+
+    .rootid0 {
+        font-weight: bold;
+    }
+</style>
+<script id="tree-li" type="text/html">
+<div class="row status<%status%>">
+    <div class="col-sm-6 treeCol1">
+        <div class="input-group input-group-sm">
+            <input class="form-control sortnum" type="text" data-id="<%id%>" name="sortnum[<%id%>]" value="<%sortnum%>" />
+            <label class="input-group-text"><a href="<%href%>" target="_blank">ID:<%id%></a></label>
+            <input class="form-control name rootid<%rootid%>" type="text" name="name[<%id%>]" value="<%name%>" />
+            <input class="form-control dir" type="text" name="dir[<%id%>]" value="<%dir%>" />
+            <label class="input-group-text" i="cms:ui:tooltip" title="统计数">
+                <span class="badge bg-primary">
+                    <%count%>
+                </span>
+            </label>
+            <%if status=="0" %>
+            <label class="input-group-text" i="cms:ui:tooltip" title="隐藏<?php echo $this->NODE_NAME; ?>"><i class="si si-eye"></i></label>
+            <%/if%>
+            <%if outurl%>
+            <label class="input-group-text" i="cms:ui:tooltip" title="外部链接"><i class="si si-link"></i></label>
+            <%/if%>
+            <%if pids %>
+            <label class="input-group-text" i="cms:ui:tooltip" title="pid" ><%pids%></label>
+            <%/if%>
+            <%if appid%>
+            <label class="input-group-text" i="cms:ui:tooltip" title="appid" ><%appid%></label>
+            <label class="input-group-text" i="cms:ui:tooltip" title="app" ><%app%></label>
+            <%/if%>
+            <%if domain%>
+            <label class="input-group-text" i="cms:ui:tooltip" title="绑定域名:<%domain%>"><i class="si si-vector"></i></label>
+            <%/if%>
+            <%if creator%>
+            <label class="input-group-text" i="cms:ui:tooltip" title="创建者"><%creator%></label>
+            <%/if%>
+        </div>
+    </div>
+    <div class="col-sm-6 text-md-end text-lx-start">
+        <%if appid%>
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-alt-primary" href="{{/<%app%>/add/<?php echo $this->primary; ?>/<%id%>}}" >
+                <i class="fa fa-fw fa-plus-square"></i> 
+            </a>
+            <a class="btn btn-alt-primary" href="{{/<%app%>/index/<?php echo $this->primary; ?>/<%id%>/sub/on}}">
+                <i class="fa fa-fw fa-list-alt"></i> 
+            </a>
+        </div>
+        <%/if%>
+        <div class="btn-group btn-group-sm">
+            <a class="btn btn-alt-primary" i="cms:ui:tooltip" href="<%href%>" target="_blank" title="访问">
+                <i class="fa fa-fw fa-link"></i>
+            </a>
+            <%if ACCESS.node.add%>
+            <a class="btn btn-alt-primary" i="cms:ui:tooltip" href="./add/rootid/<%id%>" title="添加子<?php echo $this->NODE_NAME; ?>">
+                <i class="fa fa-fw fa-plus-square"></i> 
+            </a>
+            <%/if%>
+            <%if ACCESS.node.edit%>
+            <a class="btn btn-alt-primary" i="cms:ui:ajax" href="./copy/id/<%id%>" title="克隆">
+                <i class="fa fa-fw fa-copy"></i> 
+            </a>
+            <a class="btn btn-alt-primary" href="./edit/id/<%id%>" title="编辑<?php echo $this->NODE_NAME; ?>">
+                <i class="fa fa-fw fa-edit"></i> 
+            </a>
+            <%/if%>
+            <%if ACCESS.node.delete%>
+            <a class="btn btn-alt-primary" i="cms:ui:ajax" href="./delete/ids/<%id%>">
+                <i class="fa fa-fw fa-trash"></i> 
+            </a>
+            <%/if%>
+        </div>
+    </div>
+</div>
+</script>
+<?php self::foot(); ?>

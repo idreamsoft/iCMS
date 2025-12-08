@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+    <div class="content" id="{{APP_MAINID}}">
+        <div class="block">
+            <div class="block-header block-header-default">
+                <h3 class="block-title">
+                    <?php echo empty($this->id) ? '添加' : '修改'; ?>网站</h3>
+            </div>
+            <div class="block-content">
+                <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
+                    <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                    <div class="tab-content">
+                        <div id="-add-base" class="tab-pane active">
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="">分组</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[cid]" class="form-control" i="cms:ui:prop" data-source="./prop/cid" data-max="5" multiple="multiple" id="cid" value="<?php echo $rs['cid']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="">网站</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[name]" class="form-control" id="name" value="<?php echo $rs['name']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="">logo</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[logo]" class="form-control" id="logo" value="<?php echo $rs['logo']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="">链接</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[url]" class="form-control" id="url" value="<?php echo $rs['url']; ?>" />
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="">介绍</label>
+                                <div class="col-sm-8">
+                                    <textarea name="rs[intro]" id="intro" class="form-control" style="height: 150px;"><?php echo $rs['intro']; ?></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group row">
+                                <label class="col-sm-1 col-form-label" for="">排序</label>
+                                <div class="col-sm-8">
+                                    <input type="text" name="rs[sortnum]" class="form-control" id="sortnum" value="<?php echo $rs['sortnum']; ?>" />
+                                </div>
+                            </div>
+                            <?php Former::admincp($rs,'links')->render(); ?>
+                        </div>
+                        <?php self::form()->submit(); ?>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <?php self::foot(); ?>

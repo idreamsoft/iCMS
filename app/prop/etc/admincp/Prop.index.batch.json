@@ -1,0 +1,20 @@
+{
+    "status": {
+        "name": "更改状态",
+        "icon": "cog",
+        "sort": 1,
+        "call": "status"
+    },
+    "title": {
+        "name": "更改标题",
+        "icon": "cog",
+        "sort": 1,
+        "call": "title"
+    },
+    "fields": {
+        "name": "更改字段",
+        "icon": "cog",
+        "sort": 1,
+        "call": "fields"
+    }
+}

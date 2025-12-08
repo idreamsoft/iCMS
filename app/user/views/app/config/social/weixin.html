@@ -1,0 +1,28 @@
+<input type="hidden" name="config[social][weixin][id]" value="1" />
+<input type="hidden" name="config[social][weixin][name]" value="微信" />
+<div class="alert alert-info mt-1"><i class="fa fa-fw fa-info-circle"></i> 申请地址: https://open.weixin.qq.com</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="open_wx_enable">开启</label>
+    <div class="col-sm-8">
+        <input type="checkbox" i="cms:ui:switch" name="config[social][weixin][enable]" id="wx_enable" value="<?php echo @$social['weixin']['enable'] ;?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">APPID:</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[social][weixin][appid]" class="form-control" id="wx_appid" value="<?php echo $social['weixin']['appid']; ?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">APPKEY:</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[social][weixin][appkey]" class="form-control" id="wx_appkey" value="<?php echo $social['weixin']['appkey']; ?>" />
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">回调域名:</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[social][weixin][redirect]" class="form-control" id="wx_redirect" value="<?php echo $social['weixin']['redirect']; ?>" />
+        <small class="form-text text-muted">例:https://www.icmsdev.com</small>
+    </div>
+</div>

@@ -1,5 +1,52 @@
 <div class="block">
     <div class="block-content p-0">
-        
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">粉丝数：</span>
+                <span><!--{$ME.fans}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">关注数：</span>
+                <span><!--{$ME.follow}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">评论数：</span>
+                <span><!--{$ME.comment}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">文章数：</span>
+                <span><!--{$ME.article}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">收藏数：</span>
+                <span><!--{$ME.favorite}--></span>
+            </li>
+
+            <div class="block-header block-header-default mt-3">
+                <h3 class="block-title">
+                    <i class="fa fa-fa fa-fw fa-rectangle-list text-muted mr-1"></i>访问量统计
+                </h3>
+            </div>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">总访问量：</span>
+                <span><!--{$ME.hits.count}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">今天访问量：</span>
+                <span><!--{$ME.hits.today}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">昨天访问量：</span>
+                <span><!--{$ME.hits.yday}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">本周访问量：</span>
+                <span><!--{$ME.hits.week}--></span>
+            </li>
+            <li class="list-group-item d-flex align-items-center">
+                <span class="text-muted">本月访问量：</span>
+                <span><!--{$ME.hits.month}--></span>
+            </li>
+        </ul>
     </div>
 </div>

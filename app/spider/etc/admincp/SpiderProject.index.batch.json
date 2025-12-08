@@ -1,0 +1,35 @@
+{
+    "auto=1": {
+        "name": "标识自动采集",
+        "icon": "circle-play",
+        "call": "default"
+    },
+    "auto=0": {
+        "name": "取消自动采集",
+        "icon": "circle-stop",
+        "call": "default"
+    },
+    "lastupdate=0": {
+        "name": "重置最后采集时间",
+        "icon": "clock-rotate-left",
+        "call": "default"
+    },
+    "divider1": {
+        "name": "divider",
+        "sort": 9
+    },
+    "poid": {
+        "name": "设置发布规则",
+        "icon": "magnet"
+    },
+    "rid": {
+        "name": "设置采集规则",
+        "icon": "magnet"
+    },
+    "move": {
+        "name": "设置发布栏目",
+        "icon": "fighter-jet",
+        "sort": 10,
+        "call": "move"
+    }
+}

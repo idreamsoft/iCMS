@@ -1,0 +1,38 @@
+<?php
+
+/**
+ * iCMS - i Content Management System
+ * Copyright (c) 2007-2017 iCMSdev.com. All rights reserved.
+ *
+ * @author icmsdev <master@icmsdev.com>
+ * @site https://www.icmsdev.com
+ * @licence https://www.icmsdev.com/LICENSE.html
+ */
+defined('iPHP') or exit('What are you doing?');
+self::head();
+?>
+<div class="content" id="{{APP_MAINID}}">
+    <?php AdmincpForm::tableSearch(); ?>
+    <div class="block">
+        <div class="block-content p-0">
+            <div id="toolbar" class="toolbar">
+                <div class="row">
+                    <div class="input-group input-group-sm" role="group">
+                        <a href="{{./add}}" id="add" class="btn btn-alt-primary">
+                            <i class="fa fa-fw fa-add"></i> {{#Lang('Add')}}
+                        </a>
+                        <a href="{{./edit}}" id="edit" class="btn btn-alt-primary table-btn-edit disabled" disabled>
+                            <i class="fa fa-fw fa-edit"></i> {{#Lang('Edit')}}
+                        </a>
+                        <a href="{{./delete}}" id="delete" class="btn btn-alt-primary table-btn-delete disabled" disabled>
+                            <i class="fa fa-fw fa-trash"></i> {{#Lang('Delete')}}
+                        </a>
+                        <?php AdmincpBatch::group(); ?>
+                    </div>
+                </div>
+            </div>
+            <table id="table" width="100%"></table>
+        </div>
+    </div>
+</div>
+<?php self::foot(); ?>

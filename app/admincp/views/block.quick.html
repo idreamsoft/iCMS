@@ -1,0 +1,57 @@
+<div class="block block-rounded border-0 shadow-sm">
+    <div class="block-header block-header-default border-0">
+        <h3 class="block-title fw-bold mb-0">
+            <i class="fa fa-fw fa-rocket me-2"></i> {{#Lang("Shortcut")}}
+        </h3>
+        <div class="block-options">
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="fullscreen_toggle">
+                <i class="si si-size-fullscreen"></i>
+            </button>
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="content_toggle">
+                <i class="si si-arrow-up"></i>
+            </button>
+            <button type="button" class="btn-block-option" data-toggle="block-option" data-action="close">
+                <i class="si si-close"></i>
+            </button>
+        </div>
+    </div>
+    <div class="block-content block-content-full">
+        <div class="row g-2">
+            <?php if ($btnList) foreach ($btnList as $key =>$value) {?>
+            <div class="<?php echo $value['col:class']; ?>">
+                <a i="<?php echo $value['ui']; ?>" class="d-block text-decoration-none <?php echo $value['a:class']; ?>" href="{{<?php echo $value['url']; ?>}}" target="<?php echo $value['a:target']; ?>">
+                    <div class="quick-link-item">
+                        <i class="<?php echo $value['icon']; ?>"></i>
+                        <div class="quick-title"><?php echo $value['title']; ?></div>
+                    </div>
+                </a>
+            </div>
+            <?php } ?>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* 简洁快捷链接样式 */
+    .quick-link-item {
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        transition: all 0.2s ease;
+        margin-bottom: 8px;
+        color: #153481;
+    }
+
+    .quick-link-item:hover {
+        transform: translateX(2px);
+    }
+    .quick-title {
+        font-size: 12px;
+    }
+    /* 响应式调整 */
+    @media (max-width: 768px) {
+        .quick-link-item {
+            padding: 10px 12px;
+        }
+    }
+</style>

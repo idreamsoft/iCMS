@@ -1,5 +1,7 @@
 <?php
 
+// namespace iPHP\core;
+
 /**
  * iPHP - i PHP Framework
  * Copyright (c) iiiPHP.com. All rights reserved.
@@ -11,10 +13,12 @@
  */
 class Hooks
 {
-    public static $MAP = array();
+    public static $MAP = [];
+
     public static function loader($class)
     {
     }
+
     public static function get($key = null, $key2 = null)
     {
         $map = self::$MAP;
@@ -28,12 +32,13 @@ class Hooks
         (is_string($key2) && is_array($map)) && $map = $map[$key2];
         return $map;
     }
+
     public static function set($key = null, $fn = null)
     {
         //::set()
         if (is_null($key) && is_null($fn)) {
             self::$MAP = null;
-        } else if (is_array($key) && is_null($fn)) {
+        } elseif (is_array($key) && is_null($fn)) {
             //::Set([])
             self::$MAP = $key;
         } else {
@@ -49,14 +54,17 @@ class Hooks
         }
         return self::$MAP;
     }
+
     public static function map($map)
     {
         self::$MAP = $map;
     }
+
     public static function add($name, $fn)
     {
         self::$MAP[$name] = $fn;
     }
+
     /**
      * 静默执行
      *

@@ -11,15 +11,20 @@
 class NodeCache
 {
     const KEY = 'node/%s';
-    const ID  = 'node/C%d';
+    const ID = 'node/C%d';
     const TMP = 'node/%d';
+    const BURST = '100';
     public static $DATA = [];
-    public static function make($appid = null)
+
+    public static function make($appid = null, $pageSize = null)
     {
         Node::appid($appid, $where);
-        $result = NodeModel::where($where)
-            ->orderBy('sortnum', 'ASC')
-            ->select();
+        $model = NodeModel::where($where)->orderBy('rootid ASC,sortnum ASC');
+        if (isset($pageSize)) {
+            $result = $model->paging($pageSize);
+        } else {
+            $result = $model->select();
+        }
         //生成临时缓存
         self::tmp($result);
         //正式缓存
@@ -30,6 +35,7 @@ class NodeCache
         self::common();
         gc_collect_cycles();
     }
+
     //正式缓存
     protected static function formal($result = null)
     {
@@ -37,6 +43,7 @@ class NodeCache
             self::setId($C);
         }
     }
+
     //临时缓存
     protected static function tmp($result = null, $flag = false)
     {
@@ -49,6 +56,7 @@ class NodeCache
         }
         gc_collect_cycles();
     }
+
     protected static function common()
     {
         self::common_hidden();
@@ -56,6 +64,7 @@ class NodeCache
         self::common_domain();
         self::common_rule();
     }
+
     //缓存隐藏节点
     protected static function common_hidden()
     {
@@ -66,6 +75,7 @@ class NodeCache
         unset($idArray);
         gc_collect_cycles();
     }
+
     //缓存节点目录对应CID,CID对应的rootid
     protected static function common_array()
     {
@@ -85,8 +95,8 @@ class NodeCache
     }
 
     /**
-     * [cache_domain 要在 cache_rootid 之后执行]
-     * [缓存节点绑定域名,用于iURL回调函数]
+     * cache_domain 要在 cache_rootid 之后执行
+     * 缓存节点绑定域名,用于iURL回调函数
      */
     protected static function common_domain()
     {
@@ -94,7 +104,7 @@ class NodeCache
             ->where('domain', '!=', '')
             ->select();
         $rootArray = self::get('rootid');
-        $domain_rootid = array();
+        $domain_rootid = [];
         foreach ((array) $result as $C) {
             $root = self::child($C['id'], true, $rootArray);
             $root && $domain_rootid += array_fill_keys($root, $C['id']);
@@ -103,17 +113,20 @@ class NodeCache
         unset($result, $domain_rootid, $root);
         gc_collect_cycles();
     }
+
     //缓存节点URL规则,用于rewrite
     protected static function common_rule()
     {
         $result = NodeModel::field('id,dir,rule')
             ->where('rule', '!=', '')
             ->select();
-        $rules = array();
+        $rules = [];
         foreach ((array) $result as $C) {
-            if ($C['rule']) foreach ($C['rule'] as $key => &$value) {
-                if ($key != 'index' && $key != 'list') {
-                    $value = str_replace('{CDIR}', $C['dir'], $value);
+            if ($C['rule']) {
+                foreach ($C['rule'] as $key => &$value) {
+                    if ($key != 'index' && $key != 'list') {
+                        $value = str_replace('{CDIR}', $C['dir'], $value);
+                    }
                 }
             }
             $C['rule'] && $rules[$C['id']] = $C['rule'];
@@ -122,6 +135,7 @@ class NodeCache
         unset($result, $domain_rootid, $root);
         gc_collect_cycles();
     }
+
     //分段生成缓存
     public static function burst($appid = null, $offset = 0, $num = 10, $flag = null)
     {
@@ -162,28 +176,33 @@ class NodeCache
         foreach ((array) $result as $C) {
             self::setId($C);
         }
-        unset($$rs, $C, $ids_array);
+        unset($rs, $C, $ids_array);
     }
 
     public static function get($key, $k2 = null)
     {
-        $k1 = sprintf(self::KEY,$key);
+        $k1 = sprintf(self::KEY, $key);
         if ($k2) {
             return Cache::get($k1, $k2);
         }
         return Cache::get($k1);
     }
-    public static function set($key,$data,$time=0)
+
+    public static function set($key, $data, $time = 0)
     {
         $key = sprintf(self::KEY, $key);
         Cache::set($key, $data, $time);
     }
+
     //获取处理后的节点数据缓存
-    public static function getId($id = "0")
+    public static function getId($id = '0')
     {
         $key = sprintf(self::ID, $id);
-        return Cache::get($key);
+        $node = Cache::get($key);
+        $node && NodeItem::route($node);
+        return $node;
     }
+
     //设置处理后的节点数据缓存
     public static function setId($C = null)
     {
@@ -191,23 +210,36 @@ class NodeCache
         $key = sprintf(self::ID, $C['id']);
         Cache::set($key, $C, 0);
     }
+
     public static function deleteId($id = null)
     {
         $key = sprintf(self::ID, $id);
         Cache::delete($key);
         self::delData($id);
     }
-    public static function getIds($id = "0", $all = true, $hidden = null, $root_array = null)
+
+    public static function getIds($id = '0', $all = true, $hidden = null, $rootids = null)
     {
-        $root_array or $root_array = self::get("rootid");
-        $nids = array();
-        is_array($id) or $id = explode(',', $id);
-        foreach ($id as $_id) {
-            $nids += (array) $root_array[$_id];
+        $rootids or $rootids = self::get('rootid');
+        $nids = [];
+        if (!is_array($id) && $id) {
+            $id = explode(',', $id);
         }
+
+        if ($id) {
+            foreach ($id as $_id) {
+                if ($rootids[$_id]) {
+                    $nids = array_merge($nids, (array) $rootids[$_id]);
+                }
+            }
+        }
+
         if ($all) {
             foreach ((array) $nids as $_nid) {
-                $root_array[$_nid] && $nids += self::getIds($_nid, $all, $hidden, $root_array);
+                if ($rootids[$_nid]) {
+                    $_nids = (array) self::getIds($_nid, $all, $hidden, $rootids);
+                    $nids = array_merge($nids, $_nids);
+                }
             }
         }
         $nids = array_unique($nids);
@@ -218,6 +250,7 @@ class NodeCache
         }
         return $nids;
     }
+
     //源数据缓存
     public static function setData($C = null)
     {
@@ -225,6 +258,7 @@ class NodeCache
         $key = sprintf(self::TMP, $C['id']);
         Cache::set($key, $C, 0);
     }
+
     public static function delData($id = null)
     {
         $key = sprintf(self::TMP, $id);
@@ -232,7 +266,7 @@ class NodeCache
     }
 
     //获取父节点ID
-    public static function parent($id = "0", $parent = null)
+    public static function parent($id = '0', $parent = null)
     {
         if ($id) {
             empty($parent) && $parent = self::get('parent');
@@ -243,15 +277,18 @@ class NodeCache
         }
         return $id;
     }
+
     //获取子节点ID
-    public static function child($id = "0", $all = true, $root = null)
+    public static function child($id = '0', $all = true, $root = null)
     {
         empty($root) && $root = self::get('rootid');
         $ids = $root[$id];
         if (is_array($ids)) {
             $array = $ids;
-            if ($all) foreach ($ids as $key => $_nid) {
-                $array += self::child($_nid, $all, $root);
+            if ($all) {
+                foreach ($ids as $key => $_nid) {
+                    $array += self::child($_nid, $all, $root);
+                }
             }
         }
         return (array) $array;

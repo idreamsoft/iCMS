@@ -1,0 +1,15 @@
+<form i="cms:search:form" action="<!--{iCMS:route url='api'}-->"  method="get" target="_blank">
+    <div class="input-group <!--{$class}-->">
+        <select name="app" class="form-control form-control-alt" style="max-width: 90px">
+            <option value="article">文章</option>
+            <!--{iCMS:apps:list loop="true" row="10" apptype="2"}-->
+            <option value="<!--{$apps_list.app}-->"><!--{$apps_list.title}--></option>
+            <!--{/iCMS}-->
+        </select>
+        <input name="do" type="hidden" value="search" />
+        <input type="text" name="keyword" class="form-control form-control-alt" placeholder="请输入关键词..." value="<!--{$search.keyword}-->"/>
+        <button type="submit" class="btn btn-primary">
+            <i class="fa fa-search"></i>
+        </button>
+    </div>
+</form>

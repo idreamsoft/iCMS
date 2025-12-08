@@ -14,32 +14,17 @@ class FormsModel extends Model
 {
     protected $casts = [
         'pubdate' => 'datetime',
-        'table'  => 'array',
-        'config' => 'array',
-        'fields' => 'array'
+        'table'   => 'array',
+        'config'  => 'array',
+        'fields'  => 'array'
     ];
-    public static function changed($response, $event, $model)
-    {
-        $event == 'updated' && $model->field('id')->get();
-        $id = $model->getResponse('id');
-        $appid = iCMS_APP_FORMS;
-        if (isset($response['node_id'])) {
-            /** 栏目变化 */
-            Node::change('node_id', $response['node_id'], $event, $id, $appid);
-        }
-        //缩略图变化
-        if (isset($response['pic']) || isset($response['bpic']) || isset($response['mpic']) || isset($response['spic'])) {
-            FilesPic::change($response, $appid, $event, $id);
-        }
-    }
-    public static function deleted($response, $model)
-    {
-        $row = $model->field('id')->get();
-        $iid = $row['id'];
-        $appid = iCMS_APP_FORMS;
-        if ($iid) {
-            AppsMap::delete($appid, $iid, 'Node');
-            Files::delete($appid, $iid);
-        }
-    }
+    protected $events = [
+        // 'geted' => ['ArticleEvent', 'geted'],
+        // 'created' => ['ArticleEvent', 'created'],
+        // 'updated' => ['ArticleEvent', 'updated'],
+        'delete' => ['FormsEvent', 'delete'],//删除前
+        // 'deleted' => ['ArticleEvent', 'deleted'],//删除后
+        'changed' => ['FormsEvent', 'changed'],//created + updated
+    ];
+
 }

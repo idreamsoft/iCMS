@@ -8,19 +8,29 @@
  * @site https://www.icmsdev.com
  * @licence https://www.icmsdev.com/LICENSE.html
  */
-class EditorApp extends UserCP
+
+defined('APP_ASSETS') OR define('APP_ASSETS',iCMS_API_URL);
+class EditorApp
 {
-    public $noMethod = true;
-    public function __construct()
+    // public $noMethod = true;
+    // public function __construct()
+    // {
+    //     parent::__construct();
+    //     Security::csrf_check(User::$id,date("Ymd"));
+    //     if (User::$data) {
+    //         $method = Application::$DO;
+    //         $editor = new EditorApi;
+    //         if (method_exists($editor, $method)) {
+    //             return $editor->$method();
+    //         }
+    //     }
+    // }
+    public function api_assets()
     {
-        parent::__construct();
-        Security::csrf_check(User::$id,date("Ymd"));
-        if (User::$data) {
-            $method = iAPP::$DO;
-            $editor = new EditorApi;
-            if (method_exists($editor, $method)) {
-                return $editor->$method();
-            }
-        }
+        return Files::getAssets();
+    }
+    public function api_load()
+    {
+        return Editor::loadjs();
     }
 }

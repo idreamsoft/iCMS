@@ -12,6 +12,33 @@ defined('iPHP') or exit('What are you doing?');
 
 class AppsHelper
 {
+    public static function makeLang($apps){
+        $langArray = Etc::get('apps', 'default/lang');
+        $json = json_encode($langArray);
+        $json = AppsHelper::replace($json, $apps);
+        $langArray = json_decode($json, true);
+
+        $app = null;
+        if ($apps['apptype'] == Apps::CONTENT_TYPE) {
+            $app = 'content';
+            $name = 'lang/zh.' . $apps['app'];
+        } else {
+            $name = 'lang/zh';
+        }
+        $app && Etc::set($app, $name, $langArray);
+    }
+    public static function makeMenu($data){
+        Menu::makeJson($data);
+    }
+    public static function replace($json, $a)
+    {
+        $json = htmlspecialchars_decode($json);
+        return str_replace(
+            ['{appid}', '{App}', '{app}', '{name}', '{title}', '{sort}'],
+            [$a['id'], ucfirst($a['app']), $a['app'], $a['name'], $a['title'], $a['id'] * 100],
+            $json
+        );
+    }
     /**
      * 将post字段数据转换成分组数组[字段json,字段json....]
      */
@@ -46,15 +73,15 @@ class AppsHelper
      * @param $dataFields 附加表字段
      * @return Array array(主表字段,附加表字段)
      */
-    public static function parseFields($groupArray = null, &$masterFields, &$dataFields)
+    public static function parseFields($groupArray, &$masterFields, &$dataFields)
     {
         foreach ($groupArray as $key => $group) {
             $fields = $group['fields'];
             foreach ($fields as $k => $value) {
-                if ($value['name']) {
-                    if (strtoupper($value['field']) == "MEDIUMTEXT") {
+                if ($value['name'] && !in_array($value['type'], array('br', 'layout'))) {
+                    if ($value['field'] && strtoupper($value['field']) == "MEDIUMTEXT") {
                         $dataFields[$k] = $value;
-                    } elseif (strtoupper($value['type']) == "CAPTCHA") {
+                    } elseif ($value['type'] && strtoupper($value['type']) == "CAPTCHA") {
                         //移除验证码之字段,不参与表字段增改
                     } else {
                         $masterFields[$k] = $value;

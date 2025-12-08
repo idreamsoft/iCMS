@@ -1,0 +1,30 @@
+<div class="block block-no-shadow border-bottom">
+    <div class="block-content">
+        <div class="row items-push">
+            <!--{if $item.pic}-->
+            <div class="col-md-4 col-lg-5" style="max-height: 150px;overflow: hidden;">
+                <a class="img-link img-link-simple" href="<!--{$item.url}-->">
+                    <img style="width: 100%;" class="img-fluid rounded" src="<!--{$item.pic.url}-->" alt="">
+                </a>
+            </div>
+            <!--{/if}-->
+            <div class="<!--{$item.pic?'col-md-8 col-lg-7':'col-12'}--> d-md-flex align-items-center">
+                <div>
+                    <h4 class="mb-1">
+                        <a class="text-dark" href="<!--{$item.url}-->"><!--{$item.title}--></a>
+                    </h4>
+
+                    <div class="fs-sm fw-medium mb-3">
+                        <a href="<!--{$item.node.url}-->"><!--{$item.node.name}--></a> ·
+                        <a href="<!--{$item.user.url}-->" i="cms@h:user:ucard" data-userid="<!--{$item.user.id}-->"><!--{$item.user.name}--></a> <!--{$item.pubdate|date:"Y-m-d"}--> · <span class="text-muted"><!--{$item.pubdate|format_date:false}--></span>
+                    </div>
+                    <!--{if $item.description}-->
+                    <p class="fs-sm text-muted">
+                        <!--{$item.description|cut:90:'......'}-->
+                    </p>
+                    <!--{/if}-->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

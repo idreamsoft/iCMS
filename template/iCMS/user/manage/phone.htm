@@ -1,9 +1,9 @@
-<div class="block">
+<div i="cms:user:manage:modifyPhone" class="block">
     <div class="block-content p-0">
         <!-- Validation Wizard -->
         <div class="js-wizard-validation block" style="max-width: 600px">
             <!-- Step Tabs -->
-            <ul class="nav nav-tabs nav-tabs-alt nav-justified" role="tablist">
+            <ul i="cms:ui:tabs" class="nav nav-tabs nav-tabs-alt nav-justified" role="tablist">
                 <li class="nav-item">
                     <a class="nav-link active" href="#wizard-validation-step1" data-toggle="tab">1. 验证身份</a>
                 </li>
@@ -31,18 +31,14 @@
                             <label for="captcha">图形验证码</label>
                             <div class="input-group">
                                 <input type="text" maxlength="4" class="form-control" id="captcha" name="captcha" placeholder="图形验证码" />
-                                <div class="input-group-append">
-                                    <!--{iCMS:public:captcha class="rounded-right"}-->
-                                </div>
+                                <!--{iCMS:public:captcha class="rounded-right"}-->
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="smscode">短信验证码</label>
                             <div class="input-group">
                                 <input maxlength="6" type="text" class="form-control" id="smscode" name="smscode" placeholder="请输入6位短信验证码" />
-                                <div class="input-group-append">
-                                    <button i="event:public:smscode:1" type="button" class="btn btn-alt-primary">获取短信验证码</button>
-                                </div>
+                                <button i="event:public:smscode:1" type="button" class="btn btn-alt-primary">获取短信验证码</button>
                             </div>
                         </div>
                     </div>
@@ -58,18 +54,14 @@
                             <label for="captcha2">图形验证码</label>
                             <div class="input-group">
                                 <input type="text" maxlength="4" class="form-control" id="captcha2" name="captcha2" placeholder="图形验证码" />
-                                <div class="input-group-append">
-                                    <!--{iCMS:public:captcha class="rounded-right"}-->
-                                </div>
+                                <!--{iCMS:public:captcha class="rounded-right"}-->
                             </div>
                         </div>
                         <div class="form-group">
                             <label for="smscode2">短信验证码</label>
                             <div class="input-group">
                                 <input maxlength="6" type="text" class="form-control" id="smscode2" name="smscode2" placeholder="请输入6位短信验证码" />
-                                <div class="input-group-append">
-                                    <button i="event:public:smscode:2" type="button" class="btn btn-alt-primary">获取短信验证码</button>
-                                </div>
+                                <button i="event:public:smscode:2" type="button" class="btn btn-alt-primary">获取短信验证码</button>
                             </div>
                         </div>
                     </div>
@@ -111,6 +103,3 @@
         <!-- END Validation Wizard Classic -->
     </div>
 </div>
-
-<script src="<!--{$site.urls.assets}-->/oneui/js/plugins/jquery-bootstrap-wizard/jquery.bootstrap.wizard.js"></script>
-<script src="<!--{$site.urls.public}-->/js/modify.phone.js"></script>

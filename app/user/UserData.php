@@ -12,7 +12,7 @@ defined('iPHP') or exit('What are you doing?');
 
 class UserData extends Model
 {
-    protected $primaryKey = 'uid';
+    protected $primaryKey = 'userid';
     protected $casts = [
         'meta' => 'array',
     ];
@@ -21,12 +21,12 @@ class UserData extends Model
 		if (empty($ids)) return array();
 
 		is_array($ids) && $ids = array_unique($ids);
-		$model = self::where('uid', $ids);
+		$model = self::where('userid', $ids);
 		if (is_numeric($ids)) {
 			$result = $model->find();
 		} else {
 			$result  = $model->select();
-			$result = array_column($result, null, 'uid');
+			$result = array_column($result, null, 'userid');
 		}
 		return $result;
 	}

@@ -9,11 +9,11 @@
  * @licence https://www.icmsdev.com/LICENSE.html
  */
 defined('iPHP') or exit('What are you doing?');
-
+/**
+ * 表单分类
+ */
 class FormsNodeAdmincp extends NodeAdmincp
 {
-    public $ACCESC_TITLE = '表单分类';
-
     public function __construct()
     {
         parent::__construct(iCMS_APP_FORMS);
@@ -23,13 +23,9 @@ class FormsNodeAdmincp extends NodeAdmincp
 
         $this->CONTENT_MODEL = new FormsModel();
         $this->NODE_NAME = "分类";
-        $this->loadRoute();
-        /**
-         *  URL规则选项
-         */
     }
-    public function do_add($default = null)
+    public function adding(&$rs = [])
     {
-        parent::do_add(array('status' => '2'));
+        $rs['status'] = '2';
     }
 }

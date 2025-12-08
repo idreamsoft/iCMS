@@ -14,7 +14,7 @@ class SQLiteConnector extends Connector implements ConnectorInterface
      * @param  array  $config
      * @return \PDO
      *
-     * @throws \InvalidArgumentException
+     * @throws \Exception
      */
     public function connect(array $config)
     {
@@ -33,7 +33,7 @@ class SQLiteConnector extends Connector implements ConnectorInterface
         // as the developer probably wants to know if the database exists and this
         // SQLite driver will not throw any exception if it does not by default.
         if ($path === false) {
-            throw new InvalidArgumentException("Database ({$config['database']}) does not exist.");
+            throw new Exception("Database ({$config['database']}) does not exist.");
         }
 
         return $this->createConnection("sqlite:{$path}", $config, $options);

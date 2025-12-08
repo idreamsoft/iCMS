@@ -1,0 +1,89 @@
+<script id="metadata_fields0" type="application/json">
+    [{"name":"姓名","gender":"性别","age":"年龄","score":"分数"}]
+</script>
+<script id="metadata_fields2" type="application/json">
+    {"name":"姓名","gender":"性别","age":"年龄","score":"分数"}
+</script>
+<div i="cms:ui:metadata" class="block block-themed hide">
+    <div class="block-header bg-primary-dark">
+        <h3 class="block-title">动态属性</h3>
+        <div class="block-options">
+            <button v-show="show.setFieldMap" @click="setFieldMap" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-gears"></i> 设置字段</button>
+            <button v-show="show.addBtn && mode" @click="addMeta" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-circle-plus"></i> 增加一组</button>
+            <button v-show="show.saveBtn" @click="saveMeta" class="btn btn-sm btn-alt-primary" type="button"><i class="fa fa-fw fa-save"></i> 保存</button>
+        </div>
+    </div>
+    <div class="block-content p-0">
+        <input type="hidden" name="metadata_appid" value="<?php echo $appid;?>">
+        <input type="hidden" name="metadata_id" value="<?php echo $id;?>">
+        <input type="hidden" name="metadata_mode" :value="mode?1:0">
+        <table class="table text-nowrap table-hover table-striped table-vcenter">
+            <tbody>
+                <tr v-for="(item, index) in items" :key="'item-'+index">
+                    <td>
+                        <div v-for="(v, k) in item" :key="'v-'+k" class="input-group mb-2">
+                            <span class="input-group-text">{{v.key}}</span>
+                            <input class="form-control" :name="'metadata['+index+']['+k+'][key]'" type="hidden" v-model="v.key" />
+                            <span class="input-group-text">{{v.name}}</span>
+                            <input class="form-control" :name="'metadata['+index+']['+k+'][name]'" type="hidden" v-model="v.name" />
+                            <input :name="'metadata['+index+']['+k+'][ui]'" type="hidden" v-model="v.ui" />
+                            <input :name="'metadata['+index+']['+k+'][attr]'" type="hidden" :value="JSON.stringify(v.attr)" />
+                           
+                            <textarea v-if="v.ui=='cms:ui:editor'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                            data-widget="ueditor"
+                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" >{{v.value}}</textarea>
+                            <textarea v-else-if="v.ui=='cms:ui:markdown'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                            data-widget="vditor"
+                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" >{{v.value}}</textarea>
+                            <input v-else-if="v.ui=='cms:ui:file:btns'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                            data-upload="true" 
+                            data-browse="true" 
+                            data-preview="true"
+                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" />
+                            <input v-else class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" />
+                        </div>
+                        <button @click="delMeta(index)" class="btn btn-sm btn-alt-secondary" type="button">
+                            <i @click.stop="delMeta(index)" class="fa fa-fw fa-trash-can"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div id="metadata_fieldMap" class="hide">
+        <div class="form-check form-check-inline">
+            <input class="form-check-input" type="checkbox" v-model="mode" id="isGroup">
+            <label class="form-check-label" for="isGroup">多组模式</label>
+        </div>
+        <table class="table table-sm table-hover table-striped table-vcenter">
+            <thead class="bg-body">
+                <tr>
+                    <th>名称</th>
+                    <th>字段</th>
+                    <th><button @click="addFieldMap" class="btn btn-sm btn-alt-secondary" type="button"><i class="fa fa-fw fa-circle-plus"></i></button></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(v, index) in fieldMap">
+                    <td><input class="form-control" type="text" v-model="v.name" /></td>
+                    <td><input class="form-control" type="text" v-model="v.key" /></td>
+                    <td>
+                        <select v-model="v.ui" @change="(event) => onSelectUi(event, v)">
+                            <option value="cms:ui:datepicker">日期选择器</option>
+                            <option value="cms:ui:editor">ueditor</option>
+                            <option value="cms:ui:markdown">vditor</option>
+                            <option value="cms:ui:file:btns">文件上传组件</option>
+                            <option value="">文本</option>
+                        </select>
+                    </td>
+                    <td>
+                        <button @click="delFieldMap(index)" class="btn btn-sm btn-alt-secondary" type="button">
+                            <i @click.stop="delFieldMap(index)" class="fa fa-fw fa-circle-minus"></i>
+                        </button>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

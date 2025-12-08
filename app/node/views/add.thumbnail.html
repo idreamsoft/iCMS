@@ -1,0 +1,28 @@
+<?php 
+$title = "缩略图"; 
+isset($data) OR $data = [];
+?>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="bpic">大图</label>
+    <div class="col-sm-8">
+        <div class="row mt-1">
+            <input type="text" name="rs[bpic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="bpic" value="<?php echo $data['bpic']; ?>" />
+        </div>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="bpic">中图</label>
+    <div class="col-sm-8">
+        <div class="row mt-1">
+            <input type="text" name="rs[mpic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="mpic" value="<?php echo $data['mpic']; ?>" />
+        </div>
+    </div>
+</div>
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="bpic">小图</label>
+    <div class="col-sm-8">
+        <div class="row mt-1">
+            <input type="text" name="rs[spic]" class="form-control" i="cms:ui:file:btns" data-upload="true" data-multiple="true" data-browse="true" data-preview="true" id="spic" value="<?php echo $data['spic']; ?>" />
+        </div>
+    </div>
+</div>

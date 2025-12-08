@@ -1,5 +1,5 @@
 <div id="local_app_wrap" style="display: none">
-    <form action="<?php echo APP_URL; ?>&do=install" method="POST" id="<?php echo APP_FORMID; ?>" target="iPHP_FRAME">
+    <form action="{{./install}}" method="POST" i="cms:ui:form">
         <div class="alert alert-info">
             由于安全限制
             <br />
@@ -9,9 +9,7 @@
         </div>
         <div class="form-group">
             <div class="input-group">
-                <div class="input-group-prepend">
-                    <span class="input-group-text">可用安装包</span>
-                </div>
+                <span class="input-group-text">可用安装包</span>
                 <select name="zipfile" class="form-control" data-placeholder="请选择iCMS<?php $title;?>安装包文件(.<?php echo AppsPackage::EXT; ?>)...">
                 <?php
                 $pkgArray = AppsPackage::getLocalPkg();

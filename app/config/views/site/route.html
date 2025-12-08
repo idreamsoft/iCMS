@@ -1,50 +1,60 @@
-<div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">404页面</label>
+<input type="hidden" name="saveCall[route]" value="ConfigAdmincp::saveCall_config_route">
+<!-- <div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">网址</label>
     <div class="col-sm-8">
-        <input type="text" name="config[route][404]" class="form-control" id="route_404" value="<?php echo $config['route']['404']; ?>" />
+        <input type="text" name="config[route][url]" class="form-control" value="<?php echo $config['route']['url']; ?>" />
+        <small class="form-text text-muted"></small>
+    </div>
+</div> -->
+<div class="form-group row">
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">404页面</label>
+    <div class="col-sm-8">
+        <input type="text" name="config[route][notfound]" class="form-control" id="route_notfound" value="<?php echo $config['route']['notfound']; ?>" />
         <small class="form-text text-muted">404页面,可填写模板文件,如果填写的是网址则跳转,留空只返回404状态码</small>
     </div>
 </div>
+
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">公共资源URL</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">公共资源URL</label>
     <div class="col-sm-8">
         <input type="text" name="config[route][public]" class="form-control" id="route_public" value="<?php echo $config['route']['public']; ?>" />
         <small class="form-text text-muted">公共资源访问URL</small>
     </div>
 </div>
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">用户URL</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">用户URL</label>
     <div class="col-sm-8">
         <input type="text" name="config[route][user]" class="form-control" id="route_user" value="<?php echo $config['route']['user']; ?>" />
         <small class="form-text text-muted">用户URL</small>
     </div>
 </div>
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">目录</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">目录</label>
     <div class="col-sm-8">
         <input type="text" name="config[route][dir]" class="form-control" id="route_dir" value="<?php echo $config['route']['dir']; ?>" />
         <small class="form-text text-muted">网页目录，相对于admincp目录。可用../表示上级目录</small>
     </div>
 </div>
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">网页后缀</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">网页后缀</label>
     <div class="col-sm-8">
         <input type="text" name="config[route][ext]" class="form-control" id="route_ext" value="<?php echo $config['route']['ext']; ?>" />
         <small class="form-text text-muted">{EXT} 推荐使用.html</small>
     </div>
 </div>
+
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">生成速度</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="example">伪静态</label>
     <div class="col-sm-8">
-        <input type="text" name="config[route][speed]" class="form-control" id="route_speed" value="<?php echo $config['route']['speed']; ?>" />
-        <small class="form-text text-muted">一次性生成多少静态页，可根据服务器IO性能调整</small>
+        <input type="checkbox" i="cms:ui:switch" name="config[route][rewrite]" id="route_rewrite" value="<?php echo $config['route']['rewrite'] ;?>" />
+        <small class="form-text text-muted"><a class="btn btn-sm btn-link" href="https://www.icmsdev.com/docs/rewrite.html" target="_blank"><i class="fa fa-fw fa-question-circle"></i> 查看帮助</a></small>
     </div>
 </div>
+
 <div class="form-group row">
-    <label class="col-sm-1 col-form-label" for="example">REWRITE</label>
+    <label class="col-sm-2 col-form-label text-sm-end" for="single">唯一链接</label>
     <div class="col-sm-8">
-        <input type="checkbox" data-toggle="switch" name="config[route][rewrite]" id="route_rewrite" <?php echo $config['route']['rewrite'] ? 'checked' : ''; ?> />
-        <a class="btn btn-sm btn-link" href="https://www.icmsdev.com/docs/rewrite.html" target="_blank"><i class="fa fa-fw fa-question-circle"></i> 查看帮助</a>
-        <small class="form-text text-muted">此选项只对应用的路由配置起作用</small>
+        <input type="checkbox" i="cms:ui:switch" name="config[route][single]" id="route_rewrite" value="<?php echo $config['route']['single'] ;?>" />
+        <small class="form-text text-muted"></small>
     </div>
 </div>

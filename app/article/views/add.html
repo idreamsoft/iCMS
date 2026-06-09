@@ -95,8 +95,14 @@ self::head();
                                             </div>
                                             <?php } ?>
                                             <div class="form-check form-check-inline">
-                                                <input type="checkbox" class="form-check-input disabled" id="isMarkdown" name="rs[markdown]" value="1" :i="'cms:ui:checked'" data-checked="<?php echo $rs['markdown']; ?>">
+                                                <input type="checkbox" class="form-check-input" id="isMarkdown" name="rs[markdown]" value="1" :i="'cms:ui:checked'" data-checked="<?php echo $rs['markdown']; ?>" @change="toggleMarkdownEditor">
+                                                <!-- <input type="checkbox" class="form-check-input" id="isMarkdown" name="rs[markdown]" value="1" :i="'cms:ui:checked'" data-checked="<?php echo $rs['markdown']; ?>"> -->
                                                 <label class="form-check-label" for="isMarkdown">markdown格式</label>
+                                            </div>
+                                            <div class="form-check form-check-inline">
+                                                <input type="checkbox" class="form-check-input" id="isJson" name="rs[creative]" value="3" :i="'cms:ui:checked'" data-checked="<?php echo $rs['creative']; ?>" @change="toggleJsonEditor">
+                                                <!-- <input type="checkbox" class="form-check-input" id="isJson" name="rs[creative]" value="3" :i="'cms:ui:checked'" data-checked="<?php echo $rs['creative']; ?>"> -->
+                                                <label class="form-check-label" for="isJson">JSON格式内容</label>
                                             </div>
                                         </div>
                                     </div>
@@ -117,8 +123,8 @@ self::head();
                                                     </div>
                                                     <input name="dataId[]" :id="'dataId-'+index" type="hidden" v-model="item.chapterId" />
                                                 </div>
-                                                <div class="form-group">
-                                                    <textarea type="text/plain" :id="'editor-body-'+index" name="body[]" :i="'cms:ui:editor'" data-widget="<?php echo self::$CONFIG['editor'];?>" class="cms-editor">{{item.body}}</textarea>
+                                                <div class="form-group editor-bodys">
+                                                    <textarea type="text/plain" :id="'editor-body-'+index" name="body[]" data-widget="<?php echo self::$CONFIG['editor'];?>" class="cms-editor">{{item.body}}</textarea>
                                                 </div>
                                             </div>
                                         </template>

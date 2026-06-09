@@ -24,6 +24,7 @@
  * - 安全的验证码存储和验证机制
  * - 完善的错误处理和异常管理
  * - 支持Token模式和Session模式
+ * - 支持动态GIF验证码（设置 $animated = true）
  * 
  * @package iPHP.core
  * @since PHP 5.6
@@ -54,6 +55,11 @@ class Captcha
     // 字符集和Token配置
     public static $charset = '2345789ABCDEFHJKLMNPQRTUVWXYZ';
     public static $isToken = false;
+    
+    // 动态GIF配置
+    public static $animated = false;      // 是否生成动态GIF
+    public static $animatedFrames = 8;    // 动态GIF帧数
+    public static $animatedDelay = 15;    // 帧延迟(1/100秒)
     
     // 内部状态变量
     protected static $bgColor = [];
@@ -286,6 +292,9 @@ class Captcha
             self::addInterference();
 
             // 输出图片
+            if (self::$animated && function_exists('imagegif')) {
+                return self::outputAnimatedGif();
+            }
             return self::outputImage();
         } catch (Exception $e) {
             if (self::$image) {
@@ -295,6 +304,134 @@ class Captcha
         }
     }
     
+    /**
+     * 输出动态GIF验证码
+     * 生成多帧动画，每帧有不同的干扰效果
+     * @return bool
+     */
+    private static function outputAnimatedGif()
+    {
+        $frames = [];
+        $delays = [];
+        
+        // 保存当前画布状态
+        $originalImage = self::$image;
+        
+        for ($i = 0; $i < self::$animatedFrames; $i++) {
+            // 为每帧创建新画布
+            self::$image = imagecreate(self::$width, self::$height);
+            
+            // 设置背景色
+            imagecolorallocate(self::$image, self::$bgColor[0], self::$bgColor[1], self::$bgColor[2]);
+            
+            // 设置主要文字颜色
+            self::$mainColor = imagecolorallocate(self::$image, self::$textColor[0], self::$textColor[1], self::$textColor[2]);
+            self::$curveColor = self::$mainColor;
+            
+            // 添加随机背景字符
+            self::addBackgroundChars();
+            
+            // 绘制主要文字
+            if (function_exists('imagettftext')) {
+                self::drawTtfText();
+            } else {
+                self::drawGifText();
+            }
+            
+            // 添加随机干扰曲线
+            for ($j = 0; $j < self::$curveNum; $j++) {
+                self::drawCurve();
+            }
+            
+            // 添加随机干扰元素
+            self::addInterference();
+            
+            // 捕获帧数据
+            ob_start();
+            imagegif(self::$image);
+            $frames[] = ob_get_clean();
+            $delays[] = self::$animatedDelay;
+            
+            imagedestroy(self::$image);
+        }
+        
+        // 恢复原始画布引用
+        self::$image = $originalImage;
+        if (self::$image) {
+            imagedestroy(self::$image);
+            self::$image = null;
+        }
+        
+        // 合成动态GIF
+        $animatedGif = self::createAnimatedGif($frames, $delays);
+        
+        header('Content-Type: image/gif');
+        echo $animatedGif;
+        
+        return true;
+    }
+    
+    /**
+     * 创建动态GIF
+     * @param array $frames GIF帧数据数组
+     * @param array $delays 每帧延迟时间数组
+     * @return string 动态GIF二进制数据
+     */
+    private static function createAnimatedGif($frames, $delays)
+    {
+        $gif = '';
+        $loop = 0; // 0 = 无限循环
+        
+        for ($i = 0; $i < count($frames); $i++) {
+            if ($i === 0) {
+                // 第一帧：添加GIF头和逻辑屏幕描述符
+                $gif = substr($frames[0], 0, 6); // GIF89a
+                $gif .= substr($frames[0], 6, 7); // 逻辑屏幕描述符
+                
+                // 全局颜色表
+                $gctFlag = ord(substr($frames[0], 10, 1));
+                if ($gctFlag & 0x80) {
+                    $gctSize = 3 * (2 << ($gctFlag & 0x07));
+                    $gif .= substr($frames[0], 13, $gctSize);
+                }
+                
+                // 添加Netscape应用扩展（用于循环）
+                $gif .= "\x21\xFF\x0BNETSCAPE2.0\x03\x01" . pack('v', $loop) . "\x00";
+            }
+            
+            // 添加图形控制扩展
+            $gif .= "\x21\xF9\x04\x04" . pack('v', $delays[$i]) . "\x00\x00";
+            
+            // 查找图像数据起始位置
+            $imgData = $frames[$i];
+            $imgStart = 13;
+            
+            // 跳过全局颜色表
+            $gctFlag = ord(substr($imgData, 10, 1));
+            if ($gctFlag & 0x80) {
+                $imgStart += 3 * (2 << ($gctFlag & 0x07));
+            }
+            
+            // 跳过扩展块
+            while (ord(substr($imgData, $imgStart, 1)) === 0x21) {
+                $imgStart++; // 扩展标识
+                $imgStart++; // 扩展类型
+                while (($blockSize = ord(substr($imgData, $imgStart, 1))) > 0) {
+                    $imgStart += $blockSize + 1;
+                }
+                $imgStart++; // 块终止符
+            }
+            
+            // 添加图像描述符和图像数据
+            $gif .= substr($imgData, $imgStart, strlen($imgData) - $imgStart - 1);
+        }
+        
+        // 添加GIF结束符
+        $gif .= "\x3B";
+        
+        return $gif;
+    }
+
     /**
      * 输出图片
      * @return bool

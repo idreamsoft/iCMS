@@ -100,6 +100,7 @@ class AppsStore
         $files = self::unzip();
         $files && self::setup_data($files, '应用', AppsPackage::$LocalDataFile, 'AppsModel');  //安装应用数据
         $files && self::setup_table($files, AppsPackage::$LocalTableFile); //创建应用表
+        $files && self::setup_table_data($files, AppsPackage::$LocalTableDataFile); //导入应用表数据
         $files && self::setup_app_file($files);
 
         self::$IS_UPDATE ?
@@ -206,6 +207,27 @@ class AppsStore
                     }
                 }
                 self::$MESSAGES[] = '应用表创建完成';
+            }
+        }
+    }
+
+    public static function setup_table_data(&$pkgFiles, $tableDataFileName = null)
+    {
+        foreach ($pkgFiles as $key => $file) {
+            $filename = basename($file['filename']);
+            if ($filename == $tableDataFileName) {
+                unset($pkgFiles[$key]);
+
+                $sql = get_php_content($file['content']);
+                self::$IS_TEST && self::$MESSAGES['TEST']['setup_table_data'] = $sql;
+                if (!self::$IS_TEST && $sql) {
+                    try {
+                        AppsTable::query($sql);
+                    } catch (\sException $ex) {
+                        self::throwMsg($ex->getMessage());
+                    }
+                }
+                self::$MESSAGES[] = '应用表数据导入完成';
             }
         }
     }

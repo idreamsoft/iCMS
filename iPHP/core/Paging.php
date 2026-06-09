@@ -53,9 +53,16 @@ class Paging
         self::$rownum = is_array($a) ? count($a) : $a;
     }
 
-    public static function getPageSize($default = 20)
+    public static function setPage($page){
+        $_GET['page'] = (int)$page;
+    }
+    public static function getPageSize($size = 0, $default = 20)
     {
-        self::$pageSize = (int)Request::sparam('pageSize') ;
+        if ($size && $size != $default) {
+            self::$pageSize = $size;
+            return $size;
+        }
+        self::$pageSize = (int)Request::sparam('pageSize');
         empty(self::$pageSize) && self::$pageSize = $default;
         return self::$pageSize;
     }
@@ -161,6 +168,7 @@ class Paging
             'item'      => '<li class="%s">%s</li>',
             'link'      => '<a href="%s" data-pageno="%d" %s>%s</a>',
         ];
+
         $obj = new Pages($conf);
         self::$count = $count;
         self::$total = $obj->total;

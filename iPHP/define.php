@@ -26,6 +26,7 @@ define('iPHP_TEMPLATE_DIR', iPHP_APP_PATH . 'template');
 define('iPHP_CONFIG_DIR', iPHP_APP_PATH . 'config');
 define('iPHP_TEMPLATE_CACHE', iPHP_APP_PATH . 'cache/template');
 define('iPHP_COMPOSER_DIR', iPHP_APP_PATH . 'vendor'); //composer 目录
+define('iPHP_CACHE_DIR', iPHP_APP_PATH . 'cache');
 define(
     'iPHP_CORE_CLASS',
     'File,Http,Request,' .

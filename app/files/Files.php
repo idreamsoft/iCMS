@@ -211,6 +211,39 @@ class Files
         return (array)$result;
     }
 
+
+    public static function getType($ext){
+        // 如果传入的是带点的完整扩展名，则去掉点
+        if (strpos($ext, '.') !== false) {
+            $ext = File::getExt($ext);
+        }
+        $ext = strtolower($ext);
+
+        // 定义图片类型的扩展名
+        $imageExts = [
+            'jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp', 'svg', 'ico', 'tiff', 'tif'
+        ];
+
+        // 定义视频类型的扩展名
+        $videoExts = [
+            'mp4', 'avi', 'mov', 'wmv', 'flv', 'webm', 'mkv', 'm4v', '3gp', '3g2', 
+            'mxf', 'roq', 'nsv', 'amv', 'mpg', 'mpeg', 'asf', 'm2v', 'm2ts', 'm2t',
+            'mts', 'mtv', 'qt', 'divx', 'h264', 'avc', 'hevc', 'hls', 'f4v', 'f4p',
+            'f4a', 'f4b', 'mp2', 'mpe', 'mpv', 'svi', '3gpp', '3gpp2', 'jpm', 'jpx',
+            'ogv', 'ogg', 'vob', 'mod', 'iso', 'vcd', 'dat', 'ram', 'rm', 'rmvb'
+        ];
+
+        // 根据扩展名判断文件类型
+        if (in_array($ext, $imageExts)) {
+            return 'image';
+        } elseif (in_array($ext, $videoExts)) {
+            return 'video';
+        } else {
+            return 'file';
+        }
+    }
+
+// ... existing code ...
     public static function icon($ext, $flag = true)
     {
         if (strpos($ext, '.') !== false) {

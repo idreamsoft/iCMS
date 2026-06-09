@@ -183,6 +183,7 @@ class UserAdmincp extends AdmincpCommon
         $user = UserModel::postData();
         $userData = UserData::postData('userdata');
         $postud = Request::post('userdata');
+        $roleId = Request::post('role_id');
 
         $id = (int)$user['id'];
         $account = $user['account'];
@@ -217,7 +218,9 @@ class UserAdmincp extends AdmincpCommon
         if ($postud['birthday']) {
             list($userData['year'], $userData['month'], $userData['day']) = explode('-', $postud['birthday']);
         }
-
+        if($roleId!=$user['role_id']){
+            $user['role_id'] = $roleId;
+        }
         if (empty($id)) {
             $password or self::alert('密码不能为空');
             $user['password'] = User::password($password);

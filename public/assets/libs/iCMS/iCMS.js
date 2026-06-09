@@ -518,15 +518,19 @@ define(function (require) {
                     if (value.next) {
                         autoTime = value.time;
                         autoFunc = function () {
-                            nextFunc(value, resolve, reject)
+                            nextFunc(url, value['params'], resolve, reject)
                         }
                     }
                     func[btnName] = function (index, dom) {
                         if (url) {
                             if (value.next) {
-                                nextFunc(url, params, resolve, reject)
+                                nextFunc(url, value['params'], resolve, reject)
                             } else {
-                                btnFunc(value);
+                                if(value['params']){
+                                    nextFunc(url, value['params'], resolve, reject)
+                                }else{
+                                    btnFunc(value);
+                                }
                             }
                         }
                         // iCMS.notify.info(value['text']);
@@ -536,16 +540,6 @@ define(function (require) {
 
                 if (autoTime && isFunction(autoFunc)) {
                     window.setTimeout(autoFunc, autoTime);
-                }
-
-                if (iCMS.request.loopId) {
-                    Layer.content(json.message, iCMS.request.loopId);
-                    Layer.btn(btn, true, func);
-                    return;
-                }
-                if (json.data.loop == 'end') {
-                    Layer.close(iCMS.request.loopId);
-                    return;
                 }
                 var opts = $.extend({
                     height: 'auto',
@@ -558,6 +552,66 @@ define(function (require) {
                         }
                     }
                 }, func, { btn });
+
+                if (iCMS.request.loopId) {
+                    // Layer.closeAll();
+                    Layer.content(json.message, iCMS.request.loopId);
+                    console.log({Layer,opts});
+                    /**
+                     * 重新绑定 layer 弹窗的按钮回调（使用新的配置对象）
+                     * @param {number} layerId   弹窗索引（iCMS.request.loopId）
+                     * @param {object} newConfig 新的配置对象，包含 yes, btn1, btn2 等回调函数
+                     */
+                    function rebindLayerBtns(layerId, newConfig) {
+                        var layero = $('#layui-layer' + layerId);
+                        if (!layero.length) return;
+
+                        // 获取所有按钮
+                        var btns = layero.find('.layui-layer-btn').children('a');
+                        if (!btns.length) return;
+
+                        // 解绑原有事件
+                        btns.off('click');
+
+                        // 按原始逻辑重新绑定（与 layer 源码中的处理一致）
+                        btns.on('click', function() {
+                            var index = $(this).index();  // 按钮索引，0 为第一个按钮
+                            if (index === 0) {
+                                // 第一个按钮的处理
+                                if (newConfig.yes) {
+                                    newConfig.yes(layerId, layero);
+                                } else if (newConfig.btn1) {
+                                    newConfig.btn1(layerId, layero);
+                                } else {
+                                    layer.close(layerId);
+                                }
+                            } else {
+                                // 其他按钮的处理：btn2, btn3 ...
+                                var btnKey = 'btn' + (index + 1);
+                                if (newConfig[btnKey]) {
+                                    var close = newConfig[btnKey](layerId, layero);
+                                    if (close !== false) {
+                                        layer.close(layerId);
+                                    }
+                                } else {
+                                    // 若未定义回调，默认关闭弹窗
+                                    layer.close(layerId);
+                                }
+                            }
+                        });
+                    }
+                    rebindLayerBtns(iCMS.request.loopId, opts);
+                    // console.log({Layer,opts});
+                    // iCMS.request.loopId = iCMS.ui.dialog(opts);
+                    // Layer.config(opts);
+                    // Layer.btn(btn, true, func);
+                    return;
+                }
+                if (json.data.loop == 'end') {
+                    Layer.close(iCMS.request.loopId);
+                    return;
+                }
+
                 iCMS.request.loopId = iCMS.ui.dialog(opts);
                 if (json.data.time) {
                     window.setTimeout(function () {

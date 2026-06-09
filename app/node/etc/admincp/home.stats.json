@@ -1,5 +1,6 @@
 {
     "sort":9929,
-    "app": "nodeWidget",
-    "do": "stats"
+    "app": "NodeWidget",
+    "do": "stats",
+    "title": "节点统计"
 }

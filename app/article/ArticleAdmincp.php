@@ -75,6 +75,13 @@ class ArticleAdmincp extends AdmincpCommon
             self::$CONFIG['editor'] = ($editor == 'markdown') ? 'vditor' : $editor;
             $rs['markdown'] = ($editor == 'markdown') ? 1 : 0;
         }
+        if ($rs['creative'] == Article::BODY_JSON_KEY) {
+            self::$CONFIG['editor'] = 'jsoneditor';
+            $rs['markdown'] = 0;
+        }
+        if (empty($this->id) && self::$CONFIG['editor'] == 'jsoneditor') {
+            $rs['creative'] = Article::BODY_JSON_KEY;
+        }
 
         include self::view();
     }
@@ -95,7 +102,8 @@ class ArticleAdmincp extends AdmincpCommon
                     'body'         => $body,
                     'show'         => $key ? false : true,
                     'id'           => random(4),
-                    'display'      => 1
+                    'widget'        => self::$CONFIG['editor'],
+                    'display'       => 1
                 ];
             }
         } else {
@@ -284,7 +292,7 @@ class ArticleAdmincp extends AdmincpCommon
     {
         $id = ArticleModel::create([
             'title' => time(),
-            'stitle'=> time()
+            'stitle' => time()
         ]);
         // ArticleModel::delete($id);
         // ArticleModel::get(4);
@@ -389,6 +397,8 @@ class ArticleAdmincp extends AdmincpCommon
                 $C = (array)$nodeArray[$item['cid']];
                 $iurl = Route::get('article', [$item, $C]);
                 $item['url'] = $iurl->href;
+                $pic = FilesPic::getArray($item['pic']);
+                $item['pic_url'] = $pic['url'];
 
                 // self::actionBtns($item,[]);
                 // var_dump($item['picture']);
@@ -448,7 +458,10 @@ class ArticleAdmincp extends AdmincpCommon
                 empty($mdBody) && $mdBody = $body;
                 $data['description'] = $this->autodesc($mdBody);
             } else {
-                $data['description'] = $this->autodesc($body);
+                if ($data['creative'] == Article::BODY_JSON_KEY) {
+                } else {
+                    $data['description'] = $this->autodesc($body);
+                }
             }
         }
         FilesPic::values($data);
@@ -481,9 +494,10 @@ class ArticleAdmincp extends AdmincpCommon
             ['text' => '返回列表', 'url' => $REFERER_URL],
             ['text' => '网站首页', 'url' => iCMS_URL, 'target' => '_blank']
         ];
+        $id = $data['id'];
         $time = 3000;
         $onClose = ['url' => $REFERER_URL];
-        return ['data' => compact('btn', 'time', 'height', 'onClose')];
+        return ['data' => compact('id', 'btn', 'time', 'height', 'onClose')];
     }
 
     public function deleting($ids = [])
@@ -602,9 +616,11 @@ class ArticleAdmincp extends AdmincpCommon
     public function body($body, $subtitle, $article_id = 0, $id = 0, &$haspic = 0)
     {
         // $body = preg_replace(array('/<script.+?<\/script>/is','/<form.+?<\/form>/is'),'',$body);
+
         Request::post('dellink') && $body = preg_replace("/<a[^>].*?>(.*?)<\/a>/si", '\\1', $body);
         if ($_POST['rs']['markdown']) {
             // $body = Security::escapeStr($body);
+        } elseif ($_POST['rs']['creative'] == Article::BODY_JSON_KEY) {
         } else {
             Request::post('autoformat') && $body = autoformat($body);
             // self::$CONFIG['autoformat'] && $body = autoformat($body);
@@ -613,7 +629,6 @@ class ArticleAdmincp extends AdmincpCommon
         $fields = ArticleDataModel::getFields($id);
         $data = compact($fields);
         !isset($_POST['nofilter']) && iPHP::callback('Filter::run', [&$data, self::$CONFIG['filter']], E_USER_ERROR);
-
         if ($id) {
             ArticleDataModel::update($data, compact('id', 'article_id'));
         } else {
@@ -646,7 +661,7 @@ class ArticleAdmincp extends AdmincpCommon
 
     public static function autodesc($body)
     {
-        $length = Config::get('article.descLen')?:100;
+        $length = Config::get('article.descLen') ?: 100;
         $enable = Config::get('article.autodesc');
         if (!$enable) {
             return;

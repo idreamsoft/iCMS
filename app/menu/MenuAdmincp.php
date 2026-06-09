@@ -14,7 +14,8 @@ class MenuAdmincp extends AdmincpBase
 
     public function do_nav()
     {
-        return ['html' => Menu::buildNav()];
+        // return ['html' => Menu::buildNav()];
+        return ['data' => Menu::$DATA];
     }
     /**
      * 更新缓存

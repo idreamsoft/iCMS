@@ -237,7 +237,7 @@ class SpiderData
             if (strpos($dname, '.') !== false) {
                 $dnameArr = explode('.', $dname);
                 $array = make_multi_array($dname, $content);
-                $responses = array_merge_recursive($responses, $array);
+                $responses = array_replace_recursive($responses, $array);
             } else {
                 /**
                  * 多个name 内容合并

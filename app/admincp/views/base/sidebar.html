@@ -101,8 +101,10 @@
         <!-- Side Navigation -->
         <div class="content-side">
             <ul class="nav-main">
-                <div id="Menu-wrap"><?php echo Menu::buildNav(); ?></div>
-
+                <!-- <div id="Menu-wrap" i="cms:menu:nav"></div> -->
+                <div id="Menu-wrap">
+                    <?php echo Menu::buildNav(); ?>
+                </div>
                 <li class="nav-main-heading"></li>
                 <li class="nav-main-item open force_open">
                     <a class="nav-main-link nav-main-link-submenu" data-toggle="submenu" aria-haspopup="true" aria-expanded="true" href="javascript:;">

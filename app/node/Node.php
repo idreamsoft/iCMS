@@ -249,14 +249,20 @@ class Node
             }
         }
     }
-
+    /**
+     * Config::get('node.domain')
+     * 节点域名配置
+     *
+     * @param [type] $domain
+     * @return void
+     */
     public static function config($domain = null)
     {
         if (empty($domain)) {
             $result = NodeModel::field('id,domain')
                 ->where([
                     'domain' => ['<>', ''],
-                    'status' => '1'
+                    'status' => ['1','2']
                 ])->select();
             foreach ((array) $result as $C) {
                 $domain[$C['domain']] = $C['id'];

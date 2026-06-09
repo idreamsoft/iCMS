@@ -61,6 +61,7 @@ class NodeCache
     {
         self::common_hidden();
         self::common_array();
+        self::common_pages();
         self::common_domain();
         self::common_rule();
     }
@@ -93,7 +94,18 @@ class NodeCache
         unset($result, $arr1, $arr2, $arr3);
         gc_collect_cycles();
     }
-
+    protected static function common_pages()
+    {
+        $result = NodeModel::field('id,dir')
+            ->where('rule', 'like', '%{PAGES}%')
+            ->select();
+        $pages = [];
+        foreach ((array) $result as $C) {
+            $pages[$C['dir']] = $C['id'];
+        }
+        self::set('pages', $pages);
+        gc_collect_cycles();
+    }
     /**
      * cache_domain 要在 cache_rootid 之后执行
      * 缓存节点绑定域名,用于iURL回调函数

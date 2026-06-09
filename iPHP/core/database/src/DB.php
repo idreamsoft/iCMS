@@ -11,13 +11,16 @@
 
 class DB
 {
-    private static $handle;
+    private static $handle = [];
     private static $config = [];
     private static $debug = [
         'log'     => false,
         'trace'   => false,
         'explain' => false,
     ];
+    private static $connectionTimeout = 3600; // 连接超时时间（秒）
+    private static $maxConnections = 10; // 最大连接数
+    private static $connectionTimestamps = []; // 连接创建时间戳
 
     // public static $lastId;
     // public static $rowCount; //返回DELETE、 INSERT、或 UPDATE 语句受影响的行数。
@@ -64,8 +67,25 @@ class DB
         // 为每个连接名创建唯一的缓存键
         $cacheKey = $name ?: 'default';
         
+        // 检查连接是否过期
+        if (isset(self::$handle[$cacheKey])) {
+            $timestamp = isset(self::$connectionTimestamps[$cacheKey]) ? self::$connectionTimestamps[$cacheKey]: 0;
+            if (time() - $timestamp > self::$connectionTimeout) {
+                self::purgeConnection($cacheKey);
+            }
+        }
+        
+        // 检查最大连接数
+        if (empty(self::$handle[$cacheKey]) && count(self::$handle) >= self::$maxConnections) {
+            // 清理最旧的连接
+            asort(self::$connectionTimestamps);
+            $oldestKey = key(self::$connectionTimestamps);
+            self::purgeConnection($oldestKey);
+        }
+        
         if (empty(self::$handle[$cacheKey])) {
             self::$handle[$cacheKey] = Manager::getInstance()->connect($name);
+            self::$connectionTimestamps[$cacheKey] = time();
         }
         
         self::$handle[$cacheKey]->loggingQueryLog = self::$debug['log'];
@@ -118,10 +138,51 @@ class DB
     {
         if ($name === null) {
             self::$handle = [];
+            self::$connectionTimestamps = [];
         } else {
             $cacheKey = $name ?: 'default';
             unset(self::$handle[$cacheKey]);
+            unset(self::$connectionTimestamps[$cacheKey]);
         }
+    }
+    
+    /**
+     * 清理过期连接（在请求结束时调用）
+     *
+     * @return void
+     */
+    public static function cleanup()
+    {
+        $now = time();
+        foreach (self::$connectionTimestamps as $key => $timestamp) {
+            if ($now - $timestamp > self::$connectionTimeout) {
+                self::purgeConnection($key);
+            }
+        }
+    }
+
+    /**
+     * 创建独立的数据库连接（不影响全局配置）
+     *
+     * @param  array  $config 数据库配置
+     * @param  string  $name 连接名称（可选）
+     * @return Connection
+     * 
+     * @example
+     * $conn = DB::createConnection([
+     *     'driver' => 'mysql',
+     *     'host' => 'localhost',
+     *     'database' => 'test_db',
+     *     'username' => 'root',
+     *     'password' => 'password',
+     *     'charset' => 'utf8mb4',
+     *     'prefix' => 'test_',
+     * ]);
+     * $users = $conn->table('users')->select();
+     */
+    public static function createConnection(array $config, $name = null)
+    {
+        return Manager::getInstance()->createConnection($config, $name);
     }
 
     public static function debug($flag = 1)

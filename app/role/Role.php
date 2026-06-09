@@ -31,7 +31,16 @@ class Role
     public static function access($id)
     {
     }
-
+    public static function adminKeys($keys)
+    {
+        $rows = RoleModel::where([
+            'status' => 1,
+            'type' => Role::ADMIN,
+            'key' => $keys
+        ])->select();
+        
+        return array_column($rows, 'key', 'id');
+    }
     public static function data($type = null, $id = null)
     {
         $type !== null && $where['type'] = $type;

@@ -1,178 +1,68 @@
 define(['ui'], function (UI) {
-    const editor = {
-        // 默认编辑器ID
-        editorId: "editor",
-        // 编辑器实例
-        instance: null,
-        // 编辑器配置
-        config: null,
+    "use strict";
 
-        /**
-         * 获取编辑器内容
-         * @returns {string} 编辑器内容
-         */
-        getContent() {
-            return this.instance ? this.instance.getContent() : '';
-        },
-
-        /**
-         * 设置编辑器内容
-         * @param {string} content - 要设置的内容
-         * @param {boolean} [flag=false] - 是否追加内容（默认false，即写入内容,true为追加内容）
-         */
-        setContent(content, flag = false) {
-            if (this.instance && typeof this.instance.setContent === 'function') {
-                try {
-                    this.instance.setContent(content, flag);
-                } catch (e) {
-                    console.error(`[editor] 内容设置失败:`, e);
-                }
-            }
-        },
-
-        /**
-         * 检查编辑器是否有内容
-         * @returns {boolean} 是否有内容
-         */
-        hasContents() {
-            return this.instance ? this.instance.hasContents() : false;
-        },
-
-        /**
-         * 获取编辑器实例
-         * @returns {Object|null} 编辑器实例
-         */
-        get() {
-            return this.instance;
-        },
-
-        /**
-         * 创建编辑器实例
-         * @param {Object} config - 编辑器配置
-         * @returns {Object} 编辑器实例
-         */
-        create(eid, config = {}) {
-            this.editorId = eid || 'editor';
+    // 编辑器包装类
+    class UEditor {
+        constructor(id, config) {
+            this.id = id;
             this.config = config;
-            // 先销毁已存在的编辑器
-            if (this.instance) {
-                this.destroy();
-            }
-
-            try {
-                UE.delEditor(this.editorId);
-                this.instance = UE.getEditor(this.editorId, config);
-                return this.instance;
-            } catch (error) {
-                console.error(`创建编辑器失败:`, error);
-                return null;
-            }
-        },
-
-        /**
-         * 销毁编辑器实例
-         */
-        destroy() {
-            if (this.instance) {
-                setTimeout(() => {
-                    try {
-                        UE.delEditor(this.editorId);
-                        this.instance = null;
-                        // this.config = null;
-                        // this.editorId = null;
-                    } catch (error) {
-                        console.error('销毁编辑器失败:', error);
-                    }
-                }, 200);
-            }
-        },
-
-        /**
-         * 执行编辑器命令
-         * @param {string} cmd - 命令名称
-         */
-        execCommand(cmd) {
-            if (this.instance) {
-                this.instance.execCommand(cmd);
-                this.instance.focus();
-            } else {
-                console.warn('编辑器实例不存在，无法执行命令');
-            }
-        },
-
-        /**
-         * 插入分页符
-         */
-        insPageBreak() {
-            if (this.instance) {
-                this.instance.execCommand('pagebreak');
-                this.instance.focus();
-            } else {
-                console.warn('编辑器实例不存在，无法插入分页符');
-            }
-        },
-
-        /**
-         * 删除分页符
-         */
-        delPageBreak() {
-            if (this.instance) {
-                let html = this.instance.getContent();
-                html = html.replace(/#--iCMS\.PageBreak--#/g, '');
-                this.instance.setContent(html);
-                this.instance.focus();
-            } else {
-                console.warn('编辑器实例不存在，无法删除分页符');
-            }
-        },
-
-        /**
-         * 清理编辑器内容格式
-         */
-        cleanup() {
-            if (!this.instance) {
-                iCMS.ui.alert("没找到可用编辑器");
-                return;
-            }
-
-            try {
-                const html = this.instance.getContent();
-                const formattedHtml = typeof format === 'function' ? format(html) : html;
-                this.instance.setContent(formattedHtml);
-                this.instance.focus();
-            } catch (error) {
-                console.error('清理编辑器内容失败:', error);
-                iCMS.ui.alert("清理编辑器内容失败");
-            }
-        },
-
-        /**
-         * 获取编辑器实例
-         * @returns {Object|null} 编辑器实例
-         */
-        getInstance() {
-            return this.instance;
-        },
-
-        /**
-         * 获取编辑器配置
-         * @returns {Object|null} 编辑器配置
-         */
-        getConfig() {
-            return this.config;
-        },
-
-        /**
-         * 销毁编辑器实例
-         */
-        destroyAll() {
-            this.destroy();
+            this.instance = null;
+            this._create();
         }
-    };
 
-    return function ($el, boot, callback) {
+        _create() {
+            try {
+                UE.delEditor(this.id);
+                this.instance = UE.getEditor(this.id, this.config);
+            } catch (e) {
+                console.error('[UEditor] 创建失败:', e);
+            }
+        }
+
+        _exec(fn) {
+            if (!this.instance) return null;
+            const result = fn(this.instance);
+            this.instance.focus();
+            return result;
+        }
+
+        getContent() { return this.instance?.getContent() ?? ''; }
+        setContent(content, flag = false) { this.instance?.setContent(content, flag); }
+        hasContents() { return this.instance?.hasContents() ?? false; }
+        execCommand(cmd) { this._exec(inst => inst.execCommand(cmd)); }
+
+        insPageBreak() { this._exec(inst => inst.execCommand('pagebreak')); }
+
+        delPageBreak() {
+            this._exec(inst => {
+                const html = inst.getContent().replace(/#--iCMS\.PageBreak--#/g, '');
+                inst.setContent(html);
+            });
+        }
+
+        cleanup() {
+            this._exec(inst => {
+                const html = inst.getContent();
+                inst.setContent(typeof format === 'function' ? format(html) : html);
+            });
+        }
+
+        destroy() {
+            if (!this.instance) return;
+            setTimeout(() => {
+                try { UE.delEditor(this.id); } catch (e) {}
+                this.instance = null;
+            }, 200);
+        }
+    }
+
+    // require 路径配置（只需配置一次）
+    let configured = false;
+    function ensureConfig() {
+        if (configured) return;
+        configured = true;
         require.config({
-            "paths": {
+            paths: {
                 "ueditor.admincp": iCMS.url('editor/assets/ueditor/admincp/init', false),
                 "ueditor.usercp": iCMS.url('editor/assets/ueditor/usercp/init', false),
                 "ueditor.simple": iCMS.url('editor/assets/ueditor/simple/init', false),
@@ -180,34 +70,37 @@ define(['ui'], function (UI) {
                 "ueditor": "/assets/libs/editor/ueditor/dist/ueditor.all.min"
             }
         });
+    }
 
-        const configKey = "ueditor." + boot;
+    // 事件绑定（只需绑定一次）
+    let bindEvents = false;
+    function bindEditorEvents() {
+        if (bindEvents) return;
+        bindEvents = true;
+        UI.on('click', '.js-editor-insPB', () => window.iEditor?.get(getActiveEditorId())?.insPageBreak());
+        UI.on('click', '.js-editor-delPB', () => window.iEditor?.get(getActiveEditorId())?.delPageBreak());
+        UI.on('click', '.js-editor-cleanup', () => window.iEditor?.get(getActiveEditorId())?.cleanup());
+    }
 
-        require(['ZeroClipboard', configKey, 'ueditor'], function (ZeroClipboard, config) {
-            window['ZeroClipboard'] = ZeroClipboard;
-            let id = $el.attr("id");
-            if (!id) {
-                id = 'editor_' + Math.random().toString(36).slice(2, 11);
-                $el.attr('id', id);
-            }
-            if (id) {
-                const newEd = Object.assign({}, editor);
-                newEd.create(id, config);
-                $el.data("editor", newEd.instance);
-                UI.on('click', '.js-editor-insPB', function () {
-                    newEd.insPageBreak();
-                });
-                UI.on('click', '.js-editor-delPB', function () {
-                    newEd.delPageBreak();
-                });
-                UI.on('click', '.js-editor-merge', function () {
-                    // editor.cleanup();
-                });
-                UI.on('click', '.js-editor-cleanup', function () {
-                    newEd.cleanup();
-                });
-                callback(id, newEd);
-            }
+    function getActiveEditorId() {
+        return window.iEditor?.ids?.[0];
+    }
+
+    // 引导函数
+    return function ($el, boot, callback) {
+        ensureConfig();
+
+        const id = $el.attr('id') || 'editor_' + Math.random().toString(36).slice(2, 11);
+        $el.attr('id', id);
+
+        require(['ZeroClipboard', 'ueditor.' + boot, 'ueditor'], (ZeroClipboard, config) => {
+            window.ZeroClipboard = ZeroClipboard;
+
+            const editor = new UEditor(id, config);
+            $el.data('editor', editor.instance);
+
+            bindEditorEvents();
+            callback(id, editor);
         });
     };
 });

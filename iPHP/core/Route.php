@@ -644,6 +644,9 @@ class Route
             'AUTHCID' => function ($a, $node, $_node, $time) {
                 return rawurlencode(auth_encode($node['id'], $time ?: 0));
             },
+            'PAGES' => function ($a, $node, $_node) {
+                return $node['dir'];
+            },
             'CDIR' => function ($a, $node, $_node) {
                 return $node['dir'];
             },

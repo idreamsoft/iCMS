@@ -40,6 +40,9 @@ class Security
     public static function csrf_check($value = 0, $key = null)
     {
         $token = Request::param('CSRF_TOKEN');
+        if (!$token) {
+            $token = Request::header('HTTP_X_CSRF_TOKEN');
+        }
         if ($token) {
             $md5 = self::makeHash(iPHP_KEY, $key);
             $time = time();

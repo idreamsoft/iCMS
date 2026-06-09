@@ -65,7 +65,7 @@ class ArticleFunc extends AppsFuncCommon implements AppsFuncInterface
     public static function data($vars)
     {
         $where  = array();
-        $article_id = $vars['aid'] ?: $vars['article_id'];
+        $article_id = $vars['id'] ?: $vars['aid'] ?: $vars['article_id'];
         $article_id or self::msg(['func_param', ['iCMS:article:data', 'aid']]);
 
         $model = ArticleDataModel::sharding($article_id);

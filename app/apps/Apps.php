@@ -69,7 +69,6 @@ class Apps
             // 删除应用
             file_exists($appdir) && File::rmdir($appdir);
         }
-
         //最后 删除表
         self::dropTable($app['table']);
     }
@@ -85,7 +84,7 @@ class Apps
     {
         if ($table) {
             foreach ((array) $table as $key => $value) {
-                $value['table'] && DB::table($value['table'])->drop();
+                $value['name'] && DB::table($value['name'])->drop();
             }
         }
     }

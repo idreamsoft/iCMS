@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="<!--{$site.lang|default:'zh-CN'}-->">
+
+<head>
+    <title>
+        <!--{$node.title?$node.title.'_':''}-->
+        <!--{$node.name}-->_
+        <!--{$site.title}-->
+    </title>
+    <meta name="keywords" content="<!--{$node.keywords}-->" />
+    <meta name="description" content="<!--{$node.description}-->" />
+    <!--{iCMS:public:ui}-->
+    <style>
+        .block-pic{
+            max-height: 300px;
+            overflow: hidden;
+        }
+        .block-pic img{
+            max-height: 300px;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="page-container">
+        <main id="main-container">
+            <!--{include file="./widget/top.htm"}-->
+            <!--{include file="./widget/nav.htm"}-->
+
+            <!-- Page Content -->
+            <div class="content content-boxed">
+                <div class="row">
+                    <!-- 主内容区 -->
+                    <div class="col-12">
+                        <div class="block block-rounded">
+                            <!-- 面包屑导航 -->
+                            <div class="block-header block-header-default">
+                                <h3 class="block-title">
+                                    <nav aria-label="breadcrumb">
+                                        <ol class="breadcrumb breadcrumb-alt mb-0">
+                                            <li class="breadcrumb-item">
+                                                <a href="<!--{$site.url}-->">首页</a>
+                                            </li>
+                                            <!--{foreach value="breadcrumb" from="$node.navArray"}-->
+                                            <li class="breadcrumb-item">
+                                                <a href="<!--{$breadcrumb.url}-->"><!--{$breadcrumb.name}--></a>
+                                            </li>
+                                            <!--{/foreach}-->
+                                            <li class="breadcrumb-item active" aria-current="page">
+                                                <!--{$node.name}-->
+                                            </li>
+                                        </ol>
+                                    </nav>
+                                </h3>
+                            </div>
+
+                                <!-- 封面图片 -->
+                            <!--{if $node.pic.url}-->
+                            <div class="block-pic">
+                                <img src="<!--{$node.pic.url}-->" alt="<!--{$node.name}-->" class="w-full img-fluid">
+                            </div>
+                            <!--{/if}-->
+                            <!-- 页面标题 -->
+                            <div class="block-content bg-body-light py-4">
+                                <h1 class="h2 fw-bold mb-2"><!--{$node.title?$node.title:$node.name}--></h1>
+                                <!--{if $node.description}-->
+                                <p class="text-muted mb-0"><!--{$node.description}--></p>
+                                <!--{/if}-->
+                            </div>
+
+
+                            <!-- 页面正文内容 -->
+                            <div class="block-content block-content-full">
+                                <div class="page-content">
+                                    <!--{$node.METADATA.data.content.value}-->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- END Page Content -->
+
+            <!--{include file="./widget/footer.htm"}-->
+        </main>
+    </div>
+</body>
+
+</html>

@@ -43,7 +43,7 @@ class ModelEntity
     // 魔术方法：获取属性
     public function __get($name)
     {
-        return $this->attributes[$name] ?? null;
+        return isset($this->attributes[$name]) ?$this->attributes[$name]: null;
     }
 
     // 魔术方法：设置属性

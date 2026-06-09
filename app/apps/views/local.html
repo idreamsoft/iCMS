@@ -1,0 +1,33 @@
+<?php self::head();?>
+
+<div class="content" id="{{APP_MAINID}}">
+    <div class="block">
+        <div class="block-content block-content-full">
+            <div class="alert alert-info mb-3">
+                <i class="fa fa-info-circle"></i> 请将应用安装包上传到 <code><?php echo iPHP_APP_CACHE . '/pkg/'; ?></code> 目录
+            </div>
+            <table class="table table-hover">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>应用包</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($pkgs as $pkg) { ?>
+                    <tr>
+                        <td><?php echo $pkg; ?></td>
+                        <td>
+                            <button class="btn btn-success install_app" type="button" data-zipfile="<?php echo $pkg; ?>">
+                                <i class="fa fa-fw fa-download"></i>
+                                安装
+                            </button>
+                        </td>
+                    </tr>
+                    <?php } ?>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<?php self::foot();?>

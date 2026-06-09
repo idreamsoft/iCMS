@@ -1,13 +1,31 @@
 define(["admincp", "vue", "metadata"], function (admincp, Vue, meta) {
     //cms:config:vTemplate
     return function ({ $el, el }) {
-        const item = { name: "", ua: "", domain: "", tpl: "", index: "{iTPL}/index.htm" };
+        const itemStruct = {
+            enable_site: false, // 添加开关字段，控制是否启用单独的站点设置
+            site: {
+                name: '',
+                seotitle: '',
+                keywords: '',
+                description: ''
+            },
+            title: '',
+            name: '',
+            lang: '',
+            agent: '',
+            mobile: false,
+            domain: '',
+            tpl: '',
+            index: "{iTPL}/index.htm",
+            dir: '',
+            file: ''
+        };
         var $wrap = $el;
         new Vue({
             el,
             data: {
                 url: 'config/devices',
-                eitem: {},
+                item: $.extend({}, itemStruct), // 初始化  为完整的 item 对象
                 items: [],
                 saveTimer: null
             },
@@ -19,19 +37,19 @@ define(["admincp", "vue", "metadata"], function (admincp, Vue, meta) {
                         title: '编辑',
                         content: box,
                         yes: function (idx, dom) {
-                            let data = $('input', box).serializeJSON();
+                            let data = $('input,textarea', box).serializeJSON();
                             iCMS.api.post(that.url, { i: data['i'], index });
                             that.load();
                         }
                     });
                 },
-                edit: function (item, index) {
-                    this.eitem = item;
+                edit: function (data, index) {
+                    this.item = $.extend({}, itemStruct, data);
                     this.dialog(index);
                 },
                 add: function (e) {
                     // this.devices.push(item);
-                    this.eitem = $.extend({}, item);
+                    this.item = $.extend({}, itemStruct);
                     this.dialog();
                 },
                 save: function () {
@@ -63,7 +81,7 @@ define(["admincp", "vue", "metadata"], function (admincp, Vue, meta) {
                         that.show();
                     });
                     if (isEmpty(this.items)) {
-                        this.items = [item];
+                        this.items = [itemStruct];
                     }
                 }
             },

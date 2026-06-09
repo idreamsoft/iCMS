@@ -28,6 +28,7 @@
     "user/login/google": "app=user&do=login&sign=google",
     "user/login/github": "app=user&do=login&sign=github",
     "user/login/qrcode": "app=user&do=login&sign=qrcode",
+    "user/login/silent": "app=user&do=login&sign=silent",
     "user/findpwd": "app=user&do=findpwd",
     "{userid}": "app=user&do=home&userid={userid}",
     "{userid}/home": "app=user&do=home&userid={userid}",

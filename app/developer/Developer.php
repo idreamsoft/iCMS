@@ -58,7 +58,7 @@ class Developer
 
     public static function getConfig()
     {
-        return Config::vget(self::CONFIG_NAME);
+        return Config::vget(self::CONFIG_NAME)?:[];
     }
 
     public static function param($args = null)

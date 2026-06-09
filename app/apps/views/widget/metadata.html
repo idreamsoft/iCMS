@@ -17,7 +17,7 @@
         <input type="hidden" name="metadata_appid" value="<?php echo $appid;?>">
         <input type="hidden" name="metadata_id" value="<?php echo $id;?>">
         <input type="hidden" name="metadata_mode" :value="mode?1:0">
-        <table class="table text-nowrap table-hover table-striped table-vcenter">
+        <table class="table table-hover table-striped table-vcenter">
             <tbody>
                 <tr v-for="(item, index) in items" :key="'item-'+index">
                     <td>
@@ -28,20 +28,21 @@
                             <input class="form-control" :name="'metadata['+index+']['+k+'][name]'" type="hidden" v-model="v.name" />
                             <input :name="'metadata['+index+']['+k+'][ui]'" type="hidden" v-model="v.ui" />
                             <input :name="'metadata['+index+']['+k+'][attr]'" type="hidden" :value="JSON.stringify(v.attr)" />
-                           
-                            <textarea v-if="v.ui=='cms:ui:editor'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
-                            data-widget="ueditor"
-                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" >{{v.value}}</textarea>
-                            <textarea v-else-if="v.ui=='cms:ui:markdown'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
-                            data-widget="vditor"
-                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" >{{v.value}}</textarea>
-                            <input v-else-if="v.ui=='cms:ui:file:btns'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
-                            data-upload="true" 
-                            data-browse="true" 
-                            data-preview="true"
-                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" />
-                            <input v-else class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
-                            :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" />
+                            <div>
+                                <textarea v-if="v.ui=='cms:ui:editor'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                                data-widget="ueditor"
+                                :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" >{{v.value}}</textarea>
+                                <textarea v-else-if="v.ui=='cms:ui:markdown'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                                data-widget="vditor"
+                                :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" >{{v.value}}</textarea>
+                                <input v-else-if="v.ui=='cms:ui:file:btns'" class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                                data-upload="true" 
+                                data-browse="true" 
+                                data-preview="true"
+                                :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" />
+                                <input v-else class="form-control"  :id="`mdk-${index}-${k}`" :i="v.ui"
+                                :name="'metadata['+index+']['+k+'][value]'" type="text" v-model="v.value" />
+                            </div>
                         </div>
                         <button @click="delMeta(index)" class="btn btn-sm btn-alt-secondary" type="button">
                             <i @click.stop="delMeta(index)" class="fa fa-fw fa-trash-can"></i>

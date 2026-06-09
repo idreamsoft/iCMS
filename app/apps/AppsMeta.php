@@ -191,7 +191,7 @@ class AppsMeta extends Model
         if($data['metadata']){
             $data['metadata'] = array_map(function($items){
                 $items = array_map(function($item){
-                    if($item['ui']=='cms:ui:editor'){
+                    if($item['ui'] && $item['ui']=='cms:ui:editor'){
                         $item['value'] = htmlspecialchars_decode($item['value']);
                     }
                     return $item;

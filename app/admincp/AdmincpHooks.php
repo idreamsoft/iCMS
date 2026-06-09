@@ -29,7 +29,7 @@ class AdmincpHooks
         //站点设置
         Config::setSiteId(1);
         //检验CSRF
-        AdmincpAuth::security($admin['userid']);
+        AdmincpAuth::security($admin['id']);
     }
 
     public static function language()
@@ -41,8 +41,8 @@ class AdmincpHooks
         ADMINCP::$LANGUAGE = 'zh';
         Lang::init(ADMINCP::$LANGUAGE);
         //{*}/etc/lang/zh.admincp*.json
-        Lang::load('*','admincp');
-         //{$app}/etc/lang/zh.admincp*.json
+        Lang::load('*', 'admincp');
+        //{$app}/etc/lang/zh.admincp*.json
         Lang::load(Admincp::$APP);
     }
 
@@ -51,25 +51,55 @@ class AdmincpHooks
      */
     public static function onPermission()
     {
-        //无需登录的方法,同时也就不需要鉴权了
-        $doc = Helper::getDocComment(Admincp::$APP_CLASS, Admincp::$APP_METHOD);
-        if (!($doc && $doc['login'] === false)) {
+        // 读取类注释与方法注释：
+        // 1. 类级注释可作为统一兜底权限（减少每个接口重复声明）
+        // 2. 方法级注释优先级更高，可覆盖类级配置
+        $classDoc = (array)Helper::getDocComment(Admincp::$APP_CLASS);
+        $methodDoc = (array)Helper::getDocComment(Admincp::$APP_CLASS, Admincp::$APP_METHOD);
+        $doc = array_merge_recursive($classDoc, $methodDoc);
+
+        // 无需登录的方法（login = false）直接跳过所有鉴权
+        $requireLogin = !($doc && $doc['login'] === false);
+        if ($requireLogin) {
             //检测是否登录
-            Admin::auth();
+            // 1. 必须登录
+            Admin::isLogin(true);
+            // 2. 角色验证
             //判断需要验证角色权限
             if (isset($doc['role'])) {
                 AdmincpAuth::checkRole($doc['role']);
             }
+
+            // 标记是否已完成权限标识鉴权：
+            // 若已通过 permission 鉴权，则无需再做 URI 精确鉴权，
+            // 解决一个页面多个接口都要逐条配置 URI 的维护问题。
+            $permissionChecked = false;
+
+            // 3. 权限验证
+            if (isset($doc['permission'])) {
+                AdmincpAuth::checkPermission($doc['permission']);
+                $permissionChecked = true;
+            }
+
             //判断是否需要验证权限
             //无需鉴权的方法,但需要登录
             AdmincpAuth::init();
-            if ($doc['auth'] !== false) {
+
+            // 4. URI权限验证（默认需要，除非 auth = false）
+            $needUriAuth = (!isset($doc['auth']) || $doc['auth'] !== false);
+            if ($permissionChecked) {
+                $needUriAuth = false;
+            }
+
+            if ($needUriAuth) {
                 AdmincpAuth::checkUri(APP_DOURL);
                 // 判断控制器和方法是否有对应权限
             }
         }
         Admincp::$DATA['access'] = true;
+        //@run true|false //是否运行
         isset($doc['run']) && Admincp::$METHOD_RUN = $doc['run'];
+        //@befor TestDoc::befor //运行前运行
         // isset($doc['befor']) && Admincp::$METHOD_BEFOR = $doc['befor'];
         // isset($doc['after']) && Admincp::$METHOD_AFTER = $doc['after'];
     }

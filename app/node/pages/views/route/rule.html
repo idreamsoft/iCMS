@@ -1,0 +1,24 @@
+<div class="row">
+    <div class="input-group input-group-sm">
+        <div class="input-group-text"><?=Lang('Rule')?></div>
+        <input type="text" name="<?php echo $s['rule_name']; ?>[<?php echo $key; ?>]" class="form-control" id="<?php echo short_md5($route_id); ?>" value="<?php echo isset($rs['rule'][$key]) ? $rs['rule'][$key] : $value['rule']; ?>" />
+        <button type="button" class="btn btn-alt-primary dropdown-toggle no-after" data-bs-toggle="dropdown" tabindex="-1"><i class="fa fa-fw fa-search"></i> <?=Lang('Select')?></button>
+        <ul class="dropdown-menu">
+            <?php if ($this->RULE) foreach ($this->RULE as $rkey => $rule) { ?>
+                <?php if (is_array($rule)) { ?>
+                    <li class="dropdown-submenu">
+                        <a href="#" class="dropdown-item dropdown-toggle" data-bs-toggle="dropdown"><?=Lang('admincp:node:rule:submenu:'.$rkey); ?></a>
+                        <ul class="dropdown-menu">
+                            <?php foreach ($rule as $rk => $rv) { ?>
+                                <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="<?php echo $rk; ?>" data-target="#<?php echo short_md5($route_id); ?>"><span class="badge bg-dark"><?php echo $rk; ?></span> <?=Lang($rv)?></a></li>
+                            <?php } ?>
+                        </ul>
+                    </li>
+                <?php } else { ?>
+                    <li><a class="dropdown-item" href="#" i="cms:ui:insert" data-insert="<?php echo $rkey; ?>" data-target="#<?php echo short_md5($route_id); ?>"><span class="badge bg-dark"><?php echo $rkey; ?></span> <?=Lang($rule)?></a></li>
+                <?php } ?>
+            <?php } ?>
+        </ul>
+    </div>
+    <small class="form-text text-muted"><?=Lang('admincp:node:route:rule_tip')?><span class="badge bg-info"><?php echo str_replace(',', '</span> <span class="badge bg-info">', $value['tips']); ?></span><?=Lang('admincp:node:route:rule_tip2')?></small>
+</div>

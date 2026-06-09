@@ -101,6 +101,11 @@ class Connection
     protected static $queryTime = 0;
 
     protected $statement;
+    
+    /**
+     * @var array 预处理语句缓存
+     */
+    protected $statementCache = [];
 
     /**
      * Create a new database connection instance.
@@ -267,8 +272,15 @@ class Connection
         $this->makeQueryLog($query, $params);
         is_null($pdo) && $pdo = $this->getPdoForSelect();
         is_null($option) && $option = [PDO::ATTR_CURSOR => PDO::CURSOR_FWDONLY];
-        $this->statement = $pdo->prepare($query, $option);
-        $this->prepared($this->statement);
+        
+        // 使用预处理语句缓存
+        $cacheKey = md5($query . serialize($option));
+        if (!isset($this->statementCache[$cacheKey])) {
+            $this->statementCache[$cacheKey] = $pdo->prepare($query, $option);
+            $this->prepared($this->statementCache[$cacheKey]);
+        }
+        
+        $this->statement = $this->statementCache[$cacheKey];
         $this->statement->execute($params);
         static::$queryNum++;
         return $this->statement;

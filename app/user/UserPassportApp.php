@@ -17,6 +17,7 @@ class UserPassportApp
 
     public static $apiList = ['login', 'loginQr', 'logout', 'register', 'findpwd', 'wxOpenid', 'activate'];
     public $methods = [];
+    public static $AUTO_NAME = '微信用户';
 
     public function __construct()
     {
@@ -307,6 +308,11 @@ class UserPassportApp
                 if ($sign == 'qrcode' && User::$config['qrcode']['enable']) {
                     return $this->loginQrcode();
                 }
+                if ($sign == 'silent') {
+                    return $this->silentLogin2();
+                    // exit;
+                    // return $this->loginQrcode();
+                }
             }
             $name = 'login';
         }
@@ -314,7 +320,7 @@ class UserPassportApp
         View::display($path);
     }
 
-    public function getLoginQrKey($state)
+    public static function getLoginQrKey($state)
     {
         return self::LOGIN_QRCODE_KEY . '/' . $state;
     }
@@ -382,7 +388,7 @@ class UserPassportApp
     public function loginQrcode()
     {
         if ($social = UserOauth::getInstance('qrcode')) {
-            $social->getOpenid();
+            $social->getOpenid();//生成图片
             $this->openid($social);
         }
     }
@@ -400,31 +406,57 @@ class UserPassportApp
             $this->openid($social);
         }
     }
+    public function forward($state,$params=null){
+        $key = $state.'_forward';
+        $forward = Cache::get($key);
+        if($forward){
+            Cache::delete($key);
+            if(strpos($forward,'::')!==false){
+                $forward = iPHP::callback($forward,$params);
+                if(is_null($forward)){
+                    return;
+                }
+            }
+            // testHook::app_user_openid_forward
+            // Application::hooks('user', 'forward','openid',[&$forward,$state,$params]);
 
+            if($forward=='close'){
+                list($info,$user,$social) = $params;
+                $package = $social->getSignPackage();
+                View::assign('wxJsApiConfig', json_encode($package));
+                View::assign('social', $info);
+                View::display('iCMS://weixin.close.htm');
+                exit;
+            }
+            if(Request::isUrl($forward)){
+                Utils::jumpto($forward);
+            }
+        }
+        Utils::jumpto(UserUtils::$forward);
+    }
     public function openid($social)
     {
         $state = Request::sget('state', '');
         $bind = Request::sget('bind');
 
         if (empty($social->openid)) {
+            AppsBase::alert('OpenID not obtained');
             return;
-            // AppsBase::alert('OpenID not obtained');
             // return Utils::jumpto(UserUtils::$forward);
         }
-
         $userid = UserOpenid::userid($social->openid, $social->name);
         $info = [
             'openid'        => $social->openid,
             'account'       => short_md5($social->openid . $social->appid),
             'appid'         => $social->appid,
             'QRCODE_KEY'    => '',
+            'state'         => $state,
             'platform'      => $social->name
         ];
 
         if (stripos($state, self::LOGIN_QRCODE_KEY) !== false) {
             $info['QRCODE_KEY'] = self::getLoginQrKey($state);
         }
-
         if ($userid) {
             $user = User::get($userid, false);
             if ($info['QRCODE_KEY']) {
@@ -432,11 +464,36 @@ class UserPassportApp
             }
             User::setCookie($user);
             $social->clean();
-            Utils::jumpto(UserUtils::$forward);
+            return $this->forward($state,[$info,$user,$social]);
         } else {
             View::assign('oauth', Crypt::encrypt($info));
             View::assign('social', $info);
             View::assign('query', compact(['sign', 'code', 'state', 'bind']));
+            $autoRegister = false;
+            if($bind=='qr' && User::$config['login']['qrcode_auto_register']){
+                $autoRegister = true;
+            }
+            // testHook::app_user_openid_register
+            Application::hooks('user', 'register','openid',[&$autoRegister,$state,[$info,$social]]);
+
+            if($autoRegister){
+                $data = [
+                    'email'    => sprintf('%s@%s.wxa', $social->openid, $social->appid),
+                    'account'  => sprintf('%s@%s', $social->openid, $social->appid),
+                    'nickname' => self::$AUTO_NAME . date('Ymd') . random(4),
+                    'password' => $social->openid,
+                    'type'     => UserOpenid::TYPE_WXA,
+                    'oauth'    => $info,
+                ];
+                $user = self::register($data);
+                if ($info['QRCODE_KEY']) {
+                    self::setLoginQrData($info['QRCODE_KEY'], $user);
+                }
+                User::setCookie($user);
+                $social->clean();
+                UserUtils::$forward = User::route('url');
+                return $this->forward($state,[$info,$user,$social]);
+            }
 
             if (isset($bind)) {
                 $social->clean();
@@ -493,8 +550,9 @@ class UserPassportApp
         User::check($account, 'account') && AppsBase::alert('user:account:exist');
 
         $data['id'] = UserModel::create($data, true);
-        if ($oauth = $data['oauth']) {
-            $oauth = Crypt::decrypt($oauth);
+        if ($data['oauth']) {
+            $oauth = $data['oauth'];
+            $oauth = is_array($oauth)? $oauth : Crypt::decrypt($oauth);
             if (is_array($oauth) && $oauth['openid']) {
                 UserOpenid::save($data['id'], $oauth['openid'], $oauth['platform'], $oauth['appid']);
                 UserModel::update([
@@ -546,7 +604,7 @@ class UserPassportApp
             } else {
                 self::setLoginTimes($account, $loginTimes);
                 //密码登录方式 登录失败
-                throw new sException('user:login:forbidden');
+                AppsBase::alert('user:login:forbidden');
             }
         }
         self::setLoginTimes($account, null);
@@ -566,7 +624,7 @@ class UserPassportApp
             if ($interval < User::$config[$type]['interval']) {
                 $msg = format_time(User::$config[$type]['interval'] - $interval, 'cn');
                 $msg = Lang::get('user:' . $type . ':interval', [$msg]);
-                throw new sException($msg);
+                AppsBase::alert($msg);
             }
         }
     }
@@ -606,7 +664,7 @@ class UserPassportApp
                 ) {
                     $msg = format_time(User::$config['login']['interval'] - $interval, 'cn');
                     $msg = Lang::get('user:login:times', [$msg]);
-                    throw new sException($msg);
+                    AppsBase::alert($msg);
                 }
             }
         }
@@ -626,7 +684,30 @@ class UserPassportApp
             'address' => [$user['email'], $user['account']]
         ]);
     }
-
+    public static function silentLogin2()
+    {
+        try {
+            if ($social = UserOauth::getInstance('qrcode')) {
+                $url = $_SERVER['REQUEST_URL'];
+                $code = $_GET['code'];
+                $state = $_GET['state'];
+                if (empty($code) && empty($state)) {
+                    $social->authorize($url, 'silent');
+                } else {
+                    $social->getToken();
+                    $userid = UserOpenid::userid($social->openid, $social->name);
+                    if ($userid) {
+                        $user = UserModel::get($userid);
+                        // User::setCookie($user);
+                        // testHook::app_user_silent_login
+                        Application::hooks('user', 'login','silent',[$user,$social]);
+                    }
+                }
+            }
+        } catch (\Exception $ex) {
+            echo $ex->getMessage();
+        } 
+    }
     public static function silentLogin()
     {
         $config = Config::get('user');

@@ -77,6 +77,9 @@ class FilesAdmincp extends AdmincpCommon
      * 单文件上传页面
      * @return void
      */
+    public function do_edit(){
+        $this->do_add();
+    }
     public function do_add()
     {
         $this->id && $rs = Files::get('id', $this->id);
@@ -91,7 +94,7 @@ class FilesAdmincp extends AdmincpCommon
     public function do_detail()
     {
         $this->id && $rs = Files::get('id', $this->id);
-        $rs && self::alert('文件不存在');
+        empty($rs) && self::alert('文件不存在');
         $url = FilesClient::getUrl($rs['path']);
         $cloudMap = FilesCloud::clients();
         include self::view();
@@ -193,8 +196,10 @@ class FilesAdmincp extends AdmincpCommon
             ], function ($rows) {
                 $rows = array_map(function ($value) {
                     $value['sizeUnit'] = File::sizeUnit($value['size']);
-                    $value['href'] = FilesClient::getUrl($value['path']);
+                    $value['url'] = FilesClient::getUrl($value['path']);
                     $value['icon'] = Files::icon($value['path']);
+                    $value['iconUrl'] = Files::icon($value['path'],false);
+                    $value['fileType'] = Files::getType($value['ext']);
                     // $value['_name_id'] = md5($value['name']);
                     // $value['_name_style'] = 'style';
                     // $value['_name_class'] = 'class';
@@ -327,7 +332,7 @@ class FilesAdmincp extends AdmincpCommon
         $row = Files::get('name', $filename);
         return false;
         if ($row) {
-            Files::deleteFile($row['id']);
+            $this->__deleting([$row['id']]);
         } else {
             if (Admin::isSuperAdmin()) {
                 $path = FilesClient::getRoot($path);
@@ -337,7 +342,10 @@ class FilesAdmincp extends AdmincpCommon
             }
         }
     }
-
+    public function done_delete(){
+        $this->ids or self::alert('请选择要删除的文件');
+        $this->__deleting($this->ids);
+    }                
     public function __deleting($ids = [])
     {
         if ($ids) {

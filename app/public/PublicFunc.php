@@ -17,7 +17,7 @@ class PublicFunc
 
     public static function setApp($vars = [])
     {
-        self::$APP = array_merge_recursive(self::$APP, $vars);
+        self::$APP = array_replace_recursive(self::$APP, $vars);
     }
 
     /**

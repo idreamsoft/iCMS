@@ -312,6 +312,49 @@ class AppsTable
         return false;
     }
 
+    public static function makeTableData($tableArray)
+    {
+        $tables = [];
+        if (is_array($tableArray)) {
+            foreach ($tableArray as $key => $value) {
+                DB::hasTable($value['name']) && $tables[] = $value['name'];
+            }
+        }
+
+        if (empty($tables)) {
+            return false;
+        }
+
+        $sql = '';
+        $prefix = DB::getTablePrefix();
+        foreach ($tables as $table) {
+            $fullTable = $prefix . self::shortname($table);
+            $rows = DB::table($table)->select();
+            if (empty($rows)) {
+                continue;
+            }
+            foreach ($rows as $row) {
+                $columns = array_keys($row);
+                $values = array_map(function ($val) {
+                    if (is_null($val)) {
+                        return 'NULL';
+                    }
+                    return "'" . addslashes($val) . "'";
+                }, array_values($row));
+                
+                $tableName = str_replace($prefix, iPHP_DB_PREFIX_TAG, $fullTable);
+                $sql .= sprintf(
+                    "INSERT INTO `%s` (`%s`) VALUES (%s);\n",
+                    $tableName,
+                    implode('`, `', $columns),
+                    implode(', ', $values)
+                );
+            }
+            $sql .= "\n";
+        }
+        return $sql ?: false;
+    }
+
     public static function makeDDL($tabledb, $exists = true)
     {
         $sql = '';

@@ -16,6 +16,7 @@ class PatchAdmincp extends AdmincpBase
     public function __construct()
     {
         parent::__construct();
+        Hooks::set('File.delete', null);
         if (isset($_GET['git'])) {
             Patch::$release = Request::sget('release');
             $info = Cache::get('patch/git.info');

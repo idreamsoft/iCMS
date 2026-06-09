@@ -16,43 +16,43 @@ define(["admincp", "table"], function (admincp, Table) {
             },
             {
                 field: 'type',
-                title: 'fields:type',
+                title: '类型',
             },
             {
                 field: 'subject',
-                title: 'fields:subject',
+                title: '项目',
             },
             {
                 field: 'userid',
-                title: 'fields:userid',
+                title: '用户ID',
             },
             {
                 field: 'order_no',
-                title: 'fields:order_no',
+                title: '订单号',
             },
             {
                 field: 'transaction_id',
-                title: 'fields:transaction_id',
+                title: '支付单号',
             },
             {
                 field: 'amount',
-                title: 'fields:amount',
+                title: '金额',
             },
             {
                 field: 'product_id',
-                title: 'fields:product_id',
+                title: '产品ID',
             },
             {
                 field: 'product_type',
-                title: 'fields:product_type',
+                title: '产品类型',
             },
             {
                 field: 'channel',
-                title: 'fields:channel',
+                title: '支付渠道',
             },
             {
                 field: 'remark',
-                title: 'fields:remark',
+                title: '备注',
             },
             {
                 field: 'create_time',

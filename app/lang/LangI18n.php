@@ -18,7 +18,7 @@ class LangI18n
         $callback = function ($matches) use ($translations) {
             $quote = $matches[1];     // 单引号或双引号
             $key = $matches[2];       // 翻译键，如 app.title
-            $paramsRaw = $matches[3] ?? null; // 参数部分（JSON-like 字符串）
+            $paramsRaw = isset($matches[3]) ?$matches[3]: null; // 参数部分（JSON-like 字符串）
 
             // 支持层级嵌套 key（例如 app.title）
             $translated = self::getTranslationByKey($translations, $key);

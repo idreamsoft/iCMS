@@ -27,6 +27,7 @@ class TagFunc extends AppsFuncCommon implements AppsFuncInterface
         isset($vars['rootid!']) && $whereNot[] = ['rootid', '<>', $vars['rootid!']];
         isset($vars['field']) && $where[]    = ['field', $vars['field']];
         isset($vars['tkey']) && $where[]    = ['tkey', $vars['tkey']];
+        isset($vars['initial']) && $where[]    = ['initial', $vars['initial']];
         isset($vars['appid']) && $where[]    = ['appid', 'FIND_IN_SET', $vars['appid']];
         self::inited($vars, $model, $where, $whereNot);
 

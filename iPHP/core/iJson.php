@@ -139,7 +139,8 @@ class iJson
 
         self::$jsonp && self::jsonp($array);
 
-        $json = json_encode($array);
+        $json = json_encode($array, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_IGNORE);
+     
         if ($flag) {
             return $json;
         }

@@ -13,7 +13,7 @@ defined('iPHP') or exit('What are you doing?');
 /**
  * 钩子管理
  *
- * @role 1
+ * @role superadmin
  */
 class AppsHooksAdmincp extends AdmincpBase
 {
@@ -44,7 +44,7 @@ class AppsHooksAdmincp extends AdmincpBase
             $config = (array)Config::data(iCMS_APP_APPS, 'hooks');
             if ($data['method'] && $data['app'] && $data['field']) {
                 $hooks['fields'][$data['app']][$data['field']][] = $data['method'];
-                $config = array_merge_recursive($config, $hooks);
+                $config = array_replace_recursive($config, $hooks);
                 $methods = &$config['fields'][$data['app']][$data['field']];
                 $methods = array_unique($methods);
                 ksort($methods);

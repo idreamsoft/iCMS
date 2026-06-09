@@ -13,9 +13,9 @@ self::head();
 ?>
 <?php !AdmincpView::$IS_MODAL && print '<div class="content p-0" id="' . APP_MAINID . '">'; ?>
 <div class="block m-0 <?php if (AdmincpView::$IS_MODAL && empty($rs)) { ?> block-transparent<?php } ?>" id="files-add">
-    <div class="block-content mb-2">
+    <div class="block-content mb-2 p-0">
         <?php if ($rs) { ?>
-            <table class="table table-sm table-bordered table-condensed table-hover">
+            <table class="table table-bordered table-condensed table-hover">
                 <thead class="bg-light text-black">
                     <tr>
                         <td colspan="2">文件信息</td>
@@ -62,14 +62,15 @@ self::head();
             </table>
         <?php } ?>
 
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-12">
                 <form id="_add">
+                    <input type="hidden" name="CSRF_TOKEN" value="<?php echo Security::$CSRF_TOKEN;?>" />    
                     <input type="hidden" name="udir" value="<?php echo Request::get('dir'); ?>" />
                     <input type="hidden" name="id" value="<?php echo $this->id; ?>" />
-                    <div class="input-group input-group-sm justify-content-center align-items-center">
-                        <input type="checkbox" i="cms:ui:switch" data-label-text="水印" name="noWatermark" id="noWatermark" value="<?php echo Config::get('watermark.enable'); ?>" />
-                        <button class="btn btn-primary" i="cms:ui:file:upload" data-accept="image/*" data-form="#_add">
+                    <div class="d-flex gap-2 justify-content-center align-items-center">
+                        <input type="checkbox" i="cms:ui:switch" data-label-text="水印" name="noWatermark" id="noWatermark" value="<?php echo Config::get('watermark.enable')?1:0; ?>" />
+                        <button class="btn btn-primary py-2" i="cms:ui:file:upload" data-accept="image/*" data-form="#_add">
                             <i class="fa fa-fw fa-upload"></i> 上传文件
                         </button>
                     </div>

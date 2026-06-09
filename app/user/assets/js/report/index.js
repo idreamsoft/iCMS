@@ -32,7 +32,7 @@ define(["admincp", "table"], function (admincp, Table) {
             },
             {
                 field: 'reason',
-                title: 'fields:reason',
+                title: '举报理由',
             },
             {
                 field: 'create_time',

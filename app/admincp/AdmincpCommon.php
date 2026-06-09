@@ -157,7 +157,10 @@ abstract class AdmincpCommon extends AdmincpBase
             return $this->autoCache();
         }
     }
-
+    public function do_cache (){
+        return $this->done_cache();
+    }
+    
     public static function autoCache()
     {
     }

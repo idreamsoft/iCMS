@@ -569,7 +569,7 @@ abstract class AppsFuncCommon
             $resource = array_map(self::$vars['callItem'], $resource);
         }
         if (!isset(self::$vars['loop']) && self::$vars['row']==1) {
-            return $resource[0] ?? [];
+            return isset($resource[0]) ?$resource[0]: [];
         }
         return array_values($resource);
     }

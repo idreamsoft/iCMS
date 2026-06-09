@@ -345,81 +345,154 @@ class Application
     /**
      * 请求响应
      *
-     * @param response $response
+     * @param mixed $response
      * @param string $title
-     * @return void
+     * @return mixed
      */
     public static function response($response, $title)
     {
         if (is_null($response)) {
-            //POST return null;
             if (Request::isPost()) {
                 iJson::success($title);
             }
+            return null;
         }
-        if ($response === true) {
-            // return true;
-            iJson::success($title);
-        } elseif ($response === false) {
-            // return false;
-            self::alert($title);
-        } elseif (is_array($response)) {
-            if (empty($response)) {
-                iJson::success();
-            }
-            //数字索引
-            if (Utils::isAssocArr($response)) {
-                if ($response[0] === true) {
-                    // return [true,'asd'];
-                    iJson::success($response[1] ?: $title, $response[2]);
-                } elseif ($response[0] === false) {
-                    // return [false,'asd'];
-                    self::alert($response[1] ?: $title, $response[2]);
-                } elseif (is_array($response[0]) && !is_array($response[1])) {
-                    // return [[1,2,3],'asd','url'];
-                    iJson::success($response[0], $response[1], $response[2]);
-                } else {
-                    //return ['asd','123'];
-                    iJson::success($response, $title);
-                }
-            } else {
-                $data = $response;
-                $response = [];
-                $response['message'] = $data['message'] ?: ($data['title'] ?: $title);
-                $response['code'] = isset($data['code']) ? $data['code'] : 1;
-                $response['state'] = isset($data['state']) ? $data['state'] : 'SUCCESS';
-                $response['url'] = $data['url'] ?: '';
-                $response['data'] = $data['data'] ? (array)$data['data'] : [];
-                unset($data['title'], $data['message'], $data['code'],$data['state'], $data['url'], $data['data']);
-                $data && $response['data'] = array_merge($response['data'], $data);
 
-                iJson::success(
-                    (array)$response['data'],
-                    $response['message'],
-                    $response['url'],
-                    $response['code'],
-                    $response['state']
-                );
-            }
-        } elseif (is_string($response)) {
-            // return http://...;
-            // return string;
-            if (Request::isUrl($response, true) || strpos($response, '/') === 0) {
-                iJson::success($title, $response);
-            } elseif (strpos($response, 'url:') !== false) {
-                list($prefix, $url, $time) = explode(':', $response);
-                is_null($time) && $time = 1500;
-                iJson::success(['time'=>$time], $title, $url);
-            } else {
-                iJson::success($response);
-            }
-        } elseif (is_numeric($response)) {
-            $response > 0 ?
-                iJson::success($response, $title) :
-                self::alert($title);
-        } else {
-            return $response;
+        if ($response === true) {
+            iJson::success($title);
         }
+
+        if ($response === false) {
+            self::alert($title);
+        }
+
+        if (is_array($response)) {
+            self::handleArrayResponse($response, $title);
+        }
+
+        if (is_string($response)) {
+            self::handleStringResponse($response, $title);
+        }
+
+        if (is_numeric($response)) {
+            $response > 0 ? iJson::success($response, $title) : self::alert($title);
+        }
+
+        return $response;
+    }
+
+    /**
+     * 处理数组类型响应
+     *
+     * @param array $response
+     * @param string $title
+     * @return void
+     */
+    private static function handleArrayResponse(array $response, $title)
+    {
+        if (empty($response)) {
+            iJson::success();
+        }
+
+        if (Utils::isAssocArr($response)) {
+            self::handleIndexedArrayResponse($response, $title);
+        }
+
+        if (isset($response['success']) && $response['success'] === false) {
+            self::alert(
+                isset($response['message']) ? $response['message'] : (isset($response['title']) ? $response['title'] : $title),
+                isset($response['code']) ? $response['code'] : 0
+            );
+        }
+
+        self::handleAssociativeArrayResponse($response, $title);
+    }
+
+    /**
+     * 处理索引数组响应
+     *
+     * @param array $response
+     * @param string $title
+     * @return void
+     */
+    private static function handleIndexedArrayResponse(array $response, $title)
+    {
+        if ($response[0] === true) {
+            iJson::success(isset($response[1]) ? $response[1] : $title, isset($response[2]) ? $response[2] : null);
+        }
+
+        if ($response[0] === false) {
+            self::alert(isset($response[1]) ? $response[1] : $title, isset($response[2]) ? $response[2] : null);
+        }
+
+        if (is_array($response[0]) && !is_array(isset($response[1]) ? $response[1] : null)) {
+            iJson::success($response[0], isset($response[1]) ? $response[1] : null, isset($response[2]) ? $response[2] : null);
+        }
+
+        iJson::success($response, $title);
+    }
+
+    /**
+     * 处理关联数组响应
+     *
+     * @param array $response
+     * @param string $title
+     * @return void
+     */
+    private static function handleAssociativeArrayResponse(array $response, $title)
+    {
+        $params = [
+            'message' => isset($response['message']) ? $response['message'] : (isset($response['title']) ? $response['title'] : $title),
+            'code' => isset($response['code']) ? $response['code'] : 1,
+            'success' => isset($response['success']) ? $response['success'] : true,
+            'state' => isset($response['state']) ? $response['state'] : 'SUCCESS',
+            'url' => isset($response['url']) ? $response['url'] : '',
+            'data' => !empty($response['data']) ? (array)$response['data'] : [],
+        ];
+
+        unset(
+            $response['title'],
+            $response['message'],
+            $response['code'],
+            $response['state'],
+            $response['url'],
+            $response['data']
+        );
+
+        if (!empty($response)) {
+            $params['data'] = array_merge($params['data'], $response);
+        }
+
+        iJson::success(
+            $params['data'],
+            $params['message'],
+            $params['url'],
+            $params['code'],
+            $params['state']
+        );
+    }
+
+    /**
+     * 处理字符串类型响应
+     *
+     * @param string $response
+     * @param string $title
+     * @return void
+     */
+    private static function handleStringResponse($response, $title)
+    {
+        if (Request::isUrl($response, true) || strpos($response, '/') === 0) {
+            iJson::success($title, $response);
+        }
+
+        if (strpos($response, 'url:') === 0) {
+            $parts = explode(':', $response);
+            $url = isset($parts[1]) ? $parts[1] : '';
+            $time = isset($parts[2]) ? $parts[2] : 1500;
+            iJson::success(['time' => (int)$time], $title, $url);
+        }
+
+        iJson::success($response);
     }
 
     /**
@@ -492,7 +565,7 @@ class Application
         $method = 'destruct_' . self::$METHOD;
         $key = 'is_' . $method;
         $isrun = self::$callback[$key];
-        if (method_exists(self::$INSTANCE, $method) && !$isrun) {
+        if (self::$INSTANCE && method_exists(self::$INSTANCE, $method) && !$isrun) {
             self::$callback[$key] = true;
             self::$INSTANCE->$method();
         }

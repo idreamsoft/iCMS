@@ -16,6 +16,8 @@ class AppsPackage
     public static $LocalFormat = '%s%s.APP.%s-v%s.%s';
     public static $LocalDataFile = 'iCMS.APP.DATA.php';
     public static $LocalTableFile = 'iCMS.APP.TABLE.php';
+    public static $LocalTableDataFile = 'iCMS.APP.TABLE.DATA.php';
+
 
     public static function getName($app, $version)
     {
@@ -67,7 +69,17 @@ class AppsPackage
                 AppsTable::makeTableSql($tables)
             );
         }
-        return [$data_file, $table_file];
+
+        //数据库数据
+        $table_data_file = $dir . '/' . self::$LocalTableDataFile;
+        if ($tables) {
+            put_php_file(
+                $table_data_file,
+                AppsTable::makeTableData($tables)
+            );
+        }
+
+        return [$data_file, $table_file, $table_data_file];
     }
 
     public static function createPackage($name, $app, $dir, $REMOVE_PATH = null)
@@ -92,15 +104,27 @@ class AppsPackage
         $gitignore = file_exists($gitignorePath)
             ? file($gitignorePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES)
             : [];
-        $lists = [];    
+        $lists = [];
+        // 统一路径分隔符
+        $dir = str_replace('\\', '/', $dir);
         foreach ($fileList as $key => $value) {
-            $path = str_replace($dir, '', $value);
-            if (strpos($value, '/.git/') === false) {
-                if (!$gitignore || !File::gitignore($path, $gitignore)) {
-                    filesize($value) > 0 && $lists[] = $value;
+            $value = str_replace('\\', '/', $value);
+            // 跳过 .git 目录
+            if (strpos($value, '/.git/') !== false) {
+                continue;
+            }
+            // 只对 app 目录下的文件应用 gitignore 规则
+            if (strpos($value, $dir) === 0) {
+                $path = substr($value, strlen($dir));
+                if ($gitignore && File::gitignore($path, $gitignore)) {
+                    continue;
                 }
             }
+            if (is_file($value) && filesize($value) > 0) {
+                $lists[] = $value;
+            }
         }
+
         if ($REMOVE_PATH) {
             $v_list = $zip->create($lists, PCLZIP_OPT_REMOVE_PATH, $REMOVE_PATH); //将文件进行压缩
         } else {

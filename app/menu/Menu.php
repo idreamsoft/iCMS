@@ -87,15 +87,22 @@ class Menu
     {
         $variable = [];
         $rs = Apps::getMenuArray();
+        $admincp = [];
         foreach ($rs as $app) {
             $result = MenuHelper::get($app);
-            $variable = array_merge_recursive($variable, $result);
+            if ($app['app'] == 'admincp') {
+                $admincp = $result;
+            }else{
+                $variable = array_replace_recursive($variable, $result);
+            }
         }
+        $variable = array_replace_recursive($variable, $admincp);
         self::$HREFS = [];
         self::$TITLES = [];
         if ($variable) {
-            MenuHelper::itemUnique($variable);
+            // MenuHelper::itemUnique($variable);
             MenuHelper::itemSort($variable);
+
             self::itemData($variable);
             self::$DATA = $variable;
             unset($variable);
@@ -121,15 +128,17 @@ class Menu
         // $array = array();
         foreach ($variable as $value) {
             // $id = $value['id'];
-            empty($id) && $id = $value['id'];
-            if ($value['href']) {
-                self::$HREFS[$value['href']][] = $id;
-                self::$TITLES[$value['href']] = $value['caption'];
-            } else {
-                self::$HREFS[$value['id']][] = $id;
-            }
-            if ($value['children']) {
-                self::itemData($value['children'], $value['id']);
+            if(is_array($value)){
+                empty($id) && $id = $value['id'];
+                if ($value['href']) {
+                    self::$HREFS[$value['href']][] = $id;
+                    self::$TITLES[$value['href']] = $value['caption'];
+                } else {
+                    self::$HREFS[$value['id']][] = $id;
+                }
+                if ($value['children']) {
+                    self::itemData($value['children'], $value['id']);
+                }
             }
         }
     }
@@ -355,6 +364,9 @@ class Menu
 
     public static function navNode($node, $level = 0)
     {
+        if(empty($node)){
+            return;
+        }
         if (!self::access($node)) {
             return false;
         }

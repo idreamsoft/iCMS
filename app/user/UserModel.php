@@ -24,4 +24,27 @@ class UserModel extends Model
         // 'pid' => 'array',
         'setting' => 'array'
     ];
+    /**
+     * 根据openid获取用户
+     */
+    public static function getByOpenid($openid)
+    {
+        $open = UserOpenidModel::where(['openid' => $openid])->first();
+        if ($open) {
+            return User::get($open['userid']);
+        }
+		return [];
+    }
+
+    /**
+     * 根据手机号获取用户
+     */
+    public static function getByPhone($phone, $userType = null)
+    {
+        $where = ['phone' => $phone];
+        if ($userType !== null) {
+            $where['type'] = $userType;
+        }
+        return self::where($where)->first();
+    }
 }

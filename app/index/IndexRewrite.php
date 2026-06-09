@@ -25,7 +25,7 @@ class IndexRewrite
         'rar', 'zip', 'tar', 'gz', '7z', 'bz2', 'cab', 'iso',
         'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'txt', 'md', 'xml',
         'apk', 'ipa',
-        'css', 'js',
+        'css', 'js','map','ico'
     ];
 
     public function __construct($path)
@@ -48,6 +48,7 @@ class IndexRewrite
             return;
         }
 
+        empty($this->URI) && $flag = $this->webpages();
         //内容/节点等链接匹配
         empty($this->URI) && $flag = $this->rules();
         //带[]的自定义链接
@@ -132,18 +133,22 @@ class IndexRewrite
         foreach ((array)$rs as $rule) {
             if ($rule) {
                 foreach ($rule as $k => $v) {
+                    if ($v == '{PAGES}') {
+                        continue;
+                    }
+
                     $v = str_replace('{EXT}', $this->ext, $v);
                     $v = rtrim($this->dir, '/') . '/' . ltrim($v, '/');
                     if ($k == 'index' || $k == 'list') {
                         $k = 'node';
                     } else {
                         $pi = pathinfo($v);
-                        $pi['dirname']=='\\' && $pi['dirname'] = '/';
+                        $pi['dirname'] == '\\' && $pi['dirname'] = '/';
                         if (substr($v, -1) == '/' || empty($pi['extension'])) {
                             $pi['extension'] = ltrim($this->ext, '.');
                             if (strpos($v, '{LINK}') !== false) {
                                 $pi['basename'] .= '/p{P}' . $this->ext;
-                            }else{
+                            } else {
                                 $pi['basename'] .= '/index_{P}' . $this->ext;
                             }
                         } else {
@@ -159,7 +164,6 @@ class IndexRewrite
         if (!$rules) {
             return false;
         }
-
         if ($rules) {
             foreach ($rules as $key => $rvalue) {
                 foreach ($rvalue as $k => $v) {
@@ -167,6 +171,7 @@ class IndexRewrite
                 }
             }
         }
+
         if (!$result) {
             return false;
         }
@@ -202,6 +207,16 @@ class IndexRewrite
         }
     }
 
+    public function webpages()
+    {
+        $pages = NodeCache::get('pages');
+        $nodeId = $pages[$this->path];
+        if ($nodeId) {
+            $this->URI = 'node.php?id=' . $nodeId;
+            return true;
+        }
+        return false;
+    }
     public function clink()
     {
         $hooks = isset(iCMS::$config['hooks']['rewrite']) ? iCMS::$config['hooks']['rewrite'] : [];
@@ -270,10 +285,10 @@ class IndexRewrite
             // 设置替换规则
             $replacement = '(?<\\1>\w+)';
             // asd/{aa}*.html  贪婪模式
-            if(strpos($key, '}*') !== false){
+            if (strpos($key, '}*') !== false) {
                 $key = str_replace('}*', '}', $key);
                 $replacement = '(?<\\1>.*?)';
-            }elseif(strpos($key, 'id}') !== false){
+            } elseif (strpos($key, 'id}') !== false) {
                 $replacement = '(?<\\1>\d+)';
             }
             $pattern = preg_replace('/\{(\w+)\}/i', $replacement, $key);

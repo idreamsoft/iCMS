@@ -1,6 +1,7 @@
 {
     "col":"col-sm-12",
     "sort":999999,
-    "app": "admincpWidget",
+    "app": "AdmincpWidget",
+    "title": "统计",
     "do": "stats"
 }

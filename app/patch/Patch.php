@@ -18,7 +18,7 @@ Http::$CURLOPT_REFERER = $_SERVER['REQUEST_HOST'];
 
 class Patch
 {
-    public const PATCH_URL = 'https://patch.icmsdev.com/v8';	//自动更新服务器
+    public const PATCH_URL = 'https://patch.icmsdev.com/v8';    //自动更新服务器
     public const APP = 'patch';
     public const APPID = iCMS_APP_PATCH;
 
@@ -59,6 +59,11 @@ class Patch
     public static function getTime()
     {
         return (array) Cache::get('patch.time');
+    }
+    public static function getUpgradeTime()
+    {
+        $time = Cache::get('patch.upgrade.time');
+        return $time ? $time : 0;
     }
 
     public static function git($do, $commit_id = null, $type = 'array')
@@ -135,7 +140,7 @@ class Patch
                     File::mkdir(PATCH_DIR);
                     File::put($zipFile, $FileData); //下载更新包
                     $msg .= '下载完成....<iCMS>';
-                }			//code...
+                }            //code...
             } catch (\Exception $ex) {
                 $flag = false;
                 $msg .= '下载失败....<iCMS>';
@@ -287,6 +292,7 @@ class Patch
     public static function parsePartialDate($str)
     {
         $len = strlen($str);
+    
         $defaults = [
             'year'   => date('Y'),
             'month'  => '01',
@@ -295,52 +301,36 @@ class Patch
             'minute' => '00',
             'second' => '00'
         ];
-
+        
         $parts = [];
-        if ($len >= 4) {
-            $parts['year'] = substr($str, 0, 4);
-        }
-        if ($len >= 6) {
-            $parts['month'] = substr($str, 4, 2);
-        }
-        if ($len >= 8) {
-            $parts['day'] = substr($str, 6, 2);
-        }
-        if ($len >= 10) {
-            $parts['hour'] = substr($str, 8, 2);
-        }
-        if ($len >= 12) {
-            $parts['minute'] = substr($str, 10, 2);
-        }
-        if ($len >= 14) {
-            $parts['second'] = substr($str, 12, 2);
-        }
-
+        if ($len >= 4)  $parts['year']   = substr($str, 0, 4);
+        if ($len >= 6)  $parts['month']  = substr($str, 4, 2);
+        if ($len >= 8)  $parts['day']    = substr($str, 6, 2);
+        if ($len >= 10) $parts['hour']   = substr($str, 8, 2);
+        if ($len >= 12) $parts['minute'] = substr($str, 10, 2);
+        if ($len >= 14) $parts['second'] = substr($str, 12, 2);
+        
         $merged = array_merge($defaults, $parts);
-        return "{$merged['year']}-{$merged['month']}-{$merged['day']} {$merged['hour']}:{$merged['minute']}:{$merged['second']}";
+        
+        return sprintf('%s-%s-%s %s:%s:%s', 
+            $merged['year'], $merged['month'], $merged['day'],
+            $merged['hour'], $merged['minute'], $merged['second']
+        );
     }
-
+    
     public static function get_upgrade_files($flag = false)
     {
         $files = [];
         $patch_dir = Application::path('patch/files');
-        list($release, $gitTime) = self::getTime();
+        $upgrade_time = self::getUpgradeTime();
         foreach (glob($patch_dir . '*.{php,sql}', GLOB_BRACE) as $file) {
             $d = str_replace([$patch_dir, 'db.', 'fs.', '.php', '.sql'], '', $file);
+            $t = strtotime(self::parsePartialDate($d));
             if ($flag) {
-                $files[$d] = $file;
+                $files[$t] = $file;
             } else {
-                $time = strtotime(self::parsePartialDate($d));
-                if ($time > $release) {
-                    if ($gitTime) {
-                        if ($time > $gitTime) {
-                            $files[$d] = $file;
-                        } else {
-                            File::rm($file);
-                        }
-                    } else {
-                        $files[$d] = $file;
-                    }
+                if ($t > $upgrade_time) {
+                    $files[$t] = $file;
                 } else {
                     File::rm($file);
                 }
@@ -356,7 +346,7 @@ class Patch
         if ($files) {
             self::$upgrade = true;
             ksort($files);
-            foreach ($files as $key => $file) {
+            foreach ($files as $t => $file) {
                 if (stripos($file, '.php') !== false) {
                     $name = str_replace(['.php', '.'], ['', '_'], basename($file));
                     $patch_name = 'patch_' . $name;
@@ -370,6 +360,7 @@ class Patch
                             } else {
                                 $msg .= call_user_func($patch_func);
                                 $msg .= '升级顺利完成!<iCMS>';
+                                self::$test or Cache::set('patch.upgrade.time', $t);
                                 self::$test or File::rm($file);
                             }
                             $msg .= '删除升级程序!<iCMS>';
@@ -392,6 +383,7 @@ class Patch
                                 $prefix = DB::getTablePrefix();
                                 runQuery($sql, $prefix);
                                 $msg .= 'SQL执行顺利完成!<iCMS>';
+                                self::$test or Cache::set('patch.upgrade.time', $t);
                                 self::$test or File::rm($file);
                             }
                             $msg .= '删除文件!<iCMS>';
@@ -405,6 +397,7 @@ class Patch
         } else {
             $msg = '升级顺利完成!';
         }
+
         self::$upgrade = false;
         return $msg;
     }
@@ -425,7 +418,7 @@ class Patch
             return $func;
         }
 
-        if (self::$check_login && !Admin::auth()) {
+        if (self::$check_login && !Admin::isLogin()) {
             exit('请先登录');
         }
 

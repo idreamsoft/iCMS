@@ -8,6 +8,7 @@ define(["admincp", "vue"], function (admincp, Vue) {
                     verify_email: false,
                     register_mode: ['account'],
                     auto_register: false,
+                    qrcode_auto_register: false,
                     login_mode: ['account'],
                 },
                 mounted: function () {
@@ -18,6 +19,7 @@ define(["admincp", "vue"], function (admincp, Vue) {
                         self.verify_email = self.register_mode.includes("email");
                         self.login_mode = json.data.login.mode || [];
                         self.auto_register = json.data.login.auto_register || 0;
+                        self.qrcode_auto_register = json.data.login.qrcode_auto_register|| json.data.login.mode.includes("qrcode") || 0;
                     });
                 },
                 watch: {

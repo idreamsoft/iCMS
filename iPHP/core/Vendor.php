@@ -52,8 +52,11 @@ class Vendor
     {
         self::import($name, $dir);
 
+        $func_name = 'Vendor' . ucfirst($name);
         if (function_exists($name)) {
             return call_user_func_array($name, is_null($args) ? [] : (array)$args);
+        } elseif (function_exists($func_name)) {
+            return call_user_func_array($func_name, is_null($args) ? [] : (array)$args);
         } else {
             $class_name = 'Vendor' . ucfirst($name);
             $flag = class_exists($class_name, false);

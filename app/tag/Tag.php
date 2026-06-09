@@ -118,12 +118,21 @@ class Tag
 
         $tids = [];
         if (is_array($tags)) {
+            $alphabet = range('A', 'Z');
             foreach ($tags as $key => $name) {
                 $tkey = Tag::getTkey($name);
+                $initial = strtoupper($tkey[0]);
+                if (!in_array($initial, $alphabet)) {
+                    $initial = 'other';
+                }
+                if (is_numeric($initial)) {
+                    $initial = 'number';
+                }
                 $data = [
                     'cid'     => $cid,
                     'tcid'    => $tcid,
                     'userid'  => $userid,
+                    'initial' => $initial,
                     'tkey'    => $tkey,
                     'appid'   => $appid,
                     'name'    => $name,
@@ -154,20 +163,23 @@ class Tag
         $diff = array_diff_values($tags, $_tags);
         //已有 count+1
         $tids = array_keys($_tags);
-        $row = TagModel::where($tids)->row();
-        if ($row) {
-            $appid = $row->appid ? $row->appid . ',' . $opt['appid'] : $opt['appid'];
-            if($appid){
-                $appid = explode(',', $appid);
-                $appid = array_map('trim', $appid);
-                $appid = array_unique($appid);
-                $appid = array_filter($appid);
-                $appid = implode(',', $appid);
+        $rows = TagModel::where('id',$tids)->select();
+        if ($rows) {
+            foreach ($rows as $row) {
+                $appid = $row['appid'] ? $row['appid'] . ',' . $opt['appid'] : $opt['appid'];
+                if($appid){
+                    $appid = explode(',', $appid);
+                    $appid = array_map('trim', $appid);
+                    $appid = array_unique($appid);
+                    $appid = array_filter($appid);
+                    $appid = implode(',', $appid);
+                }
+                $data = [];
+                $data['appid'] = $appid;
+                $data['count'] = $row['count'] ? $row['count'] + 1 : 1;
+                $data['pubdate'] = time();
+                TagModel::update($data, $row['id']);
             }
-            $row->appid = $appid;
-            $row->count = $row->count ? $row->count + 1 : 1;
-            $row->pubdate = time();
-            $row->save();
         }
         //新增
         $diff['+'] && $tids += self::create($diff['+'], $opt);
@@ -185,6 +197,7 @@ class Tag
         $diff = array_diff_values($nTags, $oTags);
         //新增
         $diff['+'] && $tids = self::create($diff['+'], $opt);
+
         //减少 count-1
         if ($diff['-']) {
             $where = ['name' => $diff['-']];

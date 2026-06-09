@@ -184,7 +184,7 @@ define(["cms", "app@user"], function (cms, USER) {
                     var visible = $el.parent().is(':visible');
                     if (visible) {
                         iCMS.api.spost('user/loginQr', { state }, function (json) {
-                            console.log(json);
+                            // console.log(json);
                             if (json.data.userid) {
                                 timer.stop();
                                 window.location.reload();

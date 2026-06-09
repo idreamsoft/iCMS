@@ -27,6 +27,7 @@ class iPHP
     public static function bootstrap()
     {
         Helper::timerStart();
+        self::composer();
         self::start();
         self::setMemoryLimit();
         self::setHandler();
@@ -46,9 +47,9 @@ class iPHP
     }
 
     /**
-      * 设置PHP内存限制
-      * 如果当前内存限制小于指定的值，则尝试增加内存限制。
-      */
+     * 设置PHP内存限制
+     * 如果当前内存限制小于指定的值，则尝试增加内存限制。
+     */
     public static function setMemoryLimit()
     {
         if (function_exists('ini_get')) {
@@ -75,7 +76,6 @@ class iPHP
     public static function autoloadHandler($name)
     {
         try {
-            self::composer();
             self::autoload($name);
             if (class_exists($name)) {
                 return true;
@@ -111,15 +111,18 @@ class iPHP
     {
         $PREFIX = self::$RESERVED;
         $paths = [];
-
         if (strpos($name, '\\') !== false) {
             //namespace aaa\bbb
             $space = str_replace('\\', '/', $name);
-            // vendor/aaa/bbb.php
-            $path = iPHP_COMPOSER_DIR . '/' . $space . '.php';
-
-            if (defined('iPHP_VENDOR_DIR')) {
-                $path = iPHP_VENDOR_DIR . '/' . $space . '.php';
+            //app\xxx\xxx
+            if (strpos($name, 'app\\') === 0) {
+                $path = iPHP_APP_PATH . $space . '.php';
+            } else {
+                // vendor/aaa/bbb.php
+                $path = iPHP_COMPOSER_DIR . '/' . $space . '.php';
+                if (defined('iPHP_VENDOR_DIR')) {
+                    $path = iPHP_VENDOR_DIR . '/' . $space . '.php';
+                }
             }
             $paths[] = $path;
         } else {
@@ -186,7 +189,12 @@ class iPHP
 
     public static $instance = [];
 
-    // 获得类的对象实例
+    /**
+     * 获得类的对象实例
+     * @param string $className
+     * @param mixed $rc
+     * @return mixed
+     */
     public static function getInstance($className, &$rc = null)
     {
         // self::$instance && $instance = self::$instance[$className];
@@ -366,11 +374,52 @@ class iPHP
 
     public static function getAppPath($app, $name = null)
     {
-        $path = iPHP_APP_DIR . '/' . strtolower($app) . '/';
-        $name && $path .= $name . '.php';
+        $app = strtolower($app);
+        $basePath = iPHP_APP_DIR . '/' .$app . '/';
+
+        if ($name === null || $name === '') {
+            return $basePath;
+        }
+
+        $version = Request::$VERSIONS[$app];
+        if ($version) {
+            //app/aa/v1.0/
+            $basePathVer = $basePath .$version . '/';
+            if(is_dir($basePathVer)){
+                //app/aa/v1.0/aaaXxx.php
+                return self::getPath($basePathVer, $name);
+            }
+        }
+        //app/aa/aaaXxx.php
+        return self::getPath($basePath, $name);
+    }
+    public static function getPath($base, $name)
+    {
+        //app/aa/aaaXxx.php
+        $path = $base . $name . '.php';
+
+        if (is_file($path)) {
+            return $path;
+        }
+
+        $isApp = substr($name, -3) === 'App';
+        $isModel = substr($name, -5) === 'Model';
+
+        if ($isModel) {
+            //app/aa/model/aaaModel.php
+            $path = $base .  'model/' . $name . '.php';
+            if (is_file($path)) {
+                return $path;
+            }
+        } elseif ($isApp) {
+            //app/aa/app/aaaApp.php
+            $path = $base .  'app/' . $name . '.php';
+            if (is_file($path)) {
+                return $path;
+            }
+        }
         return $path;
     }
-
     /**
      * callback 回调执行
      * @param  [type] $callback [执行函数]
@@ -505,5 +554,9 @@ class iPHP
         is_null($code) && $code = -1;
         // $message = Lang::get($message);
         return compact('code', 'message', 'trace', 'line', 'file', 'state');
+    }
+    public static function log($msg, $name = null)
+    {
+        Utils::log($msg, $name);
     }
 }

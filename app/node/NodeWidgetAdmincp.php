@@ -18,6 +18,15 @@ class NodeWidgetAdmincp extends AdmincpCommon
     public static function do_stats()
     {
         $total = NodeModel::count();
+        return [
+            'title' => '节点',
+            'total' => num10K($total),
+            'points' => []
+        ];
+    }
+    public static function do_statsLine()
+    {
+        $total = NodeModel::count();
         $widget['title'] = '节点';
         $widget['total'] = array($total, '全部');
         $result = NodeModel::field('id,appid,status')->select();

@@ -64,6 +64,11 @@ class Builder implements Iterator
     public static $CACHE = [];
 
     /**
+     * @var array 类型转换缓存
+     */
+    protected $castCache = [];
+
+    /**
      * @var Connection 数据库连接实例
      */
     private $connection;
@@ -138,7 +143,7 @@ class Builder implements Iterator
     {
         $num = func_num_args();
         if ($num == 1) {
-            $this->events = array_merge_recursive($this->events, $param1);
+            $this->events = array_replace_recursive($this->events, $param1);
         } elseif ($num == 2) {
             if (is_null($param2)) {
                 unset($this->events[$param1]);
@@ -223,66 +228,105 @@ class Builder implements Iterator
     }
 
     //输出值 自动转换
-    public function runCasts(&$items)
+    public function runCasts(&$items, $isMulti = false)
     {
-        if ($items) {
-            $isObject = is_object($items);
-            $isObject && $items = $this->toArray($items);
-            foreach ($items as $key => &$value) {
-                if (is_array($value)) {
-                    $this->runCasts($value);
-                } else {
-                    $type = $this->casts[$key];
-                    if (isset($this->events['geted'][$key]) && $events = $this->events['geted'][$key]) {
-                        $type = $events;
-                        $this->casts[$key] = $events;
-                        unset($this->events['geted'][$key]);
-                    }
-                    if (is_array($type)) {
-                        $call = $type;
-                        $type = 'call';
-                    } elseif ($type && strpos($type, '::')) {
-                        $call = explode('::', $type);
-                        $type = 'call';
-                    } elseif ($type && strpos($type, ':')) {
-                        list($type, $fomat) = explode(':', $type);
-                    }
-                    switch ($type) {
-                        case 'as':
-                            $items[$fomat] = $value;
-                            // no break
-                        case 'delete':
-                            unset($items[$key]);
-                            break;
-                        case 'boolean':
-                            $value = $value ? true : false;
-                            break;
-                        case 'datetime':
-                            $value = get_date($value, $fomat);
-                            break;
-                        case 'html':
-                            $value = htmlspecialchars_decode($value);
-                            break;
-                        case 'json':
-                            is_array($value) && $value = json_encode($value);
-                            break;
-                        case 'call':
-                            call_user_func_array($call, [&$value, $this]);
-                            break;
-                        case 'strlist':
-                            is_null($value) or $value = explode(',', $value);
-                            break;
-                        case 'array':
-                            $value && $value = json_decode($value, true);
-                            empty($value) && $value = [];
-                            break;
-                        default:
-                            is_array($value) && $value = json_encode($value);
-                    }
-                }
-            }
-            $isObject && $items = $this->toObject($items);
+        if (empty($items) || empty($this->casts)) {
+            return $items;
         }
+
+        $isObject = is_object($items);
+        $isObject && $items = $this->toArray($items);
+
+        if ($isMulti) {
+            $items = array_map(function ($item) {
+                return $this->runCasts($item);
+            }, $items);
+            return $items;
+        }
+
+        foreach ($this->casts as $key => $type) {
+
+            if (!isset($items[$key])) {
+                continue;
+            }
+
+            $value = &$items[$key];
+
+            // 跳过数组值的递归处理（保持原有逻辑）
+            // if (is_array($value)) {
+            //     $this->runCasts($value);
+            //     continue;
+            // }
+
+            // // 检查缓存（只缓存简单类型）
+            // $cacheKey = md5($key . serialize($value) . serialize($type));
+            // if (isset($this->castCache[$cacheKey])) {
+            //     $value = $this->castCache[$cacheKey];
+            //     continue;
+            // }
+
+            // $originalValue = $value;
+            $call = null;
+            $fomat = null;
+
+            // 处理事件
+            if (isset($this->events['geted'][$key]) && $events = $this->events['geted'][$key]) {
+                $type = $events;
+                $this->casts[$key] = $events;
+                unset($this->events['geted'][$key]);
+            }
+
+            // 解析类型
+            if (is_array($type)) {
+                $call = $type;
+                $type = 'call';
+            } elseif ($type && strpos($type, '::')) {
+                $call = explode('::', $type);
+                $type = 'call';
+            } elseif ($type && strpos($type, ':')) {
+                list($type, $fomat) = explode(':', $type);
+            }
+
+            // 执行转换
+            switch ($type) {
+                case 'as':
+                    $items[$fomat] = $value;
+                    // no break
+                case 'delete':
+                    unset($items[$key]);
+                    break;
+                case 'boolean':
+                    $value = $value ? true : false;
+                    break;
+                case 'datetime':
+                    $value = get_date($value, $fomat);
+                    break;
+                case 'html':
+                    $value = htmlspecialchars_decode($value);
+                    break;
+                case 'json':
+                    is_array($value) && $value = json_encode($value);
+                    break;
+                case 'call':
+                    call_user_func_array($call, [&$value, $this]);
+                    break;
+                case 'strlist':
+                    is_null($value) or $value = explode(',', $value);
+                    break;
+                case 'array':
+                    $value && $value = json_decode($value, true);
+                    empty($value) && $value = [];
+                    break;
+                default:
+                    is_array($value) && $value = json_encode($value);
+            }
+            // // 缓存结果（只缓存简单类型，避免内存溢出）
+            // if ($type !== 'call' && $type !== 'delete' && !is_array($value) && !is_object($value)) {
+            //     $this->castCache[$cacheKey] = $value;
+            // }
+        }
+
+        $isObject && $items = $this->toObject($items);
         return $items;
     }
 
@@ -456,7 +500,7 @@ class Builder implements Iterator
         try {
             if (empty($response)) {
                 $this->response = $this->connection->select($query, $params);
-                $this->runCasts($this->response);
+                $this->runCasts($this->response, true);
                 $this->runEvents('geted', true);
                 $cacheKey && Builder::$CACHE['ALL'][$cacheKey] = $this->response;
             } else {
@@ -566,6 +610,10 @@ class Builder implements Iterator
         }
         return $flag;
     }
+    public function insertOrUpdate($data, $where = [], $params = null)
+    {
+        return $this->updateOrCreate($data, $where, $params);
+    }
 
     public function update($data = null, $where = null)
     {
@@ -595,6 +643,11 @@ class Builder implements Iterator
         return $this->create($query, $params, 'REPLACE');
     }
     public function insert($query = null, $params = null)
+    {
+        return $this->create($query, $params);
+    }
+
+    public function add($query = null, $params = null)
     {
         return $this->create($query, $params);
     }
@@ -702,9 +755,9 @@ class Builder implements Iterator
         }
         return $this;
     }
-    public function page($page=1,$pageSize = 20)
+    public function page($page = 1, $pageSize = 20)
     {
-        return $this->paging($pageSize,$page);
+        return $this->paging($pageSize, $page);
     }
     /**
      * lastId 方式还未完成
@@ -713,10 +766,11 @@ class Builder implements Iterator
      * @param string $unit
      * @return void
      */
-    public function paging($pageSize = 20, $page=1, $unit = '')
+    public function paging($pageSize = 20, $page = null, $unit = null)
     {
         $total = Paging::getCount();
         $total = $total ?: $this->count();
+        isset($page) && Paging::setPage($page);
         $pageSize = Paging::getPageSize($pageSize);
         $offset = Paging::getOffset($total, $pageSize, $unit);
 
@@ -768,6 +822,35 @@ class Builder implements Iterator
         return $result;
     }
 
+    /**
+     * 游标分页（适合大数据集，避免深度分页性能问题）
+     * 
+     * @param int $pageSize 每页数量
+     * @param mixed $lastId 上一页最后一条记录的ID
+     * @return array
+     */
+    public function cursorPaginate($pageSize = 20, $lastId = null)
+    {
+        if ($lastId) {
+            $this->where($this->primaryKey, '>', $lastId);
+        }
+
+        $results = $this->limit($pageSize + 1)->select();
+
+        $hasMore = count($results) > $pageSize;
+        if ($hasMore) {
+            array_pop($results);
+        }
+
+        $nextCursor = $hasMore && !empty($results) ? end($results)[$this->primaryKey] : null;
+
+        return [
+            'data' => $results,
+            'next_cursor' => $nextCursor,
+            'has_more' => $hasMore,
+        ];
+    }
+
     public function first()
     {
         $this->row();
@@ -785,6 +868,9 @@ class Builder implements Iterator
         return $this->field($field)->value();
     }
 
+    public function column($key = null){
+        return $this->pluck($key);
+    }
     public function value($key = null)
     {
         $result = $this->first();
@@ -858,17 +944,17 @@ class Builder implements Iterator
                 $fields = implode(',', $fieldsArray);
                 if ($this->query['leftJoin']) {
                     $table = $this->query['join'] ?
-                            implode(' LEFT JOIN ', $tables) :
-                            $this->joinOn($tables, 'LEFT');
+                        implode(' LEFT JOIN ', $tables) :
+                        $this->joinOn($tables, 'LEFT');
                 } elseif ($this->query['rightJoin']) {
                     $table = $this->query['join'] ?
-                            implode(' RIGHT JOIN ', $tables) :
-                            $this->joinOn($tables, 'RIGHT');
+                        implode(' RIGHT JOIN ', $tables) :
+                        $this->joinOn($tables, 'RIGHT');
                 } else {
                     if ($this->query['on']) {
                         $table = $this->query['join'] ?
-                                implode(' JOIN ', $tables) :
-                                $this->joinOn($tables);
+                            implode(' JOIN ', $tables) :
+                            $this->joinOn($tables);
                     } else {
                         $table = implode(',', $tables);
                     }
@@ -971,12 +1057,14 @@ class Builder implements Iterator
             // }
             $autoFill && $this->autoFill($data);
 
+            $cleanData = [];
             foreach ($data as $field => $value) {
-                unset($data[$field]);
-                $field = preg_replace('/[^\w\d_\-,]/i', '', $field);
-                $data[$field] = $value;
+                // 验证字段名
+                if ($this->validateFieldName($field)) {
+                    $cleanData[$field] = $value;
+                }
             }
-            $this->response = $data;
+            $this->response = $cleanData;
             $this->runEvents('creating');
             $data = $this->response;
             $params = array_values($data);
@@ -1036,7 +1124,10 @@ class Builder implements Iterator
             $data = $this->response;
             $this->autoFill($data, false);
             foreach ($data as $field => $value) {
-                $field = preg_replace('/[^\w\d_\-,]/i', '', $field);
+                // 验证字段名
+                if (!$this->validateFieldName($field)) {
+                    continue;
+                }
                 $field = $this->ident($field);
                 $prepare = sprintf('%s = ?', $field);
                 if (is_array($value)) {
@@ -1124,9 +1215,9 @@ class Builder implements Iterator
                     //get('id',aa)
                 }
             }
-            if($value===true){
+            if ($value === true) {
                 $this->query['where'] = ' 1=1 ';
-            }else{
+            } else {
                 $this->where($field, $value);
             }
         }
@@ -1419,10 +1510,12 @@ class Builder implements Iterator
     {
         return $this->query['by'];
     }
-    public function rand(){
-        return $this->orderBy($field, $by);
+    public function rand()
+    {
+        return $this->orderBy('rand()');
     }
-    public function order($field = null, $by = 'DESC'){
+    public function order($field = null, $by = 'DESC')
+    {
         return $this->orderBy($field, $by);
     }
 
@@ -1434,26 +1527,52 @@ class Builder implements Iterator
         if (is_string($field) && is_array($by)) {
             $this->setEvents('geted', 'orderByField', [$field, $by]);
             $this->query['orderBy'] = '';
+        } elseif (is_string($field) && strtolower($field) == 'rand()') { //随机 orderBy('rand()')
+            $this->query['orderBy'] = 'ORDER BY RAND()';
         } else {
+            $orderByArr = [];
+
             //orderBy('id ASC') id ASC
             //orderBy('id ASC,aaa DESC') id ASC,aaa DESC
             if (is_string($field) && (stripos($field, ' ') !== false || stripos($field, ',') !== false)) {
-                $sql = $field; //存在注入问题
+                // 安全处理多字段排序字符串
+                $parts = explode(',', $field);
+                foreach ($parts as $part) {
+                    $part = trim($part);
+                    // 验证格式: 字段名 [ASC|DESC]
+                    if (preg_match('/^(\w+)(?:\s+(ASC|DESC))?$/i', $part, $matches)) {
+                        $f = $matches[1];
+                        $d = isset($matches[2]) ? strtoupper($matches[2]) : 'DESC';
+                        // 验证字段名
+                        if ($this->validateFieldName($f)) {
+                            $orderByArr[] = $this->makeOrderBySql($f, $d);
+                        }
+                    }
+                }
             } else {
                 //orderBy('id') id DESC
                 //orderBy('id','ASC') id ASC
                 //orderBy(['id','aaa']) id DESC,aaa DESC
                 //orderBy(['id','aaa'],'ASC) id ASC,aaa ASC
                 //orderBy(['id'=>'ASC','aaa'=>'DESC']) id ASC,aaa DESC
-                $orderByArr = [];
-                $fieldArr = is_array($field) ? $field : [$field=>$by];
-                foreach ($fieldArr as $field =>$_by) {
-                    $_by && $by = $_by;
-                    $orderByArr[] = $this->makeOrderBySql($field, $by);
+                $fieldArr = is_array($field) ? $field : [$field => $by];
+                foreach ($fieldArr as $field => $_by) {
+                    if (is_numeric($field)) {
+                        $field = $_by;
+                        $_by = $by;
+                    }
+                    // 验证字段名和排序方向
+                    if ($this->validateFieldName($field) && $this->validateOrderDirection($_by)) {
+                        $_by && $by = $_by;
+                        $orderByArr[] = $this->makeOrderBySql($field, strtoupper($by));
+                    }
                 }
-                $sql = implode(',', $orderByArr);
             }
-            $this->query['orderBy'] = sprintf('ORDER BY %s', $sql);
+
+            if (!empty($orderByArr)) {
+                $sql = implode(',', $orderByArr);
+                $this->query['orderBy'] = sprintf('ORDER BY %s', $sql);
+            }
         }
         $this->query['by'] = $by;
         return $this;
@@ -1555,6 +1674,14 @@ class Builder implements Iterator
         $this->query['field'] = sprintf('SUM(%s) AS _sum', $field);
         return $this->value('_sum');
     }
+    public function avg($field = null)
+    {
+        if (empty($field)) {
+            return false;
+        }
+        $this->query['field'] = sprintf('AVG(%s) AS _avg', $field);
+        return $this->value('_avg');
+    }
 
     // public function updateRaw($query, $params = null, $data = null)
     // {
@@ -1568,7 +1695,8 @@ class Builder implements Iterator
     //     return $this->update($data);
     // }
 
-    public function increment($field){
+    public function increment($field)
+    {
         return $this->inc($field);
     }
     public function inc($field)
@@ -1592,7 +1720,8 @@ class Builder implements Iterator
         $this->update($data);
         return $this;
     }
-    public function decrement($field){
+    public function decrement($field)
+    {
         return $this->dec($field);
     }
     public function dec($field)
@@ -1643,7 +1772,7 @@ class Builder implements Iterator
 
     public function joinOn($tables, $flag = '')
     {
-        foreach ($this->query['joinOn'] as $key=> $join) {
+        foreach ($this->query['joinOn'] as $key => $join) {
             $sql = $flag . ' JOIN ' . $join[0];
             $join[1] && $sql .= ' ON ' . $join[1];
             $tables[] = $sql;
@@ -1981,6 +2110,42 @@ class Builder implements Iterator
             return !is_array($value);
         });
         return empty($arr);
+    }
+
+    /**
+     * 验证字段名是否合法
+     * @param string $field 字段名
+     * @return bool
+     */
+    protected function validateFieldName($field)
+    {
+        // 只允许字母、数字、下划线，且必须以字母或下划线开头
+        if (!preg_match('/^[a-zA-Z_][a-zA-Z0-9_]*$/', $field)) {
+            return false;
+        }
+
+        // SQL关键字黑名单
+        // $keywords = [
+        //     'SELECT', 'FROM', 'WHERE', 'DROP', 'DELETE', 'UPDATE', 'INSERT',
+        //     'TABLE', 'DATABASE', 'UNION', 'JOIN', 'EXEC', 'EXECUTE', 'SCRIPT'
+        // ];
+
+        // if (in_array(strtoupper($field), $keywords)) {
+        //     return false;
+        // }
+
+        return true;
+    }
+
+    /**
+     * 验证排序方向是否合法
+     * @param string $direction 排序方向
+     * @return bool
+     */
+    protected function validateOrderDirection($direction)
+    {
+        $allowed = ['ASC', 'DESC', 'asc', 'desc'];
+        return in_array($direction, $allowed);
     }
 
     public function throwError($ex)

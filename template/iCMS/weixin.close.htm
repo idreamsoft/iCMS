@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>登录成功 - 关闭页面</title>
+    <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 40px 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            max-width: 350px;
+            width: 100%;
+        }
+
+        .success-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            animation: bounce 1s ease-in-out;
+        }
+
+        .success-icon::after {
+            content: "✓";
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .closeBtn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            max-width: 200px;
+            margin: 0 auto 15px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .closeBtn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .closeBtn:active:not(:disabled) {
+            transform: translateY(0);
+        }
+
+        .closeBtn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auto-close-info {
+            background: #f0f8ff;
+            border: 1px solid #e6f3ff;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .countdown {
+            font-weight: bold;
+            color: #667eea;
+            margin-left: 5px;
+        }
+
+        .status-text {
+            font-size: 14px;
+            color: #999;
+            margin-top: 10px;
+            height: 20px;
+        }
+
+        .cancel-auto-close {
+            background: #f8f9fa;
+            color: #666;
+            border: 1px solid #dee2e6;
+            padding: 8px 15px;
+            font-size: 14px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .cancel-auto-close:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+            
+            .title {
+                font-size: 20px;
+            }
+            
+            .success-icon {
+                width: 70px;
+                height: 70px;
+            }
+            
+            .success-icon::after {
+                font-size: 35px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon"></div>
+        <h1 class="title">登录成功！</h1>
+        <p class="subtitle">您的账户已验证通过<br>页面将在几秒后自动关闭</p>
+        
+        <div class="auto-close-info">
+            <span>自动关闭倒计时：</span>
+            <span class="countdown" id="countdown">5</span><span>秒</span>
+        </div>
+        
+        <button id="closeBtn" class="closeBtn">立即关闭</button>
+        <button id="cancelAutoClose" class="cancel-auto-close">取消自动关闭</button>
+        <div id="statusText" class="status-text"></div>
+    </div>
+
+    <script>
+        // 自动关闭相关变量
+        let countdown = 3;
+        let countdownInterval = null;
+        let autoCloseEnabled = true;
+
+        // 动态生成签名（实际需后端接口提供）
+        const configData = <!--{$wxJsApiConfig}-->;
+
+        // 获取DOM元素
+        const closeBtn = document.getElementById('closeBtn');
+        const statusText = document.getElementById('statusText');
+        const countdownElement = document.getElementById('countdown');
+        const cancelAutoCloseBtn = document.getElementById('cancelAutoClose');
+
+        // 自动关闭函数
+        function startAutoClose() {
+            if (!autoCloseEnabled) return;
+            
+            countdownInterval = setInterval(() => {
+                countdown--;
+                countdownElement.textContent = countdown;
+                
+                if (countdown <= 0) {
+                    clearInterval(countdownInterval);
+                    attemptCloseWindow();
+                }
+            }, 1000);
+        }
+
+        // 尝试关闭窗口
+        function attemptCloseWindow() {
+            if (window.WeixinJSBridge) {
+                // 微信内置浏览器
+                WeixinJSBridge.call('closeWindow');
+            } else if (typeof wx !== 'undefined' && wx.closeWindow) {
+                // 使用微信JS-SDK
+                wx.closeWindow();
+            } else {
+                // 其他情况，尝试使用history.back()
+                history.back();
+            }
+        }
+
+        // 取消自动关闭
+        function cancelAutoClose() {
+            autoCloseEnabled = false;
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+                countdownInterval = null;
+            }
+            statusText.textContent = '已取消自动关闭';
+            countdownElement.textContent = '0';
+        }
+
+        // 配置微信JS-SDK
+        wx.config({
+            ...configData,
+            jsApiList: ['closeWindow']
+        });
+
+        wx.ready(() => {
+            console.log('微信JS-SDK配置成功');
+            statusText.textContent = '准备就绪，5秒后自动关闭';
+            
+            // 开始自动关闭倒计时
+            startAutoClose();
+            
+            // 立即关闭按钮事件
+            closeBtn.onclick = () => {
+                // 清除自动关闭定时器
+                cancelAutoClose();
+                
+                // 添加加载状态
+                closeBtn.disabled = true;
+                closeBtn.textContent = '正在关闭...';
+                statusText.textContent = '正在执行关闭操作';
+                
+                setTimeout(() => {
+                    attemptCloseWindow();
+                }, 500);
+            };
+        });
+
+        wx.error((res) => {
+            console.error('微信JS-SDK配置失败:', res);
+            statusText.textContent = '配置失败，无法使用微信关闭功能';
+            
+            // 即使配置失败也启动自动关闭，使用备用方法
+            startAutoClose();
+        });
+
+        // 取消自动关闭按钮事件
+        cancelAutoCloseBtn.onclick = () => {
+            cancelAutoClose();
+            cancelAutoCloseBtn.textContent = '已取消';
+            cancelAutoCloseBtn.disabled = true;
+        };
+
+        // 添加键盘支持（ESC键关闭）
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeBtn.click();
+            }
+        });
+
+        // 页面可见性变化时的处理
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && autoCloseEnabled) {
+                // 页面隐藏时继续倒计时
+                console.log('页面已隐藏，自动关闭继续进行');
+            }
+        });
+
+        // 页面卸载前的清理工作
+        window.addEventListener('beforeunload', () => {
+            if (countdownInterval) {
+                clearInterval(countdownInterval);
+            }
+        });
+    </script>
+</body>
+</html>

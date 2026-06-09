@@ -310,8 +310,8 @@ class AppsAdmincp extends AdmincpCommon
                     $row['is_content'] = $row['apptype'] == Apps::CONTENT_TYPE;
                     $row['is_pack'] = in_array($row['type'], [3, 4]);
                     $row['operate'] = [
-                        'detail'=> false,
-                        'delete'=> !in_array($row['apptype'], [0]),
+                        'detail' => false,
+                        'delete' => !in_array($row['apptype'], [0]),
                         'edit'  => !in_array($row['apptype'], [0, 1]),
                         'trash' => in_array($row['apptype'], [3, 4])
                     ];
@@ -350,12 +350,27 @@ class AppsAdmincp extends AdmincpCommon
         }
         // self::success('应用卸载完成');
     }
-
+    public function deleting($ids = null)
+    {
+        foreach ($ids as $key => $id) {
+            $app = Apps::get($id);
+            if ($app && $app['type'] && $app['apptype']) {
+                Apps::uninstall($app);
+            }
+        }
+        return true;
+    }
+    public function do_local()
+    {
+        $pkgs = AppsPackage::getLocalPkg();
+        include self::view();
+    }
     /**
      * 本地安装应用
      * @return void
      */
-    public function do_install()
+
+    public function done_install()
     {
         try {
             $zipfile = trim(Request::post('zipfile'));
@@ -395,7 +410,6 @@ class AppsAdmincp extends AdmincpCommon
 
         $filename = AppsPackage::getName($rs['app'], $rs['version'] ?: 'v1.0.0');
         $package = AppsPackage::createPackage($filename, $rs['app'], $dir, $zip_remove_path);
-
         FilesClient::attachment($package);
         File::rm($package);
         // File::rm($app_data_file);
@@ -538,37 +552,41 @@ class AppsAdmincp extends AdmincpCommon
                 $pieces = preg_split('/(?<=\w)(?=[A-Z])/', $name);
                 $c = count($pieces);
 
-                $doc = Helper::getDocComment($class);
-                $title = $doc['title'] ? str_replace(['{app.name}'], [$apps['title']], $doc['title']) : '';
+                try {
+                    $doc = Helper::getDocComment($class);
+                    $title = $doc['title'] ? str_replace(['{app.name}'], [$apps['title']], $doc['title']) : '';
 
-                if ($doc['auth'] === false || $doc['login'] === false || $doc['role'] === Role::SUPER_RID) {
-                    continue;
-                }
-                if ($class == sprintf('%sAdmincp', ucfirst($app))) {
-                    $title = $apps['title'];
-                }
-                if ($c == 1) {
-                    $access[$app] = [
-                        'id'      => $app,
-                        'app'     => $app,
+                    if ($doc['auth'] === false || $doc['login'] === false || $doc['role'] === Role::SUPER_RID) {
+                        continue;
+                    }
+                    if ($class == sprintf('%sAdmincp', ucfirst($app))) {
+                        $title = $apps['title'];
+                    }
+                    if ($c == 1) {
+                        $access[$app] = [
+                            'id'      => $app,
+                            'app'     => $app,
+                            'name'    => $name,
+                            'path'    => $path,
+                            'pieces'  => implode(',', $pieces),
+                            'title'   => $title ?: $app
+                        ];
+                    }
+                    // if ($c == 1) {
+                    //     $title .='应用管理';
+                    // }
+                    $methods = AppsAccess::methods($app, $name, $class, $title);
+                    $access2[$app]['classs'][$class] = [
+                        'id'      => $name,
+                        'title'   => $title ?: $name,
+                        'class'   => $class,
                         'name'    => $name,
-                        'path'    => $path,
-                        'pieces'  => implode(',', $pieces),
-                        'title'   => $title ?: $app
+                        'role'    => $doc['role'],
+                        'methods' => array_values($methods)
                     ];
+                } catch (\Throwable $th) {
+                    //throw $th;
                 }
-                // if ($c == 1) {
-                //     $title .='应用管理';
-                // }
-                $methods = AppsAccess::methods($app, $name, $class, $title);
-                $access2[$app]['classs'][$class] = [
-                    'id'      => $name,
-                    'title'   => $title ?: $name,
-                    'class'   => $class,
-                    'name'    => $name,
-                    'role'    => $doc['role'],
-                    'methods' => array_values($methods)
-                ];
             }
         }
         foreach ($access as $key => $value) {
@@ -580,13 +598,14 @@ class AppsAdmincp extends AdmincpCommon
 
         $menus = Menu::$DATA;
         self::recursiveSort($menus, 'sort');
-        
+
         return [
             'apps' => array_values($access),
-            'menus'=> $menus
+            'menus' => $menus
         ];
     }
-    public static function recursiveSort(array &$array, string $sortKey) {
+    public static function recursiveSort(array &$array, string $sortKey)
+    {
         // 先对当前层级的数组排序
         usort($array, function ($a, $b) use ($sortKey) {
             return strnatcasecmp($a[$sortKey], $b[$sortKey]);

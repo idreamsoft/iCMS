@@ -25,7 +25,7 @@ class FilesClient
         'png', 'jpg', 'jpeg', 'gif', 'bmp', 'webp', 'psd', 'tif', 'svg',
         'flv', 'swf', 'mkv', 'avi', 'rm', 'rmvb', 'mpeg', 'mpg', 'mp4', 'm3u8',
         'ogg', 'ogv', 'mov', 'wmv', 'webm', 'mp3', 'aac', 'm4a', 'wav', 'mid', 'amr',
-        'rar', 'zip', 'tar', 'gz', '7z', 'bz2', 'cab', 'iso',
+        'rar', 'zip', 'tar', 'gz', '7z', 'bz2', 'cab', 'iso', 'skill',
         'doc', 'docx', 'csv','xls', 'xlsx', 'ppt', 'pptx', 'pdf', 'txt', 'md', 'xml',
         'apk', 'ipa',
         'js', 'css', 'json',

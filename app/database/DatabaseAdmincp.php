@@ -11,7 +11,7 @@
 /**
  * 数据库管理
  * 
- * @role 1
+ * @role superadmin
  */
 class DatabaseAdmincp extends AdmincpBase
 {
@@ -379,11 +379,14 @@ class DatabaseAdmincp extends AdmincpBase
 		$pattern or self::alert("查找项不能为空~");
 		$params = [$pattern, $replacement];
 		if ($field == "body") {
-			ArticleDataModel::where($where)->update([
-				"body" => [
-					'raw' => 'REPLACE(body,?,?)', $params
-				]
-			]);
+			for ($i=1; $i < 10; $i++) { 
+				$dataModel = ArticleDataModel::sharding($i);
+				$dataModel->where($where)->update([
+					"body" => [
+						'raw' => 'REPLACE(body,?,?)', $params
+					]
+				]);
+			}
 		} else {
 			if ($field == "tkd") {
 				$rows_affected = ArticleModel::where($where)->update([

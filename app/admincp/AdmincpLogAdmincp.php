@@ -11,14 +11,14 @@
 /**
  * 操作记录
  * 
- * @role 1
+ * @role superadmin
  */
 class AdmincpLogAdmincp extends AdmincpCommon
 {
     /**
      * 查看后台操作记录
      *
-     * @role 1
+     * @role superadmin
      * @return void
      */
     public function do_detail()
@@ -30,7 +30,7 @@ class AdmincpLogAdmincp extends AdmincpCommon
 
     /**
      * 操作记录管理
-     * @role 1
+     * @role superadmin
      * @return void
      */
     public function do_index()

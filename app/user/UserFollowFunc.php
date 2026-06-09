@@ -46,7 +46,7 @@ class UserFollowFunc extends AppsFuncCommon
             }
         }
 
-        $vars['followed'] && $follow_data = self::gets($vars['followed'], 'all');
+        $vars['followed'] && $follow_data = User::gets($vars['followed'], 'all');
 
         if ($resource) foreach ($resource as $key => $value) {
             if ($vars['fuid']) {

@@ -33,4 +33,17 @@ class DeveloperApiProxy
         $url = sprintf('%s/%s', self::URL, $url);
         return Developer::post($url, $args);
     }
+    public static function request($method, $flag = false)
+    {
+        $json = self::post($method, $_POST);
+        $array = json_decode($json, true);
+        if ($array['data']) {
+            Developer::setConfig($array['data']);
+        }
+        Session::uset('captchaToken');
+        if ($flag) {
+            return $array;
+        }
+        exit($json);
+    }
 }

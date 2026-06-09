@@ -13,7 +13,8 @@
  */
 class Request
 {
-    public static function validate_url($url) {
+    public static function validate_url($url)
+    {
         return filter_var($url, FILTER_VALIDATE_URL) !== false;
     }
     public static function isUrl($url, $strict = false)
@@ -95,17 +96,32 @@ class Request
             isset($_GET['is_ajax']) || isset($_POST['is_ajax']) ||
             (isset($_GET['format']) && ($_GET['format'] == 'json' || $_POST['format'] == 'json')));
     }
-
+    public static function input2post(){
+        if(isset($_SERVER['HTTP_X_ADMINCP']) && $_SERVER['HTTP_X_ADMINCP'] === '1'){
+            $input = file_get_contents('php://input');
+            if ($input) {
+                $inputData = json_decode($input, true);
+                if($inputData){
+                    $_POST = array_merge($_POST, $inputData);
+                }
+            }
+        }
+    }
     /**
      * 全局变量过滤
      */
     public static function bootstrap()
     {
+        self::input2post();
         $allowed = [
             'GLOBALS' => 1,
-            '_GET'    => 1, '_POST' => 1,
-            '_COOKIE' => 1, '_FILES' => 1, '_SERVER' => 1,
-            '_APP'    => 1, 'page' => 1
+            '_GET'    => 1,
+            '_POST' => 1,
+            '_COOKIE' => 1,
+            '_FILES' => 1,
+            '_SERVER' => 1,
+            '_APP'    => 1,
+            'page' => 1
         ];
         foreach ($GLOBALS as $key => $value) {
             if (!isset($allowed[$key])) {
@@ -113,15 +129,37 @@ class Request
             }
         }
         self::initServer([
-            'HTTP_REFERER', 'HTTP_SCHEME', 'HTTP_HOST', 'HTTP_URL', 'HTTP_X_FORWARDED_FOR',
-            'HTTP_USER_AGENT', 'HTTP_ACCEPT_LANGUAGE',
-            'HTTP_CLIENT_IP', 'HTTP_SCHEME', 'HTTPS', 'PHP_SELF', 'REMOTE_ADDR',
-            'REQUEST_HOST', 'REQUEST_URI', 'REQUEST_URL', 'REQUEST_METHOD', 'SCRIPT_NAME', 'REQUEST_TIME',
-            'SERVER_SOFTWARE', 'SERVER_ADDR', 'SERVER_PORT',
-            'X-Requested-With', 'HTTP_X_REQUESTED_WITH',
-            'QUERY_STRING', 'argv', 'argc',
-            'Authorization', 'HTTP_AUTHORIZATION',
-            'Token', 'HTTP_TOKEN',
+            'HTTP_REFERER',
+            'HTTP_SCHEME',
+            'HTTP_HOST',
+            'HTTP_URL',
+            'HTTP_X_FORWARDED_FOR',
+            'HTTP_USER_AGENT',
+            'HTTP_ACCEPT_LANGUAGE',
+            'HTTP_CLIENT_IP',
+            'HTTP_SCHEME',
+            'HTTPS',
+            'PHP_SELF',
+            'REMOTE_ADDR',
+            'REQUEST_HOST',
+            'REQUEST_URI',
+            'REQUEST_URL',
+            'REQUEST_METHOD',
+            'SCRIPT_NAME',
+            'REQUEST_TIME',
+            'SERVER_SOFTWARE',
+            'SERVER_ADDR',
+            'SERVER_PORT',
+            'X-Requested-With',
+            'HTTP_X_REQUESTED_WITH',
+            'QUERY_STRING',
+            'argv',
+            'argc',
+            'Authorization',
+            'HTTP_AUTHORIZATION',
+            'Token',
+            'HTTP_TOKEN',
+            'HTTP_X_CSRF_TOKEN'
         ]);
     }
 
@@ -212,24 +250,34 @@ class Request
         return $array;
     }
 
-    public static function input($input = null)
+    public static function input($key = null, $default = null)
     {
-        $input === null && $input = file_get_contents('php://input');
+        if ($key && is_string($key) && strpos($key, '<xml>') !== false) {
+            $data = Utils::xmlToArray($key);
+            return $data;
+        }
+        $input = file_get_contents('php://input');
         if ($input) {
-            if (strpos($input, '<xml>') !== false) {
-                $data = Utils::xmlToArray($input);
-            } else {
-                $data = json_decode($input, true);
-                if (empty($data) && strpos($input, '&') !== false) {
-                    parse_str($input, $data);
-                }
+            $data = self::parseInput($input);
+            if ($key) {
+                return isset($data[$key]) ? $data[$key] : $default;
             }
             return $data;
         } else {
             return false;
         }
     }
-
+    public static function parseInput($input)
+    {
+        $data = json_decode($input, true);
+        if (empty($data) && strpos($input, '<xml>') !== false) {
+            $data = Utils::xmlToArray($input);
+        }
+        if (empty($data) && strpos($input, '&') !== false) {
+            parse_str($input, $data);
+        }
+        return $data;
+    }
     public static function file($key = null)
     {
         $value = $key === null ? $_FILES : $_FILES[$key];
@@ -273,6 +321,10 @@ class Request
         return Security::escapeStr($value);
     }
 
+    public static function header($key = null)
+    {
+        return self::server($key);
+    }
     public static function server($key = null)
     {
         $value = Security::escapeStr($key === null ? $_SERVER : $_SERVER[$key]);
@@ -311,15 +363,15 @@ class Request
     {
         $fingerprint = [];
         // 用户代理
-        $fingerprint['userAgent'] = $_SERVER['HTTP_USER_AGENT'] ?? '';
+        $fingerprint['userAgent'] = $_SERVER['HTTP_USER_AGENT'] ?: '';
         // 屏幕分辨率
         $fingerprint['screenResolution'] = isset($_COOKIE['screenResolution']) ? $_COOKIE['screenResolution'] : '';
         // 时区
         $fingerprint['timezone'] = date_default_timezone_get();
         // 浏览器语言
-        $fingerprint['language'] = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+        $fingerprint['language'] = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?: '';
         // 设备信息
-        $fingerprint['device'] = $_SERVER['HTTP_DEVICE_PIXEL_RATIO'] ?? '1';
+        $fingerprint['device'] = $_SERVER['HTTP_DEVICE_PIXEL_RATIO'] ?: '1';
 
         // 返回指纹
         return md5(json_encode($fingerprint));
@@ -330,6 +382,8 @@ class Request
      * @param $keys
      * @return string
      */
+    public static $_SERVER = [];
+
     public static function initServer($keys)
     {
         // Fix for IIS when running with PHP ISAPI
@@ -383,7 +437,7 @@ class Request
         if (empty($_SERVER['PHP_SELF'])) {
             $_SERVER['PHP_SELF'] = str_replace($_SERVER['DOCUMENT_ROOT'], '', $_SERVER['SCRIPT_FILENAME']);
         }
-
+        self::$_SERVER = $_SERVER;
         foreach ($_SERVER as $key => $sval) {
             if (in_array($key, $keys) || strpos($key, 'HTTP_') !== false) {
                 if ($sval) {
@@ -396,7 +450,6 @@ class Request
         }
         Security::addslash($_SERVER);
     }
-
     public static function scheme($port = null)
     {
         // file_put_contents(__DIR__.'/test.log',var_export($_SERVER,true));
@@ -438,22 +491,46 @@ class Request
             $error && header('X-iPHP-ERROR:' . $error);
         }
     }
+    /**
+     * 判断是否为简单版本号格式：如 1.0, 2.1.3, v1.2.3
+     */
+    public static function isValidVersion($version)
+    {
+        // 支持可选的 v/V 前缀，2-3 段数字，每段 0-999
+        $pattern = '/^v?\d{1,3}(\.\d{1,3}){1,2}$/i';
+        return preg_match($pattern, trim($version)) === 1;
+    }
 
     /**
      * 解析URI /xxx.php/article/add/id/1/aa/aaa
      *
      * @return void
      */
+
+    public static $VERSIONS = [];
     public static function route()
     {
         $paths = self::getPaths();
+
         if (empty($paths)) {
             return;
         }
-
+        $version = null;
+        if (strpos($paths[0], '.')) {
+            if (self::isValidVersion($paths[0])) {
+                $version = $paths[0];
+                array_shift($paths);
+            }
+        }
         // 提取应用名和操作名
         $app = isset($paths[0]) ? $paths[0] : null;
         $do = isset($paths[1]) ? $paths[1] : null;
+
+        if (!is_null($version)) {
+            $pieces = preg_split('/(?<=\w)(?=[A-Z])/', $app);
+            $vkey = $pieces[0]?$pieces[0]:$app;
+            self::$VERSIONS[$vkey] = $version;
+        }
 
         if (!is_null($app)) {
             $_GET['app'] = Security::safeStr($app);
@@ -461,7 +538,6 @@ class Request
         if (!is_null($do)) {
             $_GET['do'] = Security::safeStr($do);
         }
-
         // 处理剩余路径参数
         $request = array_slice($paths, 2);
         if (!empty($request)) {

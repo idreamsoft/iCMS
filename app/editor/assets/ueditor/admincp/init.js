@@ -23,6 +23,13 @@ define(["jquery", "iCMS"], function ($, iCMS) {
         // 服务器返回参数统一转换方法，可以在这里统一处理返回参数
         serverResponsePrepare: function (res) {
             console.log('serverResponsePrepare', res);
+            if (res.state == 'SUCCESS') {
+                return res;
+            }else{
+                if(res.state){
+                    top.iCMS.notify.error(res.state);
+                }                
+            }
             return res;
         },
 
@@ -186,7 +193,7 @@ define(["jquery", "iCMS"], function ($, iCMS) {
             // 禁止在线管理
             disableOnline: false,
             // 自定义选择按钮
-            selectCallback: null,
+            selectCallback: false,
             // selectCallback: function(editor,cb){
             //     console.log('selectCallback',cb);
             //     setTimeout(function(){
@@ -203,7 +210,7 @@ define(["jquery", "iCMS"], function ($, iCMS) {
             // 禁止本地上传,
             disableUpload: false,
             // 自定义选择按钮
-            selectCallback: null,
+            selectCallback: false,
             // selectCallback: function(editor,cb){
             //     console.log('selectCallback',cb);
             //     setTimeout(function(){
@@ -220,7 +227,7 @@ define(["jquery", "iCMS"], function ($, iCMS) {
             // 禁止本地上传,
             disableUpload: false,
             // 自定义选择按钮
-            selectCallback: null,
+            selectCallback: false,
             // selectCallback: function(editor,cb){
             //     console.log('selectCallback',cb);
             //     setTimeout(function(){

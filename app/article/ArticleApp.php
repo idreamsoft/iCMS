@@ -59,7 +59,11 @@ class ArticleApp extends AppsBase
             $data = $dataModel->where('article_id', $article['id'])->get();
             $body = $data['body'] ? explode(iPHP_PAGEBREAK, $data['body']) : [];
             $count = count($body);
-            $article['body'] = $body[$pn];
+            if($article['creative'] == Article::BODY_JSON_KEY){
+                $article['body'] = json_decode($data['body'], true);
+            }else{
+                $article['body'] = $body[$pn];
+            }
             unset($body);
         }
         if ($article['markdown'] && self::$config['markdown_parser']!==0) {

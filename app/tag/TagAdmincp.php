@@ -237,6 +237,17 @@ class TagAdmincp extends AdmincpCommon
             }
         );
     }
+    /**
+     * 获取{title}节点下拉数据
+     *
+     * @auth no
+     * @return void
+     */
+    public function done_node()
+    {
+        $node = new NodeAdmincp();
+        return $node->done_selectpage();
+    }
     public function do_api_extract()
     {
         $title   = html2text($_POST['title']);

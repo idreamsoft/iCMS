@@ -34,6 +34,7 @@ self::head();
                     </div>
                     <?php AdmincpForm::tableSearchDefault(); ?>
                 </form>
+
             </div>
         </div>
         <div class="block">
@@ -47,6 +48,9 @@ self::head();
                             <i class="fa fa-fw fa-edit"></i> {{#Lang('Edit')}}
                         </a>
                         <?php AdmincpBatch::group(); ?>                        
+                        <a i="cms:ui:modal" href="{{./local}}" data-width="600" data-height="300" id="install" class="btn btn-alt-primary">
+                            <i class="fa fa-fw fa-upload"></i> {{#Lang('安装本地应用')}}
+                        </a>
                     </div>
                 </div>
 

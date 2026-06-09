@@ -31,7 +31,7 @@ self::head();
                             <?php
                             $type = $fields[$key]['type'];
                             if (in_array($key, array('create_time', 'update_time'))) {
-                                $value && $value = get_date($value, 'Y-m-d H:i:s');
+                                is_numeric($value) && $value = get_date($value, 'Y-m-d H:i:s');
                             }
                             ?>
                             <td class="text-wrap text-break">

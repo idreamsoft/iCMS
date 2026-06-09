@@ -79,7 +79,9 @@ function format_time($time, $flag = 's')
     $labels = $unit_map[$flag] ? $unit_map[$flag] : $unit_map['s'];
 
     $result = [];
-    foreach ($units as [$name, $divisor]) {
+    foreach ($units as $unit) {
+        $name = $unit[0];
+        $divisor = $unit[1];
         $value = (int) floor($time / $divisor);
         if ($value > 0) {
             $result[] = $value . $labels[array_search($name, array_column($units, 0))];
@@ -462,8 +464,7 @@ function unicode_encode($value)
 }
 function cnjson_encode($array)
 {
-    $json = json_encode($array);
-    $json = unicode_encode($json);
+    $json = json_encode($array, JSON_UNESCAPED_UNICODE);
     return $json;
 }
 function parse_url_qs($query)
@@ -690,13 +691,25 @@ function sortKey(&$variable, $key = 'sort')
     // 使用 array_walk 来遍历数组，初始化每个项的 key 值
     $idx = 0;
     array_walk($variable, function (&$item) use (&$idx, $key) {
-        if (!isset($item[$key])) {
+        if (is_array($item) && !isset($item[$key])) {
             $item[$key] = $idx++;
         }
     });
 
     // 使用 uasort 来排序
     uasort($variable, function ($a, $b) use ($key) {
+        // 检查 $a 和 $b 是否为数组并且指定的键存在
+        $aHas = is_array($a) && isset($a[$key]);
+        $bHas = is_array($b) && isset($b[$key]);
+
+        if (!$aHas && !$bHas) {
+            return 0;
+        } elseif (!$aHas) {
+            return 1;
+        } elseif (!$bHas) {
+            return -1;
+        }
+
         if ($a[$key] == $b[$key]) {
             return 0;
         }

@@ -48,7 +48,7 @@ class AdmincpAuth
             }
         } else {
             $msg = $uri . ' 暂无权限访问';
-            if (Request::isAjax()) {
+            if (Request::isAjax() || Request::isPost()) {
                 return iJson::error($msg);
             } else {
                 exit($msg);
@@ -59,6 +59,14 @@ class AdmincpAuth
     public static function checkRole($role = null)
     {
         if (Admin::checkRole($role)) {
+            return true;
+        } else {
+            self::accessTip();
+        }
+    }
+    public static function checkPermission($value = null)
+    {
+        if (Admin::checkPermission($value)) {
             return true;
         } else {
             self::accessTip();
@@ -75,7 +83,7 @@ class AdmincpAuth
         if (self::check($uri)) {
             return true;
         } else {
-            self::accessTip(function () {var_dump('sdf'); });
+            self::accessTip();
         }
     }
 

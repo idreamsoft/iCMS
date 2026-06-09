@@ -46,11 +46,7 @@ class Hooks
             //::Set('a.b','vv')
             //::Set('a.b.c','vvv')
             $map = make_multi_array($key, $fn);
-            if (is_null($fn)) {
-                self::$MAP = array_replace_recursive(self::$MAP, $map);
-            } else {
-                self::$MAP = array_merge_recursive(self::$MAP, $map);
-            }
+            self::$MAP = array_replace_recursive(self::$MAP, $map);
         }
         return self::$MAP;
     }

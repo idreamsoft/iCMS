@@ -1,0 +1,72 @@
+{
+    "move": {
+        "name": "移动",
+        "icon": "fighter-jet",
+        "sort": 1,
+        "call": "move"
+    },
+    "appid": {
+        "name": "更改应用",
+        "icon": "gavel",
+        "sort": 2,
+        "call": "default",
+        "show": false
+    },
+    "merge": {
+        "name": "合并",
+        "icon": "random",
+        "sort": 3,
+        "call": "merge"
+    },
+    "dir": {
+        "name": "更改目录",
+        "icon": "gavel",
+        "sort": 4,
+        "call": "dir"
+    },
+    "mkdir": {
+        "name": "重建目录",
+        "icon": "gavel",
+        "sort": 5,
+        "call": "mkdir"
+    },
+    "recount": {
+        "name": "更新统计",
+        "icon": "refresh",
+        "sort": 6,
+        "call": "recount"
+    },
+    "status": {
+        "name": "更改状态",
+        "icon": "square",
+        "sort": 8,
+        "call": "default"
+    },
+    "mode": {
+        "name": "更改模式",
+        "icon": "cogs",
+        "sort": 9,
+        "call": "default"
+    },
+    "rule": {
+        "name": "更改规则",
+        "icon": "link",
+        "show": false,
+        "sort": 10
+    },
+    "template": {
+        "name": "更改模板",
+        "icon": "columns",
+        "sort": 11
+    },
+    "divider1": {
+        "name": "divider",
+        "sort": 12
+    },
+    "dels": {
+        "name": "删除",
+        "icon": "trash",
+        "sort": 15,
+        "call": "dels"
+    }
+}

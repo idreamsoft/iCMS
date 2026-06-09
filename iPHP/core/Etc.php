@@ -127,9 +127,7 @@ class Etc
                         if ($flag === true) {
                             $result = array_merge($result, $array);
                         } elseif ($flag === 'recursive') {
-                            $result = custom_array_merge_recursive($result, $array);
-                        } elseif ($flag === 'recursive2') {
-                            $result = array_merge_recursive($result, $array);
+                            $result = array_replace_recursive($result, $array);
                         } elseif ($flag === 1) {
                             $result[$path] = $array;
                         } else {

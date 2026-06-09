@@ -20,7 +20,7 @@ define(["iCMS", "uploader"], function (iCMS, uploader) {
                         window.parent['multi_callback']($file, json, $uploader);
                     }
                 } else {
-                    top.iCMS.notify.error(json.state);
+                    top.iCMS.notify.error(json.message);
                 }
 
             },

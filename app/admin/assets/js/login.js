@@ -38,9 +38,9 @@ define(["validation"], function () {
             var $data = $(this).serializeJSON();
             iCMS.request.post($api, $data)
                 .then(function (json) {
-                    localStorage.setItem('admin_token', json.data.token);
-                    localStorage.setItem('admin_expire', json.data.expire);
-                    localStorage.setItem('admin_info', JSON.stringify(json.data.info));
+                    localStorage.setItem('admincp_token', json.data.token);
+                    localStorage.setItem('admincp_expire', json.data.expire);
+                    localStorage.setItem('admincp_info', JSON.stringify(json.data.info));
                     iCMS.notify.success("auth:login:success");
                     window.location.reload();
                 }).catch(function (json) {

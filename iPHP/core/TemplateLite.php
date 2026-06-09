@@ -855,8 +855,8 @@ class TemplateLiteCompiler extends TemplateLite
 				$fec_' . $hash . ' = 1;
 				if ($_count_' . $hash . '){
 					foreach ((array)' . $_args['from'] . ' as ' . $keystr . '$this->_vars[\'' . $_args['value'] . '\']){
-						$fec_' . $hash . ' == 1 && $this->_vars[\'' . $_args['value'] . '_first\'] = true;
-						$fec_' . $hash . ' == $_count_' . $hash . ' && $this->_vars[\'' . $_args['value'] . '_last\'] = true;
+						$this->_vars[\'' . $_args['value'] . '_first\'] = $fec_' . $hash . ' == 1?true:false;
+						$this->_vars[\'' . $_args['value'] . '_last\']  = $fec_' . $hash . ' == $_count_' . $hash . '?true:false;
 				';
                 if (isset($_args['start'])) {
                     $_result .= 'if($fec_' . $hash . '<=' . $_args['start'] . '){$fec_' . $hash . '++;continue;}';

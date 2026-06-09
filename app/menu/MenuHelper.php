@@ -54,17 +54,19 @@ class MenuHelper
         }
         empty($menus) && $menus = Etc::many($app, $pattern);
         if ($menus) {
+            $menus = array_reverse($menus);
+            $sort = $apps['id'] * self::SORT_WEIGHT;
             empty($pos) && $pos = 'default';
             self::pos($menus, $pos);
+            self::children($menus);
             self::merge($menus);
+            // self::children($menus);
             self::vars($menus, $apps);
-            $sort = $apps['id'] * self::SORT_WEIGHT;
-            self::itemUnique($menus);
+            // self::itemUnique($menus);
             self::addAccess($menus, $sort);
         }
         return (array)$menus;
     }
-
     public static function itemUnique(&$arrays)
     {
         if (!is_array($arrays)) {
@@ -87,6 +89,9 @@ class MenuHelper
     {
         sortKey($variable);
         foreach ($variable as &$value) {
+            // if (is_array($value)) {
+            //     self::itemSort($value);
+            // }
             if ($value['children']) {
                 self::itemSort($value['children']);
             }
@@ -97,6 +102,10 @@ class MenuHelper
     {
         if ($vars) {
             foreach ($vars as $k => &$v) {
+                if (!is_array($v)) {
+                    continue;
+                }
+
                 ++$sort;
                 isset($v['sort']) or $v['sort'] = $sort;
                 //权限
@@ -131,33 +140,64 @@ class MenuHelper
         }
     }
 
-    public static function children_callback(&$array)
+    // public static function children_callback(&$array)
+    // {
+    //     // $array = array_column($array, null, 'id');
+    //     foreach ($array as $key => &$value) {
+    //         if (is_array($value)) {
+    //             if (is_string($value['children']) && strpos($value['children'], '::') != false) {
+    //                 $children = iPHP::callback($value['children']);
+    //                 $value['children'] = is_array($children) ? $children : [];
+    //             }
+    //             if (is_array($value['children'])) {
+    //                 self::children_callback($value['children']);
+    //             }
+    //         }
+    //     }
+    // }
+
+    public static function children(&$array)
     {
-        $array = array_column($array, null, 'id');
-        foreach ($array as $key => &$value) {
-            if(is_array($value)){
-                if (is_string($value['children']) && strpos($value['children'], '::') != false) {
-                    $children = iPHP::callback($value['children']);
-                    $value['children'] = is_array($children) ? $children : [];
-                }
-                if ($value['children']) {
-                    self::children_callback($value['children']);
+        if ($array) {
+            foreach ($array as $key => &$value) {
+                if (is_array($value)) {
+                    if ($value['children']) {
+                        $children = $value['children'];
+                        if (is_string($children) && strpos($children, '::') != false) {
+                            $childrens = iPHP::callback($children);
+                            $children = is_array($childrens) ? $childrens : [];
+                        }
+                        foreach ($children as $idx => &$val) {
+                            if (!isset($val['id'])) {
+                                if ($val['href']) {
+                                    $val['key'] = trim($val['href'], '/');
+                                    $val['key'] = str_replace('/', '-', $val['key']);
+                                }
+                            } else {
+                                $val['key'] = $val['id'];
+                            }
+                            // if (!isset($val['access']) && isset($val['caption']) && $val['caption'] != '-') {
+                            //     $val['access'] = $val['href'] ?: $val['id'];
+                            // }
+                        }
+                        $children = array_column($children, null, 'key');
+                        $value['children'] = $children;
+                    }
+                    self::children($value);
                 }
             }
         }
     }
-
     public static function merge(&$array)
     {
-        $result = array_shift($array);
-        $result && self::children_callback($result);
+        $result = [];
         if ($array) {
             foreach ($array as $key => $value) {
-                self::children_callback($value);
-                $result = array_merge_recursive($result, $value);
+                $value = array_column($value, null, 'id');
+                $result = array_replace_recursive($result, $value);
             }
+            $array = $result;
         }
-        $array = $result;
     }
 
     public static function vars(&$menu, $a)

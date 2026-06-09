@@ -1,0 +1,47 @@
+<div batch="mode">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bmode">访问模式</label>
+        <select name="BatchData[mode]" class="form-control">
+            <option value="0">动态</option>
+            <option value="1">静态</option>
+            <option value="2">伪静态</option>
+        </select>
+    </div>
+</div>
+<div batch="dir">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bmdir">目录</label>
+        <input name="BatchData[dir]" type="text" class="form-control" />
+    </div>
+    <div class="input-group input-group-sm mt-1">
+        <div class="input-group-text">
+            <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_tag_1" value="prepend" />
+            <label class="form-check-label" for="pattern_tag_1">前追加</label>
+        </div>
+        <div class="input-group-text">
+            <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_tag_2" value="append" />
+            <label class="form-check-label" for="pattern_tag_2">后追加</label>
+        </div>
+        <div class="input-group-text">
+            <input name="BatchData[pattern]" type="radio" class="form-check-input" id="pattern_tag_3" value="replace" checked />
+            <label class="form-check-label" for="pattern_tag_3">替换</label>
+        </div>
+    </div>
+</div>
+<div batch="merge">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bid">请选择目标<?php echo Admincp::$APP_INSTANCE->NODE_NAME; ?></label>
+        <input name="BatchData[toid]" data-node-root="true" data-node-name="<?php echo Admincp::$APP_INSTANCE->NODE_NAME; ?>" id="bid" class="form-control" i="cms:ui:node" placeholder="请选择所属<?php echo Admincp::$APP_INSTANCE->NODE_NAME; ?>..." value="">
+    </div>
+</div>
+<div batch="appid">
+    <div class="input-group input-group-sm">
+        <label class="input-group-text" for="bappid">请选择所属应用</label>
+        <input name="BatchData[appid]" id="bappid" class="form-control" i="cms:ui:selectpage" data-source="/apps/selectpage" placeholder="请选择<?php echo Admincp::$APP_INSTANCE->NODE_NAME; ?>所属应用..." value="">
+    </div>
+</div>
+
+
+<div batch="template" class="hide00">
+    <?php Admincp::$APP_INSTANCE->route_template(); ?>
+</div>

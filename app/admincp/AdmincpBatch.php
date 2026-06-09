@@ -67,12 +67,23 @@ class AdmincpBatch
         $path = AdmincpView::display('batch', null, false);
         $path && is_file($path) && include $path;
         if ($parent == 'NodeAdmincp') {
-            $app = substr($parent, 0, -7);
             /**
-             * app/node/views/batch.html
+             * app/node/pages/views/batch.html
              */
+            $app = substr(Admincp::$APP_CLASS, 0, -7);
+            $pieces = preg_split('/(?<=\w)(?=[A-Z])/', $app);
+            $app = implode('/', $pieces);
             $path = AdmincpView::display('batch', $app, false);
-            is_file($path) && include $path;
+            if($path && file_exists($path)){
+                include $path;
+            }else{
+                $app = substr($parent, 0, -7);
+                /**
+                 * app/node/views/batch.html
+                 */
+                $path = AdmincpView::display('batch', $app, false);
+                $path && file_exists($path) && include $path;
+            }
         }
         if ($actions) {
             foreach ($actions as $key => $item) {

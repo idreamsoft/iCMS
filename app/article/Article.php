@@ -12,6 +12,7 @@ class Article
 {
     const APP = 'article';
     const APPID = iCMS_APP_ARTICLE;
+    const BODY_JSON_KEY = '3';
 
 
     public static $stypeMap = array(

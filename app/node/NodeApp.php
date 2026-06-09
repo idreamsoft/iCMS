@@ -107,47 +107,46 @@ class NodeApp extends AppsBase
     public static function domain($i, $node, $base_url, $type)
     {
         $id = $node['id'];
-        $domainArray = (array) Config::get('node.domain');
-        if ($domainArray) {
-            $domainArray = array_flip($domainArray);
-            $domain = $domainArray[$id];
+        $domain = null;
+        $root_domain = false;
+        $domainMap = (array) Config::get('node.domain');
+        if ($domainMap) {
+            $domainMap = array_flip($domainMap);
+            $domain = isset($domainMap[$id]) ? $domainMap[$id] : null;
             if (empty($domain)) {
-                $rootid_array = NodeCache::get('domain_rootid');
-                if ($rootid_array) {
-                    $rootid = $rootid_array[$id];
-                    $rootid && $domain = $domainArray[$rootid];
+                $rootIdMap = NodeCache::get('domain_rootid');
+                if (!empty($rootIdMap) && isset($rootIdMap[$id])) {
+                    $rootId = $rootIdMap[$id];
+                    $domain = isset($domainMap[$rootId]) ? $domainMap[$rootId] : null;
+                    $root_domain = true;
                 }
             }
         }
-        if ($domain) {
-            $scheme = parse_url($base_url, PHP_URL_SCHEME) . '://';
-            Request::isUrl($domain) or $domain = $scheme . $domain;
-            if ($type == 1) {
-                $i->href = $i->url = $domain;
-                if (isset($i->hdir) && isset($i->pageurl)) {
-                    $i->pageurl = Adapter::replace($i->hdir, $domain, $i->pageurl);
-                }
-            }else{
-                $i->href = Adapter::replace($base_url, $domain, $i->href);
-                isset($i->hdir) && $i->hdir = Adapter::replace($base_url, $domain, $i->hdir);
-                isset($i->pageurl) && $i->pageurl = Adapter::replace($base_url, $domain, $i->pageurl);
-            }
+        if (empty($domain)) {
+            return $i;
+        }
 
-            // if ($type == 1) {
-            //     $i->href = $i->url = $domain;
-            //     if(isset($i->hdir) && isset($i->pageurl)){
-            //         $i->pageurl = Adapter::replace($base_url, $domain, $i->pageurl);
-            //     }
-            // }else{
-            //     if($node['iurl']['hdir']){
-            //         $base_url = $node['iurl']['hdir'];
-            //     }
-            //     $i->href = Adapter::replace($base_url, $domain, $i->href);
-            //     // var_dump($base_url, $domain, $i->href);
-            //     isset($i->hdir) && $i->hdir = Adapter::replace($base_url, $domain, $i->hdir);
-            //     isset($i->pageurl) && $i->pageurl = Adapter::replace($base_url, $domain, $i->pageurl);
-            // }
+        $scheme = parse_url($base_url, PHP_URL_SCHEME) . '://';
+        if (!Request::isUrl($domain)) {
+            $domain = $scheme . $domain;
         }
+
+        if ($type == 1) { //节点
+            if ($root_domain) {
+                $i->href = Adapter::replace($base_url, $domain, $i->href);
+            } else {
+                $i->href = $domain;
+                $i->url = $domain;
+            }
+            if (isset($i->hdir) && isset($i->pageurl)) {
+                $i->pageurl = Adapter::replace($i->hdir, $domain, $i->pageurl);
+            }
+        } else {
+            $i->href = Adapter::replace($base_url, $domain, $i->href);
+            isset($i->hdir) && $i->hdir = Adapter::replace($base_url, $domain, $i->hdir);
+            isset($i->pageurl) && $i->pageurl = Adapter::replace($base_url, $domain, $i->pageurl);
+        }
+
 
         return $i;
     }

@@ -140,16 +140,18 @@ class NodeAdmincp extends AdmincpCommon
         if ($data['mode'] == '2') {
             foreach ($data['rule'] as $key => $value) {
                 $CR = $this->ROUTE[$key];
-                $CRKW = explode(',', $CR['tips']);
-                $cr_check = true;
-                foreach ($CRKW as $i => $crk) {
-                    $crk = str_replace(['{', '}'], '', $crk);
-                    if (strpos($value, $crk) !== false) {
-                        $cr_check = false;
+                if($CR['tips']){
+                    $CRKW = explode(',', $CR['tips']);
+                    $cr_check = true;
+                    foreach ($CRKW as $i => $crk) {
+                        $crk = str_replace(['{', '}'], '', $crk);
+                        if (strpos($value, $crk) !== false) {
+                            $cr_check = false;
+                        }
                     }
-                }
-                if ($cr_check && empty($data['domain']) && $key != 'tag') {
-                    self::alert('伪静态模式' . $CR['label'] . '规则必需含有' . $CR['tips'] . '其中之一,否则将无法解析');
+                    if ($cr_check && empty($data['domain']) && $key != 'tag') {
+                        self::alert('伪静态模式' . $CR['label'] . '规则必需含有' . $CR['tips'] . '其中之一,否则将无法解析');
+                    }
                 }
             }
         }
@@ -388,7 +390,10 @@ class NodeAdmincp extends AdmincpCommon
         self::setJsPath('node/assets/js/tree');
         include self::view($this->VIEW_INDEX . '_tree', $this->VIEW_DIR);
     }
-
+    public function done_list()
+    {
+        return $this->do_list();
+    }
     /**
      * 列表模式
      */
@@ -402,7 +407,7 @@ class NodeAdmincp extends AdmincpCommon
         $nids = AdmincpAuth::node('IDS', 'm');
         is_bool($nids) or $access = ['id' => $nids];
 
-        $keywords = Request::get('keywords');
+        $keywords = Request::param('keywords');
         $st = Request::sget('st');
 
         if ($keywords && $st) {
@@ -414,11 +419,11 @@ class NodeAdmincp extends AdmincpCommon
                 $where['CONCAT(name,title,keywords,description)'] = ['REGEXP', $keywords];
             }
         }
-        $rootid = Request::get('rootid');
+        $rootid = Request::param('rootid');
         is_numeric($rootid) && $where['rootid'] = $rootid;
-        $status = Request::get('status');
+        $status = Request::param('status');
         is_numeric($status) && $where['status'] = $status;
-        $sub = Request::get('sub');
+        $sub = Request::param('sub');
         isset($sub) && $where['rootid'] = ['<>', 0];
 
         if (Request::isAjax()) {
@@ -485,17 +490,48 @@ class NodeAdmincp extends AdmincpCommon
 
     public function done_tree()
     {
-        $root = (int)Request::post('root');
+        $root = (int)Request::param('root');
         Node::$callback['func'] = [$this, 'tree'];
         Node::$callback['recursive'] = false;
         Node::$callback['mode'] = 2; //多维数组 有层级
         return ['data'=>Node::callfunc($root)];
     }
-
+    public function done_treev2()
+    {
+        $root = (int)Request::param('root');
+        Node::$callback['func'] = [$this, 'treev2'];
+        Node::$callback['recursive'] = false;
+        Node::$callback['mode'] = 2; //多维数组 有层级
+        return ['data'=>Node::callfunc($root)];
+    }
+    public function treev2($node, $level, $child, $where)
+    {
+        $expanded = true ;
+        $a = $this->treeData($node);
+        if ($child) {
+            if ($expanded) {
+                $a['hasChildren'] = false;
+                $a['expanded'] = false;
+                $a['children'] = Node::callfunc($node['id'], $where, $level + 1);
+            } else {
+                $a['hasChildren'] = true;
+            }
+        }
+        if (AdmincpAuth::node($a['id'], 'm')) {
+            return $a;
+        } else {
+            if ($a['children']) {
+                $a['data'] = null;
+                return $a;
+            } else {
+                return [];
+            }
+        }
+    }
     public function tree($node, $level, $child, $where)
     {
-        $expanded = Request::get('expanded') ? true : false;
-        $a = ['id' => $node['id'], 'data' => $this->treeData($node)];
+        $expanded = Request::param('expanded') ? true : false;
+        $a = ['id' => $node['id'], 'name' => $node['name'], 'data' => $this->treeData($node)];
         if ($child) {
             if ($expanded) {
                 $a['hasChildren'] = false;
@@ -589,6 +625,7 @@ class NodeAdmincp extends AdmincpCommon
     /**
      * autoCache 在更新所有缓存时，将会自动执行
      */
+
     public static function autoCache()
     {
         @set_time_limit(0);

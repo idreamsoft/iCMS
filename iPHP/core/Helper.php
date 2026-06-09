@@ -147,26 +147,28 @@ class Helper
 
         $blocks = self::parseDocBlock($comment);
         $boolMap = [
-            'true' => true, 'false'=> false,
-            'yes'  => true, 'no'   => false
+            'true' => true,
+            'false' => false,
+            'yes'  => true,
+            'no'   => false
         ];
-        foreach ($blocks as $name=> $values) {
+        foreach ($blocks as $name => $values) {
             $result[$name] = $values;
             if (in_array($name, ['login', 'auth', 'run'])) {
                 $pieces = preg_split('/\s+/', $values[0]);
                 list($val, $desc) = $pieces;
-                $result[$name] = $boolMap[$val];
-            } elseif (in_array($name, ['role', 'uri', 'befor', 'after'])) {
+                $result[$name] = (bool)$boolMap[$val];
+            } elseif (in_array($name, ['role', 'permission', 'uri', 'befor', 'after'])) {
                 $datas = [];
                 foreach ($values as $key => $text) {
                     $pieces = preg_split('/\s+/', $text);
                     list($val, $desc) = $pieces;
-                    if($name=='uri'){
+                    if ($name == 'uri') {
                         $datas[$val] = $desc;
-                    }else{
+                    } else {
                         $_val = strtolower($val);
                         if (isset($boolMap[$_val])) {
-                            $datas[] = $boolMap[$_val];
+                            $datas[] = (bool)$boolMap[$_val];
                         } else {
                             if (strpos($val, ',') !== false) {
                                 $val = explode(',', $val);
@@ -177,13 +179,13 @@ class Helper
                                 }
                                 $datas[] = $val;
                             }
-                        }                        
+                        }
                     }
                 }
                 $result[$name] = $datas;
             }
         }
-// var_dump($result);
+        // var_dump($result);
         // foreach ($matches as $match) {
         //     $stype = $match[1];
         //     $text = $match[2];
@@ -252,7 +254,7 @@ class Helper
                 $result[$key] = self::ini($value);
             } else {
                 $_arr = make_multi_array($key, $value);
-                $result = array_merge_recursive_unique($result, $_arr);
+                $result = array_replace_recursive($result, $_arr);
             }
         }
         // array_walk_recursive($result, function (&$item, $key) {

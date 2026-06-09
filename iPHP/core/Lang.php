@@ -210,7 +210,7 @@ class Lang
         //     $q[2] && $locales = array_merge($locales, $q[2]);
         // }
         // 获取浏览器语言设置
-        $httpLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?? '';
+        $httpLang = $_SERVER['HTTP_ACCEPT_LANGUAGE'] ?: '';
         // $httpLang = 'de-DE';
         // $httpLang = 'de;q=0.8';
         // $httpLang = 'en-US;q=0.6';
@@ -396,7 +396,7 @@ class Lang
             $data = $langs;
             $langs = self::$DATA;
         }
-        self::$DATA = $langs = custom_array_merge_recursive($langs, $data);
+        self::$DATA = $langs = array_replace_recursive($langs, $data);
     }
 
     /**

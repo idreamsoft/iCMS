@@ -1,4 +1,8 @@
 define(["admincp", "table"], function (admincp, Table) {
+    $("body").on("click", "#install", function() {
+        alert("Install button clicked");
+    });
+
     return function () {
         var $table = $table || $('#table');
         Table.init($table, {

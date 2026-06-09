@@ -136,6 +136,7 @@
     "shortcutMenuShows": {
         "ai": true
     },
+    "state": "SUCCESS",
     "_all": {
         "POST": [],
         "FILES": [],

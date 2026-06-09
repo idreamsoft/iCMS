@@ -23,6 +23,7 @@ self::head();
             <div class="block-content">
                 <form action="{{APP_DOURL}}" method="POST" i="cms:ui:form">
                     <input name="rs[id]" type="hidden" value="<?php echo $this->id; ?>" />
+                    <input name="role_id" type="hidden" value="<?php echo $rs['role_id']; ?>" />
                     <div id="user-add" class="tab-content">
                         <div id="user-info" class="tab-pane active">
                             <?php if (Admin::isSuperRole()) { ?>

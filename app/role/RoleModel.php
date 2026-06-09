@@ -19,6 +19,7 @@ class RoleModel extends Model
     protected $casts = [
         'config' => 'array',
         'access' => 'array',
+        'permissions' => 'array',
     ];
     
 }

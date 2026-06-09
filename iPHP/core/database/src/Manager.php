@@ -386,6 +386,31 @@ class Manager
     {
         $this->reconnector = $reconnector;
     }
+    
+    /**
+     * 创建独立的数据库连接（不影响全局配置）
+     *
+     * @param  array  $config 数据库配置
+     * @param  string  $name 连接名称（可选）
+     * @return Connection
+     */
+    public function createConnection(array $config, $name = null)
+    {
+        $name = $name ?: 'temp_' . md5(serialize($config) . microtime());
+        
+        // 解析配置
+        $ConfigurationUrlParser = new ConfigurationUrlParser;
+        $config = $ConfigurationUrlParser->parseConfiguration($config);
+        
+        // 创建连接
+        $connection = $this->factory->make($config, $name);
+        
+        // 配置连接
+        $connection->setReconnector($this->reconnector);
+        
+        // 不缓存到 $this->connections，保持独立
+        return $connection;
+    }
     /**
      * Dynamically pass methods to the default connection.
      *

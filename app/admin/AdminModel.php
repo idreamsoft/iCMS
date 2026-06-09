@@ -22,5 +22,6 @@ class AdminModel extends Model
         'info' => 'array',
         'config' => 'array',
         'access' => 'array',
+        'permissions' => 'array',
     ];
 }

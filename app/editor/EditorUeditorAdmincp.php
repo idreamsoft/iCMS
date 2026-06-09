@@ -47,12 +47,39 @@ class EditorUeditorAdmincp extends AdmincpBase
         if ($driverConfig) {
             $array['ai'] = [
                 'driver'      => 'OpenAi',
-                'driverConfig'=> $driverConfig
+                'driverConfig' => $driverConfig
             ];
         }
         iJson::display($array);
     }
+    public function getList($where = [])
+    {
+        $start = (int)Request::get('start', 0);
+        $size = (int)Request::get('size', 20);
+        $page = ceil(($start + $size) / $size);
+        $_GET['pageSize'] = $size;
+        $_GET['page'] = $page;
 
+        $result = self::tableData("FilesModel",[
+            'where' => $where,
+            'orderby' => 'id DESC'
+        ], function ($rows) {
+            $rows = array_map(function ($value) {
+                $value['url'] = FilesClient::getUrl($value['path']);
+                return $value;
+            }, $rows);
+            return $rows;
+        });
+        $result = [
+            "state" => "SUCCESS",           // 状态字符串，成功时为"SUCCESS"
+            "list" => $result['rows'],
+            "start" => (int)$_GET['start'],                  // 开始位置索引
+            "page" => $_GET['page'],                  // 开始位置索引
+            "result" => $result,                  // 开始位置索引
+            "total" => $result['total']                 // 总共的图像数量
+        ];
+        iJson::display($result);
+    }
     /**
      * 编辑器图片管理
      *
@@ -62,10 +89,9 @@ class EditorUeditorAdmincp extends AdmincpBase
      */
     public function do_imageManager()
     {
-        $result = FilesClient::folder();
-        $result['public'] = iCMS_PUBLIC_URL;
-        // return $result;
-        iJson::display($result);
+        $this->getList([
+            'ext' => FilesPic::$EXTS
+        ]);
     }
 
     /**
@@ -76,10 +102,7 @@ class EditorUeditorAdmincp extends AdmincpBase
      */
     public function do_fileManager()
     {
-        $result = FilesClient::folder();
-        $result['public'] = iCMS_PUBLIC_URL;
-        // return $result;
-        iJson::display($result);
+        $this->getList();
     }
 
     /**
@@ -225,7 +248,8 @@ class EditorUeditorAdmincp extends AdmincpBase
      *     "original": "demo.mp4"
      * }
      */
-    public function done_uploadvideo(){
+    public function done_uploadvideo()
+    {
         return $this->do_uploadvideo();
     }
     public function do_uploadvideo()
@@ -247,7 +271,8 @@ class EditorUeditorAdmincp extends AdmincpBase
             iPHP::alert($msg);
         }
     }
-    public function done_uploadaudio(){
+    public function done_uploadaudio()
+    {
         return $this->do_uploadaudio();
     }
     public function do_uploadaudio()

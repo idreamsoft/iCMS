@@ -125,6 +125,8 @@ class TagApp extends AppsBase
         if ($value) {
             $many = self::many(array($data[$id] => $value), $key);
             $many && $data += (array)$many[$data[$id]];
+        }else{
+            $data[$key.'_array'] = [];
         }
     }
 
@@ -197,7 +199,7 @@ class TagApp extends AppsBase
             $iidArray = $tMap[$tag[$field]];
             if (is_array($iidArray)) {
                 $a = array_fill_keys($iidArray, array($tid => $tag));
-                $array = array_merge_recursive($array, $a);
+                $array = array_replace_recursive($array, $a);
                 unset($a);
             }
         }

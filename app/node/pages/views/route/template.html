@@ -1,0 +1,7 @@
+<div class="row mt-2">
+    <div class="input-group input-group-sm">
+        <div class="input-group-text"><?=Lang('Template')?></div>
+        <input type="text" name="<?php echo $s['tpl_name']; ?>[<?php echo $key; ?>]" class="form-control" id="<?php echo $template_id; ?>" value="<?php echo isset($rs['template'][$key]) ? $rs['template'][$key] : $value['template']; ?>" />
+        <button class="btn btn-alt-primary" i="cms:ui:file:browse" data-dir="template" data-mode="file" data-flag="1"><i class="fa fa-fw fa-list"></i><?=Lang('Browse')?></button>
+    </div>
+</div>

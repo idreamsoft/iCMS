@@ -30,5 +30,8 @@ function iCMS_site($vars = [])
         return $site;
     }
     $key = $vars['key'] ?: 'site';
+    if(isset(Adapter::$device['enable_site']) && Adapter::$device['enable_site']){
+        $site = array_merge($site, Adapter::$device['site']);
+    }
     View::assign($key, $site);
 }

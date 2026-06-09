@@ -11,7 +11,7 @@
 /**
  * 开发者
  * 
- * @role 1
+ * @role superadmin
  */
 class DeveloperAdmincp extends AdmincpBase
 {
@@ -32,7 +32,7 @@ class DeveloperAdmincp extends AdmincpBase
     /**
      * 获取远程静态资源
      *
-     * @role 1
+     * @role superadmin
      * @return string
      */
     public function do_assets()
@@ -71,7 +71,7 @@ class DeveloperAdmincp extends AdmincpBase
 
     public function done_signup()
     {
-        return $this->post('signup');
+        return DeveloperApiProxy::request('signup');
     }
 
     public function do_comment()
@@ -83,25 +83,14 @@ class DeveloperAdmincp extends AdmincpBase
 
     public function done_accountLogin()
     {
-        return $this->post('accountLogin');
+        return DeveloperApiProxy::request('accountLogin');
     }
 
     public function done_phoneLogin()
     {
-        return $this->post('phoneLogin');
+        return DeveloperApiProxy::request('phoneLogin');
     }
 
-    public function post($method)
-    {
-        $json = DeveloperApiProxy::post($method, $_POST);
-        $array = json_decode($json, true);
-        if ($array['data']) {
-            Developer::setConfig($array['data']);
-        }
-        Session::uset('captchaToken');
-        echo $json;
-        return false;
-    }
 
     public function done_sendSMSCaptcha()
     {

@@ -15,7 +15,7 @@
     </div>
 </div>
 
-<hr/>
+<hr />
 
 <div id="template_desktop">
     <input type="hidden" name="config[template][desktop][name]" value="desktop" />
@@ -34,10 +34,10 @@
         <label class="col-sm-2 col-form-label text-sm-end" for="template_desktop_tpl">桌面端模板</label>
         <div class="col-sm-8">
             <div class="input-group">
-                <input type="text" name="config[template][desktop][tpl]" class="form-control" id="template_desktop_tpl" value="<?php echo $config['template']['desktop']['tpl']; ?>" >
+                <input type="text" name="config[template][desktop][tpl]" class="form-control" id="template_desktop_tpl" value="<?php echo $config['template']['desktop']['tpl']; ?>">
                 <button class="btn btn-alt-primary" i="cms:ui:file:browse" data-dir="template" data-mode="dir">
-                    <i class="fa fa-fw fa-list"></i> 
-                    {{#Lang('Choice')}} 
+                    <i class="fa fa-fw fa-list"></i>
+                    {{#Lang('Choice')}}
                 </button>
             </div>
             <small class="form-text text-muted">网站桌面端模板默认模板</small>
@@ -188,84 +188,131 @@
         </table>
     </div>
 
-    <div id="edit-box" style="width: 560px;" class="hide">
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_title">设备标题</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" name="i[title]" id="td_title" v-model="eitem.title" />
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_name">设备名</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" name="i[name]" id="td_name" v-model="eitem.name" />
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_lang">语言包</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" name="i[lang]" id="td_lang" v-model="eitem.lang" />
-                <small class="form-text text-muted">可不填写，示例：/template/blog/lang/en.json，只要填写 <span class="badge bg-info">en</span></small> 
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_agent">设备识别符</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" name="i[agent]" id="td_agent" v-model="eitem.agent" />
-                <small class="form-text text-muted">设备唯一识别符,识别设备的User agent,如果多个请用<span class="badge bg-info">,</span>分隔.域名是目录方式的请填写DIR</small> 
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_mobile">移动设备</label>
-            <div class="col-sm-8">
-                <input type="checkbox" :i="'cms:ui:switch'" data-on-text="是" data-off-text="否" name="i[mobile]" id="td_mobile" :value="eitem.mobile" v-model="eitem.mobile" />
-                <small class="form-text text-muted">是否移动端</small>
-            </div>
-        </div>   
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_domain">访问域名</label>
-            <div class="col-sm-8">
-                <input type="text" class="form-control" name="i[domain]" id="td_domain" v-model="eitem.domain" />
-                <small class="form-text text-muted"></small>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_tpl">设备模板</label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="i[tpl]" id="td_tpl" v-model="eitem.tpl" />
-                    <button class="btn btn-alt-primary" :i="'cms:ui:file:browse'" data-dir="template" data-mode="dir"><i class="fa fa-fw fa-list"></i>{{#Lang('Choice')}}</button>
+    <div id="edit-box" style="width: 600px;" class="hide">
+        <form>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_title">设备标题</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="i[title]" id="td_title" v-model="item.title" />
                 </div>
-                <small class="form-text text-muted">识别到的设备会使用这个模板设置</small>
             </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_index">首页模板</label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="i[index]" id="td_index" v-model="eitem.index" />
-                    <button class="btn btn-alt-primary" :i="'cms:ui:file:browse'" data-dir="template" data-mode="file"><i class="fa fa-fw fa-list"></i>{{#Lang('Choice')}}</button>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_name">设备名</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="i[name]" id="td_name" v-model="item.name" />
                 </div>
-                <small class="form-text text-muted">设备的首页模板</small>
             </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_dir">静态目录</label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="i[dir]" id="td_dir" v-model="eitem.dir" />
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_lang">语言包</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="i[lang]" id="td_lang" v-model="item.lang" />
+                    <small class="form-text text-muted">可不填写，示例：/template/blog/lang/en.json，只要填写 <span class="badge bg-info">en</span></small>
                 </div>
-                <small class="form-text text-muted">设备的静态目录，生成静态使用</small>
             </div>
-        </div>
-        <div class="form-group row">
-            <label class="col-sm-2 col-form-label text-sm-end" for="td_file">首页文件</label>
-            <div class="col-sm-8">
-                <div class="input-group">
-                    <input type="text" class="form-control" name="i[file]" id="td_file" v-model="eitem.file" />
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_agent">设备识别符</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="i[agent]" id="td_agent" v-model="item.agent" />
+                    <small class="form-text text-muted">设备唯一识别符,识别设备的User agent,如果多个请用<span class="badge bg-info">,</span>分隔.域名是目录方式的请填写DIR</small>
                 </div>
-                <small class="form-text text-muted">设备的首页文件名，生成静态使用</small>
             </div>
-        </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_mobile">移动设备</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" :i="'cms:ui:switch'" data-on-text="是" data-off-text="否" name="i[mobile]" id="td_mobile" :value="item.mobile" v-model="item.mobile" />
+                    <small class="form-text text-muted">是否移动端</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_domain">访问域名</label>
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" name="i[domain]" id="td_domain" v-model="item.domain" />
+                    <small class="form-text text-muted"></small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_tpl">设备模板</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="i[tpl]" id="td_tpl" v-model="item.tpl" />
+                        <button class="btn btn-alt-primary" :i="'cms:ui:file:browse'" data-dir="template" data-mode="dir"><i class="fa fa-fw fa-list"></i>{{#Lang('Choice')}}</button>
+                    </div>
+                    <small class="form-text text-muted">识别到的设备会使用这个模板设置</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_index">首页模板</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="i[index]" id="td_index" v-model="item.index" />
+                        <button class="btn btn-alt-primary" :i="'cms:ui:file:browse'" data-dir="template" data-mode="file"><i class="fa fa-fw fa-list"></i>{{#Lang('Choice')}}</button>
+                    </div>
+                    <small class="form-text text-muted">设备的首页模板</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_dir">静态目录</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="i[dir]" id="td_dir" v-model="item.dir" />
+                    </div>
+                    <small class="form-text text-muted">设备的静态目录，生成静态使用</small>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="td_file">首页文件</label>
+                <div class="col-sm-8">
+                    <div class="input-group">
+                        <input type="text" class="form-control" name="i[file]" id="td_file" v-model="item.file" />
+                    </div>
+                    <small class="form-text text-muted">设备的首页文件名，生成静态使用</small>
+                </div>
+            </div>
+
+            <hr />
+            <div class="form-group row">
+                <label class="col-sm-2 col-form-label text-sm-end" for="enable_site">站点信息</label>
+                <div class="col-sm-8">
+                    <input type="checkbox" 
+                           name="i[enable_site]" 
+                           v-model="item.enable_site" value="1"/>
+                    <small class="form-text text-muted">是否为此设备单独设置站点信息</small>
+                </div>
+            </div>
+            
+            <!-- 站点设置区域，仅当启用开关时显示 -->
+            <div v-show="item.enable_site">
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="name">网站名称</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="i[site][name]" class="form-control" id="s-name" v-model="item.site.name" />
+                        <small class="form-text text-muted">网站名称</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="seotitle">网站标题</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="i[site][seotitle]" class="form-control" id="s-seotitle" v-model="item.site.seotitle" />
+                        <small class="form-text text-muted">网站标题通常是搜索引擎关注的重点，本设置将出现在标题中网站名称的后面，如果有多个关键字，建议用
+                            "|"、","(不含引号)
+                            等符号分隔</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="keywords">关 键 字</label>
+                    <div class="col-sm-8">
+                        <textarea name="i[site][keywords]" id="s-keywords" class="form-control" style="height: 90px;" v-model="item.site.keywords"></textarea>
+                        <small class="form-text text-muted">网站关键字 用","号隔开</small>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label class="col-sm-2 col-form-label text-sm-end" for="description">网站描述</label>
+                    <div class="col-sm-8">
+                        <textarea name="i[site][description]" id="s-description" class="form-control" style="height: 90px;" v-model="item.site.description"></textarea>
+                        <small class="form-text text-muted">将被搜索引擎用来说明您网站的主要内容</small>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 </div>

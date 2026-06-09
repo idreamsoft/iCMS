@@ -237,18 +237,60 @@ class File
         if (empty($rules)) {
             return false;
         }
+        // 统一路径分隔符并移除开头的斜杠
+        $filePath = str_replace('\\', '/', $filePath);
+        $filePath = ltrim($filePath, '/');
+        
         foreach ($rules as $rule) {
             $rule = trim($rule);
             if (empty($rule) || strpos($rule, '#') === 0) {
                 continue;
             }
-            $pattern = str_replace(
-                ['.', '*', '.*.*', '/'],
-                ['\.', '.*', '.*', '\/'],
-                $rule
-            );
-            // var_dump("{$pattern}$/",$filePath);
-            if (preg_match("/{$pattern}/", $filePath)) {
+            
+            // 处理否定规则（以!开头）
+            $negate = false;
+            if (strpos($rule, '!') === 0) {
+                $negate = true;
+                $rule = substr($rule, 1);
+            }
+            
+            // 移除规则开头的斜杠
+            $rule = ltrim($rule, '/');
+            
+            // 检查是否是目录规则（以/结尾）
+            $isDirRule = substr($rule, -1) === '/';
+            if ($isDirRule) {
+                $rule = rtrim($rule, '/');
+            }
+            
+            // 检查规则是否包含路径分隔符（如 admin-ui/node_modules）
+            $hasSlash = strpos($rule, '/') !== false;
+            
+            // 转换 gitignore 模式为正则表达式
+            $pattern = preg_quote($rule, '/');
+            // 处理 ** 通配符（匹配任意路径）
+            $pattern = str_replace('\\*\\*', '.*', $pattern);
+            // 处理 * 通配符（匹配除/外的任意字符）
+            $pattern = str_replace('\\*', '[^\/]*', $pattern);
+            // 处理 ? 通配符（匹配单个字符）
+            $pattern = str_replace('\\?', '[^\/]', $pattern);
+            
+            // 构建完整的正则表达式
+            if ($hasSlash) {
+                // 包含路径的规则：从开头匹配，同时匹配目录本身和其下内容
+                $regex = '/^' . $pattern . '(\/.*)?$/';
+            } elseif ($isDirRule) {
+                // 目录规则：匹配该目录及其下所有内容
+                $regex = '/(?:^|\/)'  . $pattern . '(\/.*)?$/';
+            } else {
+                // 文件规则：匹配路径中包含该模式或以该模式结尾
+                $regex = '/(?:^|\/)' . $pattern . '$/';
+            }
+            
+            if (preg_match($regex, $filePath)) {
+                if ($negate) {
+                    return false;
+                }
                 return true;
             }
         }
@@ -336,8 +378,9 @@ class File
     //文件名
     public static function name($fn)
     {
+        return pathinfo($fn, PATHINFO_FILENAME);
+        
         $_fn = substr(strrchr($fn, '/'), 1);
-
         return substr($_fn, 0, strrpos($_fn, '.'));
     }
 

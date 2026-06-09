@@ -170,10 +170,26 @@ class AdmincpAdmincp extends AdmincpBase
     }
 
     /**
-     * phpinfo
-     *
-     * @role 1 只允许超级管理员访问
+     * 基于注解的自动权限方案
+     * @auth true
+     * @login true
+     * @role superadmin
+     * @permission admincp:test,test:phpinfo
+     * @run true
      * @return void
+     */
+    public function do_test()
+    {
+        // * @auth true|false 是否需要鉴权
+        // * @login true|false 是否需要登录
+        // * @role superadmin 验证角色权限
+        // * @permission admincp:test,test:phpinfo 
+        // * @run true|false 是否需要运行
+        var_dump(APP_DOURL);
+    }
+    /**
+     * phpinfo
+     * @role superadmin
      */
     public function do_phpinfo()
     {

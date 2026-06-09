@@ -189,7 +189,7 @@ abstract class AdmincpBase extends AdmincpView
         // var_dump($patterns);
         // var_dump($many0, $many1, $many2);
         // var_dump(iDebug::$DATA['Etc::many']);
-        $actions = array_merge($many0, $many1, $many2);
+        $actions = array_replace_recursive($many0, $many1, $many2);
         sortKey($actions);
         return $actions;
     }
@@ -253,7 +253,8 @@ abstract class AdmincpBase extends AdmincpView
         if (!isset($default[$order])) {
             list($order, $by) = [$keys[0], 'DESC'];
         }
-        return sprintf('`%s` %s', $order, $by);
+        // return sprintf('`%s` %s', $order, $by);
+        return [$order=>$by];
     }
 
     /**
@@ -288,8 +289,8 @@ abstract class AdmincpBase extends AdmincpView
         $query['with'] && $obj = $obj->where($query['with']);
         $query['groupby'] && $obj = $obj->groupBy($query['groupby']);
 
-        if ($orderBySql = self::getTableOrderBy()) {
-            $obj = $obj->orderBy($orderBySql);
+        if ($orderByArr = self::getTableOrderBy()) {
+            $obj = $obj->orderBy($orderByArr);
         }
         $query['orderby'] && $obj = $obj->orderBy($query['orderby']);
         $query['pagesize'] && $pageSize = $query['pagesize'];

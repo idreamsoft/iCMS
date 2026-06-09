@@ -112,10 +112,12 @@ class NodeItem
     public static function navArr($C, &$navArray = [])
     {
         if ($C) {
-            $navArray[] = [
-                'name' => $C['name'],
-                'url'  => $C['iurl']['href'],
-            ];
+            if($C['status']===1){
+                $navArray[] = [
+                    'name' => $C['name'],
+                    'url'  => $C['iurl']['href'],
+                ];                
+            }
             if ($C['rootid']) {
                 $rc = NodeCache::getId($C['rootid']);
                 self::navArr($rc, $navArray);

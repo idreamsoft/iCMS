@@ -125,6 +125,7 @@ class Admincp
 
     public static function run($app = null, $do = null, $params = null, $prefix = null)
     {
+
         try {
             DB::version();
             Session::init('admincp');
@@ -134,13 +135,12 @@ class Admincp
             AdmincpHooks::onInit(); //相关应用初始化配置
             self::$APP_INSTANCE = iPHP::getInstance($className, $rc);
             AdmincpHooks::onAppInit();
-
             $params === null && $params = self::$APP_PARAMS;
             if ($params === 'object') {
                 return self::$APP_INSTANCE;
             }
             $method = self::$APP_METHOD;
-            if (!$rc->hasMethod($method)) {
+            if ($rc && !$rc->hasMethod($method)) {
                 // if (strpos($method, iPHP_GET_PREFIX) === 0) {
                 //     var_dump($method,iPHP_GET_PREFIX);
                 //     Admincp::$APP_METHOD = $method = iPHP_GET_PREFIX.'general';
@@ -307,8 +307,7 @@ class Admincp
 
         // $navData = Menu::getNav();
         // $title = $navData[1]['name'];
-
-        Application::response($response, $title);
+        return Application::response($response, $title);
     }
 
     public static function startup($prefix = null)

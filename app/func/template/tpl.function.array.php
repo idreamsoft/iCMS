@@ -49,7 +49,7 @@ function tpl_function_array($params, &$tpl)
         }
         if ($array) {
             if($recursive){
-                $array = array_merge_recursive($array, $params);
+                $array = array_replace_recursive($array, $params);
             }else{
                 array_push($array, $params);
             }

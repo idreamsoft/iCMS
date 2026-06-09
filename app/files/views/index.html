@@ -11,6 +11,10 @@
 defined('iPHP') or exit('What are you doing?');
 self::head();
 ?>
+<style>
+.card-views {justify-content: space-between;}
+.card-view-field-path{flex:1}
+</style>
     <div class="content" id="{{APP_MAINID}}" i="cms:files:index">
         <?php if ($widget['search']) { ?>
         <div class="block">

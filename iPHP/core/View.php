@@ -592,7 +592,7 @@ class View
             if (strpos($ak, '[') !== false && substr($ak, -1) == ']') {
                 unset($params[$ak]);
                 $pa = make_multi_array($ak, $av, '[');
-                $array = array_merge_recursive_unique((array) $array, (array) $pa);
+                $array = array_replace_recursive((array) $array, (array) $pa);
             }
         }
         // $params = array_merge((array) $params, (array) $array);

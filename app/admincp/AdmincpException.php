@@ -12,6 +12,10 @@
 class AdmincpException extends sException
 {
     public static $ex;
+    public const PDO_ERROR_CODE = -999;
+    public const ERROR_CODE = -99;
+    public const ALERT_CODE = -9;
+    public const ACCESS_CODE = -3;
 
     public function __construct($message, $code = 0, $previous = null)
     {
@@ -47,7 +51,7 @@ class AdmincpException extends sException
             case 'template':
                 $title = Lang::get('admincp:template_error');
                 $message .= '<hr />' . Security::filterPath(implode('<br />', AdmincpView::$TEMPLATE));
-                $code = -9;
+                $code = self::ALERT_CODE;
                 break;
             case 'uri': //无uri权限
                 $access = Cache::get('app/access');
@@ -57,7 +61,7 @@ class AdmincpException extends sException
                 // }
                 $title = Lang::get('no access');
                 $message = Lang::get('admincp:no_permission', [$text, $message]);
-                $code = -3;
+                $code = self::ACCESS_CODE;
                 break;
             case 'node': //无node权限
                 list($cid, $type) = explode(':', $message);
@@ -67,14 +71,14 @@ class AdmincpException extends sException
                 $cText = "node id={$cid}";
                 $cid == '0' && $cText = Lang::get('top node');
                 $message = Lang::get('admincp:no_permission', [$cText . $typeText]);
-                $code = -3;
+                $code = self::ACCESS_CODE;
                 break;
             case 'illegal': //安全检测
                 $title = Lang::get('illegal access!');
                 $error = sprintf('<hr/><div class="text-start">%s：%s</div>', Lang::get('referer'), $_SERVER['REQUEST_URI']);
                 break;
             case 'PDOException':
-                $code = -999;
+                $code = self::PDO_ERROR_CODE;
                 list($pdocode, $message, $driver) = DB::getError($ex);
                 $title = Lang::get($driver . ' ERROR!');
                 $error = sprintf('<hr/><div class="text-start">%s</div>', str_replace("\n", '<br />', $trace));
@@ -88,13 +92,16 @@ class AdmincpException extends sException
             case 'error': //admincp::error
             default:
                 $title = Lang::get('Error!');
-                $code = -99;
+                $code = self::ERROR_CODE;
                 $code < 0 && $message .= sprintf(' 【STATE:%s】【CODE:%s】', $state, $code);
                 $error = sprintf('<hr/><div class="text-start">%s</div>', str_replace("\n", '<br />', $trace));
                 break;
         }
         //后台没有登陆 不报错
         if ($code < 0 && $code != Admin::LOGIN_CODE && !Admin::isLogin()) {
+            if ($code == self::ERROR_CODE) {
+                iJson::fail($message, 'reload');
+            }
             if ($isAjax || $isPost) {
                 iJson::fail('auth:login:required', 'reload');
             }

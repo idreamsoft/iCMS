@@ -10,16 +10,14 @@
                 "href": "/article/config",
                 "icon": "cog",
                 "sort": 103,
-                "access": "/article/config",
-                "id": "menu_1755162939667_n4a6as9qv"
+                "access": "/article/config"
             },
             {
                 "caption": "添加文章",
                 "href": "/article/add",
                 "icon": "edit",
                 "sort": 104,
-                "access": "/article/add",
-                "id": "menu_1755162939667_0168862wt"
+                "access": "/article/add"
             },
             {
                 "caption": "栏目管理",
@@ -27,15 +25,13 @@
                 "icon": "sitemap",
                 "sort": 105,
                 "access": "/articleCategory/tree",
-                "id": "menu_1755162939667_vpt33ji34",
                 "children": [
                     {
                         "caption": "添加栏目",
                         "href": "/articleCategory/add",
                         "icon": "edit",
                         "sort": 106,
-                        "access": "/articleCategory/add",
-                        "id": "menu_1755162939667_lvu69q3e0"
+                        "access": "/articleCategory/add"
                     },
                     {
                         "caption": "更新缓存",
@@ -43,8 +39,7 @@
                         "icon": "sync",
                         "ui": "cms:ui:ajax",
                         "sort": 104,
-                        "access": "/articleCategory/cache",
-                        "id": "menu_1755162939667_5qf68w5yi"
+                        "access": "/articleCategory/cache"
                     }
                 ],
                 "expanded": true
@@ -53,7 +48,6 @@
                 "caption": "-",
                 "sort": 107,
                 "access": "article-0-107",
-                "id": "menu_1755162939667_2tucjwf8g",
                 "children": [],
                 "expanded": true
             },
@@ -63,23 +57,28 @@
                 "icon": "list",
                 "sort": 109,
                 "access": "/article/index",
-                "id": "menu_1755162939667_hiy65osiv",
                 "children": [
+                    {
+                        "caption": "全部文章",
+                        "href": "/article/index",
+                        "icon": "inbox",
+                        "sort": 110,
+                        "access": "/article/index",
+                        "id": "article_index"
+                    },
                     {
                         "caption": "草稿箱",
                         "href": "/article/index/inbox",
                         "icon": "inbox",
                         "sort": 110,
-                        "access": "/article/index/inbox",
-                        "id": "menu_1755162939667_k0y7f8e0n"
+                        "access": "/article/index/inbox"
                     },
                     {
                         "caption": "回收站",
                         "href": "/article/index/trash",
                         "icon": "trash-alt",
                         "sort": 111,
-                        "access": "/article/index/trash",
-                        "id": "menu_1755162939667_y1lwwoe98"
+                        "access": "/article/index/trash"
                     }
                 ],
                 "expanded": true
@@ -87,16 +86,14 @@
             {
                 "caption": "-",
                 "sort": 114,
-                "access": "article-2-114",
-                "id": "menu_1755162939667_ofc8vun67"
+                "access": "article-2-114"
             },
             {
                 "caption": "文章评论",
                 "href": "/article/comment",
                 "icon": "comments",
                 "sort": 115,
-                "access": "/article/comment",
-                "id": "menu_1755162939667_v41niey5b"
+                "access": "/article/comment"
             },
             {
                 "id": "/article/user",
@@ -110,24 +107,21 @@
                         "href": "/article/user/examine",
                         "icon": "minus-circle",
                         "sort": 115,
-                        "access": "/article/user/examine",
-                        "id": "menu_1755162939667_wb6l349gx"
+                        "access": "/article/user/examine"
                     },
                     {
                         "caption": "未通过",
                         "href": "/article/user/off",
                         "icon": "times-circle",
                         "sort": 116,
-                        "access": "/article/user/off",
-                        "id": "menu_1755162939668_nhj77ps8e"
+                        "access": "/article/user/off"
                     },
                     {
                         "caption": "回收站",
                         "href": "/article/user/trash",
                         "icon": "times-circle",
                         "sort": 117,
-                        "access": "/article/user/trash",
-                        "id": "menu_1755162939668_4m0aj9voh"
+                        "access": "/article/user/trash"
                     }
                 ],
                 "access": "/article/user",

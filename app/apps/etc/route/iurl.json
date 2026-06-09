@@ -46,6 +46,11 @@
         "regular":"(.+)",
         "query":"HASHID"
     },
+    "PAGES": {
+        "call": "Route::defaults",
+        "regular":"(.+)",
+        "query":"dir"
+    },
     "CDIR": {
         "call": "Route::defaults",
         "regular":"(.+)",

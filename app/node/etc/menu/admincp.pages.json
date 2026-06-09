@@ -1,0 +1,24 @@
+[{
+    "id": "nodePages",
+    "sort": "2",
+    "caption": "单页",
+    "icon": "sitemap",
+    "children": [{
+            "caption": "更新缓存",
+            "href": "/nodePages/cache",
+            "icon": "sync",
+            "ui": "cms:ui:ajax"
+        },
+        {
+            "caption": "页面管理",
+            "href": "/nodePages/tree",
+            "icon": "sitemap"
+        },
+        {
+            "caption": "添加页面",
+            "href": "/nodePages/add",
+            "icon": "edit"
+        }
+    ]
+
+}]

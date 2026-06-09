@@ -15,7 +15,7 @@ class AdminAdmincp extends AdmincpCommon
 
     public static $orderBy = [
         'id'         => 'ID',
-        'regtime'    => '注册时间',
+        'created'    => '创建时间',
         'logintimes' => '登录次数',
         'post'       => '发表数'
     ];
@@ -71,7 +71,33 @@ class AdminAdmincp extends AdmincpCommon
             $account = Request::post('iAccount');
             $password = Request::post('iPassWord');
             list($token, $expire) = Admin::login($account, $password);
-            return ['token' => $token, 'expire' => $expire, 'info' => Admin::data()];
+            $csrf_token = Security::csrf_token(Admin::$id);
+            return ['token' => $token, 'expire' => $expire, 'info' => Admin::data(), 'CSRF_TOKEN' => $csrf_token];
+        } catch (\Exception $ex) {
+            $msg = $ex->getMessage();
+            iJson::fail($msg);
+        }
+    }
+
+    /**
+     * API密钥登录
+     *
+     * @login no
+     * @return void
+     */
+    public function done_api_login()
+    {
+        try {
+            Security::csrf_check();
+            $apiKey = Request::post('api_key') ?: Request::header('X-API-KEY');
+            
+            if (empty($apiKey)) {
+                throw new \Exception('API密钥不能为空');
+            }
+
+            list($token, $expire) = Admin::loginByApiKey($apiKey);
+            $csrf_token = Security::csrf_token(Admin::$id);
+            return ['token' => $token, 'expire' => $expire, 'info' => Admin::data(), 'CSRF_TOKEN' => $csrf_token];
         } catch (\Exception $ex) {
             $msg = $ex->getMessage();
             iJson::fail($msg);
@@ -165,7 +191,7 @@ class AdminAdmincp extends AdmincpCommon
         AdminModel::field('id')->where($where)->value() && self::alert('该账号已存在');
 
         if (empty($id)) {
-            $data['regtime'] = time();
+            $data['created'] = time();
             $data['lastloginip'] = Request::ip();
             $data['lastlogintime'] = time();
             $data['status'] = '1';

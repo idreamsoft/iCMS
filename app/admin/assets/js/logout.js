@@ -1,8 +1,8 @@
 define(function () {
-    function clearAdminData() {
-        localStorage.removeItem('admin_token')
-        localStorage.removeItem('admin_expire')
-        localStorage.removeItem('admin_info')
+    function clearAdmincpData() {
+        localStorage.removeItem('admincp_token')
+        localStorage.removeItem('admincp_expire')
+        localStorage.removeItem('admincp_info')
     }
 
     return function ({ $el, el }) {
@@ -11,7 +11,7 @@ define(function () {
             var url = $el.attr("href");
             iCMS.api.post("admin/logout", function (json) {
                 iCMS.notify.success("auth:logout");
-                clearAdminData();
+                clearAdmincpData();
                 setTimeout(function () {
                     window.location.href = json.url;
                 }, 1000);

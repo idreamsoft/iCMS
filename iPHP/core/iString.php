@@ -37,7 +37,7 @@ class iString
     public static function ltrim($str, $mask)
     {
         $len = strlen($mask);
-        if ($str && strpos($str, $mask) === 0) {
+        if ($str && $mask && strpos($str, $mask) === 0) {
             $str = substr($str, $len);
         }
         return $str;
@@ -47,7 +47,7 @@ class iString
     {
         $len = strlen($mask);
         $offset = strlen($str) - $len;
-        if (strrpos($str, $mask, $offset) !== false) {
+        if ($str && $mask && strrpos($str, $mask, $offset) !== false) {
             $str = substr($str, 0, 0 - $len);
         }
         return $str;
